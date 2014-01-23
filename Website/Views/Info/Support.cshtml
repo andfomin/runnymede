@@ -1,0 +1,50 @@
+﻿@{
+    ViewBag.Title = "Support";
+    var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);   
+}
+<div class="row">
+    <div class="col-sm-offset-4 col-sm-4">
+        <a class="btn btn-lg btn-block btn-primary" href="javascript: showClassicWidget('support');">Contact support &raquo;</a>
+    </div>
+</div>
+<br />
+<br />
+<div class="row">
+    <div class="col-sm-offset-4 col-sm-4">
+        <a class="btn btn-lg btn-block btn-primary" href="javascript: showClassicWidget('feedback');">Give feedback &raquo;</a>
+        <br />
+        <p style="text-align: center;">
+            <a href="https://englc.uservoice.com/">Vote for customer ideas</a>
+        </p>
+    </div>
+</div>
+@section BottomScripts {
+    <script>
+        (function () {
+            var uv = document.createElement('script');
+            uv.type = 'text/javascript';
+            uv.async = true;
+            uv.src = '//widget.uservoice.com/6EUSiQMxKvGDuMw63H4NA.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(uv, s);
+        })()
+
+        UserVoice = window.UserVoice || [];
+
+        function showClassicWidget(mode) {
+            UserVoice.push(['identify', {
+                email: '@pageViewModel.UserName',
+                name: '@pageViewModel.DisplayName',
+                id: '@pageViewModel.UserId',
+                type: '@(pageViewModel.IsTutor ? "Tutor" : "Learner")',
+            }]);
+            UserVoice.push(['showLightbox', 'classic_widget', {
+                mode: mode,
+                primary_color: '#ffc82d',
+                link_color: '#ac1f28',
+                default_mode: mode,
+                forum_id: 237231
+            }]);
+        }
+    </script>
+}

@@ -1,0 +1,49 @@
+﻿@{
+    ViewBag.Title = "Reviews";
+    ViewBag.NavItem = "ReviewsIndex";
+}
+<span data-bind="if: reviews().length === 0">You haven't done any reviews yet. Please go to the @Html.ActionLink("Requests", "Requests", "Reviews") page to pick up an exercise for reviewing.</span>
+
+<table class="table" data-bind="if: reviews().length > 0">
+    <thead>
+        <tr>
+            <th>Started</th>
+            <th>Finished</th>
+            <th>Reward</th>
+            <th>Exercise author</th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: reviews">
+        <tr>
+            <td>
+                <a data-bind="text: startTime, attr: { href: editUrl() }"></a>
+            </td>
+            <td>
+                <span data-bind="text: finishTime"></span>
+            </td>
+            <td>
+                <span data-bind="text: formattedReward"></span>
+            </td>
+            <td>
+                <span data-bind="text: authorName"></span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+@Html.Partial("_PagerPartial", "reviews")
+
+@using (Html.BeginInstructionsContainer())
+{
+    <li>&nbsp;</li>
+}
+
+@section BottomScripts {
+    @Scripts.Render(
+//"~/bundles/jqueryui",
+"~/bundles/knockout",
+"~/bundles/jsextlibs",
+"~/bundles/ext-libs",
+"~/bundles/app",
+"~/App/Reviews/index-vm.js"
+)}

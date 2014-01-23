@@ -1,0 +1,31 @@
+﻿<div class="row">
+    <div class="col-md-3">
+        <a href="#">View your favorite tutor list</a>
+    </div>
+    <div class="col-md-6">
+        <table class="table table-condensed table-hover">
+            <caption style ="text-align:center;"><strong>Add a tutor</strong></caption>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Rate, $/min</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody data-ng-repeat="t in vm.tutors">
+                <tr>
+                    <td>
+                        {{t.displayName}}
+                    </td>
+                    <td>
+                        {{t.rateARec | number:2}}
+                    </td>
+                    <td>
+                        <button class="btn btn-default btn-xs" data-ng-click="vm.addTutor(t)" title="Add"><i class="fa fa-plus" /> Add</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

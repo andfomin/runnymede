@@ -1,0 +1,24 @@
+﻿@model System.String
+<div id="pager" class="pagination" data-bind="if: @(Model)().length != 0">
+    <span class="btn-group">
+        <span data-bind="if: @(Model).pager.page() &gt; 1">
+            <button class="btn btn-default btn-xs" data-bind="click: @(Model).pager.first">&lsaquo;&lsaquo;</button>
+        </span>
+        <span data-bind="if: @(Model).pager.page() &gt; 2">
+            <button class="btn btn-default btn-xs" data-bind="click: @(Model).pager.previous">&lsaquo;</button>
+        </span>
+    </span>
+    <span>
+        Page
+        <span data-bind="text: @(Model).pager.page"></span>&nbsp;of
+        <span data-bind="text: @(Model).pager.totalPages"></span>
+    </span>
+    <span class="btn-group">
+        <span data-bind="if: @(Model).pager.page() &lt; @(Model).pager.totalPages() - 1">
+            <button class="btn btn-default btn-xs" data-bind="click: @(Model).pager.next">&rsaquo;</button>
+        </span>
+        <span data-bind="if: @(Model).pager.page() &lt; @(Model).pager.totalPages()">
+            <button class="btn btn-default btn-xs" data-bind="click: @(Model).pager.last">&rsaquo;&rsaquo;</button>
+        </span>
+    </span>
+</div>

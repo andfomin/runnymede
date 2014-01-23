@@ -1,0 +1,21 @@
+﻿@model IEnumerable<string>
+@{
+    ViewBag.Title = "Tag Search";
+}
+
+<table>
+    <tr>
+        <th>Links
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <a href="@Html.Raw(item)">@Html.Raw(item)</a>
+            </td>
+        </tr>
+    }
+
+</table>

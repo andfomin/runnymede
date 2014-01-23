@@ -1,0 +1,90 @@
+﻿@{
+    ViewBag.Title = "Statistics";
+    ViewBag.NavItem = "StatisticsIndex";
+}
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-horizontal">
+            <strong>Period one</strong><br/>
+            <div class="control-group">
+                <label class="control-label" for="beforeFrom">From</label>
+                <div class="controls">
+                    <select id="beforeFrom" class="input-large" data-bind="options: firstFromArr, optionsText: 'title', value: firstFrom, optionsCaption: (firstFromArr().length > 0 ? 'Choose...' : 'No reviewed exercises')"></select>
+                </div>
+                <label class="control-label" for="beforeTo">To</label>
+                <div class="controls">
+                    <select id="beforeTo" class="input-large" data-bind="options: firstToArr, optionsText: 'title', value: firstTo, optionsCaption: 'Choose...'"></select>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-offset-1 col-sm-4">
+                <button class="btn btn-block" data-bind="command: displayFirstCmd">Display</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-horizontal">
+            <strong>Period two</strong><br />
+            <div class="control-group">
+                <label class="control-label" for="afterFrom">From</label>
+                <div class="controls">
+                    <select id="afterFrom" class="input-large" data-bind="options: secondFromArr, optionsText: 'title', value: secondFrom, optionsCaption: (secondFromArr().length > 0 ? 'Choose...' : 'No reviewed exercises')"></select>
+                </div>
+                <label class="control-label" for="afterTo">To</label>
+                <div class="controls">
+                    <select id="afterTo" class="input-large" data-bind="options: secondToArr, optionsText: 'title', value: secondTo, optionsCaption: 'Choose...'"></select>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-offset-1 col-sm-4">
+                <button class="btn btn-block" data-bind="command: displaySecondCmd">Display</button>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-6">
+        <ul data-bind="foreach: firstStats">
+            <li>
+                <a data-bind="text: tags, attr: { href: tagsUrl() }" target="_blank"></a>
+            </li>
+        </ul>
+    </div>
+    <div class="col-sm-6">
+        <ul data-bind="foreach: secondStats">
+            <li>
+                <a data-bind="text: tags, attr: { href: tagsUrl() }" target="_blank"></a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+@using (Html.BeginInstructionsContainer())
+{
+    <li>Choose exercise times in the <em>From</em> and <em>To</em> drop-down lists.</li>
+    <li> When the <em>Display</em> button becomes enabled, press it. You will be present with a list of most frequent types of mistakes for that time period.</li>
+    <li>The most frequent mistake type is at the top of the list, items in the list are sorted in descending order.</li>
+    <li>You can display statistics for both periods independently.</li>
+}
+@section BottomScripts {
+    @* Pass params from the controller to the ViewModel without an AJAX call.
+        Wrapped into an array to workaround Visual Studio's code analyser warning on syntax error. *@
+    <script type="text/javascript">
+        var App = App || {};
+        App.exercisesParam = [@Html.Raw(ViewBag.ExercisesParamJson)][0];
+    </script>
+
+    @Scripts.Render(
+"~/bundles/knockout",
+"~/bundles/jsextlibs",
+"~/bundles/ext-libs",
+"~/bundles/app",
+"~/App/Statistics/index-vm.js"
+    )
+}

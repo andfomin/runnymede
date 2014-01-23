@@ -1,0 +1,92 @@
+﻿@{
+    ViewBag.Title = "Review requests";
+    ViewBag.NavItem = "ReviewsRequests";
+}
+<div data-ng-app="app" data-ng-controller="Ctrl">
+    <div class="row">
+        <div class="col-sm-offset-3 col-sm-6">
+            @if (ViewBag.ReviewId > 0)
+            {
+                <div class="alert alert-warning">
+                    <p class="text-center">
+                        You have an unfinished @Html.ActionLink("review", "Edit", "Reviews", new { id = ViewBag.ReviewId }, null).
+                    </p>
+                </div>
+            }
+            <div class="alert alert-info" ng-hide="vm.requests.length > 0">
+                <p class="text-center">
+                    There are currently no review requests.
+                </p>
+            </div>
+
+            <table class="table table-condensed" ng-hide="vm.requests.length === 0">
+                <thead>
+                    <tr>
+                        <th>Author</th>
+                        <th style="text-align: right;">Length</th>
+                        <th style="text-align: right;">Reward</th>
+                        <th style="text-align: right;">Rate, $/min</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody data-ng-repeat="r in vm.requests">
+                    <tr>
+                        <td>
+                            {{r.authorName}}
+                        </td>
+                        <td style="text-align: right;">
+                            {{vm.formatMsec(r.length)}}
+                        </td>
+                        @if (ViewBag.ReviewId == 0)
+                        {
+                            <td style="text-align: right;">
+                                {{r.reward | currency:"$"}}
+                            </td>
+                            <td style="text-align: right;">
+                                {{vm.calcRate(r.length, r.reward)}}
+                            </td>
+                            <td>
+                                <button class="btn btn-default btn-xs" data-ng-click="vm.showStartDialog(r)">Start</button>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        }
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="startDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="startLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="startLabel">Start review</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Do you want to start a review with reward <strong>{{vm.dialogRequest.reward | currency:"$"}}</strong> offered by <strong>{{vm.dialogRequest.authorName}}</strong>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-ng-click="vm.start()">OK</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+</div>
+
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/app-utils",
+"~/bundles/ext-libs",
+"~/App/Reviews/requests-ctrl.js"
+)}

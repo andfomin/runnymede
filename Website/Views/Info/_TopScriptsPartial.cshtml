@@ -1,0 +1,30 @@
+﻿@* Model: width when there is enough space *@
+@model int
+<style>
+    /* +http://getbootstrap.com/docs-assets/css/docs.css  */
+    /* Line #456. By default it's not affixed in mobile views. */
+    #sidebar.affix {
+        position: static;
+    }
+    /* Line #505. Show and affix the side nav when space allows it */
+    @@media (min-width: 768px) {
+        #sidebar {
+            width: 240px;
+        }
+
+            #sidebar.affix {
+                position: fixed;
+                top: 10px;
+            }
+
+            #sidebar.affix-bottom {
+                position: absolute;
+            }
+    }
+
+    @@media (min-width: 992px) {
+        #sidebar {
+            width: @(Model)px;
+        }
+    }
+</style>

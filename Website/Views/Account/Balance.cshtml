@@ -1,0 +1,61 @@
+﻿@{
+    ViewBag.Title = "Balance";
+    ViewBag.NavItem = "Account";
+    var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
+}
+@if (!pageViewModel.IsTutor)
+{
+    <div class="span4">
+        <a href="@Url.Action("addmoney")" class="btn btn-primary">Add money to account &raquo;</a>
+    </div>
+    <br />
+}
+<table class="table table-bordered table-condensed" data-bind="if: entries().length > 0">
+    <thead class="theme-red">
+        <tr>
+            <th>Time</th>
+            <th>Description</th>
+            <th style="text-align: right;">Debit, USD</th>
+            <th style="text-align: right;">Credit, USD</th>
+            <th style="text-align: right;">Balance, USD</th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: entries">
+        <tr>
+            <td>
+                <span data-bind="text: observedTime"></span>
+            </td>
+            <td>
+                <span data-bind="text: description"></span>
+            </td>
+            <td style="text-align: right;">
+                <span data-bind="text: debit"></span>
+            </td>
+            <td style="text-align: right;">
+                <span data-bind="text: credit"></span>
+            </td>
+            <td style="text-align: right;">
+                <span data-bind="text: balance"></span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+@Html.Partial("_PagerPartial", "entries")
+
+@using (Html.BeginInstructionsContainer())
+{
+    <li>Amounts are US dollars.</li>
+}
+
+@*<div data-bind="text: ko.toJSON($root.entries())"></div>*@
+
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/knockout",
+"~/bundles/jsextlibs",
+"~/bundles/ext-libs",
+"~/bundles/app",
+"~/App/Account/balance-vm.js"
+    )
+}

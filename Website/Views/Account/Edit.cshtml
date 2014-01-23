@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.NavItem = "Account";
+}
+<div data-ng-app="app">
+    <div data-ng-view=""></div>
+</div>
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/App/Account/edit-profile-ctrl.js",
+"~/App/Account/edit-password-ctrl.js",
+"~/App/Account/edit-app.js"
+)
+}
+

@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>Database</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{26997747-5131-4718-be51-0f1b45d26eee}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureDatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>Dignicom.Database</RootNamespace>
+    <AssemblyName>Dignicom.Database</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+    <TargetDatabase>Database</TargetDatabase>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <!-- VS10 without SP1 will not have VisualStudioVersion set, so do that here -->
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <!-- Default to the v10.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="Tables\" />
+    <Folder Include="Functions\" />
+    <Folder Include="Stored Procedures\" />
+    <Folder Include="Views\" />
+    <Folder Include="User Defined Types\" />
+    <Folder Include="Security\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Tables\accAccounts.sql" />
+    <Build Include="Tables\accAccountTypes.sql" />
+    <Build Include="Tables\accEntries.sql" />
+    <Build Include="Tables\accPostedPayPalPayments.sql" />
+    <Build Include="Tables\accTransactionAttributeTypes.sql" />
+    <Build Include="Tables\accTransactions.sql" />
+    <Build Include="Tables\accTransactionTypes.sql" />
+    <Build Include="Tables\appConstants.sql" />
+    <Build Include="Tables\aspnetRoles.sql" />
+    <Build Include="Tables\aspnetUserClaims.sql" />
+    <Build Include="Tables\aspnetUserLogins.sql" />
+    <Build Include="Tables\aspnetUserRoles.sql" />
+    <Build Include="Tables\aspnetUsers.sql" />
+    <Build Include="Functions\appGetConstant.sql" />
+    <Build Include="Functions\appGetConstantAsInt.sql" />
+    <Build Include="Stored Procedures\_Template.sql" />
+    <Build Include="Stored Procedures\accCreateAccount.sql" />
+    <Build Include="Stored Procedures\accCreateUserAccounts.sql" />
+    <Build Include="Stored Procedures\InitializeConstants.sql" />
+    <Build Include="Stored Procedures\InitializeSpecialUsers.sql" />
+    <Build Include="Stored Procedures\InitializeUser.sql" />
+    <Build Include="Stored Procedures\InitializeTestUsers.sql" />
+    <Build Include="Stored Procedures\InitializeAll.sql" />
+    <Build Include="Tables\appUsers.sql" />
+    <Build Include="Stored Procedures\appCreateUserAndAccounts.sql" />
+    <Build Include="Tables\exeExerciseTypes.sql" />
+    <Build Include="Tables\exeExercises.sql" />
+    <Build Include="Tables\exeReviews.sql" />
+    <Build Include="Functions\accGetPersonalAccount.sql" />
+    <Build Include="Functions\accGetBalance.sql" />
+    <Build Include="Stored Procedures\accPostIncomingPayPalPayment.sql" />
+    <Build Include="Functions\appGetUserId.sql" />
+    <Build Include="Views\appRandomHelper.sql" />
+    <Build Include="Functions\GetTenDigitBase36Number.sql" />
+    <Build Include="Stored Procedures\accChangeEscrow.sql" />
+    <Build Include="Stored Procedures\exeCreateReviewRequest.sql" />
+    <Build Include="Stored Procedures\exeCancelReviewRequest.sql" />
+    <Build Include="Tables\exeRequests.sql" />
+    <Build Include="User Defined Types\appUsersType.sql" />
+    <Build Include="Tables\exeRequestsArchive.sql" />
+    <Build Include="Stored Procedures\exeStartReview.sql" />
+    <Build Include="Stored Procedures\exeFinishReview.sql" />
+    <Build Include="Tables\exeTagSearch.sql" />
+    <Build Include="Stored Procedures\appUpdateUser.sql" />
+    <Build Include="Functions\accGetEcrowAccount.sql" />
+    <Build Include="Security\websiterole.sql" />
+    <Build Include="Security\websiteuser.sql" />
+    <Build Include="Security\websitelogin.sql" />
+    <Build Include="Functions\relGetRandomTutors.sql" />
+    <Build Include="Stored Procedures\accGetEntries.sql" />
+    <Build Include="Tables\relLearnersTutors.sql" />
+    <Build Include="Stored Procedures\relEnsureLearnerTutorRelation.sql" />
+    <Build Include="Functions\relGetRelatedTutors.sql" />
+    <Build Include="Stored Procedures\exeGetExercises.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SchemaCompare.scmp" />
+    <None Include="Code Snippets.txt" />
+  </ItemGroup>
+</Project>

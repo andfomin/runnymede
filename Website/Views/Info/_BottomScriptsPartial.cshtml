@@ -1,0 +1,13 @@
+﻿@* Enable the Bootstrap affix plugin for the sidebar. Enable the Bootstrap srollspy plugin for the sidebar, except for the single-column layout. *@
+<script>
+    $(function () {
+        $('#sidebar').affix({ offset: { top: 100, bottom: 60 } });
+        var wide = true;
+        if (window.matchMedia) {
+            wide = window.matchMedia("(min-width: 768px)").matches;
+        }
+        if (wide) {
+            $(document.body).scrollspy({ target: '#sidebar', offset: 120 });
+        }
+    });
+</script>

@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = "Exercise";
+}
+@section HeadScripts {
+    @* SoundManager must be loaded as early as possible. Otherwise browser security may block Flash <-> JS communication after certain JQuery DOM manipulations by a third-party code. *@
+    @Scripts.Render("~/bundles/soundmanager2")
+    @Styles.Render("~/content/css-jqueryui")
+}
+<form class="form-horizontal" data-bind="submit: $root.saveTitle" role="form">
+    <!-- ko with: exercise -->
+    <div class="form-group">
+        <label for="title" class="col-sm-1 control-label">Title</label>
+        <div class="col-sm-8">
+            <input type="text" id="title" class="form-control" data-bind="value: title, valueupdate: 'afterkeydown', event: { blur: $root.saveTitle }" required />
+        </div>
+        <div class="col-sm-3">
+            Created <span data-bind="text: createTime"></span>
+        </div>
+    </div>
+    <!-- /ko -->
+</form>
+@Html.HrSeparator("col-sm-12")
+<div id="editor">
+    @Html.Partial("_PlayerPartial")
+    <table class="table table-condensed table-hover" data-bind="if: remarks().length > 0">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Remarks</th>
+                <th>Tag</th>
+                <th>Marked</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach: remarks">
+            <tr data-bind="click: $parent.selectRemark, css: $parent.getRemarkRowClass($data)">
+                <td class="replay-column">
+                    <button class="btn btn-default btn-xs not-selected-hidden" data-bind="click: $parent.playRemarkSpot" title="Replay"><i class="fa fa-repeat"></i></button>
+                </td>
+                <td>
+                    <span data-bind="text: text"></span>
+                </td>
+                <td>
+                    <span data-bind="if: tags()"><a data-bind="text: tags, attr: { href: tagsUrl() }" target="_blank"></a></span>
+                </td>
+                <td>
+                    <input type="checkbox" data-bind="checked: starred" style="margin-top: -4px;" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@using (Html.BeginInstructionsContainer())
+{
+    <li>You can edit the title of the exercise.</li>
+    <li>You can listen to the record.</li>
+    <li>If a review for the exercise is available, you can see remarks made by the reviewer.</li>
+    <li>You can listen to the same remark spot many times by clicking the button with the circular arrow</li>
+@*    <li>There may be a tag for a remark. By clicking on it you will be redirected to an external website which may help you to understand the remark.</li>*@
+    <li>If you want to mark a remark for future reference, you can select the checkbox for that remark.</li>
+}
+@*<div data-bind="text: ko.toJSON($root.remarks())"></div>*@
+
+@section BottomScripts {
+    @Html.Partial("_BottomScriptsPartial")
+    @Scripts.Render(
+"~/App/Reviews/view-vm.js"
+    )
+}

@@ -1,0 +1,55 @@
+﻿@{
+    var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewBag.HeadTitle ?? ViewBag.Title) - English Cosmos</title>
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
+    @if (Request.IsAuthenticated)
+    {
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    }
+    @*<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
+    @Styles.Render("~/content/css-app")
+    @RenderSection("HeadScripts", required: false)
+    @*@Html.Partial("_GoogleAnalyticsPartial")*@
+</head>
+<body>
+    @*<!-- The header is not in a container -->*@
+    <header>
+        @Html.Partial("_HeaderPartial", pageViewModel)
+    </header>
+
+    <section id="main" class="container">
+        @if (ViewBag.Title != null)
+        {
+            <h3 class="page-header">@ViewBag.Title</h3>
+        }
+
+        @RenderBody()
+    </section>
+
+    @*<!-- The footer separator is not in a container -->*@
+    <hr />
+    <footer id="footerContents" class="container">
+        @Html.Partial("_FooterPartial")
+    </footer>
+
+    @* For dropdown menu in the navbar *@
+    @if (Request.IsAuthenticated)
+    {
+        @Scripts.Render(
+        "~/bundles/jquery",
+        "~/bundles/bootstrap"
+        )
+    }
+
+    @RenderSection("BottomScripts", required: false)
+</body>
+
+
+</html>

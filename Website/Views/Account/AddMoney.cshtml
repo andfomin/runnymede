@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "Add money to account";
+    ViewBag.NavItem = "Account";
+    var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
+    // Protect userName from tampering with.
+    var englcCode = Runnymede.Website.Utils.AccountControllerUtils.GetTimestampedUserName(pageViewModel.UserName);
+}
+<img class="center-block" src="~/Content/Images/payment-logos.png" width="352" height="38" alt="Payment methods" />
+<img src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1" alt="" border="0">
+
+<form class="form-horizontal" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" role="form">
+    <input type="hidden" name="cmd" value="_s-xclick">
+    <input type="hidden" name="hosted_button_id" value="MW9Y4D4PNWJHE">
+    <input type="hidden" name="on0" value="amount">
+    <input type="hidden" name="on1" value="email">
+    <input type="hidden" name="os1" value="@pageViewModel.UserName">
+    <input type="hidden" name="on2" value="englc-code">
+    <input type="hidden" name="os2" value="@englcCode">
+
+    <input type="hidden" name="currency_code" value="USD">
+
+    <div class="form-group">
+        <label for="amount" class="col-sm-5 control-label">Amount</label>
+        <div class="col-sm-3">
+            <select id="amount" name="os0" class="form-control" autofocus required>
+                <option value="$10">$10.00 USD</option>
+                <option value="$20">$20.00 USD</option>
+                <option value="$40">$30.00 USD</option>
+                <option value="$40">$40.00 USD</option>
+                <option value="$50">$50.00 USD</option>
+                <option value="1">1 $1.00 USD</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-5 col-sm-2">
+            <input class="btn btn-primary" type="submit" value="Pay now &raquo;" />
+        </div>
+    </div>
+</form>
+@using (Html.BeginInstructionsContainer())
+{
+    <li>We use <a href="https://www.paypal.com/" target="blank">PayPal</a> as a payment processor.</li>
+    <li>Select an appropriate amount of money in the drop-down box.</li>
+    <li>There are currently only five standard options for the amount. The minimum amount is $10, the maximum amount is $50 US dollars.</li>
+}
+
+@section BottomScripts {
+    <script>
+        var el = document.getElementById('amount');
+        if (el) { el.selectedIndex = -1; }
+    </script>
+}
+
+
+

@@ -1,0 +1,60 @@
+﻿<h3 class="page-header">{{title}}</h3>
+<div>
+    <p>
+        You are signed in as <strong>{{vm.profile.userName}}</strong>. 
+        <a href="#/password">Change&nbsp;password.</a>
+    </p>
+    <hr class="app-separator" />
+    <form class="form-horizontal" name="mainForm" role="form" novalidate>
+        <div class="form-group">
+            <label class="col-sm-4 control-label" for="displayName">Name</label>
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input type="text" id="displayName" class="form-control" name="displayName" data-ng-model="vm.profile.displayName" ng-maxlength="100" />
+<!-- Your pen name will appear alongside anything you post to the site. -->
+                    </div>
+                    <div class="col-sm-6">
+                        <span data-ng-show="vm.displayNameChanged"><small class="text-success">Name changed. You will see the new name in the top bar after you sign out and sign in again.</small></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label" for="name">Skype number</label>
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input type="text" id="skype" class="form-control" name="skype" data-ng-model="vm.profile.skype" ng-maxlength="100" />
+                    </div>
+                    <div class="col-sm-6">
+                        <span data-ng-show="vm.skypeChanged"><small class="text-success">Skype number changed.</small></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div data-ng-if="vm.profile.isTutor">
+            <hr class="app-separator" />
+            <p>You have got the <strong>Tutor</strong> status.</p>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" for="name">Rate for reviewing, US dollars.cents per <em>minute of audio record</em>.</label>
+                <div class="col-sm-8">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <input type="text" id="rateARec" class="form-control" name="rateARec" data-ng-model="vm.profile.rateARec" ng-pattern="/^\d+(?:(?:\.|,)\d{1,2})?$/" />
+                        </div>
+                        <div class="col-sm-9">
+                            <span ng-show="mainForm.rateARec.$error.pattern"><small class="text-danger">Dollars.cents, ex. 0.99</small></span>
+                            <span data-ng-show="vm.rateARecChanged"><small class="text-success">Rate changed.</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-4 col-sm-6">
+                <button type="submit" class="btn btn-primary" data-ng-click="vm.save(mainForm)" data-ng-disabled="mainForm.$pristine || vm.sending">Save</button>
+            </div>
+        </div>
+    </form>
+</div>

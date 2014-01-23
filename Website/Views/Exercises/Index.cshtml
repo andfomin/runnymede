@@ -1,0 +1,167 @@
+﻿@{
+    ViewBag.Title = "Exercises";
+    ViewBag.NavItem = "ExercisesIndex";
+}
+<div data-bind="if: isEmpty">
+    You have not done any exercises yet.
+    <br />&nbsp;
+    <br />&nbsp;
+</div>
+<div class="row">
+    <div class="col-sm-offset-4 col-sm-4">
+        <a href="@Url.Action("Topics")" class="btn btn-primary btn-block">Record a monologue &raquo;</a>
+    </div>
+    @*<div class="col-sm-4">
+        <a href="http://dignicom.blob.core.windows.net/recorder/Dignicom.Recorder.application" class="btn btn-primary btn-block">Record a Skype conversation &raquo;</a>
+    </div>*@
+</div>
+@Html.HrSeparator("col-sm-12")
+<table id="exercisestable" class="table table-condensed" data-bind="if: exercises().length > 0">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th style="text-align: right;">Length</th>
+            <th style="text-align: right;">Created</th>
+            <th>Review status</th>
+            <th style="text-align: right;">Reward</th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: { data: exercises, as: 'exercise' }">
+        <tr>
+            <td>
+                <a data-bind=" text: title, attr: { href: viewUrl() }"></a>
+            </td>
+            <td style="text-align: right;">
+                <span data-bind="text: formattedLength"></span>
+            </td>
+            <td style="text-align: right;">
+                <span data-bind="text: createTime"></span>
+            </td>
+            <td>
+                <button class="btn btn-default btn-xs" data-bind="click: $parent.requestReview">Request&nbsp;review</button>
+            </td>
+            <td></td>
+        </tr>
+
+        <!-- ko foreach: exercise.reviews -->
+        <tr class="app-row-review">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <span data-bind="text: status()"></span>
+                <button class="btn btn-default btn-xs" data-bind="visible: !(startTime() || cancelTime()), click: $root.cancelRequest">Cancel</button>
+            </td>
+            <td style="text-align: right;">
+                <span data-bind="text: formattedReward"></span>
+            </td>
+        </tr>
+        <!-- /ko -->
+
+    </tbody>
+</table>
+
+@Html.Partial("_PagerPartial", "exercises")
+
+<div id="createRequestDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="createRequestLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @* The form will not submit on Enter keypress until it contains a button. So the form tag wraps all the dialog sections, not the input section alone. *@
+            <form class="form-horizontal" data-bind="submit: submitRequest" role="form" style="margin-bottom: 0;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="createRequestLabel"><strong>Request a review of the exercise</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <p data-bind="with: dialogExercise">
+                        You are requesting a review for exercise &quot;<span data-bind="text: title"></span>&quot; created <span data-bind="text: createTime"></span>. It has the length <span data-bind="text: formattedLength"></span> minutes:seconds.
+                    </p>
+                    <hr class="app-separator" />
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" data-bind="checked: anyReviewer, enable:tutors().length > 0" />&nbsp;Any tutor can see this request and review the exercise
+                        </label>
+                    </div>
+                    <div data-bind="if: tutors().length === 0">
+                        To be able to select a particular tutor, first add it to your personal @Html.ActionLink("tutor list", "Index", "Relationships", null, new { @class = "" }).
+                    </div>
+                    <div data-bind="visible: !anyReviewer()">
+                        <br />
+                       Select tutors who can see this request. Minimal reward is calculated based on this exercise's length and the tutor's rate.
+                        <!-- ko foreach: tutors -->
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" data-bind="value: id, checked: $root.selectedTutors" /><span data-bind="text: displayName"></span> (minimal reward <span data-bind="text: $root.calcRate(rateARec)"></span>)
+                            </label>
+                        </div>
+                        <!-- /ko -->
+                    </div>
+                    <hr class="app-separator" />
+                    <p>
+                        Your account balance is currently <span data-bind="text: App.Utils.formatMoney(balance())"></span>&nbsp;dollars.
+                        <span data-bind="visible: balance() === 0">@Html.ActionLink("Add money to account »", "AddMoney", "Account", "https", null, null, null, new { @class = "btn btn-primary btn-sm" })</span>
+                    </p>
+                    <p data-bind="with: dialogExercise">
+                        Please enter the amount of money that you are offering to a tutor as a reward for reviewing the exercise.
+                    </p>
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label" for="reward1">Enter the reward</label>
+                        <div class="col-sm-2">
+                            <input type="text" id="reward1" class="form-control" data-bind="value: reward1, valueUpdate: 'afterkeydown'" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label" for="reward2">Enter the reward again</label>
+                        <div class="col-sm-2">
+                            <input type="text" id="reward2" class="form-control" data-bind="value: reward2, valueUpdate: 'afterkeydown'" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-bind="command: requestCmd, activity: requestCmd.isExecuting">OK</button>
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div id="cancelRequestDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="cancelRequestLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="cancelRequestLabel"><strong>Cancel review request</strong></h4>
+            </div>
+            <div class="modal-body">
+                <!-- ko with: dialogReview -->
+                Review request created <span data-bind="text: requestTime"></span>
+                <!-- /ko -->
+                <!-- ko with: dialogExercise -->
+                for exercise &quot;<span data-bind="text: title"></span>&quot; will be canceled permanently.
+                <!-- /ko -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="command: cancelRequestCmd, activity: cancelRequestCmd.isExecuting">OK</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+@using (Html.BeginInstructionsContainer())
+{
+    <li>You can press the <em>Record a monologue</em> button to record a speech.</li>
+    <li>You can click an exercise title to edit its title, listen to it and view remarks when reviews are ready.</li>
+    <li>If an exercise has not been offered for reviewing, you can delete it by pressing the <em>Delete</em> button in the exercise row. </li>
+    <li>To offer an exercise for reviewing, press the <em>Offer for reviewing</em> button in the exercise row. </li>
+    <li>The list is refreshed every 2 minutes.</li>
+}
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/knockout",
+"~/bundles/jsextlibs",
+"~/bundles/ext-libs",
+"~/bundles/app",
+"~/App/Exercises/index-vm.js"
+)}

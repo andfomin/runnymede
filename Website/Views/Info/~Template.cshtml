@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "";
+}
+@section HeadScripts {
+    @Html.Partial("_TopScriptsPartial", 270)
+}
+<div class="row">
+    <!--Sidebar -->
+    <div class="col-sm-4">
+        <div id="sidebar" class="affix">
+            <ul class="nav nav-pills nav-stacked"></ul>
+        </div>
+    </div>
+    <!--Body content-->
+    <div class="col-sm-8">
+
+    </div>
+</div>
+@section BottomScripts {
+    @Html.Partial("_BottomScriptsPartial")
+}
+
+
