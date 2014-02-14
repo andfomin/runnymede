@@ -2,8 +2,8 @@
 	<maxTimeLimit>300</maxTimeLimit>
 	<recordName>0</recordName>
   <!-- Do not capitalize letters in the route to prevent get dashes inserted. -->
-  <uploadURL>saverecording</uploadURL>
-	<canDownload>0</canDownload>
+  <uploadURL>/exercises/saverecording</uploadURL>
+  <canDownload>0</canDownload>
 	<showSoundWave>1</showSoundWave>
 	<markerDistance>0</markerDistance>
 	<languageFile>en.xml</languageFile>

@@ -1,19 +1,20 @@
 ﻿@{
     ViewBag.Title = "Exercises";
-    ViewBag.NavItem = "ExercisesIndex";
+    ViewBag.NavItem = "Exercises";
 }
 <div data-bind="if: isEmpty">
-    You have not done any exercises yet.
-    <br />&nbsp;
+    <p class="text-center">
+        You have not done any exercises yet.
+    </p>
     <br />&nbsp;
 </div>
 <div class="row">
-    <div class="col-sm-offset-4 col-sm-4">
+    <div class="col-sm-offset-2 col-sm-3">
         <a href="@Url.Action("Topics")" class="btn btn-primary btn-block">Record a monologue &raquo;</a>
     </div>
-    @*<div class="col-sm-4">
-        <a href="http://dignicom.blob.core.windows.net/recorder/Dignicom.Recorder.application" class="btn btn-primary btn-block">Record a Skype conversation &raquo;</a>
-    </div>*@
+    <div class="col-sm-offset-2 col-sm-3">
+        <a href="http://blob.englc.com/recorder/EnglishCosmosRecorder.exe" class="btn btn-primary btn-block">Record a Skype conversation &raquo;</a>       
+    </div>
 </div>
 @Html.HrSeparator("col-sm-12")
 <table id="exercisestable" class="table table-condensed" data-bind="if: exercises().length > 0">
@@ -83,15 +84,15 @@
                         </label>
                     </div>
                     <div data-bind="if: tutors().length === 0">
-                        To be able to select a particular tutor, first add it to your personal @Html.ActionLink("tutor list", "Index", "Relationships", null, new { @class = "" }).
+                        To be able to select a particular tutor, first add it to your personal @Html.ActionLink("tutor list", "Tutors", "Relationships", null, new { @class = "" }).
                     </div>
                     <div data-bind="visible: !anyReviewer()">
                         <br />
-                       Select tutors who can see this request. Minimal reward is calculated based on this exercise's length and the tutor's rate.
+                       Select tutors who can see this request. Suggested reward is calculated based on this exercise's length and the tutor's rate.
                         <!-- ko foreach: tutors -->
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" data-bind="value: id, checked: $root.selectedTutors" /><span data-bind="text: displayName"></span> (minimal reward <span data-bind="text: $root.calcRate(rateARec)"></span>)
+                                <input type="checkbox" data-bind="value: id, checked: $root.selectedTutors" /><span data-bind="text: displayName"></span> (suggested reward <span data-bind="text: $root.suggestedReward(rate)"></span>)
                             </label>
                         </div>
                         <!-- /ko -->
@@ -102,7 +103,7 @@
                         <span data-bind="visible: balance() === 0">@Html.ActionLink("Add money to account »", "AddMoney", "Account", "https", null, null, null, new { @class = "btn btn-primary btn-sm" })</span>
                     </p>
                     <p data-bind="with: dialogExercise">
-                        Please enter the amount of money that you are offering to a tutor as a reward for reviewing the exercise.
+                        Please enter the amount of money that you are offering to the tutor as a reward for reviewing the exercise.
                     </p>
                     <div class="form-group">
                         <label class="col-sm-5 control-label" for="reward1">Enter the reward</label>
@@ -143,7 +144,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bind="command: cancelRequestCmd, activity: cancelRequestCmd.isExecuting">OK</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

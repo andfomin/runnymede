@@ -19,7 +19,9 @@ begin try
 
 		execute dbo.[InitializeConstants];
 		execute dbo.[InitializeSpecialUsers];
-		execute dbo.[InitializeTestUsers];
+		--execute dbo.[InitializeTestUsers];
+
+		--GRANT CONNECT TO websiteuser;
 
 	if @ExternalTran = 0
 		commit;

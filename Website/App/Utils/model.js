@@ -90,7 +90,6 @@ var App;
                 });
             }
             Remark.prototype.tagsUrl = function () {
-                /* Use HTTPS to avoid the HTTP Referer header on redirect. +http://en.wikipedia.org/wiki/HTTP_referer#cite_note-10 */
                 //return 'https://' + window.location.host + App.Utils.reviewsUrl('tagsearch?q=' + encodeURIComponent(this.tags()));
                 return App.Utils.reviewsUrl('tag-search?q=' + encodeURIComponent(this.tags()));
             };

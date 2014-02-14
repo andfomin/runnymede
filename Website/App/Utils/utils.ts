@@ -4,6 +4,7 @@ module App.Utils {
     export function reviewsUrl(path?: string) { return '/reviews/' + (path || ''); };
     export function accountUrl(path?: string) { return '/account/' + (path || ''); };
     export function loginUrl() { return '/Token'; };
+    export function relationshipsUrl(path?: string) { return '/relationships/' + (path || ''); };
 
     export function statisticsApiUrl(path?: string) { return '/api/StatisticsApi/' + (path || ''); };
     export function exercisesApiUrl(path?: string) { return '/api/ExercisesApi/' + (path || ''); };
@@ -89,9 +90,7 @@ module App.Utils {
     // ko.datasource
     export function dataSource(url, ctor) {
         return function () {
-
-            // Show an NETEYE Activity Indicator.
-            (<any>$(document.body)).activity();
+            App.Utils.activityIndicator(true);
 
             $.ajax({
                 type: 'GET',
@@ -111,7 +110,7 @@ module App.Utils {
                     this.pager.totalCount(dto.totalCount);
                 })
                 .always(function () {
-                    (<any>$(document.body)).activity(false);
+                    App.Utils.activityIndicator(false);
                 });
         };
     }
@@ -204,5 +203,25 @@ module App.Utils {
         return result;
     }
 
+    export function activityIndicator(show: boolean) {
+        // NETEYE Activity Indicator in knockout.activity.js
+        (<any>$(document.body)).activity(show);
+    }
+
+    export function logAjaxError(jqXHR: any, defaultMessage: string) {
+        var r = jqXHR.responseJSON;
+        var m: string;
+        if (r) {
+            var em = r.exceptionMessage ? ('' + r.exceptionMessage) : '';
+            // SQL stored procedures return custom formatted error messages with values at the beginning of the message.
+            var i = em.indexOf('::');
+            if (i > -1) {
+                em = em.substring(i + 2);
+            }
+            m = em ? em : (r.message ? r.message : (r.error_description ? r.error_description : ''));
+        }
+
+        toastr.error('Error. ' + r ? m : defaultMessage);
+    }
 
 }

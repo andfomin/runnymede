@@ -172,9 +172,7 @@ module App.Reviews {
             });
 
             if (requests.length > 0) {
-
-                // Show an NETEYE Activity Indicator.
-                (<any>$(document.body)).activity();
+                App.Utils.activityIndicator(true);
 
                 $.when.apply($, requests)
                     .done(() => {
@@ -197,7 +195,7 @@ module App.Reviews {
                     })
                     .fail(function () { toastr.error('Error loading remarks.'); })
                     .always(function () {
-                        (<any>$(document.body)).activity(false);
+                        App.Utils.activityIndicator(false);
                     });
             }
         }

@@ -1,22 +1,14 @@
 module App.Account_Edit {
 
-    export interface IProfile {
-        userName: string;
-        displayName: string;
-        skype: string;
-        isTutor: boolean;
-        timezoneName: string;
-        rateARec: number;
-    }
-
     export class ProfileCtrl {
 
-        profile: IProfile;
+        profile: App.Model.IUser;
 
         sending: boolean;
         displayNameChanged: boolean;
         skypeChanged: boolean;
-        rateARecChanged: boolean;
+        rateChanged: boolean;
+        anmtChanged: boolean;
 
         static $inject = [App.Utils.AngularGlobal.$SCOPE, App.Utils.AngularGlobal.$HTTP];
 
@@ -40,30 +32,58 @@ module App.Account_Edit {
         save(form: ng.IFormController) {
             if (form.$valid) {
                 this.sending = true;
-                this.displayNameChanged = false;
-                this.skypeChanged = false;
+                this.clearChanged();
                 var displayNameDirty = (<any>form).displayName.$dirty ? true : false;
                 var skypeDirty = (<any>form).skype.$dirty ? true : false;
-                var rateARecDirty = (<any>form).rateARec.$dirty ? true : false;
 
                 App.Utils.ngHttpPut(this.$http,
                     Utils.accountApiUrl('Profile'),
                     {
                         displayName: displayNameDirty ? this.profile.displayName : null,
                         skype: skypeDirty ? this.profile.skype : null,
-                        rateARec: rateARecDirty ? this.profile.rateARec : null,
                     },
                     () => {
                         form.$setPristine();
                         this.displayNameChanged = displayNameDirty;
                         this.skypeChanged = skypeDirty;
-                        this.rateARecChanged = rateARecDirty;
                     },
                     () => {
                         this.sending = false;
                     }
                     );
             }
+        }
+
+        saveTutor(form: ng.IFormController) {
+            if (form.$valid) {
+                this.sending = true;
+                this.clearChanged();
+                var rateDirty = (<any>form).rate.$dirty ? true : false;
+                var anmtDirty = (<any>form).announcement.$dirty ? true : false;
+
+                App.Utils.ngHttpPut(this.$http,
+                    Utils.accountApiUrl('TutorProfile'),
+                    {
+                        rate: rateDirty ? this.profile.rate : null,
+                        announcement: anmtDirty ? this.profile.announcement : null,
+                    },
+                    () => {
+                        form.$setPristine();
+                        this.rateChanged = rateDirty;
+                        this.anmtChanged = anmtDirty;
+                    },
+                    () => {
+                        this.sending = false;
+                    }
+                    );
+            }
+        }
+
+        clearChanged() {
+            this.displayNameChanged = false;
+            this.skypeChanged = false;
+            this.rateChanged = false;
+            this.anmtChanged = false;
         }
 
     } // end of class

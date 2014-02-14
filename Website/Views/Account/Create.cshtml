@@ -17,8 +17,8 @@
         <div class="form-group">
             <label class="col-sm-4 control-label" for="password">Choose a password</label>
             <div class="col-sm-4">
-                <input type="password" id="password" class="form-control" name="password" data-ng-model="vm.password" data-ng-minlength="7" required />
-                <p class="help-block"><small>Minimum 7 characters.</small></p>
+                <input type="password" id="password" class="form-control" name="password" data-ng-model="vm.password" data-ng-minlength="8" required />
+                <p class="help-block"><small>Minimum 8 characters.</small></p>
             </div>
         </div>
         <div class="form-group">
@@ -40,7 +40,7 @@
         </div>
         <div class="form-group">
             <div class="col-sm-offset-4 col-sm-6">
-                <button type="submit" class="btn btn-primary" data-ng-click="vm.post(mainForm)" data-ng-disabled="mainForm.$invalid || !vm.consent || vm.sending">Create account &raquo;</button>
+                <button type="submit" class="btn btn-primary" data-ng-click="vm.post(mainForm)" data-ng-disabled="mainForm.$invalid || !vm.consent || vm.sending">Create account</button>
             </div>
         </div>
     </form>
@@ -51,7 +51,7 @@
                 Thank you for joining English Cosmos!
             </p>
             <p>
-                We have sent an email to <strong>{{vm.userName}}</strong> with a confirmation link. Please click the link to confirm your email address.
+                We have sent an email to <strong>{{vm.userName}}</strong> with a confirmation link. Please click the link in the email to confirm your email address.
             </p>
             <p>
                 If you would like to become a tutor, you can find further instructions on the @Html.ActionLink("FAQ", "Faq", "Info", null, null, "becomingtutor", null, null) page.

@@ -22,7 +22,7 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @ReviewerCount int, @AuthorName nvarchar(100), @TypeId nchar(4), @Length int;
+	declare @ReviewerCount int, @AuthorName nvarchar(100), @TypeId nchar(4), @Length int, @Attribute nvarchar(100);
 
 	if (@Reward < 0) begin
 		declare @RewardText nvarchar(100) = cast(@Reward as nvarchar(100));
@@ -69,7 +69,9 @@ begin try
 				values (@ReviewId, @Reward, @AuthorName, @TypeId, @Length);
 		end;
 
-		exec dbo.accChangeEscrow @AuthorUserId, @Reward, 'EXRR', @ReviewId, null;
+		set @Attribute = cast(@ReviewId as nvarchar(100));
+
+		exec dbo.accChangeEscrow @AuthorUserId, @Reward, 'EXRR', @Attribute, null;
 
 	if @ExternalTran = 0
 		commit;

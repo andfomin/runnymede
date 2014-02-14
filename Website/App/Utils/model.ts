@@ -5,6 +5,17 @@ interface App {
 
 module App.Model {
 
+    export interface IUser {
+        id: number;
+        displayName: string;
+        userName: string;
+        skype: string;
+        isTutor: boolean;
+        timezoneName: string;
+        rate: number;
+        announcement: string;
+    }
+
     export interface IExercise {
         id: number;
         createTime: string;
@@ -168,7 +179,6 @@ module App.Model {
         } // end of ctor
 
         tagsUrl() {
-            /* Use HTTPS to avoid the HTTP Referer header on redirect. +http://en.wikipedia.org/wiki/HTTP_referer#cite_note-10 */
             //return 'https://' + window.location.host + App.Utils.reviewsUrl('tagsearch?q=' + encodeURIComponent(this.tags()));
             return App.Utils.reviewsUrl('tag-search?q=' + encodeURIComponent(this.tags()));
         }
@@ -180,14 +190,5 @@ module App.Model {
         }
 
     } // end of class
-
-    export interface IUser {
-        id: number;
-        displayName: string;
-    }
-
-    export interface ITutor extends IUser {
-        rateARec: number;
-    }
 
 }

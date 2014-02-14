@@ -29,7 +29,8 @@ namespace Runnymede.Website.Utils
                 throw new ArgumentException();
             }
 
-            var rowKey = LoggingUtils.GetUniqueObservedTime();
+            var rowKey = LoggingUtils.GetUniquifiedObservedTime();
+
             var entity = new PayPalLogEntity
             {
                 PartitionKey = tx,
@@ -38,6 +39,7 @@ namespace Runnymede.Website.Utils
                 LogData = logData,
             };
             AzureStorageUtils.InsertEntry(AzureStorageUtils.PaymentLogTableName, entity);
+
             return rowKey;
         }
 
@@ -95,7 +97,7 @@ namespace Runnymede.Website.Utils
             return response;
         }
 
-        public bool PostPaymentTransaction(IEnumerable<string> lines, string logRowKey)
+        public bool PostIncomingPaymentTransaction(IEnumerable<string> lines, string logRowKey)
         {
             //    //check the payment_status is Completed
             //    //check that txn_id has not been previously processed
@@ -132,6 +134,10 @@ namespace Runnymede.Website.Utils
                     throw new ArgumentException("Invalid payment details.");
                 }
 
+                // This value is displayd to the sender in the confirmation email from PayPal as "Receipt No".
+                string receiptId;
+                pairs.TryGetValue("receipt_id", out receiptId);
+
                 var transactionDetails =
                         new XElement("PayPalPayment",
                             new XAttribute("ExtId", extId),
@@ -145,12 +151,12 @@ namespace Runnymede.Website.Utils
                     const string sqlCheck = @"
 select count(*) from dbo.accPostedPayPalPayments where ExtId = @ExtId;
 ";
-                    post = connection.Query<int>(sqlCheck, new { ExtId = extId, }).First() == 0;
+                    post = (connection.Query<int>(sqlCheck, new { ExtId = extId, }).First()) == 0;
 
                     if (post)
                     {
                         const string sql = @"
-execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @Details;
+execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @ReceiptId, @Details;
 ";
                         connection.Execute(sql,
                             new
@@ -159,6 +165,7 @@ execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @Deta
                                 Amount = amount,
                                 Fee = fee,
                                 ExtId = extId,
+                                ReceiptId = receiptId,
                                 Details = transactionDetails
                             });
 

@@ -58,6 +58,8 @@ var App;
                 });
 
                 this.loadStats = function (from, to, stats, complete) {
+                    App.Utils.activityIndicator(true);
+
                     var wireFormat = "YYYY-MM-DDTHH:mm:ss";
                     var formattedFrom = moment.utc(from.createTime).format(wireFormat);
                     var formattedTo = moment.utc(to.createTime).format(wireFormat);
@@ -70,6 +72,7 @@ var App;
                     }).fail(function () {
                         toastr.error('Error getting statistics.');
                     }).always(function () {
+                        App.Utils.activityIndicator(false);
                         complete();
                     });
                 };

@@ -21,7 +21,7 @@ order by T.Id desc
 offset @RowOffset rows
 	fetch next @RowLimit rows only;
 
--- Do not return @TotalCount as a column in the main query, because the main query may return no rows for big @RowOffset.
+-- Do not return @TotalCount as a column in the main query, because the main query may return no rows for a big @RowOffset.
 select @TotalCount as TotalCount;
 
 END

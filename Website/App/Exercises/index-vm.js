@@ -2,13 +2,13 @@ var App;
 (function (App) {
     (function (Exercises_Index) {
         var ViewModel = (function () {
-            //calcRate: (rateARec: number, dialogExercise: KnockoutObservable<App.Model.Exercise>) => string;
             function ViewModel() {
                 var _this = this;
                 this.realExeObsArr = ko.observableArray([]);
                 this.dialogExercise = ko.observable();
                 this.dialogReview = ko.observable();
                 this.balance = ko.observable();
+                this.workDurationRatio = 4;
                 this.reward1 = ko.observable();
                 this.reward2 = ko.observable();
                 this.isEmpty = ko.observable(false);
@@ -16,9 +16,9 @@ var App;
                 this.tutors = ko.observableArray([]);
                 this.anyReviewer = ko.observable(true);
                 this.selectedTutors = ko.observableArray([]);
-                this.calcRate = function (rateARec) {
+                this.suggestedReward = function (rate) {
                     var exe = _this.dialogExercise();
-                    return exe ? App.Utils.numberToMoney(rateARec * exe.length / 60000) : null;
+                    return exe ? App.Utils.numberToMoney(rate * exe.length * _this.workDurationRatio / 3600000) : null;
                 };
                 this.exercises = this.realExeObsArr.extend({
                     datasource: App.Utils.dataSource(App.Utils.exercisesApiUrl('GetExercises') + App.Utils.getNoCacheUrl(), function (i) {
@@ -84,11 +84,11 @@ var App;
                 });
 
                 this.requestReview = function (exercise) {
-                    // Show an NETEYE Activity Indicator.
-                    ($(document.body)).activity();
+                    App.Utils.activityIndicator(true);
 
                     // Request review conditions from the server.
                     App.Utils.ajaxRequest('GET', App.Utils.exercisesApiUrl(exercise.id.toString() + '/ReviewConditions')).done(function (data) {
+                        _this.workDurationRatio = data.workDurationRatio;
                         _this.balance(+data.balance);
                         _this.tutors(data.tutors);
 
@@ -107,7 +107,7 @@ var App;
                     }).fail(function () {
                         toastr.error('Error getting review conditions.');
                     }).always(function () {
-                        ($(document.body)).activity(false);
+                        App.Utils.activityIndicator(false);
                     });
                 };
 
@@ -121,8 +121,8 @@ var App;
                             var r = new App.Model.Review(data);
                             _this.dialogExercise().reviews.push(r);
                             toastr.success('Review requested.');
-                        }).fail(function () {
-                            toastr.error('Review request for exercise failed.');
+                        }).fail(function (jqXHR) {
+                            App.Utils.logAjaxError(jqXHR, 'Review request for exercise failed.');
                         }).always(function () {
                             complete();
                             ($('#createRequestDialog')).modal('hide');
@@ -134,9 +134,9 @@ var App;
                     },
                     canExecute: function (isExecuting) {
                         var rewardStr = _this.reward1();
-                        var valid = App.Utils.isValidAmount(rewardStr);
+                        var positive = App.Utils.isValidAmount(rewardStr) && (Number(rewardStr) > 0);
                         var reviewersOk = _this.anyReviewer() || (_this.selectedTutors().length > 0);
-                        return !isExecuting && valid && (_this.reward2() === rewardStr) && reviewersOk;
+                        return !isExecuting && positive && (_this.reward2() === rewardStr) && reviewersOk;
                     }
                 });
 

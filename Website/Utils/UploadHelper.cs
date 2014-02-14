@@ -25,16 +25,16 @@ namespace Runnymede.Website.Utils
         /// <param name="type"></param>
         /// <param name="durationMsec"></param>
         /// <param name="topicId"></param>
-        /// <param name="topicTitle"></param>
+        /// <param name="exerciseTitle"></param>
         /// <returns></returns>
-        public static void SaveRecording(Stream stream, int userId, string type, int durationMsec, string topicId = null, string topicTitle = null)
+        public static void SaveRecording(Stream stream, int userId, string type, int durationMsec, string topicId = null, string exerciseTitle = null)
         {
             //var durationSec = Convert.ToInt32(Math.Round(durationMsec / 1000.0));
             //var durationText = string.Format("{0}:{1}", durationSec / 60, (durationSec % 60).ToString("D2"));
 
             var maxTitleLength = ExercisesController.MaxExerciseTitleLength;
-            string title = !string.IsNullOrEmpty(topicTitle)
-                            ? (topicTitle.Length <= maxTitleLength ? topicTitle : topicTitle.Substring(0, maxTitleLength))
+            string title = !string.IsNullOrEmpty(exerciseTitle)
+                            ? (exerciseTitle.Length <= maxTitleLength ? exerciseTitle : exerciseTitle.Substring(0, maxTitleLength))
                             : "Untitled";
 
             var artefactId = ControllerHelper.GetTvelveDigitBase32Number();

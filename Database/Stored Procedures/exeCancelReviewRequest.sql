@@ -14,7 +14,7 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @EscrowAmount decimal(18, 2), @Id int;
+	declare @EscrowAmount decimal(18, 2), @Id int, @Attribute nvarchar(100);
 
 	-- Negative value passed to dbo.accChangeEscrow means return escrow.
 	select @EscrowAmount = 0 - R.Reward, @Id = R.Id
@@ -46,9 +46,11 @@ begin try
 		delete dbo.exeRequests
 			output deleted.Id, deleted.ReviewId, deleted.ReviewerUserId
 			into dbo.exeRequestsArchive (RequestId, ReviewId, ReviewerUserId)
-		where ReviewId = @ReviewId
+		where ReviewId = @ReviewId;
 
-		exec dbo.accChangeEscrow @UserId, @EscrowAmount, 'EXRC', @ReviewId, null;
+		set @Attribute = cast(@ReviewId as nvarchar(100));
+
+		exec dbo.accChangeEscrow @UserId, @EscrowAmount, 'EXRC', @Attribute, null;
 
 	if @ExternalTran = 0
 		commit;

@@ -22,7 +22,8 @@ module App.Account_Create {
         post(form) {
             if (form.$valid) {
                 this.sending = true;
-
+                /* We send the client-side time and the local TimezoneOffset with the form to infer the client's actual time zone. */
+                var timeInfo = App.Utils.getLocalTimeInfo();
                 // We do not use ngHttpPost() since our finallyCallback execution path is splitted for signIn()
                 this.$http.post(
                     Utils.accountApiUrl('Create'),
@@ -31,6 +32,8 @@ module App.Account_Create {
                         password: this.password,
                         displayName: this.displayName,
                         consent: this.consent,
+                        localTime: timeInfo.time,
+                        localTimezoneOffset: timeInfo.timeZoneOffset,
                     }
                     )
                     .success((data) => {

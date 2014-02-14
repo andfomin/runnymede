@@ -28,21 +28,21 @@ namespace Runnymede.Website.Utils
         {
             const string head = @"
 <script type='text/javascript'>
-    function toggleInstrCaption(el) {
-        if (el.value === 'Show instructions')
-            el.value = 'Hide instructions\xA0';
+    function toggleHelpCaption(el) {
+        if (el.value === 'Show Help')
+            el.value = 'Hide Help\xA0';
         else
-            el.value = 'Show instructions';
+            el.value = 'Show Help';
         }
 </script>
 <div class='row'><div class='col-sm-12'><hr class='app-separator' /></div></div>
 <div class='row'>
     <div class='col-sm-2'>
         <small>
-            <input type='button' class='btn btn-default btn-xs' data-toggle='collapse' data-target='#instructions' value='Show instructions' onclick='toggleInstrCaption(this)' />
+            <input type='button' class='btn btn-default btn-xs' data-toggle='collapse' data-target='#instructions' value='Show Help' onclick='toggleHelpCaption(this)' />
         </small>
     </div>
-    <div id='instructions' class='col-sm-10 collapse'>
+    <div id='instructions' class='col-sm-8 collapse'>
         <ul>
 ";
 
@@ -76,11 +76,20 @@ namespace Runnymede.Website.Utils
             }
         }
 
-        //public static bool IsDebug(this HtmlHelper htmlHelper)
-        //{
-        //    return IsDebug();
-        //    ////@if (HttpContext.Current.IsDebuggingEnabled) { // Debug mode is enabled in Web.config. }
-        //}
+        private static bool IsDebug()
+        {
+#if DEBUG
+            return true;
+#else
+      return false;
+#endif
+        }
+
+        public static bool IsDebug(this HtmlHelper htmlHelper)
+        {
+            return IsDebug();
+            ////@if (HttpContext.Current.IsDebuggingEnabled) { // Debug mode is enabled in Web.config. }
+        }
 
         public static MvcHtmlString ActionLinkWithProtocol(this HtmlHelper htmlHelper, string linkText, string actionName, string controllerName, string protocol, object htmlAttributes)
         {
@@ -94,15 +103,6 @@ namespace Runnymede.Website.Utils
             return urlHelper.Action(actionName, controllerName, null, null, null);
         }
 
-        private static bool IsDebug()
-        {
-#if DEBUG
-            return true;
-#else
-      return false;
-#endif
-        }
-
         private static string GetHostNameForProtocol(string protocol, HttpContextBase httpContext)
         {
             // ??? IIS and ASP.NET are aware of the HTTP port through the project properties. There is no HTTPS port setting in the project properties.
@@ -111,7 +111,7 @@ namespace Runnymede.Website.Utils
                 var url = httpContext.Request.Url;
                 var host = url.Host;
                 var domain = host.Split(':').First();
-                var scheme = url.Scheme; 
+                var scheme = url.Scheme;
 
                 var httpPort = CustomController.GetAppSetting("HttpPort", "80");
                 var httpsPort = CustomController.GetAppSetting("HttpsPort", "443");

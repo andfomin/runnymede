@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[accEntries] (
-    [Id]       BIGINT             IDENTITY (1, 1) NOT NULL,
+    [Id]            BIGINT          IDENTITY (1, 1) NOT NULL,
     [TransactionId] INT             NOT NULL,
     [AccountId]     INT             NOT NULL,
     [Debit]         DECIMAL (18, 2) NULL,
@@ -12,4 +12,11 @@
 );
 
 
+
+
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_AccountId_Id]
+    ON [dbo].[accEntries]([AccountId] ASC, [Id] ASC);
 

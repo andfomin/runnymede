@@ -5,7 +5,12 @@ interface App {
 
 module App.Statistics {
 
-    class SelectOption {
+    export interface ISelectOption {
+        createTime: Date;
+        title: string;
+    }
+
+    class SelectOption implements ISelectOption {
         createTime: Date;
         title: string;
 
@@ -17,23 +22,23 @@ module App.Statistics {
 
     export class ViewModel {
 
-        firstFrom: KnockoutObservable<any>;
-        firstTo: KnockoutObservable<any>;
-        secondFrom: KnockoutObservable<any>;
-        secondTo: KnockoutObservable<any>;
+        firstFrom: KnockoutObservable<ISelectOption>;
+        firstTo: KnockoutObservable<ISelectOption>;
+        secondFrom: KnockoutObservable<ISelectOption>;
+        secondTo: KnockoutObservable<ISelectOption>;
 
-        firstFromArr: KnockoutObservableArray<any>;
-        firstToArr: KnockoutComputed<any[]>;
-        secondFromArr: KnockoutObservableArray<any>;
-        secondToArr: KnockoutComputed<any[]>;
+        firstFromArr: KnockoutObservableArray<ISelectOption>;
+        firstToArr: KnockoutComputed<ISelectOption[]>;
+        secondFromArr: KnockoutObservableArray<ISelectOption>;
+        secondToArr: KnockoutComputed<ISelectOption[]>;
 
         displayFirstCmd: KoliteCommand;
         displaySecondCmd: KoliteCommand;
 
-        firstStats: KnockoutObservableArray<any>;
-        secondStats: KnockoutObservableArray<any>;
+        firstStats: KnockoutObservableArray<App.Model.Remark>;
+        secondStats: KnockoutObservableArray<App.Model.Remark>;
 
-        private loadStats: (from: any, to: any, stats: KnockoutObservableArray<App.Model.Remark>, complete: any) => any;
+        private loadStats: (from: ISelectOption, to: ISelectOption, stats: KnockoutObservableArray<App.Model.Remark>, complete: any) => any;
 
         constructor() {
 
@@ -79,6 +84,8 @@ module App.Statistics {
             });
 
             this.loadStats = (from, to, stats, complete) => {
+                App.Utils.activityIndicator(true);
+
                 var wireFormat = "YYYY-MM-DDTHH:mm:ss";
                 var formattedFrom = moment.utc(from.createTime).format(wireFormat);
                 var formattedTo = moment.utc(to.createTime).format(wireFormat);
@@ -93,6 +100,7 @@ module App.Statistics {
                     })
                     .fail(() => { toastr.error('Error getting statistics.'); })
                     .always(() => {
+                        App.Utils.activityIndicator(false);
                         complete();
                     });
             };

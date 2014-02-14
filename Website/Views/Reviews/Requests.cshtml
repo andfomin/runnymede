@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Review requests";
-    ViewBag.NavItem = "ReviewsRequests";
+    ViewBag.NavItem = "Requests";
 }
 <div data-ng-app="app" data-ng-controller="Ctrl">
     <div class="row">
@@ -13,19 +13,18 @@
                     </p>
                 </div>
             }
-            <div class="alert alert-info" ng-hide="vm.requests.length > 0">
+            <div class="alert alert-info" data-ng-show="vm.requests.length === 0">
                 <p class="text-center">
                     There are currently no review requests.
                 </p>
             </div>
 
-            <table class="table table-condensed" ng-hide="vm.requests.length === 0">
+            <table class="table table-condensed" data-ng-show="vm.requests.length > 0">
                 <thead>
                     <tr>
                         <th>Author</th>
                         <th style="text-align: right;">Length</th>
                         <th style="text-align: right;">Reward</th>
-                        <th style="text-align: right;">Rate, $/min</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -41,9 +40,6 @@
                         {
                             <td style="text-align: right;">
                                 {{r.reward | currency:"$"}}
-                            </td>
-                            <td style="text-align: right;">
-                                {{vm.calcRate(r.length, r.reward)}}
                             </td>
                             <td>
                                 <button class="btn btn-default btn-xs" data-ng-click="vm.showStartDialog(r)">Start</button>
@@ -70,7 +66,7 @@
                 </div>
                 <div class="modal-body">
                     <p>
-                        Do you want to start a review with reward <strong>{{vm.dialogRequest.reward | currency:"$"}}</strong> offered by <strong>{{vm.dialogRequest.authorName}}</strong>
+                        Do you want to start a review of the exercise which has length {{vm.formatMsec(r.length)}} for reward <strong>{{vm.dialogRequest.reward | currency:"$"}}</strong> offered by <strong>{{vm.dialogRequest.authorName}}</strong>
                     </p>
                 </div>
                 <div class="modal-footer">

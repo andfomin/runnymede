@@ -17,12 +17,14 @@ namespace Runnymede.Website.Controllers
         public async Task<ActionResult> Index()
         {
                 const string sql = @"
-select CreateTime, Title
-from dbo.exeExercises
-where UserId = @UserId
-order by CreateTime;
+select distinct E.CreateTime, E.Title
+from dbo.exeExercises E
+	inner join dbo.exeReviews R on E.Id = R.ExerciseId
+where E.UserId = @UserId
+	and R.FinishTime is not null
+order by E.CreateTime;
 ";
-            var exercises = await DapperHelper.QueryResilientlyAsync<ExerciseDto>(sql, new { UserId = this.GetUserId() });
+            var exercises = await DapperHelper.QueryResilientlyAsync<dynamic>(sql, new { UserId = this.GetUserId() });
             ViewBag.ExercisesParamJson = ControllerHelper.SerializeAsJson(exercises);
             return View();
         }

@@ -35,13 +35,14 @@
         flashvars.lstext = "Loading...";
         flashvars.recorderId = "@ViewBag.TopicId";
         flashvars.userId = "@ViewBag.TopicShortTitle";
-
         flashvars.licenseKey = '@licenseKey';
+
         var params = {};
         params.quality = "High";
         params.bgcolor = "#ffffff";
         params.allowscriptaccess = "sameDomain";
         params.allowfullscreen = "false";
+        params.base = '/Content/Audior/';
 
         var attributes = {};
         attributes.id = "Audior";
@@ -89,6 +90,8 @@
 </noscript>
 
 <br />&nbsp;
+@if(ViewBag.TopicTitle != null)
+{
 <div class="row">
     <div class="col-sm-offset-3 col-sm-1">
         <strong>Topic:</strong>
@@ -103,7 +106,7 @@
         </ul>
     </div>
 </div>
-
+}
 @using (Html.BeginInstructionsContainer())
 {
     <li>If there is more than one microphone available, you will see an option at the top of the panel to select the appropriate one.</li>

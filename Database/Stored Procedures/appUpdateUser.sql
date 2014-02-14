@@ -4,8 +4,9 @@ CREATE PROCEDURE [dbo].[appUpdateUser]
 -- If a parameter is null, that meens keep the corresponding field intact.
 	@UserId int,
 	@DisplayName nvarchar(100) = null,
-	@Skype nvarchar(200) = null,
-	@RateARec decimal(18,2) = null
+	@Skype nvarchar(100) = null,
+	@Rate decimal(18,2) = null,
+	@Announcement nvarchar(1000) = null
 AS
 BEGIN
 SET NOCOUNT ON;
@@ -17,16 +18,23 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	if (coalesce(@DisplayName, @Skype, @RateARec) is null)
-			raiserror('%s,%d:: All parameters are null. Cannot update the profile for the user.', 16, 1, @ProcName, @UserId);
+	-- Coalesce() uses the data type with highest precedence as the data type of the result. Throws Error converting data type nvarchar to numeric. 
+	if (
+		(@DisplayName is null) and
+		(@Skype is null) and
+		(@Announcement is null)	and
+		(@Rate is null)	
+	)
+			raiserror('%s,%d:: Cannot update the profile of the user.', 16, 1, @ProcName, @UserId);
 
 	if @ExternalTran = 0
 		begin transaction;
 
 		update dbo.appUsers set 
-			[DisplayName] = coalesce(@DisplayName, DisplayName),
+			DisplayName = coalesce(@DisplayName, DisplayName),
 			Skype = coalesce(@Skype, Skype),
-			RateARec = coalesce(@RateARec, RateARec)
+			Rate = coalesce(@Rate, Rate),
+			Announcement = coalesce(@Announcement, Announcement)
 		where Id = @UserId;
 
 		if @@rowcount = 0
@@ -39,7 +47,10 @@ begin try
 				and ClaimType = 'englc.com/DisplayName';
 
 			if @@rowcount = 0
-				raiserror('%s,%d:: Name claim update failed.', 16, 1, @ProcName, @UserId);
+				raiserror('%s,%d:: Display name claim update failed.', 16, 1, @ProcName, @UserId);
+
+			update dbo.relLearnersTutors set LearnerDisplayName = @DisplayName where LearnerUserId = @UserId;
+			update dbo.relLearnersTutors set TutorDisplayName = @DisplayName where TutorUserId = @UserId;
 		end	
 
 	if @ExternalTran = 0

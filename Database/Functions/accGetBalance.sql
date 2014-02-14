@@ -12,10 +12,9 @@ declare @Balance decimal(18,2);
 
 declare @AccountId int = dbo.accGetPersonalAccount(@UserId);
 
-select top(1) @Balance = Balance
+select @Balance = Balance
 from dbo.accEntries
-where AccountId = @AccountId
-order by Id desc;
+where Id = (select max(Id) from dbo.accEntries where AccountId = @AccountId)
 
 return @Balance;
 

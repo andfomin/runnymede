@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.Title = "Sign in";
+    ViewBag.NavItem = "Account";
 
     string alertText = null;
     string alertStyle = null;
@@ -15,7 +16,7 @@
         {
             if (query.Contains("confirmed=True"))
             {
-                alertText = "Your email address has successfully been confirmed. Thank you!";
+                alertText = " Thank you! Your email address has been successfully confirmed. Please sign in.";
                 alertStyle = "alert-success";
             }
             else
@@ -39,7 +40,7 @@
         </div>
     </div>
 }
-<form class="form-horizontal" name="mainForm" role="form" data-ng-app="app" data-ng-controller="Ctrl" novalidate>
+<form class="form-horizontal" name="mainForm" role="form" data-ng-app="app" data-ng-controller="Ctrl" novalidate >
     <div class="form-group">
         <label for="userName" class="col-sm-4 control-label">Email address</label>
         <div class="col-sm-5">
@@ -63,15 +64,15 @@
     </div>
     <div class="form-group">
         <div class="col-sm-offset-4 col-sm-6">
-            <button type="submit" class="btn btn-primary" data-ng-click="vm.post(mainForm)" data-ng-disabled="mainForm.$invalid || vm.sending">Sign in &raquo;</button>
+            <button type="submit" class="btn btn-primary" data-ng-click="vm.post(mainForm)" data-ng-disabled="mainForm.$invalid || vm.sending">Sign in</button>
         </div>
     </div>
 </form>
 @Html.HrSeparator("col-sm-offset-2 col-sm-8")
 <div class="col-sm-offset-4 col-sm-6">
-    Forgot your password? @Html.ActionLink(HttpUtility.HtmlDecode("Reset here"), "ForgotPassword", "Account")
-    <br />
     Not yet a member? @Html.ActionLink(HttpUtility.HtmlDecode("Join here"), "Create", "Account")
+    <br />
+    Forgot your password? @Html.ActionLink(HttpUtility.HtmlDecode("Reset here"), "ForgotPassword", "Account")
 </div>
 
 @section BottomScripts {

@@ -1,12 +1,45 @@
-﻿@{
+﻿@using Runnymede.Website.Controllers
+@model AccountController.PayPalPaymentResult
+@{
     ViewBag.Title = "Balance";
     ViewBag.NavItem = "Account";
     var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
+
+    string alertText = null;
+    string alertStyle = null;
+    //var result = ViewBag.PayPalPaymentResult != null
+    //    ? (AccountController.PayPalPaymentResult)ViewBag.PayPalPaymentResult
+    //    : AccountController.PayPalPaymentResult.None;
+    switch (Model)
+    {
+        case AccountController.PayPalPaymentResult.Success:
+            alertText = "Thank you for your payment!";
+            alertStyle = "alert-success";
+            break;
+        case AccountController.PayPalPaymentResult.Canceled:
+            alertText = "Payment canceled.";
+            alertStyle = "alert-warning";
+            break;
+        default:
+            break;
+    }
+}
+@if (!string.IsNullOrEmpty(alertText))
+{
+    <div class="row">
+        <div class="col-sm-offset-4 col-sm-4 alert @alertStyle">
+            <p class="text-center">
+                @alertText
+            </p>
+        </div>
+    </div>
 }
 @if (!pageViewModel.IsTutor)
 {
-    <div class="span4">
-        <a href="@Url.Action("addmoney")" class="btn btn-primary">Add money to account &raquo;</a>
+    <div class="row">
+        <div class="col-sm-3">
+            <a href="@Url.Action("AddMoney")" class="btn btn-primary">Add money to account</a>
+        </div>
     </div>
     <br />
 }

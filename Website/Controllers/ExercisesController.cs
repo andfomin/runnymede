@@ -30,64 +30,26 @@ namespace Runnymede.Website.Controllers
             return View();
         }
 
-        // GET: /exercises/offers
-        ////        public ActionResult Offers()
-        ////        {
-        ////            var roles = (SimpleRoleProvider)Roles.Provider;
-        ////            if (!roles.IsUserInRole(User.Identity.Name, AccountController.ReviewerRoleName))
-        ////            {
-        ////                WebSecurity.Logout();
-        ////                return RedirectToAction("Login", "Account", new { returnUrl = "/" });
-        ////            }
-
-        ////            // If the user has a review process going on, force them to finish the review first.
-        ////            string reviewExtId;
-
-        ////            using (var connection = DapperHelper.GetOpenConnection())
-        ////            {
-        ////                const string sql = @"
-        ////select top(1) ReviewExtId
-        ////from dbo.Reviews
-        ////where UserId = dbo.GetUserId(@UserName)
-        ////	and FinishTime is null
-        ////order by StartTime;
-        ////";
-        ////                reviewExtId = connection.Query<string>(sql, new { UserName = User.Identity.Name }).SingleOrDefault();
-        ////            }
-
-        ////            if (!string.IsNullOrEmpty(reviewExtId))
-        ////            {
-        ////                return RedirectToAction("Review", "Reviews", new { id = reviewExtId });
-        ////            }
-
-        ////            return View();
-        ////        }
-
-        //// POST: /exercises/record
-        //[HttpPost]
-        //public ActionResult record(string title, string lines)
-        //{
-        //    ViewBag.TopicTitle = title;
-        //    return View();
-        //}
-
         // GET: /exercises/record?topic=12345678
         public ActionResult Record(string topic = null)
         {
-            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TopicsTableName);
-            var filter = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, topic);
-            var query = new TableQuery<TopicEntity>().Where(filter);
-            var entity = table.ExecuteQuery(query).Single();
+            IEnumerable<string> model = null;
+            if (!string.IsNullOrEmpty(topic))
+            {
+                var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TopicsTableName);
+                var filter = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, topic);
+                var query = new TableQuery<TopicEntity>().Where(filter);
+                var entity = table.ExecuteQuery(query).Single();
 
-            ViewBag.TopicId = topic;
+                ViewBag.TopicId = topic;
 
-            var title = entity.RowKey ?? "";
-            ViewBag.TopicTitle = title;
-            ViewBag.TopicShortTitle = title.Length <= MaxExerciseTitleLength ? title : title.Substring(0, MaxExerciseTitleLength);
+                var title = entity.RowKey ?? "";
+                ViewBag.TopicTitle = title;
+                ViewBag.TopicShortTitle = title.Length <= MaxExerciseTitleLength ? title : title.Substring(0, MaxExerciseTitleLength);
 
-            var lines = entity.Lines ?? "";
-            IEnumerable<string> model = lines.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-
+                var lines = entity.Lines ?? "";
+                model = lines.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            }
             return View(model);
         }
 
@@ -128,58 +90,59 @@ namespace Runnymede.Website.Controllers
             return View();
         }
 
-        //
         // GET: /exercises/upload?dir=BASE64_ENCODED_STRING
-        ////public ActionResult upload(string dir = "")
-        ////{
-        ////    byte[] encodedDataAsBytes = System.Convert.FromBase64String(dir);
-        ////    string userDir = System.Text.Encoding.Unicode.GetString(encodedDataAsBytes);
+        public ActionResult Upload(string dir = "")
+        {
+            byte[] encodedDataAsBytes = System.Convert.FromBase64String(dir);
+            string userDir = System.Text.Encoding.Unicode.GetString(encodedDataAsBytes);
 
-        ////    ViewBag.UserDir = userDir;
+            ViewBag.UserDir = userDir;
 
-        ////    return View();
-        ////}
+            return View();
+        }
 
-        ////[HttpPost]
-        ////public ActionResult upload(HttpPostedFileBase file, string userdir = "", string topic = null)
-        ////{
-        ////    var success = false;
-        ////    try
-        ////    {
-        ////        if (file != null)
-        ////        {
-        ////            using (var stream = file.InputStream)
-        ////            {
-        ////                var durationMsec = UploadHelper.GetMp3DurationMsec(stream);
-        ////                if (durationMsec > 0)
-        ////                {
-        ////                    var title = string.IsNullOrEmpty(topic)
-        ////                        ? Path.GetFileNameWithoutExtension(file.FileName)
-        ////                        : topic;
+        // POST: /exercises/upload?
+        [HttpPost]
+        public ActionResult Upload(HttpPostedFileBase file, string userdir = "", string title = null)
+        {
+            var success = false;
+            try
+            {
+                if (file != null)
+                {
+                    using (var stream = file.InputStream)
+                    {
+                        var durationMsec = UploadHelper.GetMp3DurationMsec(stream);
+                        if (durationMsec > 0)
+                        {
+                            var exerciseTitle = !string.IsNullOrEmpty(title)
+                                ? title
+                                : Path.GetFileNameWithoutExtension(file.FileName);
 
-        ////                    UploadHelper.SaveRecording(
-        ////                                                User.Identity.Name,
-        ////                                                stream,
-        ////                                                durationMsec,
-        ////                                                null,
-        ////                                                title
-        ////                                            );
+                            UploadHelper.SaveRecording(
+                                stream,
+                                this.GetUserId(),
+                                ExerciseType.AudioRecording,
+                                durationMsec,
+                                null,
+                                exerciseTitle
+                                );
 
-        ////                    success = true;
-        ////                }
-        ////            }
+                            success = true;
+                        }
+                    }
 
-        ////            ViewBag.FileName = file.FileName;
-        ////        }
-        ////    }
-        ////    catch (Exception)
-        ////    {
-        ////    }
+                    ViewBag.FileName = file.FileName;
+                }
+            }
+            catch (Exception)
+            {
+            }
 
-        ////    ViewBag.Success = success;
-        ////    ViewBag.UserDir = userdir;
-        ////    return View();
-        ////}
+            ViewBag.Success = success;
+            ViewBag.UserDir = userdir;
+            return View();
+        }
 
     }
 }

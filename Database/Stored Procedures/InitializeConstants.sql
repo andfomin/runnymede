@@ -22,18 +22,29 @@ insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('PPIF
 
 insert dbo.accTransactionAttributeTypes (Id, [Description]) values ('EXER', 'ExerciseId');
 insert dbo.accTransactionAttributeTypes (Id, [Description]) values ('REVW', 'ReviewId');
+insert dbo.accTransactionAttributeTypes (Id, [Description]) values ('PPRI', 'PayPal Receipt Id');
+-- New
+insert dbo.accTransactionAttributeTypes (Id, [Description]) values ('LITI', 'LearnerUserId to TutorUserId');
 
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('PPIP', 'Incoming PayPal payment', null);
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('PPIF', 'Incoming PayPal payment fee compensation', null);
+insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('PPIP', 'Incoming PayPal payment', 'PPRI');
+insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('PPIF', 'Incoming PayPal payment fee compensation', 'PPRI');
 insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('PPOP', 'Outgoing PayPal payment', null);
 insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('NACC', 'New account', null);
 insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('EXRR', 'Request for review of exercise', 'REVW');
 insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('EXRC', 'Request for review canceled', 'REVW');
 insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('EXRF', 'Review finished', 'REVW');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('EXFD', 'Service fee deducted', 'REVW');
+insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('EXFD', 'Service fee deducted from reward', 'REVW');
+-- New
+insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('IPLT', 'Internal payment from learner to tutor', 'LITI');
+insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('IPFD', 'Service fee deducted from internal payment', 'LITI');
 
 insert into dbo.appConstants (Name, Value, Comment) values ('Relationships.Tutors.BuketCount', '1', 'Used for fast paging');
-insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.Reviews.ServiceFeeRate', '0.33', 'Service fee rate. 33% of earnings.');
+--Update
+insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.Reviews.ServiceFeeRate', '0.29', 'Service fee rate. 29% of earnings.');
+
+-- New
+insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.Reviews.WorkDurationRatio', '4.0', 'Average ratio of work duration to exercise length.');
+insert into dbo.appConstants (Name, Value, Comment) values ('Accounting.Transfer.MinimalAmount', '1.0', 'Minimal amount of internal transfer from learner to tutor.');
 
 /* Inserted into dbo.appConstants whithin dbo.newInitializeSpecialUsers:
 'Account.$Service.ServiceRevenue',

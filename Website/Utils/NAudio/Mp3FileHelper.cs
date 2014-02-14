@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 
-namespace Runnymede.Web.Controllers.Utils
+namespace Runnymede.Website.Utils.NAudio
 {
     public static class Mp3FileHelper
     {

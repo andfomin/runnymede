@@ -96,28 +96,29 @@ namespace Runnymede.Website.Controllers
         [Route("{id:int}/ReviewConditions")]
         public async Task<IHttpActionResult> GetReviewConditions(int id)
         {
-            var sqlBalance = @"
-select dbo.accGetBalance(@UserId) as Balance;
+            var sqlConditions = @"
+select dbo.accGetBalance(@UserId) as Balance, dbo.appGetConstantAsFloat('Exercises.Reviews.WorkDurationRatio') as WorkDurationRatio;
 ";
             var sqlTutors = @"
-select Id, DisplayName, RateARec 
+select Id, DisplayName, Rate 
 from dbo.relGetRelatedTutors(@UserId) 
 order by DisplayName;
 ";
             var userId = this.GetUserId();
-            decimal balance;
+            dynamic conditions;
             IEnumerable<dynamic> tutors;
 
             using (var connection = DapperHelper.GetOpenConnection())
             {
-                balance = (await connection.QueryAsync<decimal>(sqlBalance, new { UserId = userId })).Single();
+                conditions = (await connection.QueryAsync<dynamic>(sqlConditions, new { UserId = userId })).Single();
 
                 tutors = await connection.QueryAsync<dynamic>(sqlTutors, new { UserId = userId });
             }
 
             return Ok<object>(new
             {
-                Balance = balance,
+                WorkDurationRatio = (float)conditions.WorkDurationRatio, // Average ratio of work duration to exercise length. It is used for calculation of suggested offers.
+                Balance = (decimal)conditions.Balance,
                 Tutors = tutors
             });
         }

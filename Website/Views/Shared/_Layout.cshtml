@@ -16,7 +16,10 @@
     @*<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
     @Styles.Render("~/content/css-app")
     @RenderSection("HeadScripts", required: false)
-    @*@Html.Partial("_GoogleAnalyticsPartial")*@
+    @if (!Html.IsDebug())
+    {
+        @Html.Partial("_GoogleAnalyticsPartial")
+    }    
 </head>
 <body>
     @*<!-- The header is not in a container -->*@
@@ -38,16 +41,11 @@
     <footer id="footerContents" class="container">
         @Html.Partial("_FooterPartial")
     </footer>
-
-    @* For dropdown menu in the navbar *@
-    @if (Request.IsAuthenticated)
-    {
-        @Scripts.Render(
+    @* bootstrap.js is needed for the dropdown menu in the navbar and for scrollspy in the Info controller pages *@
+    @Scripts.Render(
         "~/bundles/jquery",
         "~/bundles/bootstrap"
         )
-    }
-
     @RenderSection("BottomScripts", required: false)
 </body>
 

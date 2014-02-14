@@ -13,6 +13,7 @@ module App.Exercises_Index {
         dialogExercise: KnockoutObservable<App.Model.Exercise> = ko.observable();
         dialogReview: KnockoutObservable<App.Model.Review> = ko.observable();
         balance: KnockoutObservable<number> = ko.observable();
+        workDurationRatio: number = 4; // Average ratio of work duration to exercise length. It is used for calculation of suggested offers.
         reward1: KnockoutObservable<string> = ko.observable();
         reward2: KnockoutObservable<string> = ko.observable();
         submitRequest: () => void;
@@ -20,10 +21,9 @@ module App.Exercises_Index {
 
         isLoading: KnockoutObservable<boolean> = ko.observable(false);
         reward: KnockoutComputed<number>;
-        tutors: KnockoutObservableArray<App.Model.ITutor> = ko.observableArray([]);
+        tutors: KnockoutObservableArray<App.Model.IUser> = ko.observableArray([]);
         anyReviewer: KnockoutObservable<boolean> = ko.observable(true);
         selectedTutors: KnockoutObservableArray<number> = ko.observableArray([]);
-        //calcRate: (rateARec: number, dialogExercise: KnockoutObservable<App.Model.Exercise>) => string;
 
         constructor() {
 
@@ -93,12 +93,12 @@ module App.Exercises_Index {
             });
 
             this.requestReview = (exercise) => {
-                // Show an NETEYE Activity Indicator.
-                (<any>$(document.body)).activity();
+                App.Utils.activityIndicator(true);
 
                 // Request review conditions from the server.
                 App.Utils.ajaxRequest('GET', App.Utils.exercisesApiUrl(exercise.id.toString() + '/ReviewConditions'))
                     .done((data) => {
+                        this.workDurationRatio = data.workDurationRatio;
                         this.balance(+data.balance);
                         this.tutors(data.tutors);
 
@@ -119,7 +119,7 @@ module App.Exercises_Index {
                         toastr.error('Error getting review conditions.');
                     })
                     .always(function () {
-                        (<any>$(document.body)).activity(false);
+                        App.Utils.activityIndicator(false);
                     });
             };
 
@@ -137,8 +137,8 @@ module App.Exercises_Index {
                             this.dialogExercise().reviews.push(r);
                             toastr.success('Review requested.');
                         })
-                        .fail(() => {
-                            toastr.error('Review request for exercise failed.');
+                        .fail((jqXHR: any) => {
+                            App.Utils.logAjaxError(jqXHR, 'Review request for exercise failed.');
                         })
                         .always(() => {
                             complete();
@@ -149,10 +149,10 @@ module App.Exercises_Index {
                 },
                 canExecute: (isExecuting) => {
                     var rewardStr = this.reward1();
-                    var valid = App.Utils.isValidAmount(rewardStr);
+                    var positive = App.Utils.isValidAmount(rewardStr) && (Number(rewardStr) > 0);
                     var reviewersOk = this.anyReviewer() || (this.selectedTutors().length > 0);
                     return !isExecuting
-                        && valid
+                        && positive
                         && (this.reward2() === rewardStr)
                         && reviewersOk;
                 }
@@ -170,10 +170,10 @@ module App.Exercises_Index {
 
         } // end of ctor
 
-        calcRate = (rateARec: number) => {
+        suggestedReward = (rate: number) => {
             var exe = this.dialogExercise();
             return exe
-                ? App.Utils.numberToMoney(rateARec * exe.length / 60000)
+                ? App.Utils.numberToMoney(rate * exe.length * this.workDurationRatio / 3600000) // MSec to Hour
                 : null;
         };
 

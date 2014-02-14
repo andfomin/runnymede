@@ -6,50 +6,65 @@
     }
 }
 <nav class="navbar navbar-default navbar-static-top" role="navigation">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-        <a class="navbar-brand" href="/">English Cosmos</a>
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbarCollapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-    </div>
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="nav navbar-nav">
-            <li class="@NavClass("HomeIndex")">@Html.ActionLink("Home", "Index", "Home")</li>
-            @if (Model.IsTutor)
-            {
-                <li class="@NavClass("ReviewsIndex")">@Html.ActionLink("Reviews", "Index", "Reviews")</li>
-                <li class="@NavClass("ReviewsRequests")">@Html.ActionLink("Requests", "Requests", "Reviews")</li>
-            }
-            else
-            {
-                <li class="@NavClass("RelationshipsIndex")">@Html.ActionLink("Relationships", "Index", "Relationships")</li>
-                <li class="@NavClass("ExercisesIndex")">@Html.ActionLink("Exercises", "Index", "Exercises")</li>
-                <li class="@NavClass("StatisticsIndex")">@Html.ActionLink("Statistics", "Index", "Statistics")</li>
-            }
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-            @if (Request.IsAuthenticated)
-            {
-                <li class="dropdown @NavClass("Account")">
-                    <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>@Model.DisplayName<b class="caret"></b></a>
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">English Cosmos</a>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#headerCollapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="headerCollapse">
+            <ul class="nav navbar-nav">
+                <li class="@NavClass("Home")">@Html.ActionLink("Home", "Index", "Home")</li>
+                @if (Model.IsTutor)
+                {
+                    <li class="@NavClass("Relationships")">@Html.ActionLink("Relationships", "TutorLearners", "Relationships")</li>
+                    <li class="@NavClass("Reviews")">@Html.ActionLink("Reviews", "Index", "Reviews")</li>
+                    <li class="@NavClass("Requests")">@Html.ActionLink("Requests", "Requests", "Reviews")</li>
+                }
+                else
+                {
+                    <li class="dropdown @NavClass("Relationships")">
+                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Relationships<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li>@Html.ActionLink("Tutors", "Tutors", "Relationships", null, new { tabindex = "-1" })</li>
+                            <li>@Html.ActionLink("Skype directory", "SkypeDirectory", "Relationships", null, new { tabindex = "-1" })</li>
+                        </ul>
+                    </li>
+                    <li class="@NavClass("Exercises")">@Html.ActionLink("Exercises", "Index", "Exercises")</li>
+                    <li class="@NavClass("Statistics")">@Html.ActionLink("Statistics", "Index", "Statistics")</li>
+                }
+                <li class="dropdown @NavClass("Search")">
+                    <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Search<b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li>@Html.ActionLinkWithProtocol("Edit profile", "Edit", "Account", "https", new { tabindex = "-1" })</li>
-                        <li>@Html.ActionLinkWithProtocol("View balance", "Balance", "Account", "https", new { tabindex = "-1" })</li>
-                        @*<li>@Html.ActionLinkWithProtocol("Add money to account", "AddMoney", "Account", "https", new { tabindex = "-1" })</li>*@
-                        <li class="divider"></li>
-                        <li>@Html.ActionLinkWithProtocol("Sign out", "Signout", "Account", "http", new { tabindex = "-1" })</li>
+                        <li>@Html.ActionLink("IELTS", "Ielts", "Search", null, new { tabindex = "-1" })</li>
                     </ul>
                 </li>
-            }
-            else
-            {
-                <li class="@NavClass("AccountLogin")">@Html.ActionLinkWithProtocol("Sign in", "Signin", "Account", "https", null)</li>
-            }
-        </ul>
-    </div><!-- /.navbar-collapse -->
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                @if (Request.IsAuthenticated)
+                {
+                    <li class="dropdown @NavClass("Account")">
+                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>@Model.DisplayName<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li>@Html.ActionLinkWithProtocol("Edit profile", "Edit", "Account", "https", new { tabindex = "-1" })</li>
+                            <li>@Html.ActionLinkWithProtocol("View balance", "Balance", "Account", "https", new { tabindex = "-1" })</li>
+                            @*<li>@Html.ActionLinkWithProtocol("Add money to account", "AddMoney", "Account", "https", new { tabindex = "-1" })</li>*@
+                            <li class="divider"></li>
+                            <li>@Html.ActionLinkWithProtocol("Sign out", "Signout", "Account", "http", new { tabindex = "-1" })</li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="@NavClass("Account")">@Html.ActionLinkWithProtocol("Sign in", "Signin", "Account", "https", null)</li>
+                }
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div>
 </nav>

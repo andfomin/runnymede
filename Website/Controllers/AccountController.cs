@@ -12,8 +12,9 @@ using Owin;
 using Runnymede.Website.Models;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace Runnymede.Community.Controllers
+namespace Runnymede.Website.Controllers
 {
     [Authorize]
     public class AccountController : Runnymede.Website.Utils.CustomController
@@ -34,19 +35,22 @@ namespace Runnymede.Community.Controllers
 
         // GET: account/confirm?code=qwertyuiop&time=123456
         [AllowAnonymous]
+        [RequireHttps]
         public ActionResult Confirm()
         {
-            string code = IdentityHelper.GetCodeFromRequest(Request);
+            DoSignout();
+
             int userId = IdentityHelper.GetUserIdFromRequest(Request);
+            string code = IdentityHelper.GetCodeFromRequest(Request);
             bool success = false;
-            if (!string.IsNullOrEmpty(code) && userId != 0)
+            if (userId != 0 && !string.IsNullOrEmpty(code))
             {
-                var manager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
-                var result = manager.ConfirmUser<ApplicationUser, int>(userId, code);
+                var result = this.OwinUserManager.ConfirmUser<ApplicationUser, int>(userId, code);
                 success = result.Succeeded;
             }
-            //return RedirectToAction("Signin", new { confirmed = success });
-            return Redirect(Url.Action("Signin", this.GetControllerName(), new { confirmed = success }, "https"));
+
+            //return Redirect(Url.Action("Signin", this.GetControllerName(), new { confirmed = success }, "https"));
+            return RedirectToAction("Signin", new { confirmed = success });
         }
 
         // GET: /account/signin
@@ -54,11 +58,7 @@ namespace Runnymede.Community.Controllers
         [RequireHttps]
         public ActionResult Signin(string returnUrl)
         {
-            if (Request.IsAuthenticated)
-            {
-                Request.GetOwinContext().Authentication.SignOut();
-            }
-
+            DoSignout();
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
@@ -67,25 +67,34 @@ namespace Runnymede.Community.Controllers
         [AllowAnonymous]
         public ActionResult Signout()
         {
-            // Delete the authentication cookie. 
-            //Ver 1.0. Request.GetOwinContext().Authentication.SignOut(CookieAuthenticationDefaults.AuthenticationType);
-            Request.GetOwinContext().Authentication.SignOut();
+            DoSignout();
+            return Redirect(Url.Action("Signin", this.GetControllerName(), null, "https"));
             //The script in the HeadScripts section of the page deletes the access token from the browser's local storage. Then the script redirects to the Login page.
             //return View();
-            return Redirect(Url.Action("Signin", this.GetControllerName(), null, "https"));
         }
 
         // GET: account/balance/
         [RequireHttps]
-        public ActionResult Balance()
+        public ActionResult Balance(PayPalPaymentResult payPalPaymentResult = PayPalPaymentResult.None)
         {
-            return View();
+            return View(payPalPaymentResult);
         }
 
         // GET: /account/add-money
         [RequireHttps]
+        //public async Task<ActionResult> AddMoney()
         public ActionResult AddMoney()
         {
+            //var confirmedEmail = await this.OwinUserManager.IsConfirmedAsync(this.GetUserId());
+            return View();
+        }
+
+        // GET: /account/pay-tutor/12345?tutor=qwerty
+        [RequireHttps]
+        public ActionResult PayTutor(string id, string tutor)
+        {
+            ViewBag.TutorUserId = Convert.ToInt32(id);
+            ViewBag.TutorDisplayName = tutor;
             return View();
         }
 
@@ -111,12 +120,21 @@ namespace Runnymede.Community.Controllers
             return View();
         }
 
+        public enum PayPalPaymentResult
+        {
+            None,
+            Success,
+            Canceled
+        }
+
         // Be carefull with capitalization of the action method name. Route mapper will add a dash.
         // GET: account/paypal-payment?tx=ExtId
         [AllowAnonymous]
         [RequireHttps]
         public ActionResult PaypalPayment(string tx = null)
         {
+            PayPalPaymentResult result = PayPalPaymentResult.Canceled;
+
             if (!string.IsNullOrEmpty(tx))
             {
                 var helper = new PayPalHelper();
@@ -125,19 +143,21 @@ namespace Runnymede.Community.Controllers
 
                 // Query PayPal.
                 var response = helper.RequestPaymentDetails(tx);
+
                 var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.DetailsRequest, tx, response);
 
                 var lines = helper.SplitPdtMessage(response);
 
-                helper.PostPaymentTransaction(lines, logRowKey);
+                // Write the payment to the database.
+                helper.PostIncomingPaymentTransaction(lines, logRowKey);
 
                 if (lines.Count() > 0)
                 {
-                    return View("PaypalSuccess");
+                    result = PayPalPaymentResult.Success;
                 }
             }
 
-            return View("PaypalCancel");
+            return RedirectToAction("Balance", new { PayPalPaymentResult = result });
         }
 
         // GET: account/ipn/
@@ -157,11 +177,12 @@ namespace Runnymede.Community.Controllers
             var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.IPN, tx, message);
 
             var response = helper.VerifyIPN(message);
+
             helper.WriteLog(PayPalLogEntity.NotificationKind.IPNResponse, tx, response);
 
             if (response == "VERIFIED")
             {
-                helper.PostPaymentTransaction(lines, logRowKey);
+                helper.PostIncomingPaymentTransaction(lines, logRowKey);
             }
 
             return new HttpStatusCodeResult(HttpStatusCode.NoContent);
@@ -170,6 +191,12 @@ namespace Runnymede.Community.Controllers
         private ApplicationUserManager OwinUserManager
         {
             get { return Request.GetOwinContext().GetUserManager<ApplicationUserManager>(); }
+        }
+
+        private void DoSignout()
+        {
+            // Delete the authentication cookie. 
+            Request.GetOwinContext().Authentication.SignOut();
         }
     }
 }

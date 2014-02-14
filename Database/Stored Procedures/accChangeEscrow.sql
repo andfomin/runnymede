@@ -6,7 +6,7 @@ CREATE PROCEDURE [dbo].[accChangeEscrow]
 	@UserId int,
 	@Amount decimal(18, 2),
 	@TransactionTypeId char(4),
-	@Attribute int = null,
+	@Attribute nvarchar(100) = null,
 	@Details xml = null
 AS
 BEGIN
@@ -30,8 +30,8 @@ begin try
 		@TransactionId int, @Balance decimal(18,2);
 
 	select 
-		@PersonalAccountId = Max(case when AccountTypeId = 'PERS' then Id else 0 end),
-		@EscrowAccountId = Max(case when AccountTypeId = 'ESCR' then Id else 0 end)
+		@PersonalAccountId = max(case when AccountTypeId = 'PERS' then Id else 0 end),
+		@EscrowAccountId = max(case when AccountTypeId = 'ESCR' then Id else 0 end)
 	from dbo.accAccounts
 	where UserId = @UserId;
 
@@ -43,13 +43,13 @@ begin try
 	else
 		select @DebitedAccountId = @EscrowAccountId, @CreditedAccountId = @PersonalAccountId;
 
-	if not exists (select * from dbo.accTransactionTypes where Id = @TransactionTypeId)
-		raiserror('%s,%s:: Transaction type not found.', 16, 1, @ProcName, @TransactionTypeId); 
+	-- dbo.accTransactions.TransactionTypeId is a FK. The value comes from our upstream code.
+	--if not exists (select * from dbo.accTransactionTypes where Id = @TransactionTypeId)
+	--	raiserror('%s,%s:: Transaction type not found.', 16, 1, @ProcName, @TransactionTypeId); 
 
-	select top(1) @Balance = Balance
+	select @Balance = Balance
 	from dbo.accEntries
-	where AccountId = @DebitedAccountId
-	order by Id desc;
+	where Id = (select max(Id) from dbo.accEntries where AccountId = @DebitedAccountId)
 
 	if @Balance is null or (@Balance < abs(@Amount)) 
 		raiserror('%s,%d:: Non-sufficient funds.', 16, 1, @ProcName, @UserId); 
@@ -62,17 +62,17 @@ begin try
 
 		select @TransactionId = scope_identity() where @@rowcount != 0;
 
-		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select top(1) @TransactionId, @DebitedAccountId, abs(@Amount), null, E.Balance - abs(@Amount)
-			from dbo.accEntries E
-			where E.AccountId = @DebitedAccountId
-			order by E.Id desc;
+		set transaction isolation level serializable;
 
 		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select top(1) @TransactionId, @CreditedAccountId, null, abs(@Amount), E.Balance + abs(@Amount)
-			from dbo.accEntries E
-			where E.AccountId = @CreditedAccountId
-			order by E.Id desc;
+			select @TransactionId, @DebitedAccountId, abs(@Amount), null, Balance - abs(@Amount)
+			from dbo.accEntries
+			where Id = (select max(Id) from dbo.accEntries where AccountId = @DebitedAccountId)
+
+		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
+			select @TransactionId, @CreditedAccountId, null, abs(@Amount), Balance + abs(@Amount)
+			from dbo.accEntries
+			where Id = (select max(Id) from dbo.accEntries where AccountId = @CreditedAccountId)
 
 	if @ExternalTran = 0
 		commit;

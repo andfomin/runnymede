@@ -21,6 +21,11 @@ var App;
         }
         Utils.loginUrl = loginUrl;
         ;
+        function relationshipsUrl(path) {
+            return '/relationships/' + (path || '');
+        }
+        Utils.relationshipsUrl = relationshipsUrl;
+        ;
 
         function statisticsApiUrl(path) {
             return '/api/StatisticsApi/' + (path || '');
@@ -138,8 +143,7 @@ var App;
         // ko.datasource
         function dataSource(url, ctor) {
             return function () {
-                // Show an NETEYE Activity Indicator.
-                ($(document.body)).activity();
+                App.Utils.activityIndicator(true);
 
                 $.ajax({
                     type: 'GET',
@@ -159,7 +163,7 @@ var App;
                     }
                     this.pager.totalCount(dto.totalCount);
                 }).always(function () {
-                    ($(document.body)).activity(false);
+                    App.Utils.activityIndicator(false);
                 });
             };
         }
@@ -257,6 +261,30 @@ var App;
             return result;
         }
         Utils.find = find;
+
+        function activityIndicator(show) {
+            // NETEYE Activity Indicator in knockout.activity.js
+            ($(document.body)).activity(show);
+        }
+        Utils.activityIndicator = activityIndicator;
+
+        function logAjaxError(jqXHR, defaultMessage) {
+            var r = jqXHR.responseJSON;
+            var m;
+            if (r) {
+                var em = r.exceptionMessage ? ('' + r.exceptionMessage) : '';
+
+                // SQL stored procedures return custom formatted error messages with values at the beginning of the message.
+                var i = em.indexOf('::');
+                if (i > -1) {
+                    em = em.substring(i + 2);
+                }
+                m = em ? em : (r.message ? r.message : (r.error_description ? r.error_description : ''));
+            }
+
+            toastr.error('Error. ' + r ? m : defaultMessage);
+        }
+        Utils.logAjaxError = logAjaxError;
     })(App.Utils || (App.Utils = {}));
     var Utils = App.Utils;
 })(App || (App = {}));

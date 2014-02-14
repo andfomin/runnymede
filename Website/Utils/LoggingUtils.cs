@@ -20,7 +20,14 @@ namespace Runnymede.Website.Utils
 
         public const string KeeperCookieName = "keeper";
 
-        //private static long SequenceCounter = 0;
+        private static long SequenceCounter = 0;
+
+        public static string GetUniquifiedObservedTime()
+        {
+            Interlocked.Increment(ref SequenceCounter);
+            var now = DateTime.UtcNow;
+            return now.ToString("u") + now.Millisecond.ToString("D3") + (SequenceCounter % 100000).ToString("D5"); // If required, the number is pre-padded with zeros.        
+        }
 
         public static string GetUniqueObservedTime()
         {

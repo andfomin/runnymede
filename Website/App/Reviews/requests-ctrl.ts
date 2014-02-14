@@ -33,6 +33,11 @@ module App.Reviews_Requests {
                 );
         }
 
+        showStartDialog = (request: IRequest) => {
+            this.dialogRequest = request;
+            (<any>$('#startDialog')).modal();
+        }
+
         start = () => {
             var request = this.dialogRequest;
             this.dialogRequest = null;
@@ -47,19 +52,9 @@ module App.Reviews_Requests {
             }
         }
 
-        showStartDialog = (request: IRequest) => {
-            this.dialogRequest = request;
-            (<any>$('#startDialog')).modal();
-        }
-
         formatMsec = (length: number) => {
             return App.Utils.formatMsec(length);
         }
-
-        calcRate = (length: number, reward: number) => {
-            return App.Utils.numberToMoney(reward * 60000 / length);
-        }
-
 
     } // end of class
 } // end of module

@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "Search the IELTS website";
+}
+@section HeadScripts {
+    <script>
+        (function () {
+            var cx = '002797079407100955729:u-23lms1zak';
+            var gcse = document.createElement('script');
+            gcse.type = 'text/javascript';
+            gcse.async = true;
+            gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(gcse, s);
+        })();
+    </script>
+    <style>
+        .googlecse-bootstrap3,
+        .googlecse-bootstrap3 *,
+        .googlecse-bootstrap3 *:before,
+        .googlecse-bootstrap3 *:after {
+            -webkit-box-sizing: content-box;
+            -moz-box-sizing: content-box;
+            box-sizing: content-box;
+            line-height: normal;
+        }
+
+        div.separator-no-top-margin hr.app-separator {
+            margin-top: 0;
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-md-offset-3 col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body googlecse-bootstrap3">
+                <gcse:search></gcse:search>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.HrSeparator("col-md-offset-2 col-md-8 separator-no-top-margin")
+<div class="row">
+    <div class="col-md-offset-3 col-md-6">
+        <img class="img-responsive img-rounded" src="~/Content/Images/ielts-banner.jpg" />
+    </div>
+</div>

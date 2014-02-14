@@ -1,0 +1,48 @@
+﻿<div class="row">
+
+    <div class="col-md-9">
+        <div class="row" data-ng-repeat="t in vm.tutors">
+            <div class=" col-md-offset-1 col-md-3">
+                <strong>{{t.displayName}}</strong>
+                <br />
+                <br />
+                Rate: {{t.rate | number:2}} $/hour
+                <br />
+                <br />
+                <button class="btn btn-default btn-xs" data-ng-click="vm.addTutor(t)" title="Add"><i class="fa fa-plus" /> Add</button>
+            </div>
+            <div class="col-md-7">
+                {{t.announcement}}
+            </div>
+            <div class="row"><div class="col-sm-12"><hr class="app-separator" /></div></div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <a href="#">View your favorite tutor list</a>
+                <br />
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--<div class="row" data-ng-repeat-start="t in vm.tutors">
+    <div class="col-sm-offset-1 col-sm-3"><strong>{{t.displayName}}</strong></div>
+    <div class="col-sm-3">Rate: {{t.rate | number:2}} $/hour</div>
+    <div class="col-sm-3"><button class="btn btn-default btn-xs" data-ng-click="vm.addTutor(t)" title="Add"><i class="fa fa-plus" /> Add</button></div>
+</div>
+<div class="row" data-ng-repeat-end>
+    <div class="col-sm-offset-1 col-sm-10"><p>{{t.announcement}}<br />&nbsp;</p></div>
+    <br />&nbsp;
+</div>-->
+
+
+
+
+
+
+
+

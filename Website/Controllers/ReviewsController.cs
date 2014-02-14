@@ -1,23 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using Newtonsoft.Json;
-using System.IO;
-using System.Web.Configuration;
-using Dapper;
-using System.Net;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Storage;
-using System.Xml.Linq;
+﻿using Dapper;
 using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage.Table;
-//using System.Web.Http;
+using System.Web;
+using System.Web.Mvc;
 
 namespace Runnymede.Website.Controllers
 {
@@ -130,7 +118,7 @@ where E.Id = @Id and E.UserId = @UserId;
         }
 
 
-        /* Use HTTPS to avoid HTTP referer header on redirect. +http://en.wikipedia.org/wiki/HTTP_referer#cite_note-10 */
+        /* Use HTTPS to avoid HTTP referer header on redirect to BCEG. +http://en.wikipedia.org/wiki/HTTP_referer#cite_note-10 */
         //[RequireHttps]
         public async Task<ActionResult> TagSearch(string q)
         {

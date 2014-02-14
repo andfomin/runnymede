@@ -148,8 +148,7 @@ var App;
                 });
 
                 if (requests.length > 0) {
-                    // Show an NETEYE Activity Indicator.
-                    ($(document.body)).activity();
+                    App.Utils.activityIndicator(true);
 
                     $.when.apply($, requests).done(function () {
                         var dtoArr = [];
@@ -172,7 +171,7 @@ var App;
                     }).fail(function () {
                         toastr.error('Error loading remarks.');
                     }).always(function () {
-                        ($(document.body)).activity(false);
+                        App.Utils.activityIndicator(false);
                     });
                 }
             };

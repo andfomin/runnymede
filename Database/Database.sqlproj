@@ -122,6 +122,20 @@
     <Build Include="Stored Procedures\relEnsureLearnerTutorRelation.sql" />
     <Build Include="Functions\relGetRelatedTutors.sql" />
     <Build Include="Stored Procedures\exeGetExercises.sql" />
+    <Build Include="Functions\appGetConstantAsFloat.sql" />
+    <Build Include="Functions\relGetRelatedLearners.sql" />
+    <Build Include="Stored Procedures\relAddLearnerToTutor.sql" />
+    <Build Include="Stored Procedures\accTransferMoney.sql" />
+    <Build Include="Stored Procedures\accMakePaymentToTutor.sql" />
+    <Build Include="Stored Procedures\accFinishReview.sql" />
+    <Build Include="Tables\relLearnersOnSkype.sql" />
+    <Build Include="Functions\relGetTutors.sql" />
+    <Build Include="Functions\relGetTutorLearners.sql" />
+    <Build Include="Functions\relGetLearnersOnSkype.sql" />
+    <Build Include="Stored Procedures\relAddLearnerOnSkype.sql" />
+    <Build Include="Tables\relSkypeDirectory.sql" />
+    <Build Include="Functions\relGetSkypeDirectory.sql" />
+    <Build Include="Stored Procedures\relJoinSkypeDirectory.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />

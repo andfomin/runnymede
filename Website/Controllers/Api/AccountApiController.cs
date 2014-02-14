@@ -90,7 +90,7 @@ update dbo.appUsers set TimezoneOffsetMin = @TimezoneOffsetMin where Id = @UserI
             }
 
             int userId = 0;
-            var displayName = !string.IsNullOrWhiteSpace(model.DisplayName) ? model.DisplayName.Trim() : "Anonymous";
+            var displayName = CoalesceDisplayName(model.DisplayName);
 
             // The internal Connection Resiliency strategy does not work with user-initiated transactions.
             // The workaround is described at "Limitations with Retrying Execution Strategies" +http://msdn.microsoft.com/en-us/data/dn307226.aspx
@@ -156,15 +156,17 @@ update dbo.appUsers set TimezoneOffsetMin = @TimezoneOffsetMin where Id = @UserI
                     )
                     .ToString(SaveOptions.DisableFormatting);
 
-            await LoggingUtils.WriteKeeperLogAsync(logData);
+            var logTask = LoggingUtils.WriteKeeperLogAsync(logData);
 
             // Send the confirmation link.
             var token = OwinUserManager.GetConfirmationToken<ApplicationUser, int>(userId);
             var queryString = IdentityHelper.GetMailLinkQueryString(token, userId);
             var host = Request.RequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
-            var link = "http://" + host + "/account/confirm?" + queryString;
-            // TODO. Send email really asynchronousy.
-            await this.SendConfirmationEmailAsync(model.UserName, link);
+            var link = "https://" + host + "/account/confirm?" + queryString;
+            var emailTask = this.SendConfirmationEmailAsync(model.UserName, link);
+
+            // Parallel Async.
+            await Task.WhenAll(logTask, emailTask);
 
             //return StatusCode(HttpStatusCode.NoContent); //JQuery 2.0 has changed behavior. Status OK 200 with empty response body is treated as a failure.
             //string redirectUrl = Url.Route("Default", new { controller = "Account", action = "Thanks" });
@@ -177,7 +179,7 @@ update dbo.appUsers set TimezoneOffsetMin = @TimezoneOffsetMin where Id = @UserI
         public async Task<IHttpActionResult> GetProfile()
         {
             var sql = @"
-select @UserName as UserName, DisplayName, IsTutor, Skype, TimezoneName, RateARec
+select @UserName as UserName, DisplayName, IsTutor, Skype, TimezoneName, Rate, Announcement
 from dbo.appUsers
 where Id = @Id;
 ";
@@ -195,17 +197,16 @@ where Id = @Id;
 
         // PUT api/AccountApi/Profile
         [Route("Profile")]
-        public IHttpActionResult PutProfile([FromBody]JObject value)
+        public IHttpActionResult PutProfile([FromBody] JObject value)
         {
-            // Update only changed fields. The null value indicates the field has not been changed.
+            // Update only changed fields. The null value indicates that the field has not been changed.
             var displayName = (string)value["displayName"];
-            var skype = (string)value["skype"];
-            var rateARec = (decimal?)value["rateARec"];
-
             if (displayName != null)
             {
-                displayName = !string.IsNullOrWhiteSpace(displayName) ? displayName.Trim() : "Anonymous";
+                displayName = CoalesceDisplayName(displayName);
             }
+
+            var skype = (string)value["skype"];
 
             // If a parameter is null, that meens keep the corresponding field intact.
             DapperHelper.ExecuteResiliently("dbo.appUpdateUser", new
@@ -213,7 +214,26 @@ where Id = @Id;
                 UserId = this.GetUserId(),
                 DisplayName = displayName,
                 Skype = skype,
-                RateARec = rateARec,
+            },
+            CommandType.StoredProcedure);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        // PUT api/AccountApi/TutorProfile
+        [Route("TutorProfile")]
+        public IHttpActionResult PutTutorProfile([FromBody] JObject value)
+        {
+            // Update only changed fields. The null value indicates the field has not been changed.
+            var rate = (decimal?)value["rate"];
+            var announcement = (string)value["announcement"];
+
+            // If a parameter is null, that meens keep the corresponding field intact.
+            DapperHelper.ExecuteResiliently("dbo.appUpdateUser", new
+            {
+                UserId = this.GetUserId(),
+                Rate = rate,
+                Announcement = announcement,
             },
             CommandType.StoredProcedure);
 
@@ -240,11 +260,10 @@ where Id = @Id;
             return result.Succeeded ? StatusCode(HttpStatusCode.NoContent) : this.GetErrorResult(result);
         }
 
-
         // POST api/AccountApi/Forgot
         [AllowAnonymous]
         [Route("Forgot")]
-        public async Task<IHttpActionResult> PostForgot([FromBody]JObject value)
+        public async Task<IHttpActionResult> PostForgot(JObject value)
         {
             var email = (string)value["email"];
             if (!string.IsNullOrEmpty(email))
@@ -258,7 +277,7 @@ where Id = @Id;
                     var token = userManager.GetPasswordResetToken<ApplicationUser, int>(user.Id);
                     var queryString = IdentityHelper.GetMailLinkQueryString(token, user.Id);
                     var host = Request.RequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
-                    var link = "http://" + host + "/account/reset-password?" + queryString;
+                    var link = "https://" + host + "/account/reset-password?" + queryString;
                     // TODO. Send email really asynchronousy.
                     await this.SendPasswordResetEmailAsync(email, link);
                 }
@@ -270,7 +289,7 @@ where Id = @Id;
         // POST api/AccountApi/Reset
         [AllowAnonymous]
         [Route("Reset")]
-        public async Task<IHttpActionResult> PostReset([FromUri] string code, [FromUri] string time, [FromBody]JObject value)
+        public async Task<IHttpActionResult> PostReset([FromUri] string code, [FromUri] string time, [FromBody] JObject value)
         {
             //string code = IdentityHelper.GetCodeFromRequest(Request);
             int userId = IdentityHelper.GetUserIdFromQueryStringValue(time);
@@ -290,12 +309,67 @@ where Id = @Id;
             return result.Succeeded ? StatusCode(HttpStatusCode.NoContent) : this.GetErrorResult(result);
         }
 
-        private string CoalesceNameOfUser(string postedNameOfUser)
+        // POST api/AccountApi/PaymentToTutor
+        [AllowAnonymous]
+        [Route("PaymentToTutor")]
+        public async Task<IHttpActionResult> PostPaymentToTutor(JObject value)
         {
-            postedNameOfUser = postedNameOfUser.Trim();
-            return string.IsNullOrWhiteSpace(postedNameOfUser) ? "Anonymous" : postedNameOfUser;
+            // Revalidate the sender's password.
+            var password = ((string)value["password"]);
+            var user = await UserManager.FindAsync(this.GetUserName(), password);
+            if (user == null)
+            {
+                return BadRequest("Wrong password.");
+            }
+
+            // Parse the amount value entered by the user.
+            var amountStr = ((string)value["amount"]).Trim().Replace(',', '.');
+            decimal amount;
+            if (!decimal.TryParse(amountStr, out amount))
+                return BadRequest(amountStr);
+
+            var tutorUserId = ((int)value["tutorUserId"]);
+
+            DapperHelper.ExecuteResiliently("dbo.accMakePaymentToTutor",
+                new
+                {
+                    UserId = user.Id,
+                    TutorUserId = tutorUserId,
+                    Amount = amount,
+                },
+                CommandType.StoredProcedure
+                );
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
+        // GET api/AccountApi/TransferRecepient
+        [Route("TransferRecepient")]
+        public async Task<IHttpActionResult> GetTransferRecepient()
+        {
+            var sql = @"
+select @UserName as UserName, DisplayName, IsTutor, Skype, TimezoneName, Rate, Announcement
+from dbo.appUsers
+where Id = @Id;
+";
+            var result = (await DapperHelper.QueryResilientlyAsync<dynamic>(sql,
+                new
+                {
+                    UserName = this.GetUserName(),
+                    Id = this.GetUserId(),
+                }))
+                .Single();
+
+            return Ok<object>(result);
+        }
+
+
+
+
+        private string CoalesceDisplayName(string postedDisplayName)
+        {
+            return string.IsNullOrWhiteSpace(postedDisplayName) ? "Anonymous" : postedDisplayName.Trim();
+        }
 
         protected override void Dispose(bool disposing)
         {
