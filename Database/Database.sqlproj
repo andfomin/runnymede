@@ -86,11 +86,11 @@
     <Build Include="Stored Procedures\_Template.sql" />
     <Build Include="Stored Procedures\accCreateAccount.sql" />
     <Build Include="Stored Procedures\accCreateUserAccounts.sql" />
-    <Build Include="Stored Procedures\InitializeConstants.sql" />
-    <Build Include="Stored Procedures\InitializeSpecialUsers.sql" />
-    <Build Include="Stored Procedures\InitializeUser.sql" />
-    <Build Include="Stored Procedures\InitializeTestUsers.sql" />
-    <Build Include="Stored Procedures\InitializeAll.sql" />
+    <Build Include="Stored Procedures\sysInitializeConstants.sql" />
+    <Build Include="Stored Procedures\sysInitializeSpecialUsers.sql" />
+    <Build Include="Stored Procedures\sysInitializeUser.sql" />
+    <Build Include="Stored Procedures\sysInitializeTestUsers.sql" />
+    <Build Include="Stored Procedures\sysInitializeAll.sql" />
     <Build Include="Tables\appUsers.sql" />
     <Build Include="Stored Procedures\appCreateUserAndAccounts.sql" />
     <Build Include="Tables\exeExerciseTypes.sql" />
@@ -116,29 +116,57 @@
     <Build Include="Security\websiterole.sql" />
     <Build Include="Security\websiteuser.sql" />
     <Build Include="Security\websitelogin.sql" />
-    <Build Include="Functions\relGetRandomTutors.sql" />
+    <Build Include="Functions\relGetRandomTeachers.sql" />
     <Build Include="Stored Procedures\accGetEntries.sql" />
-    <Build Include="Tables\relLearnersTutors.sql" />
-    <Build Include="Stored Procedures\relEnsureLearnerTutorRelation.sql" />
-    <Build Include="Functions\relGetRelatedTutors.sql" />
+    <Build Include="Tables\relLearnersTeachers.sql" />
     <Build Include="Stored Procedures\exeGetExercises.sql" />
     <Build Include="Functions\appGetConstantAsFloat.sql" />
-    <Build Include="Functions\relGetRelatedLearners.sql" />
-    <Build Include="Stored Procedures\relAddLearnerToTutor.sql" />
+    <Build Include="Stored Procedures\relAddLearnerToTeacher.sql" />
     <Build Include="Stored Procedures\accTransferMoney.sql" />
-    <Build Include="Stored Procedures\accMakePaymentToTutor.sql" />
+    <Build Include="Stored Procedures\accMakePaymentToTeacher.sql" />
     <Build Include="Stored Procedures\accFinishReview.sql" />
     <Build Include="Tables\relLearnersOnSkype.sql" />
-    <Build Include="Functions\relGetTutors.sql" />
-    <Build Include="Functions\relGetTutorLearners.sql" />
+    <Build Include="Functions\relGetTeachers.sql" />
+    <Build Include="Functions\relGetTeacherLearners.sql" />
     <Build Include="Functions\relGetLearnersOnSkype.sql" />
     <Build Include="Stored Procedures\relAddLearnerOnSkype.sql" />
     <Build Include="Tables\relSkypeDirectory.sql" />
     <Build Include="Functions\relGetSkypeDirectory.sql" />
     <Build Include="Stored Procedures\relJoinSkypeDirectory.sql" />
+    <Build Include="Stored Procedures\sysAssignTeacherStatus.sql" />
+    <Build Include="Stored Procedures\relCreatePeriodOfAvailability.sql" />
+    <Build Include="Stored Procedures\exeTryChangeExerciseAuthor.sql" />
+    <Build Include="Stored Procedures\exeCreateUploadedReview.sql" />
+    <Build Include="Tables\relScheduleEventTypes.sql" />
+    <Build Include="Tables\relScheduleEvents.sql" />
+    <Build Include="Stored Procedures\relCreateSession.sql" />
+    <Build Include="Stored Procedures\relCreateSessionRequest.sql" />
+    <Build Include="Stored Procedures\relCancelSessionRequest.sql" />
+    <Build Include="Tables\relMessageTypes.sql" />
+    <Build Include="Tables\relMessages.sql" />
+    <Build Include="Tables\relMessageAttributeTypes.sql" />
+    <Build Include="Stored Procedures\relCancelPeriodOfAvailability.sql" />
+    <Build Include="Stored Procedures\relPostMessage.sql" />
+    <Build Include="Stored Procedures\relRevokeSessionOffer.sql" />
+    <Build Include="Stored Procedures\relOfferSession.sql" />
+    <Build Include="Stored Procedures\relGetSessionDetails.sql" />
+    <Build Include="Stored Procedures\relDeclineSessionRequest.sql" />
+    <Build Include="Stored Procedures\relConfirmSession.sql" />
+    <Build Include="Stored Procedures\relCancelSession.sql" />
+    <Build Include="Stored Procedures\relRequestSession.sql" />
+    <Build Include="Stored Procedures\relPostSessionMessage.sql" />
+    <Build Include="Stored Procedures\relCloseSession.sql" />
+    <Build Include="Stored Procedures\accCloseSession.sql" />
+    <Build Include="Stored Procedures\relDisputeSession.sql" />
+    <Build Include="Stored Procedures\relGetSessionMessageCount.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />
     <None Include="Code Snippets.txt" />
+    <None Include="Production Update Sequence.txt" />
+    <None Include="To Do.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="Database.refactorlog" />
   </ItemGroup>
 </Project>

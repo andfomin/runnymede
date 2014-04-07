@@ -23,22 +23,20 @@ namespace Runnymede.Website.Controllers.Api
         {
             var result = new DataSourceDto<BalanceEntryDto>();
 
-            using (var connection = DapperHelper.GetOpenConnection())
-            {
-                var reader = connection.QueryMultiple(
-                        "dbo.accGetEntries",
-                        new
-                        {
-                            UserId = this.GetUserId(),
-                            RowOffset = offset,
-                            RowLimit = limit
-                        },
-                        commandType: CommandType.StoredProcedure
-                    );
-
-                result.Items = reader.Read<BalanceEntryDto>().ToList();
-                result.TotalCount = reader.Read<int>().Single();
-            }
+            DapperHelper.QueryMultipleResiliently(
+                "dbo.accGetEntries",
+                new
+                {
+                    UserId = this.GetUserId(),
+                    RowOffset = offset,
+                    RowLimit = limit
+                },
+                CommandType.StoredProcedure,
+                (Dapper.SqlMapper.GridReader reader) =>
+                {
+                    result.Items = reader.Read<BalanceEntryDto>().ToList();
+                    result.TotalCount = reader.Read<int>().Single();
+                });
 
             return result;
         }

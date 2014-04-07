@@ -19,6 +19,7 @@ namespace Runnymede.Website.Utils
         }
 
         public const string KeeperCookieName = "keeper";
+        public const string AmbiguousTimezoneOffset = "Timezone offset is ambiguous.";
 
         private static long SequenceCounter = 0;
 
@@ -31,7 +32,7 @@ namespace Runnymede.Website.Utils
 
         public static string GetUniqueObservedTime()
         {
-            return DateTime.UtcNow.ToString("u") + " " + Guid.NewGuid().ToString("N").ToUpper();       
+            return DateTime.UtcNow.ToString("u") + " " + Guid.NewGuid().ToString("N").ToUpper();
         }
 
         private static ITableEntity CreateKeeperLogEntity(string logData)
@@ -84,6 +85,12 @@ namespace Runnymede.Website.Utils
             return null;
         }
 
+        /// <summary>
+        /// Infers the user's timezone offset based on the time reported by the browser.
+        /// </summary>
+        /// <param name="localTime"></param>
+        /// <param name="reportedTimezoneOffsetMin"></param>
+        /// <returns></returns>
         public static int? InferTimeOffsetMin(string localTime, int? reportedTimezoneOffsetMin)
         {
             int? inferredOffsetMin = reportedTimezoneOffsetMin;
@@ -94,10 +101,31 @@ namespace Runnymede.Website.Utils
             {
                 var fractualQuartersOfHour = (calculatedTimeOffsetSec.Value / 60.0 / 15.0);
                 var roundedQuartersOfHour = Convert.ToInt32(Math.Round(fractualQuartersOfHour));
-                inferredOffsetMin = roundedQuartersOfHour * 15;
+                inferredOffsetMin = (roundedQuartersOfHour * 15);
             }
 
-            return inferredOffsetMin;
+            return inferredOffsetMin % (60 * 24); // Some clients have set a wrong date.
+
+            /* The outgoing offset has the sign which is opposite to the sign of the incoming offset. 
+             * It is reported by JavaScript that way. It is discussed at +http://stackoverflow.com/a/21105733
+             * Quote: Perhaps it's because when you see an offset in an ISO 8601 or RFC 822 string, that offset has already been applied. But when you call getTimezoneOffset() it's the offset to apply to bring it back to UTC.
+             */
+            /* Wikipedia  +http://en.wikipedia.org/wiki/Time_offset
+             * The UTC offset is the difference in hours and minutes from UTC for a particular place and date. 
+             */
+            /* The JavaScript spec +http://ecma262-5.com/ELS5_HTML.htm#Section_15.9.5.26 
+             * Date.prototype.getTimezoneOffset(). Returns the difference between local time and UTC time in minutes.
+             */
+            /* MDN +https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getTimezoneOffset
+             * The time-zone offset is the difference, in minutes, between UTC and local time.
+             */
+        }
+
+        public static bool ClientTimeIsOk(string localTime, int? localTimezoneOffset)
+        {
+            var inferredTimeOffsetMin = InferTimeOffsetMin(localTime, localTimezoneOffset);
+            // The inferred offset has the sign which is opposite to the sign of the incoming offset. See the comments in LoggingUtils.InferTimeOffsetMin()
+            return (localTimezoneOffset + inferredTimeOffsetMin == 0);
         }
 
 

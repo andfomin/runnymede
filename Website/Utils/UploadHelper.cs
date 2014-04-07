@@ -7,7 +7,6 @@ using System.Linq;
 using System.Web;
 using Dapper;
 using NAudio.Wave;
-using Runnymede.Website.Controllers;
 using Runnymede.Website.Models;
 using System.Data.Entity.SqlServer;
 using System.Data;
@@ -16,6 +15,9 @@ namespace Runnymede.Website.Utils
 {
     public static class UploadHelper
     {
+        // Topics.cshtml. <input type="text" class="span8" data-ng-model="vm.ownTopic.title" maxlength="100" required placeholder="Write your topic here (maximum 100 characters.)" />
+        public const int MaxExerciseTitleLength = 100;
+
         /// <summary>
         /// Saves audio recording.
         /// </summary>
@@ -26,15 +28,14 @@ namespace Runnymede.Website.Utils
         /// <param name="durationMsec"></param>
         /// <param name="topicId"></param>
         /// <param name="exerciseTitle"></param>
-        /// <returns></returns>
-        public static void SaveRecording(Stream stream, int userId, string type, int durationMsec, string topicId = null, string exerciseTitle = null)
+        /// <returns>Exercise Id</returns>
+        public static int SaveRecording(Stream stream, int userId, string type, int durationMsec, string topicId = null, string exerciseTitle = null)
         {
             //var durationSec = Convert.ToInt32(Math.Round(durationMsec / 1000.0));
             //var durationText = string.Format("{0}:{1}", durationSec / 60, (durationSec % 60).ToString("D2"));
 
-            var maxTitleLength = ExercisesController.MaxExerciseTitleLength;
             string title = !string.IsNullOrEmpty(exerciseTitle)
-                            ? (exerciseTitle.Length <= maxTitleLength ? exerciseTitle : exerciseTitle.Substring(0, maxTitleLength))
+                            ? (exerciseTitle.Length <= MaxExerciseTitleLength ? exerciseTitle : exerciseTitle.Substring(0, MaxExerciseTitleLength))
                             : "Untitled";
 
             var artefactId = ControllerHelper.GetTvelveDigitBase32Number();
@@ -51,13 +52,14 @@ namespace Runnymede.Website.Utils
             }
 
             // Save the recording
-            blob.UploadFromStream(stream);
+            blob.UploadFromStreamAsync(stream);
 
             const string sql = @"
 insert dbo.exeExercises (UserId, TypeId, ArtefactId, TopicId, [Length], Title)
+output inserted.Id
 values (@UserId, @TypeId, @ArtefactId, @TopicId, @Length, @Title);
 ";
-            DapperHelper.ExecuteResiliently(sql,
+            var exerciseId = DapperHelper.QueryResiliently<int>(sql,
                 new
                 {
                     UserId = userId,
@@ -66,7 +68,10 @@ values (@UserId, @TypeId, @ArtefactId, @TopicId, @Length, @Title);
                     TopicId = topicId,
                     Length = durationMsec,
                     Title = title
-                });
+                })
+                .Single();
+
+            return exerciseId;
         }
 
         //----------------

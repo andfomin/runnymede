@@ -14,7 +14,7 @@ module App.Reviews_Requests {
         requests: IRequest[] = [];
         dialogRequest: IRequest;
 
-        static $inject = [App.Utils.AngularGlobal.$SCOPE, App.Utils.AngularGlobal.$HTTP];
+        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
 
         constructor(
             private $scope: Utils.IScopeWithViewModel,
@@ -59,8 +59,7 @@ module App.Reviews_Requests {
     } // end of class
 } // end of module
 
-var app = angular.module('app', []);
+var app = angular.module('app', ['chieffancypants.loadingBar']);
 app.controller('Ctrl', App.Reviews_Requests.Ctrl);
-
 
 

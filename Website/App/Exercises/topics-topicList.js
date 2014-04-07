@@ -23,7 +23,7 @@ var App;
                 { topic: "place", title: "Place", lines: ["Describe a place you like to go.", "Why is this place special to you?", "When did you first visit this place?", "Where is this place located?", "What language is spoken here? Do you speak this language?"] },
                 { topic: "smoking", title: "Smoking", lines: ["What do you feel about smoking in public places?", "Do you think smoking should be banned in people's homes?"] },
                 { topic: "marriage", title: "Marriage", lines: ["What is the attitude toward marriage in your country?", "Do most young people plan on getting married in your country?", "What are some of the advantages of marriage?", "What are some of the disadvantages?", "Is the divorce rate high in your country?", "Do you think people should be allowed to get divorced?"] },
-                { topic: "hobbies", title: "Hobbies", lines: ["Do you have any hobbies?", "What are some of your hobbies?", "When did you first develop tis hobby?", "What are some of the advantages of having a hobby?", "How much time do you spend on your hobby?"] },
+                { topic: "hobbies", title: "Hobbies", lines: ["Do you have any hobbies?", "What are some of your hobbies?", "When did you first develop this hobby?", "What are some of the advantages of having a hobby?", "How much time do you spend on your hobby?"] },
                 { topic: "films", title: "Films", lines: ["Do you enjoy watching movies?", "What's your favourite film?", "Who are your favourite actors?", "How often do you watch films?"] }
             ];
             return TopicList;

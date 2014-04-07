@@ -16,9 +16,6 @@ namespace Runnymede.Website
             config.SuppressDefaultHostAuthentication();
             config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
 
-            // Use camel case for JSON data.
-            config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
             // Web API routes
             config.MapHttpAttributeRoutes();
 
@@ -38,12 +35,12 @@ namespace Runnymede.Website
             // To disable tracing in your application, please comment out or remove the following line of code. For more information, refer to: +http://www.asp.net/web-api
             //config.EnableSystemDiagnosticsTracing();
 
-            var json = config.Formatters.JsonFormatter;
+            var jsonFormatter = config.Formatters.JsonFormatter;
             // +http://www.asp.net/web-api/overview/formats-and-model-binding/json-and-xml-serialization
             // Here we configure it to write JSON property names with camel casing without changing our server-side data model:
-            // Works by default. json.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+            jsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
-            json.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            jsonFormatter.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
             //json.SerializerSettings.DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore;
         }
 

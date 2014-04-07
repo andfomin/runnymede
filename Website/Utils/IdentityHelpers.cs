@@ -10,6 +10,7 @@ using System.Data.Entity.Infrastructure;
 using System.Data.Entity.SqlServer;
 using System.Runtime.Remoting.Messaging;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -24,7 +25,7 @@ namespace Runnymede.Website.Utils
     public static class AppClaimTypes
     {
         public const string DisplayName = "englc.com/DisplayName";
-        public const string IsTutor = "englc.com/IsTutor";
+        public const string IsTeacher = "englc.com/IsTeacher";
     }
 
     // You can add User data for the user by adding more properties to your User class, please visit +http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
@@ -265,6 +266,28 @@ namespace Runnymede.Website.Utils
         //        response.Redirect("~/");
         //    }
         //}
+        
+        public static int GetUserId(IIdentity identity)
+        {
+            return Convert.ToInt32(identity.GetUserId());
+        }
+
+        public static string GetUserName(IIdentity identity)
+        {
+            return identity.GetUserName();
+        }
+
+        public static string GetUserDisplayName(IIdentity identity)
+        {
+            var claimsIdentity = identity as System.Security.Claims.ClaimsIdentity;
+            return claimsIdentity != null ? claimsIdentity.FindFirstValue(AppClaimTypes.DisplayName) : null; // FindFirstValue() returns null if not found.
+        }
+
+        public static bool GetUserIsTeacher(IIdentity identity)
+        {
+            var claimsIdentity = identity as System.Security.Claims.ClaimsIdentity;
+            return (claimsIdentity != null) && claimsIdentity.HasClaim(i => i.Type == AppClaimTypes.IsTeacher);
+        }
     }
 }
 #endregion

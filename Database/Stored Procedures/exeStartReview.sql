@@ -32,10 +32,10 @@ begin try
 	if @HasReviewed = 1
 		raiserror('%s,%d,%d:: The user has already reviewed the exercise.', 16, 1, @ProcName, @UserId, @ExerciseId);
 
-	select @ReviewerName = DisplayName from dbo.appUsers where Id = @UserId and IsTutor = 1
+	select @ReviewerName = DisplayName from dbo.appUsers where Id = @UserId and IsTeacher = 1
 
 	if @ReviewerName is null 
-		raiserror('%s,%d:: The user is not a tutor.', 16, 1, @ProcName, @UserId);
+		raiserror('%s,%d:: The user is not a teacher.', 16, 1, @ProcName, @UserId);
 
 	if not exists (select * from dbo.exeRequests where ReviewId = @ReviewId and coalesce(ReviewerUserId, @UserId) = @UserId) 
 		raiserror('%s,%d,%d:: The user is not allowed to start the review.', 16, 1, @ProcName, @UserId, @ReviewId);

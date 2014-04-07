@@ -30,9 +30,7 @@ namespace Runnymede.Website.Controllers.Api
         {
             var result = new DataSourceDto<ReviewDto>();
 
-            using (var connection = DapperHelper.GetOpenConnection())
-            {
-                const string sql = @"
+            const string sql = @"
 select count(*) from dbo.exeReviews where UserId = @UserId;
 
 select Id, ExerciseId, StartTime, FinishTime, AuthorName, Reward
@@ -42,14 +40,20 @@ order by StartTime desc
 offset @RowOffset rows
 fetch next @RowLimit rows only
 ";
-                var reader = connection.QueryMultiple(
-                        sql,
-                        new { UserId = this.GetUserId(), RowOffset = offset, RowLimit = limit }
-                    );
-
-                result.TotalCount = reader.Read<int>().Single();
-                result.Items = reader.Read<ReviewDto>();
-            }
+            DapperHelper.QueryMultipleResiliently(
+                sql,
+                new
+                {
+                    UserId = this.GetUserId(),
+                    RowOffset = offset,
+                    RowLimit = limit
+                },
+                CommandType.Text,
+                (Dapper.SqlMapper.GridReader reader) =>
+                {
+                    result.TotalCount = reader.Read<int>().Single();
+                    result.Items = reader.Read<ReviewDto>();
+                });
 
             return result;
         }
@@ -58,7 +62,7 @@ fetch next @RowLimit rows only
         public async Task<IHttpActionResult> PostReview(JObject value)
         {
             int exerciseId = (int)value["exerciseId"];
-            var tutorsIds = value["tutors"].Values<int>();
+            var teachersIds = value["teachers"].Values<int>();
 
             // Parse the reward value entered by the user.
             var rewardStr = ((string)value["reward"]).Trim().Replace(',', '.');
@@ -68,7 +72,7 @@ fetch next @RowLimit rows only
 
             ReviewDto returned = null;
 
-            // We use plain ADO.NET to pass tutors in a table-valued parameter.
+            // We use plain ADO.NET to pass teachers in a table-valued parameter.
             using (var command = new SqlCommand())
             {
                 command.CommandType = CommandType.StoredProcedure;
@@ -78,17 +82,17 @@ fetch next @RowLimit rows only
                 command.Parameters.AddWithValue("@AuthorUserId", this.GetUserId());
                 command.Parameters.AddWithValue("@Reward", reward);
 
-                var tutorsRows = new DataTable();
-                tutorsRows.Columns.Add("UserId", typeof(int));
+                var teachersRows = new DataTable();
+                teachersRows.Columns.Add("UserId", typeof(int));
 
-                tutorsIds.OrderBy(i => i).ToList().ForEach(i =>
+                teachersIds.OrderBy(i => i).ToList().ForEach(i =>
                     {
-                        tutorsRows.Rows.Add(i);
+                        teachersRows.Rows.Add(i);
                     });
 
-                var tutorsParam = command.Parameters.AddWithValue("@ReviewerUserIds", tutorsRows);
-                tutorsParam.SqlDbType = SqlDbType.Structured;
-                tutorsParam.TypeName = "dbo.appUsersType";
+                var teachersParam = command.Parameters.AddWithValue("@ReviewerUserIds", teachersRows);
+                teachersParam.SqlDbType = SqlDbType.Structured;
+                teachersParam.TypeName = "dbo.appUsersType";
 
                 var executionStrategy = new SqlAzureExecutionStrategy();
                 await executionStrategy.ExecuteAsync(
@@ -127,7 +131,7 @@ fetch next @RowLimit rows only
             var cancelTime = (await DapperHelper.QueryResilientlyAsync<DateTime>(
                   "dbo.exeCancelReviewRequest",
                   new { ReviewId = id, UserId = this.GetUserId() },
-                  commandType: CommandType.StoredProcedure
+                  CommandType.StoredProcedure
                   ))
                   .Single();
 
@@ -183,7 +187,7 @@ where ReviewerUserId is null
             var finishTime = (await DapperHelper.QueryResilientlyAsync<DateTime>(
                   "dbo.exeFinishReview",
                   new { ReviewId = id, UserId = userId },
-                  commandType: CommandType.StoredProcedure
+                  CommandType.StoredProcedure
                   ))
                   .Single();
 

@@ -1,49 +1,59 @@
 ﻿@{
     ViewBag.Title = "Upload exercise recording";
+    var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
 }
 @if (!string.IsNullOrEmpty(ViewBag.UserDir))
 {
     <p class="text-center">
-        You can find your recent recordings in the following folder on your computer:
+        You can find your most recent recording in the following folder on your computer:
         <br />
         <em>@ViewBag.UserDir</em>
         <br />&nbsp;
     </p>
 }
-@if (ViewBag.FileName != null)
+@if (ViewBag.mp3FileName != null)
 {
     <div class="col-sm-offset-1 col-sm-10">
         @if (ViewBag.Success)
         {
             <p class="text-success">
-                You have successfully uploaded file @ViewBag.FileName. You can go now to the <a href="/exercises">Exercises</a> page to see it.
+                You have successfully uploaded file @ViewBag.mp3FileName. You can go now to the <a href="/exercises">Exercises</a> page to see it.
             </p>
         }
         else
         {
             <p class="text-error">
-                Unable to upload file @ViewBag.FileName.
+                Unable to upload file @ViewBag.mp3FileName. Make sure it is a valid MP3 file.
             </p>
         }
     </div>
 }
-@* ExercisesController.MaxTitleLength = 70 *@
-@using (Html.BeginForm(null, null, null, FormMethod.Post, new { @class = "col-sm-offset-1 col-sm-10 form-horizontal", @enctype = "multipart/form-data" }))
-{
-    @Html.Hidden("userdir", (string)ViewBag.UserDir)
-    <div>
-        <input type="file" name="file" class="btn btn-default" accept="audio/mpeg" required />
-    </div>
-    <br />
-    <div>
-        <input type="text" name="title" class="col-sm-10" maxlength="70" placeholder="Write the exercise title here (maximum 70 chars.)" />
-    </div>
-    <br />
-    <br />
-    <div>
-        <input type="submit" class="btn btn-primary" value="Upload &raquo;" />
-        <input type="reset" value="Reset" class="btn btn-default btn-sm col-sm-offset-1">
-    </div>
-}
-@Html.HrSeparator("col-sm-offset-1 col-sm-10")
+    @* ExercisesController.MaxTitleLength = 70 *@
+    @using (Html.BeginForm(null, null, null, FormMethod.Post, new { @class = "col-sm-offset-1 col-sm-10 form-horizontal", @enctype = "multipart/form-data" }))
+    {
+        @Html.Hidden("userdir", (string)ViewBag.UserDir)
+        <div>
+            <input type="file" name="mp3File" class="btn btn-default" accept="audio/mpeg" required />
+        </div>
+        if (pageViewModel.IsTeacher)
+        {
+            <div>
+                <input type="file" name="xmlFile" class="btn btn-default" accept="text/xml" />
+            </div>
+            <div>
+                <input type="text" name="learnerSkype" class="col-sm-10" maxlength="100" placeholder="Write the Skype name of the learner." />
+            </div>
+        }
+        <br />
+        <div>
+            <input type="text" name="title" class="col-sm-10" maxlength="70" placeholder="Write the exercise title here (maximum 70 chars.)" />
+        </div>
+        <br />
+        <br />
+        <div>
+            <input type="submit" class="btn btn-primary" value="Upload &raquo;" />
+            <input type="reset" value="Reset" class="btn btn-default btn-sm col-sm-offset-1">
+        </div>
+    }
+    @Html.HrSeparator("col-sm-offset-1 col-sm-10")
 

@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = "Pay teacher";
+}
+<div data-ng-app="app" data-ng-controller="Ctrl" data-ng-init="init(@ViewBag.TeacherUserId, '@ViewBag.TeacherDisplayName')">
+    <form class="form-horizontal" name="mainForm" role="form" novalidate>
+        <div class="row">
+            <div class="col-sm-offset-4 col-sm-6">
+                <p>
+                    You are going to pay money <strong>{{vm.teacherDisplayName}}</strong>
+                    <br />&nbsp;
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="password" class="col-sm-5 control-label">Amount, USD</label>
+            <div class="col-sm-2">
+                <input type="number" id="amount" class="form-control" name="amount" data-ng-model="vm.amount" required min="1" autofocus />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-5 control-label" for="newPassword1">Your password</label>
+            <div class="col-sm-2">
+                <input type="password" id="password" class="form-control" name="password" data-ng-model="vm.password" required />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-5 col-sm-6">
+                <button type="submit" class="btn btn-primary" data-ng-click="vm.showConfirmDialog(mainForm)" data-ng-disabled="mainForm.$invalid || vm.sending">Pay &raquo;</button>
+            </div>
+        </div>
+    </form>
+
+    <div id="confirmDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="confirmLabel">Confirm money transfer</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Do you want to pay <strong>{{vm.teacherDisplayName}}</strong> <strong>{{vm.amount | currency:"$"}}</strong>?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-ng-click="vm.start()">OK</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+</div>
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/app-utils",
+"~/bundles/ext-libs",
+"~/App/Account/payTeacher-ctrl.js"
+)
+}
+
+
+
+
+
+
+
+

@@ -7,21 +7,29 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@(ViewBag.HeadTitle ?? ViewBag.Title) - English Cosmos</title>
+    @*<title>@(ViewBag.HeadTitle ?? ViewBag.Title) - English Cosmos</title>*@
+    <title>English Cosmos</title>
     <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
     @if (Request.IsAuthenticated)
     {
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     }
     @*<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
-    @Styles.Render("~/content/css-app")
+    @Styles.Render("~/bundles/app-css")
     @RenderSection("HeadScripts", required: false)
     @if (!Html.IsDebug())
     {
         @Html.Partial("_GoogleAnalyticsPartial")
-    }    
+    }
 </head>
 <body>
+    <!--[if IE]>
+    <script>
+        if (!window.document.documentMode || window.document.documentMode < 9) {
+            window.location = "/info/unsupported-browser";
+        }
+    </script>
+    <![endif]-->
     @*<!-- The header is not in a container -->*@
     <header>
         @Html.Partial("_HeaderPartial", pageViewModel)
@@ -37,7 +45,7 @@
     </section>
 
     @*<!-- The footer separator is not in a container -->*@
-    <hr />
+    <hr class="app-separator" />
     <footer id="footerContents" class="container">
         @Html.Partial("_FooterPartial")
     </footer>

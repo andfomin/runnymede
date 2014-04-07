@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.NavItem = "Teachers";
+}
+@section HeadScripts {
+    @Styles.Render(
+    "~/bower_components/angular-bootstrap-datetimepicker/src/css/datetimepicker.css",
+"~/Content/fullcalendar/fullcalendar.css"
+    )
+}
+<div data-ng-app="app">
+    <div data-ng-view=""></div>
+</div>
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+
+"~/bundles/angular-bootstrap",
+"~/bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker.js",
+
+"~/Content/fullcalendar/fullcalendar.min.js",
+"~/bower_components/angular-ui-calendar/src/calendar.js",
+
+"~/App/Shared/utils-schedule.js",
+"~/App/Teachers/index-favorites.js",
+"~/App/Teachers/index-all.js",
+"~/App/Teachers/index-teacherSchedule.js",
+"~/App/Teachers/index-app.js"
+)
+}

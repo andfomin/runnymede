@@ -1,4 +1,4 @@
-﻿@using Runnymede.Website.Controllers
+﻿@using Runnymede.Website.Controllers.Mvc
 @model AccountController.PayPalPaymentResult
 @{
     ViewBag.Title = "Balance";
@@ -34,7 +34,7 @@
         </div>
     </div>
 }
-@if (!pageViewModel.IsTutor)
+@if (!pageViewModel.IsTeacher)
 {
     <div class="row">
         <div class="col-sm-3">
@@ -86,7 +86,7 @@
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/knockout",
-"~/bundles/jsextlibs",
+"~/bundles/ko-libs",
 "~/bundles/ext-libs",
 "~/bundles/app",
 "~/App/Account/balance-vm.js"

@@ -106,6 +106,9 @@ In Web.Release.Config, add the following to clear out HttpPort and HttpsPort (to
 
         public void EnsureKeeperCookie()
         {
+            if (Request.Browser.Crawler)
+                return;
+
             if (!Request.Cookies.AllKeys.Contains(LoggingUtils.KeeperCookieName))
             {
                 // Set the Keeper cookie

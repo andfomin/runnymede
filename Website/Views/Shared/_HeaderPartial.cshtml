@@ -21,36 +21,31 @@
         <div class="collapse navbar-collapse" id="headerCollapse">
             <ul class="nav navbar-nav">
                 <li class="@NavClass("Home")">@Html.ActionLink("Home", "Index", "Home")</li>
-                @if (Model.IsTutor)
+                @if (Model.IsTeacher)
                 {
-                    <li class="@NavClass("Relationships")">@Html.ActionLink("Relationships", "TutorLearners", "Relationships")</li>
+                    <li class="@NavClass("Sessions")">@Html.ActionLink("Sessions", "Teacher", "Sessions", null, null, "/schedule", null, new { tabindex = "-1" })</li>
                     <li class="@NavClass("Reviews")">@Html.ActionLink("Reviews", "Index", "Reviews")</li>
                     <li class="@NavClass("Requests")">@Html.ActionLink("Requests", "Requests", "Reviews")</li>
                 }
                 else
                 {
-                    <li class="dropdown @NavClass("Relationships")">
-                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Relationships<b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li>@Html.ActionLink("Tutors", "Tutors", "Relationships", null, new { tabindex = "-1" })</li>
-                            <li>@Html.ActionLink("Skype directory", "SkypeDirectory", "Relationships", null, new { tabindex = "-1" })</li>
-                        </ul>
-                    </li>
+                    <li class="@NavClass("Teachers")">@Html.ActionLink("Teachers", "Index", "Teachers")</li>
+                    <li class="@NavClass("Sessions")">@Html.ActionLink("Sessions", "Learner", "Sessions", null, null, "/schedule", null, new { tabindex = "-1" })</li>
                     <li class="@NavClass("Exercises")">@Html.ActionLink("Exercises", "Index", "Exercises")</li>
-                    <li class="@NavClass("Statistics")">@Html.ActionLink("Statistics", "Index", "Statistics")</li>
+                    <li class="@NavClass("Reports")">@Html.ActionLink("Reports", "Index", "Statistics")</li>
                 }
-                <li class="dropdown @NavClass("Search")">
-                    <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Search<b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        <li>@Html.ActionLink("IELTS", "Ielts", "Search", null, new { tabindex = "-1" })</li>
-                    </ul>
-                </li>
+                @*<li class="dropdown @NavClass("Search")">
+                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Search<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li>@Html.ActionLink("IELTS", "Ielts", "Search", null, new { tabindex = "-1" })</li>
+                        </ul>
+                    </li>*@
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 @if (Request.IsAuthenticated)
                 {
                     <li class="dropdown @NavClass("Account")">
-                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>@Model.DisplayName<b class="caret"></b></a>
+                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span>&nbsp;@Model.DisplayName<b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li>@Html.ActionLinkWithProtocol("Edit profile", "Edit", "Account", "https", new { tabindex = "-1" })</li>
                             <li>@Html.ActionLinkWithProtocol("View balance", "Balance", "Account", "https", new { tabindex = "-1" })</li>

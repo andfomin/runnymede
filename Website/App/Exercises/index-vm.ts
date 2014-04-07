@@ -21,9 +21,9 @@ module App.Exercises_Index {
 
         isLoading: KnockoutObservable<boolean> = ko.observable(false);
         reward: KnockoutComputed<number>;
-        tutors: KnockoutObservableArray<App.Model.IUser> = ko.observableArray([]);
+        teachers: KnockoutObservableArray<App.Model.IUser> = ko.observableArray([]);
         anyReviewer: KnockoutObservable<boolean> = ko.observable(true);
-        selectedTutors: KnockoutObservableArray<number> = ko.observableArray([]);
+        selectedTeachers: KnockoutObservableArray<number> = ko.observableArray([]);
 
         constructor() {
 
@@ -45,10 +45,10 @@ module App.Exercises_Index {
                 this.isEmpty(isEmpty);
             });
 
-            // anyReviewer and selectedTutors are mutually exclusive.
+            // anyReviewer and selectedTeachers are mutually exclusive.
             this.anyReviewer.subscribe((value) => {
                 if (value) {
-                    this.selectedTutors([]);
+                    this.selectedTeachers([]);
                 }
             });
 
@@ -100,13 +100,13 @@ module App.Exercises_Index {
                     .done((data) => {
                         this.workDurationRatio = data.workDurationRatio;
                         this.balance(+data.balance);
-                        this.tutors(data.tutors);
+                        this.teachers(data.teachers);
 
                         this.dialogExercise(exercise);
                         this.reward1(null);
                         this.reward2(null);
                         this.anyReviewer(true);
-                        this.selectedTutors([]);
+                        this.selectedTeachers([]);
 
                         // Set input focus to the reward field. But first wait for css transitions to complete.
                         $('#createRequestDialog').on('shown.bs.modal', function () {
@@ -130,7 +130,7 @@ module App.Exercises_Index {
                         {
                             exerciseId: this.dialogExercise().id,
                             reward: this.reward1(),
-                            tutors: this.selectedTutors(),
+                            teachers: this.selectedTeachers(),
                         })
                         .done((data) => {
                             var r = new App.Model.Review(data);
@@ -150,7 +150,7 @@ module App.Exercises_Index {
                 canExecute: (isExecuting) => {
                     var rewardStr = this.reward1();
                     var positive = App.Utils.isValidAmount(rewardStr) && (Number(rewardStr) > 0);
-                    var reviewersOk = this.anyReviewer() || (this.selectedTutors().length > 0);
+                    var reviewersOk = this.anyReviewer() || (this.selectedTeachers().length > 0);
                     return !isExecuting
                         && positive
                         && (this.reward2() === rewardStr)
@@ -170,10 +170,10 @@ module App.Exercises_Index {
 
         } // end of ctor
 
-        suggestedReward = (rate: number) => {
+        suggestedReward = (reviewRate: number) => {
             var exe = this.dialogExercise();
             return exe
-                ? App.Utils.numberToMoney(rate * exe.length * this.workDurationRatio / 3600000) // MSec to Hour
+                ? App.Utils.numberToMoney(reviewRate * exe.length * this.workDurationRatio / 3600000) // MSec to Hour
                 : null;
         };
 

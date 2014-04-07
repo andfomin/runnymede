@@ -1,31 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.Owin.Security;
+using Newtonsoft.Json.Linq;
+using Owin;
+using Runnymede.Website.Models;
+using Runnymede.Website.Utils;
+using System;
+using System.Data;
+using System.Data.Entity.SqlServer;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.OAuth;
-using System.Net;
-using Runnymede.Website.Models;
-using System.Data.Entity;
-using Runnymede.Website.Utils;
-using Dapper;
-using System.Data.Entity.SqlServer;
-using System.Data.SqlClient;
-using System.Data;
-using Owin;
-using Newtonsoft.Json.Linq;
 using System.Xml.Linq;
 
-namespace Runnymede.Website.Controllers
+namespace Runnymede.Website.Controllers.Api
 {
     [Authorize]
     [HostAuthentication(DefaultAuthenticationTypes.ApplicationCookie)]
@@ -74,9 +64,6 @@ update dbo.appUsers set TimezoneOffsetMin = @TimezoneOffsetMin where Id = @UserI
                     UserId = userId
                 });
 
-            /* The outgoing offset has the sign which is opposite to the sign of the incoming offset. No idea why it is reported by JavaScript that way.
-             * According to JavaScript spec 15.9.5.26: Date.prototype.getTimezoneOffset(). Returns the difference between local time and UTC time in minutes.
-             */
             return Ok<object>(new { TimezoneOffsetMin = inferredTimeOffsetMin });
         }
 
@@ -179,7 +166,7 @@ update dbo.appUsers set TimezoneOffsetMin = @TimezoneOffsetMin where Id = @UserI
         public async Task<IHttpActionResult> GetProfile()
         {
             var sql = @"
-select @UserName as UserName, DisplayName, IsTutor, Skype, TimezoneName, Rate, Announcement
+select @UserName as UserName, DisplayName, IsTeacher, Skype, TimezoneName, ReviewRate, SessionRate, Announcement
 from dbo.appUsers
 where Id = @Id;
 ";
@@ -220,19 +207,21 @@ where Id = @Id;
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // PUT api/AccountApi/TutorProfile
-        [Route("TutorProfile")]
-        public IHttpActionResult PutTutorProfile([FromBody] JObject value)
+        // PUT api/AccountApi/TeacherProfile
+        [Route("TeacherProfile")]
+        public IHttpActionResult PutTeacherProfile([FromBody] JObject value)
         {
             // Update only changed fields. The null value indicates the field has not been changed.
-            var rate = (decimal?)value["rate"];
+            var reviewRate = (decimal?)value["reviewRate"];
+            var sessionRate = (decimal?)value["sessionRate"];
             var announcement = (string)value["announcement"];
 
             // If a parameter is null, that meens keep the corresponding field intact.
             DapperHelper.ExecuteResiliently("dbo.appUpdateUser", new
             {
                 UserId = this.GetUserId(),
-                Rate = rate,
+                ReviewRate = reviewRate,
+                SessionRate = sessionRate,
                 Announcement = announcement,
             },
             CommandType.StoredProcedure);
@@ -309,10 +298,10 @@ where Id = @Id;
             return result.Succeeded ? StatusCode(HttpStatusCode.NoContent) : this.GetErrorResult(result);
         }
 
-        // POST api/AccountApi/PaymentToTutor
+        // POST api/AccountApi/PaymentToTeacher
         [AllowAnonymous]
-        [Route("PaymentToTutor")]
-        public async Task<IHttpActionResult> PostPaymentToTutor(JObject value)
+        [Route("PaymentToTeacher")]
+        public async Task<IHttpActionResult> PostPaymentToTeacher(JObject value)
         {
             // Revalidate the sender's password.
             var password = ((string)value["password"]);
@@ -328,13 +317,13 @@ where Id = @Id;
             if (!decimal.TryParse(amountStr, out amount))
                 return BadRequest(amountStr);
 
-            var tutorUserId = ((int)value["tutorUserId"]);
+            var teacherUserId = ((int)value["teacherUserId"]);
 
-            DapperHelper.ExecuteResiliently("dbo.accMakePaymentToTutor",
+            DapperHelper.ExecuteResiliently("dbo.accMakePaymentToTeacher",
                 new
                 {
                     UserId = user.Id,
-                    TutorUserId = tutorUserId,
+                    TeacherUserId = teacherUserId,
                     Amount = amount,
                 },
                 CommandType.StoredProcedure
@@ -348,7 +337,7 @@ where Id = @Id;
         public async Task<IHttpActionResult> GetTransferRecepient()
         {
             var sql = @"
-select @UserName as UserName, DisplayName, IsTutor, Skype, TimezoneName, Rate, Announcement
+select @UserName as UserName, DisplayName, IsTeacher, Skype, TimezoneName, ReviewRate, Announcement
 from dbo.appUsers
 where Id = @Id;
 ";

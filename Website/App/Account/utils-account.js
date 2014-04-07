@@ -21,10 +21,10 @@ var App;
                 }
             }).success(function (data) {
                 // Store the access token for using with WebAPI.
-                Utils.setAccessToken(data.access_token, persistent);
+                App.Utils.setAccessToken(data.access_token, persistent);
 
                 /* We send the client-side time and the local TimezoneOffset with the form to infer the client's actual time zone. */
-                var timeInfo = Utils.getLocalTimeInfo();
+                var timeInfo = App.Utils.getLocalTimeInfo();
 
                 App.Utils.ngHttpPost($http, Utils.accountApiUrl('SignedIn'), {
                     persistent: persistent,

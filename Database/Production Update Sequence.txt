@@ -1,0 +1,50 @@
+-- Copy database to the test database.
+--CREATE DATABASE englcdb_test AS COPY OF englcdb;
+--SELECT name, state, state_desc FROM sys.databases WHERE name = 'englcdb_test';
+
+-- Prepare manual SQL schema update scripts.
+
+-- Prepare manual SQL data update scripts.
+
+-- Run manual SQL schema update scripts on the test database.
+
+-- Run schema compare and update the test database.
+
+-- Run manual SQL data update scripts on the test database.
+
+-- Publish the new website to the staging. It will opened on finish automatically.
+
+---------------------- OFFLINE ----------------------
+
+-- Rename ~App_Offline.htm to App_Offline.htm on the production using FileZilla.
+
+-- Copy database to the backup database.
+
+-- Run manual SQL schema update scripts on the main database.
+
+-- Run schema compare and update the main database.
+
+-- Run manual SQL data update scripts on the main database.
+
+-- Rename App_Offline.htm back to ~App_Offline.htm on the production using FileZilla.
+
+-- Switch the staging to the production.
+
+---------------------- ONLINE ----------------------
+
+-- Run tests on the production website.
+
+-- Delete the test database.
+
+-- Delete the backup database.
+
+---------------------- ON ERROR ----------------------
+
+-- Rename the main database to the old database.
+
+-- Rename the backup database to the main database.
+
+-- Rename App_Offline.htm to ~App_Offline.htm on the old production.
+
+
+

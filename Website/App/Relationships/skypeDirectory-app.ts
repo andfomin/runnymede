@@ -4,7 +4,7 @@ module App.Relationships_SkypeDirectory {
 
         learners: any[] = [];
 
-        static $inject = [App.Utils.AngularGlobal.$SCOPE, App.Utils.AngularGlobal.$HTTP];
+        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
 
         constructor(
             private $scope: Utils.IScopeWithViewModel,

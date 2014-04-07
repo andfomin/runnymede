@@ -4,44 +4,64 @@
 // +http://www.wombit.se/2013/11/03/bootstrap-separate-source-customizations/
 
 // import bootstrap components from the Bootstrap dedicated folder
-@import "/bootstrap/bootstrap.less";
+@import "..\bower_components\bootstrap\less\bootstrap.less";
+
+// The theme
+@import "site-variables.less";
 
 /* #region --- Custom settings that deviate from the Bootstrap's default values */
 
-@font-family-sans-serif: Arial,Helvetica,sans-serif;//Roboto bold looks ugly in Chrome.
+@font-family-sans-serif: Arial,Helvetica,sans-serif; //Roboto bold looks ugly in Chrome.
 
-@brand-primary: @appRed; // @link-color is @brand-primary
+@font-size-base: @appFontSize; // Originally 14px
 
-@link-hover-color: lighten(@link-color, 15%);
+@icon-font-path: "../bower_components/bootstrap/dist/fonts/"; // Glyphicons
 
-@navbar-default-bg: @appYellow;
+@brand-primary: @appRed;
 
-@navbar-default-link-color: @link-color;
-@navbar-default-link-hover-color: @link-hover-color;
-@navbar-default-link-active-color: @link-color;
+// @link-color was @brand-primary
+@link-color: darken(@appBlue, 5%);
+@link-hover-color: lighten(@link-color, 5%);
+
+@navbar-height: @appNavbarHeight; // Originally 50px;
+
+@navbar-default-bg: @appRed;
+
+@navbar-default-link-color: @appInverseLinkColor;
+@navbar-default-link-hover-color: @appInverseLinkHoverColor;
+@navbar-default-link-active-color: @appInverseLinkColor;
+@navbar-default-link-active-bg: lighten(@navbar-default-bg, 5%);
 
 @navbar-default-toggle-icon-bar-bg: @navbar-default-link-color;
 @navbar-default-toggle-border-color: @navbar-default-link-color;
 @navbar-default-toggle-hover-bg: @navbar-default-link-hover-bg;
 
+@navbar-default-brand-color: @appYellow;
 @navbar-default-brand-hover-color: @navbar-default-brand-color;
 
-@dropdown-link-color: @link-color;
-@dropdown-bg: @appYellow;
-@dropdown-link-hover-color: @link-hover-color;
-@dropdown-link-hover-bg: @dropdown-bg;
 @dropdown-divider-bg: rgba(0, 0, 0, 0.15);
 
 @jumbotron-color: @appWhite;
 @jumbotron-bg: @appRed;
 @jumbotron-padding: 20px;
 
-@btn-primary-color: @appRed;
-@btn-primary-bg: @appYellow;
+@btn-primary-bg: lighten(@appBlue, 3%);
 
-@hr-border: @gray-light;
+/* #endregion */
 
-// 3.0
+/* #region --- Custom styles that deviate from the Bootstrap's default styles */
+
+// The default mixin button-variant makes a button darker on hover. We make it lighter.
+.btn-primary {
+    &:hover,
+    &:focus,
+    &:active,
+    &.active,
+    .open .dropdown-toggle& {
+        background-color: lighten(@btn-primary-bg, 3%);  // mix(@btn-primary-bg, turquoise, 90%);
+    }
+}
+
 .navbar .navbar-brand {
     font-size: large;
     font-weight: bold;
@@ -51,14 +71,13 @@
     margin-right: 30px;
 }
 
-// 20130905
 .navbar-default .navbar-toggle {
     &:hover,
     &:focus {
-        border-color: @link-hover-color;
+        border-color: @appInverseLinkHoverColor;
 
         .icon-bar {
-            background-color: @link-hover-color;
+            background-color: @appInverseLinkHoverColor;
         }
     }
 }
@@ -67,32 +86,27 @@
     font-weight: bolder;
 }
 
-// 20130905
 .jumbotron .app-jumbotron-heading {
     color: @appYellow;
 }
 
-.nav > li > a:hover, .nav > li > a:focus {
-    background-color: @appYellow;
-}
-
-// 20130905. Prevent the background color of a dropdown link on a navbar from changing.
+//Prevent the background color of a dropdown link on a navbar from changing.
 .navbar-default .navbar-nav > .dropdown.open > a.dropdown-toggle {
     background-color: @navbar-default-bg;
 }
 
 .nav-pills > .active > a {
     color: @link-color;
-    background-color: #E5E5E5;
+    background-color: #e5e5e5;
 }
 
     .nav-pills > .active > a:hover, .nav-pills > .active > a:focus {
         color: @link-color;
-        background-color: @appYellow;
+        background-color: @navbar-default-bg;
     }
 
-// When ver. 3.1 is avilable, this will become obsolete. See +https://github.com/twbs/bootstrap/issues/11783#issuecomment-30088249
-/*@media (min-width: 768px) {
+/*// When ver. 3.1 is avilable, this will become obsolete. See +https://github.com/twbs/bootstrap/issues/11783#issuecomment-30088249
+@media (min-width: 768px) {
   .navbar-nav.navbar-right:last-child {
     margin-right: 0;
   }
@@ -100,6 +114,29 @@
 
 .page-header {
     margin: 0 0 @line-height-computed; // Originally (@line-height-computed * 2) 0 @line-height-computed;
+    color: @appRed;
 }
+
+.pagination {
+    .btn {
+        color: @link-color;
+    }
+}
+
+// Dropdown menu in the header navbar
+.navbar-nav > li > .dropdown-menu {
+    background-color: @appRed;
+
+    li > a {
+        color: @appInverseLinkColor;
+
+        &:hover,
+        &:focus {
+            color: @appInverseLinkHoverColor;
+            background-color: @appRed;
+        }
+    }
+}
+
 
 /* #endregion */

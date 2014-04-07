@@ -66,10 +66,11 @@ namespace Runnymede.Website
                 SlidingExpiration = false, // I do not know how to re-issue the complimented bearer token automaticaly.
                 Provider = new CookieAuthenticationProvider
                 {
-                    OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser, int>(
-                        validateInterval: TimeSpan.FromMinutes(20),
-                        regenerateIdentityCallback: (manager, user) => user.GenerateUserIdentityAsync(manager),
-                        getUserIdCallback: (id) => (Int32.Parse(id.GetUserId())))
+                    // It seems breaks pesistant cookie continuaty.
+                    //OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser, int>(
+                    //    validateInterval: TimeSpan.FromMinutes(20),
+                    //    regenerateIdentityCallback: (manager, user) => user.GenerateUserIdentityAsync(manager),
+                    //    getUserIdCallback: (id) => (Int32.Parse(id.GetUserId())))
                 }
             });
 

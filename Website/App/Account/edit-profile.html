@@ -1,4 +1,4 @@
-﻿<h3 class="page-header">{{title}}</h3>
+﻿<h3 class="page-header">{{pageTitle}}</h3>
 <div>
     <p>
         You are signed in as <strong>{{vm.profile.userName}}</strong>.
@@ -42,21 +42,36 @@
 
 
 
-    <div data-ng-if="vm.profile.isTutor">
+    <div data-ng-if="vm.profile.isTeacher">
         <hr class="app-separator" />
-        <p>You have got the <strong>Tutor</strong> status.</p>
-        <form class="form-horizontal" name="tutorForm" role="form" novalidate>
+        <p>You have got the <strong>Teacher</strong> status.</p>
+        <form class="form-horizontal" name="teacherForm" role="form" novalidate>
 
             <div class="form-group">
-                <label class="col-sm-4 control-label" for="rate">Rate, US&nbsp;dollars.cents per hour.</label>
+                <label class="col-sm-4 control-label" for="reviewRate">Hourly review rate, US&nbsp;dollars.</label>
                 <div class="col-sm-8">
                     <div class="row">
                         <div class="col-sm-3">
-                            <input type="text" id="rate" name="rate" class="form-control" data-ng-model="vm.profile.rate" ng-pattern="/^\d+(?:(?:\.|,)\d{1,2})?$/" />
+                            <input type="text" id="reviewRate" name="reviewRate" class="form-control" data-ng-model="vm.profile.reviewRate" ng-pattern="/^\d+(?:(?:\.|,)\d{1,2})?$/" />
                         </div>
                         <div class="col-sm-9">
-                            <span ng-show="tutorForm.rate.$error.pattern"><small class="text-danger">Dollars.cents, ex. 0.99</small></span>
-                            <span data-ng-show="vm.rateChanged"><small class="text-success">Rate changed.</small></span>
+                            <span ng-show="teacherForm.reviewRate.$error.pattern"><small class="text-danger">Dollars.cents, ex. 0.99</small></span>
+                            <span data-ng-show="vm.reviewRateChanged"><small class="text-success">Hourly review rate changed.</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label" for="sessionRate">Hourly session rate, US&nbsp;dollars.</label>
+                <div class="col-sm-8">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <input type="text" id="sessionRate" name="sessionRate" class="form-control" data-ng-model="vm.profile.sessionRate" ng-pattern="/^\d+(?:(?:\.|,)\d{1,2})?$/" />
+                        </div>
+                        <div class="col-sm-9">
+                            <span ng-show="teacherForm.sessionRate.$error.pattern"><small class="text-danger">Dollars.cents, ex. 0.99</small></span>
+                            <span data-ng-show="vm.sessionRateChanged"><small class="text-success">Hourly session rate changed.</small></span>
                         </div>
                     </div>
                 </div>
@@ -78,7 +93,7 @@
             </div>
             <div class="form-group">
                 <div class="col-sm-offset-4 col-sm-6">
-                    <button type="submit" class="btn btn-primary" data-ng-click="vm.saveTutor(tutorForm)" data-ng-disabled="tutorForm.$pristine || vm.sending">Save</button>
+                    <button type="submit" class="btn btn-primary" data-ng-click="vm.saveTeacher(teacherForm)" data-ng-disabled="teacherForm.$pristine || vm.sending">Save</button>
                 </div>
             </div>
         </form>

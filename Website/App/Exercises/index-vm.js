@@ -13,12 +13,12 @@ var App;
                 this.reward2 = ko.observable();
                 this.isEmpty = ko.observable(false);
                 this.isLoading = ko.observable(false);
-                this.tutors = ko.observableArray([]);
+                this.teachers = ko.observableArray([]);
                 this.anyReviewer = ko.observable(true);
-                this.selectedTutors = ko.observableArray([]);
-                this.suggestedReward = function (rate) {
+                this.selectedTeachers = ko.observableArray([]);
+                this.suggestedReward = function (reviewRate) {
                     var exe = _this.dialogExercise();
-                    return exe ? App.Utils.numberToMoney(rate * exe.length * _this.workDurationRatio / 3600000) : null;
+                    return exe ? App.Utils.numberToMoney(reviewRate * exe.length * _this.workDurationRatio / 3600000) : null;
                 };
                 this.exercises = this.realExeObsArr.extend({
                     datasource: App.Utils.dataSource(App.Utils.exercisesApiUrl('GetExercises') + App.Utils.getNoCacheUrl(), function (i) {
@@ -36,10 +36,10 @@ var App;
                     _this.isEmpty(isEmpty);
                 });
 
-                // anyReviewer and selectedTutors are mutually exclusive.
+                // anyReviewer and selectedTeachers are mutually exclusive.
                 this.anyReviewer.subscribe(function (value) {
                     if (value) {
-                        _this.selectedTutors([]);
+                        _this.selectedTeachers([]);
                     }
                 });
 
@@ -90,13 +90,13 @@ var App;
                     App.Utils.ajaxRequest('GET', App.Utils.exercisesApiUrl(exercise.id.toString() + '/ReviewConditions')).done(function (data) {
                         _this.workDurationRatio = data.workDurationRatio;
                         _this.balance(+data.balance);
-                        _this.tutors(data.tutors);
+                        _this.teachers(data.teachers);
 
                         _this.dialogExercise(exercise);
                         _this.reward1(null);
                         _this.reward2(null);
                         _this.anyReviewer(true);
-                        _this.selectedTutors([]);
+                        _this.selectedTeachers([]);
 
                         // Set input focus to the reward field. But first wait for css transitions to complete.
                         $('#createRequestDialog').on('shown.bs.modal', function () {
@@ -116,7 +116,7 @@ var App;
                         App.Utils.ajaxRequest('POST', App.Utils.reviewsApiUrl(), {
                             exerciseId: _this.dialogExercise().id,
                             reward: _this.reward1(),
-                            tutors: _this.selectedTutors()
+                            teachers: _this.selectedTeachers()
                         }).done(function (data) {
                             var r = new App.Model.Review(data);
                             _this.dialogExercise().reviews.push(r);
@@ -135,7 +135,7 @@ var App;
                     canExecute: function (isExecuting) {
                         var rewardStr = _this.reward1();
                         var positive = App.Utils.isValidAmount(rewardStr) && (Number(rewardStr) > 0);
-                        var reviewersOk = _this.anyReviewer() || (_this.selectedTutors().length > 0);
+                        var reviewersOk = _this.anyReviewer() || (_this.selectedTeachers().length > 0);
                         return !isExecuting && positive && (_this.reward2() === rewardStr) && reviewersOk;
                     }
                 });

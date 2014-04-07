@@ -213,4 +213,6 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
-Website/Scripts/i18n/
+*.map
+Website/App/*/*.js
+Website/bower_components/

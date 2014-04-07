@@ -1,0 +1,39 @@
+﻿<div class="modal-header">
+    <h3>Request Session</h3>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-offset-1 col-md-10">
+            <p>Request a Skype session with <strong>{{vm.user.displayName}}</strong></p>
+            <br />
+            <p>Current time: {{vm.now | appDate}}</p>
+            <div class="form-group">
+                <label for="startDropdown">Start time</label>
+                <div class="dropdown">
+                    <a class="dropdown-toggle" id="startDropdown" role="button" data-toggle="dropdown" data-target="#" href="javascript:;">
+                        <div class="input-group">
+                            <input type="text" class="form-control" data-ng-model="vm.start">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <datetimepicker data-ng-model="vm.start" data-datetimepicker-config="{ dropdownSelector: '#startDropdown', minuteStep: 5 }" data-ng-required="true" />
+                    </ul>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="durationInput">Duration</label>
+                <select class="form-control" id="durationInput" ng-model="vm.duration" ng-options="i.span as i.text for i in vm.durations"></select>
+                The session price is {{vm.getPrice() | currency:"$"}}
+            </div>
+            <div class="form-group">
+                <label for="messageTextarea">Your message for the session</label>
+                <textarea class="form-control" id="messageTextarea" ng-model="vm.message" maxlength="1000" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" data-ng-click="vm.save()" data-ng-disabled="!vm.canSave()">OK</button>
+    <button class="btn" data-ng-click="vm.cancel()">Cancel</button>
+</div>

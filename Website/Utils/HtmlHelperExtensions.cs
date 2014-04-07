@@ -38,6 +38,7 @@ namespace Runnymede.Website.Utils
 <div class='row'><div class='col-sm-12'><hr class='app-separator' /></div></div>
 <div class='row'>
     <div class='col-sm-2'>
+        <img src='/Content/Images/icon-help.png' width='14' height='14' />
         <small>
             <input type='button' class='btn btn-default btn-xs' data-toggle='collapse' data-target='#instructions' value='Show Help' onclick='toggleHelpCaption(this)' />
         </small>

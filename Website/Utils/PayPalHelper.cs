@@ -11,7 +11,6 @@ using System.Xml.Linq;
 using Dapper;
 using Runnymede.Website.Models;
 
-
 namespace Runnymede.Website.Utils
 {
     public class PayPalHelper
@@ -145,32 +144,29 @@ namespace Runnymede.Website.Utils
                         )
                         .ToString(SaveOptions.DisableFormatting);
 
-                using (var connection = DapperHelper.GetOpenConnection())
-                {
-                    // Do a preliminary check. dbo.accPostIncomingPayPalPayment throws an exception on duplicate payment posting.
-                    const string sqlCheck = @"
+                // Do a preliminary check. Otherwise dbo.accPostIncomingPayPalPayment will throw an exception on duplicate payment posting.
+                const string sqlCheck = @"
 select count(*) from dbo.accPostedPayPalPayments where ExtId = @ExtId;
 ";
-                    post = (connection.Query<int>(sqlCheck, new { ExtId = extId, }).First()) == 0;
-
-                    if (post)
-                    {
-                        const string sql = @"
+                const string sqlPost = @"
 execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @ReceiptId, @Details;
 ";
-                        connection.Execute(sql,
-                            new
-                            {
-                                UserName = userName,
-                                Amount = amount,
-                                Fee = fee,
-                                ExtId = extId,
-                                ReceiptId = receiptId,
-                                Details = transactionDetails
-                            });
 
-                        result = true;
-                    }
+                post = (DapperHelper.QueryResiliently<int>(sqlCheck, new { ExtId = extId, }).First()) == 0;
+
+                if (post)
+                {
+                    DapperHelper.ExecuteResiliently(sqlPost, new
+                        {
+                            UserName = userName,
+                            Amount = amount,
+                            Fee = fee,
+                            ExtId = extId,
+                            ReceiptId = receiptId,
+                            Details = transactionDetails
+                        });
+
+                    result = true;
                 }
             }
 

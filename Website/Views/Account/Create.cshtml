@@ -51,10 +51,10 @@
                 Thank you for joining English Cosmos!
             </p>
             <p>
-                We have sent an email to <strong>{{vm.userName}}</strong> with a confirmation link. Please click the link in the email to confirm your email address.
+                We have sent an email to <strong>{{vm.userName}}</strong> with a confirmation link. Please check your email and click on the link.
             </p>
             <p>
-                If you would like to become a tutor, you can find further instructions on the @Html.ActionLink("FAQ", "Faq", "Info", null, null, "becomingtutor", null, null) page.
+                If you would like to become a teacher, you can find further instructions on the @Html.ActionLink("FAQ", "Faq", "Info", null, null, "becomingteacher", null, null) page.
             </p>
         </div>
     </div>
@@ -63,6 +63,7 @@
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/angular",
+"~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
 "~/App/Account/utils-account.js",

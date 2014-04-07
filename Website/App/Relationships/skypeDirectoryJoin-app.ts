@@ -6,7 +6,7 @@ module App.Relationships_SkypeDirectoryJoin {
         announcement: string;
         sending: boolean;
 
-        static $inject = [App.Utils.AngularGlobal.$SCOPE, App.Utils.AngularGlobal.$HTTP];
+        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
 
         constructor(
             private $scope: App.Utils.IScopeWithViewModel,

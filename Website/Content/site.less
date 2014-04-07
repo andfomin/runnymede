@@ -1,8 +1,18 @@
 ﻿@import "bootstrap-custom.less";
-@import "toastr.less";
 
-@import "site-variables.less";
+// The theme in site-variables.less is imported in bootstrap-custom.less
 
+/* #region AngularJS API Reference / ng / directive / ngCloak ----------- */
+[ng-cloak], [data-ng-cloak], .ng-cloak {
+  display: none !important;
+}
+/* #endregion */
+
+/* #region loading-bar-spinner customization ----------- */
+div#loading-bar-spinner {
+    top: 50px;
+}
+/* #endregion */
 
 /* #region Custom elements ----------- */
 
@@ -10,9 +20,7 @@ hr.app-separator {
     border-top-color: @page-header-border-color;
 }
 
-
 /* #endregion */
-
 
 /* #region Custom page ----------- */
 
@@ -31,49 +39,16 @@ hr.app-separator {
     margin-left: 20px;
 }*/
 
-// Used by Html.ValidationSummary
-/*div[data-valmsg-summary="true"].validation-summary-errors {
-    margin-bottom: 20px;
-}*/
-
-.pagination {
-    .btn {
-        color: @appRed;
-    }
-}
-
-/*.app-fragment-bottom {
-    border-top: @appSeparatorStyle;
-    margin-top: @appFormMargin;
-}*/
-
-/*.app-fragment-bottom-form {
-    border-top: @appSeparatorStyle;
-}*/
-
-.app-font-smaller {
-    font-size: smaller;
-}
-
-#mutedPassword[type="text"] {
-    color: @gray-light;
-}
-
-// For font-size: 16px, a compromise for rendering in IE, FF, GC
-.aligned-checkbox-label {
-    line-height: 19px;
-}
-
 // For navspy positioning
 h4.app-nav-anchor, h3.app-nav-anchor, p.app-nav-anchor {
     padding-top: @navbar-height;
     margin-top: 0 - @navbar-height;
 }
 
-.glossary-term {
+/*.glossary-term {
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAABCAYAAAD9yd/wAAAAEUlEQVQIHWM4cODAf2TMAAUA1N0M/dgaT/gAAAAASUVORK5CYII=) repeat-x left bottom;
     font-weight: bold;
-}
+}*/
 
 .table > tbody > tr.app-row-review > td {
     border-top-color: transparent;
@@ -81,6 +56,13 @@ h4.app-nav-anchor, h3.app-nav-anchor, p.app-nav-anchor {
 
 input.form-control.ng-dirty.ng-invalid {
     border-color: red;
+}
+
+/* #endregion */
+
+/* #region Angular-Bootstrap ----------- */
+.modal-header > h3 {
+    color: @appRed;
 }
 
 /* #endregion */

@@ -3,9 +3,7 @@
 
 
 CREATE PROCEDURE [dbo].[accFinishReview]
-	@ReviewId int,
-	@AuthorUserId int,
-	@ReviewerUserId int
+	@ReviewId int
 AS
 BEGIN
 /*
@@ -20,9 +18,18 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @ExerciseId int, @Reward decimal(18,2), @ServiceFeeRate float, @Fee decimal(18,2), @Attribute nvarchar(100),
+	declare @ExerciseId int, @AuthorUserId int, @ReviewerUserId int,
+		@Reward decimal(18,2), @ServiceFeeRate float, @Fee decimal(18,2), @Attribute nvarchar(100),
 		@AuthorAccountId int,  @ReviewerAccountId int, @RevenueAccountId int, 
 		@RewardTransactionId int, @FeeTransactionId int, @InitialReviewerBalance decimal(18,2);
+
+	select @ExerciseId = ExerciseId, @Reward = Reward, @ReviewerUserId = UserId
+	from dbo.exeReviews 
+	where Id = @ReviewId;
+
+	select @AuthorUserId = UserId 
+	from dbo.exeExercises 
+	where Id = @ExerciseId;
 
 	set @AuthorAccountId = dbo.accGetEcrowAccount(@AuthorUserId);
 

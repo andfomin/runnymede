@@ -1,6 +1,9 @@
 ﻿@{
     ViewBag.Title = "Skype Directory";
     ViewBag.NavItem = "Relationships";
+
+    /* +http://stackoverflow.com/questions/2841676/how-to-start-skype-chat-not-call-with-link
+     * ?call - Make a call ?add - Add person ?chat - Start chat ?userinfo - View user profile ?voicemail - Leave a voice message ?sendfile - Send a file */      
 }
 <div data-ng-app="app" data-ng-controller="Ctrl">
     <div class="row">
@@ -13,13 +16,15 @@
                     <div class="row">
                         <div class="col-md-6">
                             <br />
-                            Because of Skype security and privacy policy, you need first to send the person a contact request.
+                            Because of the Skype security and privacy policy, you need first to send the person a contact request.
                             Click <strong>Add to Contacts</strong> in the Skype client program and enter some text to introduce yourself. When you are done, click <strong>Send</strong>.
-                            Although the new contact is added to your contact list, you will only see a question mark instead of their status icon until they accept your request.
+                            Although the new contact is added to your contact list, you will only see a question mark
+                            <img src="~/Content/Images/skype-no-contact.png" width="14" height="14" />
+                            instead of their status icon until they accept your request.
                             When your new contact accepts your request, you can see when they are online, and make free voice and video calls with them.
                         </div>
                         <div class="col-md-6">
-                            <img class="img-thumbnail" src="~/Content/Images/skype-add-to-contacts.png" width="320" height="220" />
+                            <img src="~/Content/Images/skype-add-contact.png" width="332" height="222" border="1" style="border: 1px solid lightgray; border-radius: 4px;" />
                         </div>
                     </div>
                 </div>
@@ -35,7 +40,7 @@
                 <tbody data-ng-repeat="l in vm.learners">
                     <tr>
                         <td>
-                            <a href="skype:{{l.skype}}?chat" data-ng-hide="{{l.isSelf}}">
+                            <a href="skype:{{l.skype}}?add" data-ng-hide="{{l.isSelf}}">
                                 <img src="http://www.skypeassets.com/i/scom/images/skype-buttons/Skypeicon_24px.png" width="24" height="24" /> {{l.skype}}
                             </a>
                             <span data-ng-show="{{l.isSelf}}">{{l.skype}}</span>
@@ -86,6 +91,7 @@
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/angular",
+"~/bundles/angular-libs",
 "~/bundles/app-utils",
 "~/bundles/ext-libs",
 "~/App/Relationships/skypeDirectory-app.js"

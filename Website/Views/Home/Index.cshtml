@@ -1,93 +1,134 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.HeadTitle = "Home";
+    ViewBag.HeadTitle = "Practice speaking English";
     ViewBag.NavItem = "Home";
     bool isAuthenticated = Request.IsAuthenticated;
 }
+<style type="text/css">
+    .my-centered {
+        text-align: center;
+    }
+
+    h3.my-header {
+        margin-top: 0;
+        margin-bottom: 14px;
+        color: #ac1f28; /* appRed */
+        text-align: center;
+    }
+</style>
+<br />
 <div class="jumbotron">
     <div class="row">
-        @if (isAuthenticated)
+        <div class="col-md-offset-1 col-md-11">
+            <h3 class="app-jumbotron-heading">Learn English naturally. Learn the language by speaking it!</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="@(isAuthenticated ? "col-md-offset-2 col-md-8" : "col-md-offset-1 col-md-8")" style="font-size:larger;">
+            <ul>
+                <li>Find speaking partners or practice individually.</li>
+                <li>Record your conversations and speeches.</li>
+                <li>Have your exercises reviewed and corrected by teachers.</li>
+                <li>Analyze statistics of your mistakes.</li>
+            </ul>
+        </div>
+        @if (!isAuthenticated)
         {
-            <div class="col-sm-offset-1 col-sm-10" style="font-size:smaller;">
-                <h3 class="app-jumbotron-heading">Learn English naturally!</h3>
-                <p>
-                    We learn by making mistakes and correcting them. To have someone else to point out our mistakes means we are learning faster. Here you have an opportunity to learn English faster.
-                </p>
-            </div>
-        }
-        else
-        {
-            <div class="col-sm-offset-1 col-sm-7" style="font-size:smaller;">
-                <h3 class="app-jumbotron-heading">Learn English naturally!</h3>
-                <p>
-                    We learn by making mistakes and correcting them. To have someone else to point out our mistakes means we are learning faster. Here you have an opportunity to learn English faster.
-                </p>
-            </div>
-            <div class="col-sm-3" style="text-align:center;">
-                <h2>&nbsp;</h2>
-                @Html.ActionLink(HttpUtility.HtmlDecode("Let's try"), "Create", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
+            <div class="col-md-3 my-centered">
+                <br />&nbsp;
+                @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Create", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
             </div>
         }
     </div>
 </div>
+
 <div style="font-size:larger;">
     @Html.HrSeparator("col-sm-12")
     <div class="row">
-        <div class="col-sm-offset-1 col-sm-5" style="text-align:center;">
-            <img src="~/Content/Images/learner.jpg" class="img-responsive img-thumbnail" width="280" height="186" alt="learner" />
-        </div>
-        <div class="col-sm-5">
-            <h3>Learners</h3>
-            <p>
-                You cannot learn to speak English only by reading textbooks or watching movies. You need to practice it. @*The more you speak, the better you will speak.*@ At this website you can speak whenever you want, whatever you want, as much as you want.
-            </p>
-            <p>@Html.ActionLink("More...", "About", "Info")</p>
+        <div class="col-sm-offset-1 col-sm-5 my-centered">
+            <h3 class="my-header">Learners</h3>
         </div>
     </div>
-    @Html.HrSeparator("col-sm-12")
     <div class="row">
         <div class="col-sm-offset-1 col-sm-5">
-            <h3>Tutors</h3>
             <p>
-                Help learners to find difficulty areas and to measure the progress. Ignore time zones, you can work even when learners sleep and vice versa. Work the way you want and get paid.
+                You cannot learn to speak English by reading textbooks or watching movies. You need to practice it. And you need feedback to know whether you are speaking correctly.
+            </p>
+        </div>
+        <div class="col-sm-5 my-centered">
+            <img src="/Content/Images/do-you-speak-english.jpg" class="img-responsive img-thumbnail" width="240" height="160" />
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-5">
+            <p>
+                But the problem is that most people do not like making mistakes publicly, and teachers do not like interrupting students by pointing out every single mistake.
+            </p>
+        </div>
+        <div class="col-sm-5 my-centered">
+            <img src="/Content/Images/shy-learner.jpg" class="img-responsive img-thumbnail" width="240" height="160" />
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-5">
+            <p>
+                There is an idea on how to practice speaking English more comfortably. A teacher can be given a tool to provide feedback to a learner’s speech after it is done, by annotating a record of the speech. This way, we avoid embarrassing the learner. Learners also get the opportunity to analyze statistics of their mistakes and adjust their learning plan accordingly.
             </p>
             <p>@Html.ActionLink("More...", "HowItWorks", "Info")</p>
         </div>
-        <div class="col-sm-5" style="text-align:center;">
-            <img src="~/Content/Images/tutor.jpg" class="img-responsive img-thumbnail" width="280" height="186" alt="tutor" />
+        <div class="col-sm-5 my-centered">
+            <img src="/Content/Images/learner-teddybear.jpg" class="img-responsive img-thumbnail" width="240" height="160" />
         </div>
     </div>
     @Html.HrSeparator("col-sm-12")
     <div class="row">
-        <div class="col-sm-offset-1 col-sm-5" style="text-align:center;">
-            <img src="~/Content/Images/cooperation.jpg" class="img-responsive img-thumbnail" width="280" height="186" alt="cooperation" />
+        <div class="col-sm-offset-1 col-sm-5 my-centered">
+            <h3 class="my-header">Teachers</h3>
         </div>
-        <div class="col-sm-5">
-            <h3>Cooperation</h3>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-5">
             <p>
-                Learners need to practice speaking English like a skill, for example, boxing. By analogy with boxing, they need examples to follow, and they need feedback from tutors to know whether they are doing it correctly.
+                Although Skype is an awesome teaching medium, scheduling sessions with parties scattered around the globe is a cumbersome process. Now you can ignore time zones and work even while learners are sleeping. Work the way you want and get paid.
             </p>
-            <p>@Html.ActionLink("More...", "About", "Info")</p>
+            <p>@Html.ActionLink("More...", "HowItWorks", "Info")</p>
+        </div>
+        <div class="col-sm-5 my-centered">
+            <img src="/Content/Images/teacher.jpg" class="img-responsive img-thumbnail" width="240" height="160" />
         </div>
     </div>
     @Html.HrSeparator("col-sm-12")
     <div class="row">
-        <div class="col-sm-offset-1 col-sm-10">
-            <p>
-                You need to practice speaking English aloud. And you need somebody to give you feedback on your speeches. But the problem is that most learners do not like making mistakes publicly. And teachers do not like interrupting learners by pointing out every single mistake.
-            </p>
-            <p>
-                At this website you will find the solution to that problem.
-            </p>
+        <div class="col-sm-offset-1 col-sm-5 my-centered">
+            <h3 class="my-header">&nbsp;All together</h3>
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-5">
+            <p>
+                If you want to find a conversation partner, you are welcome to join the directory of the learners and teachers who are available on Skype. In this case, learners are also able to record fragments of their Skype conversations and get them reviewed by teachers.
+            </p>
+        </div>
+        <div class="col-sm-5 my-centered">
+            <img src="/Content/Images/skype-together.jpg" class="img-responsive img-thumbnail" width="240" height="160" />
+        </div>
+    </div>
+    @if (!isAuthenticated)
+    {
+
+        @Html.HrSeparator("col-sm-12")
+        <div class="row">
+            <div class="col-sm-offset-4 col-sm-4">
+                @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Create", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
+            </div>
+        </div>
+    }
+
+
+
+
+
 </div>
-@if (!isAuthenticated)
-{
-    <div class="row">
-        <div class="col-sm-offset-7 col-sm-3">
-            @Html.ActionLink(HttpUtility.HtmlDecode("Let's try"), "Create", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
-        </div>
-    </div>
-}
-&nbsp;<br />
+@*<br />&nbsp;*@

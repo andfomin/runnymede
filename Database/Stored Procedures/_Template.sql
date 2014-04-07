@@ -10,7 +10,7 @@ SET NOCOUNT ON;
 
 declare @ProcName sysname, @ExternalTran int, @XState int;
 select  @ProcName = object_name(@@procid), @ExternalTran = @@trancount;
---raiserror('%s,%d: ', 16, 1, @ProcName, @);
+--raiserror('%s,%d::', 16, 1, @ProcName, @);
 
 begin try
 	if @ExternalTran > 0

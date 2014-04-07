@@ -7,11 +7,12 @@ module App.Account_Signin {
         persistent: boolean = false;
         sending: boolean;
 
-        static $inject = [App.Utils.AngularGlobal.$SCOPE, App.Utils.AngularGlobal.$HTTP];
+        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
 
         constructor(
             private $scope: App.Utils.IScopeWithViewModel,
             private $http: ng.IHttpService
+
             ) {
             $scope.vm = this;
         } // end of ctor
@@ -33,5 +34,5 @@ module App.Account_Signin {
     } // end of class
 } // end of module
 
-var app = angular.module("app", []);
+var app = angular.module("app", ['chieffancypants.loadingBar']);
 app.controller("Ctrl", App.Account_Signin.Ctrl);

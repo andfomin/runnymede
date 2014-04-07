@@ -5,7 +5,8 @@ CREATE PROCEDURE [dbo].[appUpdateUser]
 	@UserId int,
 	@DisplayName nvarchar(100) = null,
 	@Skype nvarchar(100) = null,
-	@Rate decimal(18,2) = null,
+	@ReviewRate decimal(18,2) = null,
+	@SessionRate decimal(18,2) = null,
 	@Announcement nvarchar(1000) = null
 AS
 BEGIN
@@ -23,7 +24,8 @@ begin try
 		(@DisplayName is null) and
 		(@Skype is null) and
 		(@Announcement is null)	and
-		(@Rate is null)	
+		(@ReviewRate is null) and	
+		(@SessionRate is null)	
 	)
 			raiserror('%s,%d:: Cannot update the profile of the user.', 16, 1, @ProcName, @UserId);
 
@@ -33,7 +35,8 @@ begin try
 		update dbo.appUsers set 
 			DisplayName = coalesce(@DisplayName, DisplayName),
 			Skype = coalesce(@Skype, Skype),
-			Rate = coalesce(@Rate, Rate),
+			ReviewRate = coalesce(@ReviewRate, ReviewRate),
+			SessionRate = coalesce(@SessionRate, SessionRate),
 			Announcement = coalesce(@Announcement, Announcement)
 		where Id = @UserId;
 
@@ -49,8 +52,8 @@ begin try
 			if @@rowcount = 0
 				raiserror('%s,%d:: Display name claim update failed.', 16, 1, @ProcName, @UserId);
 
-			update dbo.relLearnersTutors set LearnerDisplayName = @DisplayName where LearnerUserId = @UserId;
-			update dbo.relLearnersTutors set TutorDisplayName = @DisplayName where TutorUserId = @UserId;
+			update dbo.relLearnersTeachers set LearnerDisplayName = @DisplayName where LearnerUserId = @UserId;
+			update dbo.relLearnersTeachers set TeacherDisplayName = @DisplayName where TeacherUserId = @UserId;
 		end	
 
 	if @ExternalTran = 0

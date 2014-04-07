@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "Relationships";
+    ViewBag.NavItem = "Relationships";
+}
+
+<div data-ng-app="app" data-ng-controller="Ctrl">
+    <div class="row">
+        <div class="col-sm-offset-3 col-sm-6">
+
+            <div class="alert alert-info" data-ng-show="vm.learners.length === 0">
+                <p class="text-center">
+                    There is currently no relationships.
+                </p>
+            </div>
+
+            <table class="table table-condensed table-hover" data-ng-show="vm.learners.length > 0">
+                @*<caption style="text-align:center;"><strong>Learners</strong></caption>*@
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Skype Name</th>
+                    </tr>
+                </thead>
+                <tbody data-ng-repeat="l in vm.learners">
+                    <tr>
+                        <td>
+                            {{l.displayName}}
+                        </td>
+                        <td>
+                            {{l.skype}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/app-utils",
+"~/bundles/ext-libs",
+"~/App/Relationships/teacherLearners-app.js"
+)
+}

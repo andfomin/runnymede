@@ -36,7 +36,7 @@
                 email: '@pageViewModel.UserName',
                 name: '@pageViewModel.DisplayName',
                 id: '@pageViewModel.UserId',
-                type: '@(pageViewModel.IsTutor ? "Tutor" : "Learner")',
+                type: '@(pageViewModel.IsTeacher ? "Teacher" : "Learner")',
             }]);
             UserVoice.push(['showLightbox', 'classic_widget', {
                 mode: mode,

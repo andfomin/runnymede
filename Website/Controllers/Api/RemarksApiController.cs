@@ -138,29 +138,24 @@ select UserId from dbo.exeReviews where Id = @Id;
             // There may be remarks from different reviews in the batch.
             var reviewIds = remarks.GroupBy(i => i.ReviewId).Select(i => i.Key);
 
-            using (var connection = DapperHelper.GetOpenConnection())
-            {
-                // Ensure that the user is the actual exercise author.
-                const string sqlUser = @"
+            // Ensure that the user is the actual exercise author.
+            const string sqlUser = @"
 select E.UserId
 from dbo.exeReviews R
 	inner join dbo.exeExercises E on R.ExerciseId = E.Id
 where R.Id in @ReviewIds;
 ";
-                //var records = connection.Query<int>(sqlUser, new { ReviewIds = reviewIds });
+            var reviewUsers = await DapperHelper.QueryResilientlyAsync<int>(sqlUser, new { ReviewIds = reviewIds });
 
-                var reviewUsers = await DapperHelper.QueryResilientlyAsync<int>(sqlUser, new { ReviewIds = reviewIds });
+            if (reviewUsers.Count() != reviewIds.Count())
+            {
+                return BadRequest("Count");
+            }
 
-                if (reviewUsers.Count() != reviewIds.Count())
-                {
-                    return BadRequest("Count");
-                }
-
-                var userId = this.GetUserId();
-                if (!reviewUsers.All(i => i == userId))
-                {
-                    return BadRequest("UserId");
-                }
+            var userId = this.GetUserId();
+            if (!reviewUsers.All(i => i == userId))
+            {
+                return BadRequest("UserId");
             }
 
             var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.RemarksTableName);

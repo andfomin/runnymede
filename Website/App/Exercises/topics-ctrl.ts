@@ -6,7 +6,7 @@ module App.Exercises_Topics {
         ownTopic: ITopic;
         selectedTopic: string;
 
-        static $inject = [App.Utils.AngularGlobal.$SCOPE, App.Utils.AngularGlobal.$HTTP];
+        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
 
         constructor(
             private $scope: Utils.IScopeWithViewModel,

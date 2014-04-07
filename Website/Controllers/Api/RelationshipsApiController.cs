@@ -23,13 +23,13 @@ namespace Runnymede.Website.Controllers.Api
     public class RelationshipsApiController : ApiController
     {
 
-        // GET /api/RelationshipsApi/Tutors
-        [Route("Tutors")]
-        public async Task<IHttpActionResult> GetTutors()
+        // GET /api/RelationshipsApi/TeacherLearners
+        [Route("TeacherLearners")]
+        public async Task<IHttpActionResult> GetTeacherLearners()
         {
             var sql = @"
-select Id, DisplayName, Skype, Rate 
-from dbo.relGetTutors(@UserId)
+select Id, DisplayName 
+from dbo.relGetTeacherLearners(@UserId)
 order by DisplayName;
 ";
             var result = await DapperHelper.QueryResilientlyAsync<dynamic>(sql,
@@ -39,81 +39,6 @@ order by DisplayName;
                 });
 
             return Ok<object>(result);
-        }
-
-        // GET /api/RelationshipsApi/TutorLearners
-        [Route("TutorLearners")]
-        public async Task<IHttpActionResult> GetTutorLearners()
-        {
-            var sql = @"
-select Id, DisplayName, Skype 
-from dbo.relGetTutorLearners(@UserId)
-order by DisplayName;
-";
-            var result = await DapperHelper.QueryResilientlyAsync<dynamic>(sql,
-                new
-                {
-                    UserId = this.GetUserId(),
-                });
-
-            return Ok<object>(result);
-        }
-
-        // GET /api/RelationshipsApi/RandomTutors/99/0
-        [AllowAnonymous]
-        [Route("RandomTutors/{session:int}/{bucket:int}")]
-        public async Task<IHttpActionResult> GetRandomTutors(int session, int bucket)
-        {
-            //ODataQueryOptions<string> queryOptions
-            //queryOptions.Validate(new ODataValidationSettings());
-            //queryOptions.ApplyTo(null);
-
-            const string sql = @"
-select Id, DisplayName, Rate, Announcement 
-from dbo.relGetRandomTutors (@Session, @Bucket) 
-order by RowNumber;
-";
-            var result = await DapperHelper.QueryResilientlyAsync<dynamic>(sql,
-                new
-                {
-                    Session = session,
-                    Bucket = bucket,
-                });
-
-            //return result;
-            return Ok<object>(result);
-        }
-
-        // PUT /api/RelationshipsApi/Tutors/1
-        [Route("Tutors/{id:int}")]
-        public IHttpActionResult PutTutor(int id)
-        {
-            // This operation is idempotent.
-            DapperHelper.ExecuteResiliently("dbo.relAddLearnerToTutor", new
-                {
-                    LearnerUserId = this.GetUserId(),
-                    TutorUserId = id,
-                },
-                CommandType.StoredProcedure);
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        // DELETE /api/RelationshipsApi/Tutors/1
-        [Route("Tutors/{id:int}")]
-        public IHttpActionResult DeleteTutor(int id)
-        {
-            var sql = @"
-delete dbo.relLearnersTutors
-    where LearnerUserId = @UserId and TutorUserId = @TutorUserId;
-";
-            var rowsAffected = DapperHelper.ExecuteResiliently(sql, new
-            {
-                UserId = this.GetUserId(),
-                TutorUserId = id,
-            });
-
-            return StatusCode(rowsAffected > 0 ? HttpStatusCode.NoContent : HttpStatusCode.BadRequest);
         }
 
         // GET /api/RelationshipsApi/SkypeDirectory

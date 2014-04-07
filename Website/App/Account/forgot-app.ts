@@ -6,7 +6,7 @@ module App.Account_Forgot {
         sending: boolean;
         done: boolean;
 
-        static $inject = [App.Utils.AngularGlobal.$SCOPE, App.Utils.AngularGlobal.$HTTP];
+        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
 
         constructor(
             private $scope: App.Utils.IScopeWithViewModel,

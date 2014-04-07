@@ -59,7 +59,7 @@ namespace Runnymede.Website.Utils
             const int radix = 36;
             const string Digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Base36
 
-            char[] charArray = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' }; // Number is padded with zeros at the beginning.
+            char[] charArray = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' }; // The number is padded with zeros at the beginning.
             int index = 9;
 
             // The three last chars are random.
@@ -135,19 +135,17 @@ namespace Runnymede.Website.Utils
 
         public static int GetUserId(this Controller controller)
         {
-            return Convert.ToInt32(controller.User.Identity.GetUserId());
+            return IdentityHelper.GetUserId(controller.User.Identity);
         }
 
-        public static string GetNameOfUser(this Controller controller)
+        public static string GetUserDisplayName(this Controller controller)
         {
-            var identity = controller.User.Identity as System.Security.Claims.ClaimsIdentity;
-            return identity != null ? identity.FindFirstValue(AppClaimTypes.DisplayName) : null; // FindFirstValue() returns null if not found.
+            return IdentityHelper.GetUserDisplayName(controller.User.Identity);
         }
 
-        public static bool GetIsTutor(this Controller controller)
+        public static bool GetUserIsTeacher(this Controller controller)
         {
-            var identity = controller.User.Identity as System.Security.Claims.ClaimsIdentity;
-            return (identity != null) && identity.HasClaim(i => i.Type == AppClaimTypes.IsTutor);
+            return IdentityHelper.GetUserIsTeacher(controller.User.Identity);
         }
 
         public static string SerializeAsJson(object value)

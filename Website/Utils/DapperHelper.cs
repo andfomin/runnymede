@@ -58,11 +58,11 @@ namespace Runnymede.Website.Utils
         }
 
         /// <summary>
-        /// Strip the beginning of the exception message which contains the name of the stored procedure and the variable values.
+        /// Strip the beginning of the exception message which contains the name of the stored procedure and variable values.
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
-        private static Exception StripException(SqlException ex)
+        public static Exception StripException(SqlException ex)
         {
             var index = ex.Message.IndexOf(":: "); // Magic separator.
             return (index > 0) ? new Exception(ex.Message.Substring(index + 3)/*, ex*/) : ex;
@@ -116,6 +116,30 @@ namespace Runnymede.Website.Utils
             }
 
             return result;
+        }
+
+        public static void QueryMultipleResiliently(string sql, dynamic param = null, CommandType? commandType = null, Action<Dapper.SqlMapper.GridReader> action = null)
+        {
+            try
+            {
+                var executionStrategy = new SqlAzureExecutionStrategy();
+                executionStrategy.Execute(() =>
+                {
+                    using (var connection = GetOpenConnection())
+                    {
+                        var reader = SqlMapper.QueryMultiple(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
+
+                        if (action != null)
+                        {
+                            action(reader);
+                        }
+                    }
+                });
+            }
+            catch (SqlException ex)
+            {
+                throw StripException(ex);
+            }
         }
 
         public static async Task<IEnumerable<T>> QueryResilientlyAsync<T>(string sql, dynamic param = null, CommandType? commandType = null)

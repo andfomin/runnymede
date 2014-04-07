@@ -20,7 +20,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace Runnymede.Website.Controllers
+namespace Runnymede.Website.Controllers.Api
 {
     [Authorize]
     [HostAuthentication(DefaultAuthenticationTypes.ApplicationCookie)]
@@ -33,61 +33,20 @@ namespace Runnymede.Website.Controllers
         {
             var result = new DataSourceDto<ExerciseDto>();
 
-            using (var connection = DapperHelper.GetOpenConnection())
-            {
-//                const string sql = @"
-//declare @RowCount int;
-//
-//set nocount on;
-//
-//declare @t table (
-//	Id int,
-//	CreateTime datetime2(0) not null,
-//	TypeId nchar(4),
-//	Title nvarchar(100),
-//	[Length] int
-//);
-//
-//insert into @t (Id, CreateTime, TypeId, Title, [Length])
-//	select Id, CreateTime, TypeId, Title, [Length]
-//	from dbo.exeExercises
-//	where UserId = @UserId;
-//
-//select @RowCount = count(*) from @t;
-//
-//delete @t 
-//where Id not in 
-//	(
-//		select Id
-//		from @t 
-//		order by CreateTime desc
-//		offset @RowOffset rows
-//		fetch next @RowLimit rows only
-//	);
-//
-//set nocount off;
-//
-//select Id, CreateTime, TypeId, Title, [Length]
-//from @t
-//order by CreateTime desc;
-//
-//select R.ExerciseId, R.Id, R.Reward, R.RequestTime, R.StartTime, R.FinishTime, R.CancelTime, R.ReviewerName 
-//from dbo.exeReviews R 
-//	inner join @t T on R.ExerciseId = T.Id;
-//
-//select @RowCount;
-//";
-
-                var reader = connection.QueryMultiple(
-                    "dbo.exeGetExercises",
-                    new { UserId = this.GetUserId(), RowOffset = offset, RowLimit = limit },
-                    commandType: CommandType.StoredProcedure
-                    );
-
-                result.TotalCount = reader.Read<int>().Single();
-
-                result.Items = reader.Map<ExerciseDto, ReviewDto, int>(e => e.Id, r => r.ExerciseId, (e, r) => { e.Reviews = r; });
-            }
+            DapperHelper.QueryMultipleResiliently(
+                "dbo.exeGetExercises",
+                new
+                {
+                    UserId = this.GetUserId(),
+                    RowOffset = offset,
+                    RowLimit = limit
+                },
+                CommandType.StoredProcedure,
+                (Dapper.SqlMapper.GridReader reader) =>
+                {
+                    result.TotalCount = reader.Read<int>().Single();
+                    result.Items = reader.Map<ExerciseDto, ReviewDto, int>(e => e.Id, r => r.ExerciseId, (e, r) => { e.Reviews = r; });
+                });
 
             return result;
         }
@@ -99,72 +58,29 @@ namespace Runnymede.Website.Controllers
             var sqlConditions = @"
 select dbo.accGetBalance(@UserId) as Balance, dbo.appGetConstantAsFloat('Exercises.Reviews.WorkDurationRatio') as WorkDurationRatio;
 ";
-            var sqlTutors = @"
-select Id, DisplayName, Rate 
-from dbo.relGetRelatedTutors(@UserId) 
+            var sqlTeachers = @"
+select Id, DisplayName, ReviewRate 
+from dbo.relGetTeachers(@UserId) 
 order by DisplayName;
 ";
             var userId = this.GetUserId();
             dynamic conditions;
-            IEnumerable<dynamic> tutors;
+            IEnumerable<dynamic> teachers;
 
             using (var connection = DapperHelper.GetOpenConnection())
             {
                 conditions = (await connection.QueryAsync<dynamic>(sqlConditions, new { UserId = userId })).Single();
 
-                tutors = await connection.QueryAsync<dynamic>(sqlTutors, new { UserId = userId });
+                teachers = await connection.QueryAsync<dynamic>(sqlTeachers, new { UserId = userId });
             }
 
             return Ok<object>(new
             {
                 WorkDurationRatio = (float)conditions.WorkDurationRatio, // Average ratio of work duration to exercise length. It is used for calculation of suggested offers.
                 Balance = (decimal)conditions.Balance,
-                Tutors = tutors
+                Teachers = teachers
             });
         }
-
-        ////        // DELETE api/ExercisesApi/123
-        ////        public async Task<IHttpActionResult> DeleteExercise(int id)
-        ////        {
-        ////            // Ensure the user deletes their own exercise.
-        ////            var userId = this.GetUserId();
-        ////            ExerciseDto exercise;
-
-        ////            using (var connection = DapperHelper.GetOpenConnection())
-        ////            {
-
-        ////                string sqlSelect = @"
-        ////delete dbo.exeExercises 
-        ////	output deleted.TypeId, deleted.ArtefactId
-        ////where Id = @Id and UserId = @UserId;
-        ////";
-        ////                exercise = (await connection.QueryAsync<ExerciseDto>(sqlSelect, new
-        ////                   {
-        ////                       Id = id,
-        ////                       UserId = userId,
-        ////                   }))
-        ////                   .FirstOrDefault();
-        ////            }
-
-        ////            // TypeId is not-nullable, so we expect a row returned back if the row was deleted.
-        ////            if (exercise == null)
-        ////            {
-        ////                return BadRequest();
-        ////            }
-
-        ////            // Delete the blob.
-        ////            if (!string.IsNullOrEmpty(exercise.ArtefactId))
-        ////            {
-        ////                if (!string.IsNullOrEmpty(exercise.TypeId) && exercise.TypeId == ExerciseType.AudioRecording)
-        ////                {
-        ////                    var container = AzureStorageUtils.GetCloudBlobContainer(AzureStorageUtils.RecordingsContainerName);
-        ////                    var blob = container.GetBlockBlobReference(exercise.ArtefactId);
-        ////                    blob.Delete();
-        ////                }
-        ////            }
-
-        ////            return StatusCode(HttpStatusCode.NoContent);
-        ////        }
 
         // PUT /api/ExercisesApi/12345/Title
         [Route("{id:int}/Title")]

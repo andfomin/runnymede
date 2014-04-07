@@ -40,8 +40,8 @@ begin try
 		if exists (
 			select *
 			from @ReviewerUserIds R
-				left join dbo.relLearnersTutors LT on LT.LearnerUserId = @AuthorUserId and R.UserId = LT.TutorUserId
-			where LT.TutorUserId is null
+				left join dbo.relLearnersTeachers LT on LT.LearnerUserId = @AuthorUserId and R.UserId = LT.TeacherUserId
+			where LT.TeacherUserId is null
 		)
 			raiserror('%s,%d:: The user has no relationship with a proposed reviewer.', 16, 1, @ProcName, @AuthorUserId);
 	end

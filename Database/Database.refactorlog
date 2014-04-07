@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="f0dca5f2-00a0-4b42-9182-8f94fced63bc" ChangeDateTime="02/20/2014 19:12:07">
+    <Property Name="ElementName" Value="[dbo].[relLearnersTutors]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[relLearnersTeachers]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="1d9747b0-2bfe-40ac-a6c6-7cb9a1b0112c" ChangeDateTime="02/20/2014 19:14:57">
+    <Property Name="ElementName" Value="[dbo].[relLearnersTeachers].[TutorDisplayName]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[relLearnersTeachers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[TeacherDisplayName]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="71a2d2d2-f791-4905-80b5-53cb8bbebc1f" ChangeDateTime="02/20/2014 19:19:49">
+    <Property Name="ElementName" Value="[dbo].[relLearnersTeachers].[TutorUserId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[relLearnersTeachers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[TeacherUserId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="dfa53d78-d50f-4316-9469-ceccdf8a0335" ChangeDateTime="02/20/2014 19:20:46">
+    <Property Name="ElementName" Value="[dbo].[PK_relLearnersTutors]" />
+    <Property Name="ElementType" Value="SqlPrimaryKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[relLearnersTeachers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[PK_relLearnersTeachers]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="d1151f76-d78b-40a0-ac39-172d92bdb521" ChangeDateTime="02/20/2014 19:49:37">
+    <Property Name="ElementName" Value="[dbo].[relAddLearnerToTutor]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[relAddLearnerToTeacher]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="0131d79d-b8e8-4486-9c49-11a298859601" ChangeDateTime="02/20/2014 19:53:41">
+    <Property Name="ElementName" Value="[dbo].[appUsers].[IsTutor]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[appUsers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IsTeacher]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="a27f5797-2cfa-4d98-8710-86e8d67ff0e1" ChangeDateTime="02/20/2014 19:54:03">
+    <Property Name="ElementName" Value="[dbo].[DF_appUsers_IsTutor]" />
+    <Property Name="ElementType" Value="SqlDefaultConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[appUsers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[DF_appUsers_IsTeacher]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="2b4627d6-7ed9-40b9-b641-bf3da1c175ad" ChangeDateTime="02/20/2014 19:54:56">
+    <Property Name="ElementName" Value="[dbo].[accMakePaymentToTutor]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[accMakePaymentToTeacher]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="8330737f-c518-45ea-8582-e9a5b93e52be" ChangeDateTime="02/20/2014 19:59:21">
+    <Property Name="ElementName" Value="[dbo].[relGetRandomTutors]" />
+    <Property Name="ElementType" Value="SqlMultiStatementTableValuedFunction" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[relGetRandomTeachers]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f15c3478-6711-4de6-a9d7-ad4eae2d877c" ChangeDateTime="02/20/2014 20:02:16">
+    <Property Name="ElementName" Value="[dbo].[relGetTutors]" />
+    <Property Name="ElementType" Value="SqlMultiStatementTableValuedFunction" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[relGetTeachers]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="cc39422d-3518-4f90-b27e-58d0e953b522" ChangeDateTime="02/20/2014 20:04:24">
+    <Property Name="ElementName" Value="[dbo].[relGetTutorLearners]" />
+    <Property Name="ElementType" Value="SqlMultiStatementTableValuedFunction" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[relGetTeacherLearners]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="2d33ac9d-2d19-43bc-bf53-542ac3925039" ChangeDateTime="02/25/2014 23:10:07">
+    <Property Name="ElementName" Value="[dbo].[InitializeAll]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[sysInitializeAll]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="d16d9ff5-4bdc-4b10-b954-87f57de894b6" ChangeDateTime="02/25/2014 23:13:30">
+    <Property Name="ElementName" Value="[dbo].[InitializeConstants]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[sysInitializeConstants]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="2904a2dc-77fe-4d55-8ab0-21618e7e70cf" ChangeDateTime="02/25/2014 23:14:00">
+    <Property Name="ElementName" Value="[dbo].[InitializeSpecialUsers]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[sysInitializeSpecialUsers]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="c7dea1ef-18c6-4b14-833b-c55e3689fd6d" ChangeDateTime="02/25/2014 23:14:34">
+    <Property Name="ElementName" Value="[dbo].[InitializeTestUsers]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[sysInitializeTestUsers]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5e3a9784-c51e-4b84-a9f2-f80c71a0692f" ChangeDateTime="02/25/2014 23:15:03">
+    <Property Name="ElementName" Value="[dbo].[InitializeUser]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[sysInitializeUser]" />
+  </Operation>
+</Operations>

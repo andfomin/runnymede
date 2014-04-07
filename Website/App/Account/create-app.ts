@@ -10,7 +10,7 @@ module App.Account_Create {
 
         done: boolean;
 
-        static $inject = [App.Utils.AngularGlobal.$SCOPE, App.Utils.AngularGlobal.$HTTP];
+        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
 
         constructor(
             private $scope: App.Utils.IScopeWithViewModel,
@@ -26,7 +26,7 @@ module App.Account_Create {
                 var timeInfo = App.Utils.getLocalTimeInfo();
                 // We do not use ngHttpPost() since our finallyCallback execution path is splitted for signIn()
                 this.$http.post(
-                    Utils.accountApiUrl('Create'),
+                    App.Utils.accountApiUrl('Create'),
                     {
                         userName: this.userName,
                         password: this.password,
@@ -54,5 +54,5 @@ module App.Account_Create {
     } // end of class
 } // end of module
 
-var app = angular.module("app", []);
+var app = angular.module("app", ['chieffancypants.loadingBar']);
 app.controller("Ctrl", App.Account_Create.Ctrl);

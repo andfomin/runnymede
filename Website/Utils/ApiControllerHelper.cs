@@ -6,6 +6,7 @@ using System.Web.Http;
 using Microsoft.AspNet.Identity;
 using System.Net.Http;
 using Owin;
+using System.Security.Principal;
 
 namespace Runnymede.Website.Utils
 {
@@ -13,18 +14,22 @@ namespace Runnymede.Website.Utils
     {
         public static int GetUserId(this ApiController controller)
         {
-            return Convert.ToInt32(controller.RequestContext.Principal.Identity.GetUserId());
+            return IdentityHelper.GetUserId(controller.RequestContext.Principal.Identity);
         }
 
         public static string GetUserName(this ApiController controller)
         {
-            return controller.RequestContext.Principal.Identity.GetUserName();
+            return IdentityHelper.GetUserName(controller.RequestContext.Principal.Identity);
         }
 
-        public static string GetDisplayName(this ApiController controller)
+        public static string GetUserDisplayName(this ApiController controller)
         {
-            var identity = controller.RequestContext.Principal.Identity as System.Security.Claims.ClaimsIdentity;
-            return identity != null ? identity.FindFirstValue(AppClaimTypes.DisplayName) : null; // FindFirstValue() returns null if not found.
+            return IdentityHelper.GetUserDisplayName(controller.RequestContext.Principal.Identity);
+        }
+
+        public static bool GetUserIsTeacher(this ApiController controller)
+        {
+            return IdentityHelper.GetUserIsTeacher(controller.RequestContext.Principal.Identity);
         }
 
         public static string GetKeeper(this ApiController controller)

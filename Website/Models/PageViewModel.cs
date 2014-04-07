@@ -12,7 +12,7 @@ namespace Runnymede.Website.Models
     {
         public string UserName { get; set; }
         public string DisplayName { get; set; }
-        public bool IsTutor { get; set; }
+        public bool IsTeacher { get; set; }
         public int UserId { get; set; }
 
         public PageViewModel(WebPageRenderingBase page)
@@ -25,7 +25,7 @@ namespace Runnymede.Website.Models
                     UserId = Convert.ToInt32(identity.GetUserId());
                     UserName = identity.GetUserName();
                     DisplayName = identity.FindFirstValue(AppClaimTypes.DisplayName) ?? UserName;
-                    IsTutor = identity.HasClaim(i => i.Type == AppClaimTypes.IsTutor);
+                    IsTeacher = identity.HasClaim(i => i.Type == AppClaimTypes.IsTeacher);
                 }
             }
         }

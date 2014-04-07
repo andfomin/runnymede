@@ -1,0 +1,38 @@
+{
+  "name": "Scripts",
+  "version": "0.0.0",
+  "homepage": "https://github.com/andfomin/Runnymede",
+  "authors": [
+    "Andrey <afomin@dignicom.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.0",
+    "bootstrap": "~3.1.0",
+    "angular": "~1.2.0",
+    "angular-route": "~1.2.0",
+    "moment": "latest",
+    "angular-bootstrap-datetimepicker": "latest",
+    "bootstrap3-typeahead": "https://github.com/bassjobsen/Bootstrap-3-Typeahead.git#master",
+    "toastr": "~2.0.0",
+    "knockout.js": "2.3.0",
+    "kolite": "https://github.com/CodeSeven/KoLite.git#master",
+    "ko.datasource": "https://github.com/CraigCav/ko.datasource.git#master",
+    "angular-loading-bar": "~0.3.0",
+    "angular-ui-calendar": "latest",
+    "angular-bootstrap": "~0.10.0"
+  },
+  "resolutions": {
+    "bootstrap": "~3.1.0",
+    "angular": "~1.2.0",
+    "jquery": "~2.1.0"
+  }
+}

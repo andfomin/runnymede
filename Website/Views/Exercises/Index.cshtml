@@ -9,11 +9,14 @@
     <br />&nbsp;
 </div>
 <div class="row">
-    <div class="col-sm-offset-2 col-sm-3">
+    <div class="col-sm-offset-2 col-md-3">
         <a href="@Url.Action("Topics")" class="btn btn-primary btn-block">Record a monologue &raquo;</a>
     </div>
-    <div class="col-sm-offset-2 col-sm-3">
-        <a href="http://blob.englc.com/recorder/EnglishCosmosRecorder.exe" class="btn btn-primary btn-block">Record a Skype conversation &raquo;</a>       
+    <div class="col-md-1">
+        &nbsp;
+    </div>
+    <div class="col-sm-offset-1 col-md-3">
+        <a href="http://blob.englc.com/recorder/EnglishCosmosSkypeRecorder.exe" class="btn btn-primary btn-block">Record a Skype conversation &raquo;</a>
     </div>
 </div>
 @Html.HrSeparator("col-sm-12")
@@ -75,24 +78,24 @@
                 </div>
                 <div class="modal-body">
                     <p data-bind="with: dialogExercise">
-                        You are requesting a review for exercise &quot;<span data-bind="text: title"></span>&quot; created <span data-bind="text: createTime"></span>. It has the length <span data-bind="text: formattedLength"></span> minutes:seconds.
+                        You are requesting a review for exercise &quot;<span data-bind="text: title"></span>&quot; created <span data-bind="text: createTime"></span>. It has length <span data-bind="text: formattedLength"></span> minutes:seconds.
                     </p>
                     <hr class="app-separator" />
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" data-bind="checked: anyReviewer, enable:tutors().length > 0" />&nbsp;Any tutor can see this request and review the exercise
+                            <input type="checkbox" data-bind="checked: anyReviewer, enable:teachers().length > 0" />&nbsp;Any teacher can see this request and review the exercise
                         </label>
                     </div>
-                    <div data-bind="if: tutors().length === 0">
-                        To be able to select a particular tutor, first add it to your personal @Html.ActionLink("tutor list", "Tutors", "Relationships", null, new { @class = "" }).
+                    <div data-bind="if: teachers().length === 0">
+                        To be able to select a particular teacher, first add it to your @Html.ActionLink("favorite teacher list", "Teachers", "Relationships", null, new { @class = "" }).
                     </div>
                     <div data-bind="visible: !anyReviewer()">
                         <br />
-                       Select tutors who can see this request. Suggested reward is calculated based on this exercise's length and the tutor's rate.
-                        <!-- ko foreach: tutors -->
+                       Select teachers who can see this request. Suggested reward is calculated based on this exercise's length and the teacher's rate.
+                        <!-- ko foreach: teachers -->
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" data-bind="value: id, checked: $root.selectedTutors" /><span data-bind="text: displayName"></span> (suggested reward <span data-bind="text: $root.suggestedReward(rate)"></span>)
+                                <input type="checkbox" data-bind="value: id, checked: $root.selectedTeachers" /><span data-bind="text: displayName"></span> (suggested reward <span data-bind="text: $root.suggestedReward(reviewRate)"></span>)
                             </label>
                         </div>
                         <!-- /ko -->
@@ -103,7 +106,7 @@
                         <span data-bind="visible: balance() === 0">@Html.ActionLink("Add money to account »", "AddMoney", "Account", "https", null, null, null, new { @class = "btn btn-primary btn-sm" })</span>
                     </p>
                     <p data-bind="with: dialogExercise">
-                        Please enter the amount of money that you are offering to the tutor as a reward for reviewing the exercise.
+                        Please enter the amount of money that you are offering to the teacher as a reward for reviewing the exercise.
                     </p>
                     <div class="form-group">
                         <label class="col-sm-5 control-label" for="reward1">Enter the reward</label>
@@ -161,7 +164,7 @@
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/knockout",
-"~/bundles/jsextlibs",
+"~/bundles/ko-libs",
 "~/bundles/ext-libs",
 "~/bundles/app",
 "~/App/Exercises/index-vm.js"
