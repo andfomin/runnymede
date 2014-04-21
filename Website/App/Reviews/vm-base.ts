@@ -13,7 +13,7 @@ module App.Reviews {
         review: App.Model.IReview; // The single review.
         remarks: KnockoutObservableArray<App.Model.IRemark> = ko.observableArray([]);
         soundPosition: KnockoutObservable<number> = ko.observable(0);
-        selectedRemark: KnockoutObservable<App.Model.IRemark> = ko.observable();
+        selectedRemark: KnockoutObservable<App.Model.IRemark> = ko.observable(null);
         saveCmd: KoliteCommand;
         internalOnSaveDone: () => void;
         isDirty: KnockoutComputed<boolean>;

@@ -7,15 +7,15 @@ namespace Runnymede.Website
 {
     public class BundleConfig
     {
-        // For more information on bundling, visit http://go.microsoft.com/fwlink/?LinkId=301862
+        // For more information on bundling, visit +http://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
             // If you'd like to test the optimization locally, you can use this line to force it.
             //BundleTable.EnableOptimizations = true;
 
             bundles.Add(new StyleBundle("~/bundles/app-css").Include(
-                 "~/bower_components/toastr/toastr.min.css",
-                 "~/bower_components/angular-loading-bar/build/loading-bar.min.css",
+                 "~/bower_installer/toastr/toastr.min.css",
+                 "~/bower_installer/angular-loading-bar/loading-bar.min.css",
                  "~/Content/site.css"
                  ));
 
@@ -31,7 +31,7 @@ namespace Runnymede.Website
             //var jqueryCdnPath = "//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js";
             bundles.Add(new ScriptBundle("~/bundles/jquery"/*, jqueryCdnPath*/).Include(
                 //"~/Scripts/jquery-{version}.js"
-                "~/bower_components/jquery/dist/jquery.min.js"
+                "~/bower_installer/jquery/jquery.min.js"
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryui"/*, jqueryCdnPath*/).Include(
@@ -58,30 +58,29 @@ namespace Runnymede.Website
             // //ajax.aspnetcdn.com/ajax/bootstrap/3.0.3/bootstrap.min.js
             // netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                "~/bower_components/bootstrap/dist/js/bootstrap.min.js"
+                "~/bower_installer/bootstrap/bootstrap.min.js"
                 ));
 
             // +https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/MANIFEST
             // //ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.js
             bundles.Add(new ScriptBundle("~/bundles/angular").Include(
-                "~/bower_components/angular/angular.js"
-                //"~/bower_components/angular/angular.min.js"
+                //"~/bower_components/angular/angular.js"
+                "~/bower_installer/angular/angular.min.js"
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/angular-bootstrap").Include(
-                "~/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"
+                "~/bower_installer/angular-bootstrap/ui-bootstrap-tpls.min.js"
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/angular-libs").Include(
-                "~/bower_components/angular-route/angular-route.min.js",
-                //"~/bower_components/angular-animate/angular-animate.min.js",
+                "~/bower_installer/angular-route/angular-route.min.js",
                 // 3rd party
-                "~/bower_components/angular-loading-bar/build/loading-bar.min.js"
+                "~/bower_installer/angular-loading-bar/loading-bar.min.js"
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/ext-libs").Include(
-                "~/bower_components/moment/min/moment.min.js",
-                "~/bower_components/toastr/toastr.min.js"
+                "~/bower_installer/moment/moment.min.js",
+                "~/bower_installer/toastr/toastr.min.js"
                 ));
 
             /*----------- Old pages -----------*/
@@ -91,16 +90,16 @@ namespace Runnymede.Website
             bundles.Add(new ScriptBundle("~/bundles/knockout"/*, knockoutCdnPath*/).Include(
                 //"~/Scripts/knockout-2.3.0.debug.js",
                 //"~/Scripts/knockout-2.3.0.js"
-                "~/bower_components/knockout.js/knockout.js"
+                "~/bower_installer/knockout.js/knockout.js"
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/ko-libs").Include(
                 // Knockout plugins
-                "~/bower_components/kolite/knockout.command.js",
-                "~/bower_components/kolite/knockout.dirtyFlag.js",
+                "~/bower_installer/kolite/knockout.command.js",
+                "~/bower_installer/kolite/knockout.dirtyFlag.js",
                 //"~/bower_components/kolite/knockout.activity.js", // The new version drops the jquery plugin support
                 "~/Scripts/xcopy/knockout.activity.js",
-                "~/bower_components/ko.datasource/ko.datasource.js"
+                "~/bower_installer/ko.datasource/ko.datasource.js"
                 //"~/scripts/lib/knockout.validation.js",
                 // Not KO-related
                 //"~/scripts/lib/jquery.html5-placeholder-shim.js"

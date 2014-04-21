@@ -36,14 +36,14 @@
         {
             <div class="col-md-3 my-centered">
                 <br />&nbsp;
-                @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Create", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
+                @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Signup", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
             </div>
         }
     </div>
 </div>
 
 <div style="font-size:larger;">
-    @Html.HrSeparator("col-sm-12")
+    <hr class="app-separator" />
     <div class="row">
         <div class="col-sm-offset-1 col-sm-5 my-centered">
             <h3 class="my-header">Learners</h3>
@@ -56,7 +56,7 @@
             </p>
         </div>
         <div class="col-sm-5 my-centered">
-            <img src="/Content/Images/do-you-speak-english.jpg" class="img-responsive img-thumbnail" width="240" height="160" />
+            <img src="/Content/Images/do-you-speak-english.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
         </div>
     </div>
     <br />
@@ -67,7 +67,7 @@
             </p>
         </div>
         <div class="col-sm-5 my-centered">
-            <img src="/Content/Images/shy-learner.jpg" class="img-responsive img-thumbnail" width="240" height="160" />
+            <img src="/Content/Images/shy-learner.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
         </div>
     </div>
     <br />
@@ -79,10 +79,10 @@
             <p>@Html.ActionLink("More...", "HowItWorks", "Info")</p>
         </div>
         <div class="col-sm-5 my-centered">
-            <img src="/Content/Images/learner-teddybear.jpg" class="img-responsive img-thumbnail" width="240" height="160" />
+            <img src="/Content/Images/learner-teddybear.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
         </div>
     </div>
-    @Html.HrSeparator("col-sm-12")
+    <hr class="app-separator" />
     <div class="row">
         <div class="col-sm-offset-1 col-sm-5 my-centered">
             <h3 class="my-header">Teachers</h3>
@@ -96,10 +96,10 @@
             <p>@Html.ActionLink("More...", "HowItWorks", "Info")</p>
         </div>
         <div class="col-sm-5 my-centered">
-            <img src="/Content/Images/teacher.jpg" class="img-responsive img-thumbnail" width="240" height="160" />
+            <img src="/Content/Images/teacher.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
         </div>
     </div>
-    @Html.HrSeparator("col-sm-12")
+    <hr class="app-separator" />
     <div class="row">
         <div class="col-sm-offset-1 col-sm-5 my-centered">
             <h3 class="my-header">&nbsp;All together</h3>
@@ -112,16 +112,15 @@
             </p>
         </div>
         <div class="col-sm-5 my-centered">
-            <img src="/Content/Images/skype-together.jpg" class="img-responsive img-thumbnail" width="240" height="160" />
+            <img src="/Content/Images/skype-together.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
         </div>
     </div>
     @if (!isAuthenticated)
     {
-
-        @Html.HrSeparator("col-sm-12")
+        <hr class="app-separator" />
         <div class="row">
             <div class="col-sm-offset-4 col-sm-4">
-                @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Create", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
+                @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Signup", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
             </div>
         </div>
     }

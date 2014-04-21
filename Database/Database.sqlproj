@@ -159,6 +159,7 @@
     <Build Include="Stored Procedures\accCloseSession.sql" />
     <Build Include="Stored Procedures\relDisputeSession.sql" />
     <Build Include="Stored Procedures\relGetSessionMessageCount.sql" />
+    <Build Include="Functions\appExtIdToUrl.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />

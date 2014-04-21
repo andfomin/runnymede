@@ -32,11 +32,11 @@ namespace Runnymede.Website.Utils
             return IdentityHelper.GetUserIsTeacher(controller.RequestContext.Principal.Identity);
         }
 
-        public static string GetKeeper(this ApiController controller)
+        public static Guid GetKeeper(this ApiController controller)
         {
             var cookies = controller.Request.Headers.GetCookies(LoggingUtils.KeeperCookieName).FirstOrDefault();
             var cookie = cookies != null ? cookies.Cookies.FirstOrDefault() : null;
-            return cookie != null ? cookie.Value : Guid.Empty.ToString("N").ToUpper();
+            return cookie != null ? new Guid(cookie.Value) : Guid.Empty;
         }
 
     }

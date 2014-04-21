@@ -72,7 +72,7 @@ namespace Runnymede.Website.Controllers.Api
             string combinedFilter = TableQuery.CombineFilters(filterUser, TableOperators.And, combinedDateFilter);
 
             var query = new TableQuery<StatisticsEntity>().Where(combinedFilter);
-            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.StatisticsTableName);
+            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.Statistics);
             var entities = table.ExecuteQuery(query);
 
             // We need to normalize tag count for an exercise according to the review count for that exercise.

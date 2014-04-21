@@ -12,22 +12,22 @@ var App;
         var ViewModel = (function () {
             function ViewModel() {
                 var _this = this;
-                this.firstFrom = ko.observable();
-                this.firstTo = ko.observable();
-                this.secondFrom = ko.observable();
-                this.secondTo = ko.observable();
+                this.firstFrom = ko.observable(null);
+                this.firstTo = ko.observable(null);
+                this.secondFrom = ko.observable(null);
+                this.secondTo = ko.observable(null);
 
-                this.firstStats = ko.observableArray();
-                this.secondStats = ko.observableArray();
+                this.firstStats = ko.observableArray([]);
+                this.secondStats = ko.observableArray([]);
 
-                var exercisesParam = (App).exercisesParam || [];
+                var exercisesParam = App.exercisesParam || [];
 
-                this.firstFromArr = ko.observableArray($.map(exercisesParam, function (i) {
+                this.firstFromArr = ko.observableArray(($.map(exercisesParam, function (i) {
                     return new SelectOption(i);
-                }));
-                this.secondFromArr = ko.observableArray($.map(exercisesParam, function (i) {
+                })));
+                this.secondFromArr = ko.observableArray(($.map(exercisesParam, function (i) {
                     return new SelectOption(i);
-                }));
+                })));
 
                 this.firstToArr = ko.computed(function () {
                     return _this.firstFrom() ? ko.utils.arrayFilter(_this.firstFromArr() || [], function (i) {

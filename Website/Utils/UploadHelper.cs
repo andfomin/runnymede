@@ -10,6 +10,8 @@ using NAudio.Wave;
 using Runnymede.Website.Models;
 using System.Data.Entity.SqlServer;
 using System.Data;
+using ImageResizer;
+using System.Threading.Tasks;
 
 namespace Runnymede.Website.Utils
 {
@@ -31,28 +33,14 @@ namespace Runnymede.Website.Utils
         /// <returns>Exercise Id</returns>
         public static int SaveRecording(Stream stream, int userId, string type, int durationMsec, string topicId = null, string exerciseTitle = null)
         {
-            //var durationSec = Convert.ToInt32(Math.Round(durationMsec / 1000.0));
-            //var durationText = string.Format("{0}:{1}", durationSec / 60, (durationSec % 60).ToString("D2"));
+            var artefactId = ControllerHelper.GetTvelveDigitBase32Number();
+            var contentType = type == ExerciseType.AudioRecording ? "audio/mpeg" : "application/octet-stream";
+            // Save the recording
+            AzureStorageUtils.UploadBlob(stream, AzureStorageUtils.ContainerNames.Recordings, artefactId, contentType);
 
             string title = !string.IsNullOrEmpty(exerciseTitle)
                             ? (exerciseTitle.Length <= MaxExerciseTitleLength ? exerciseTitle : exerciseTitle.Substring(0, MaxExerciseTitleLength))
                             : "Untitled";
-
-            var artefactId = ControllerHelper.GetTvelveDigitBase32Number();
-
-            // Open the Blob storage
-            var blobContainer = AzureStorageUtils.GetCloudBlobContainer(AzureStorageUtils.RecordingsContainerName);
-            var blob = blobContainer.GetBlockBlobReference(artefactId);
-
-            blob.Properties.ContentType = type == ExerciseType.AudioRecording ? "audio/mpeg" : "application/octet-stream";
-
-            if (stream.Position != 0)
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
-
-            // Save the recording
-            blob.UploadFromStreamAsync(stream);
 
             const string sql = @"
 insert dbo.exeExercises (UserId, TypeId, ArtefactId, TopicId, [Length], Title)
@@ -121,9 +109,30 @@ values (@UserId, @TypeId, @ArtefactId, @TopicId, @Length, @Title);
             return Convert.ToInt32(durationSec * 1000);
         }
 
+        public static async Task ResizeAndSaveAvatar(Stream stream, int size, string containerName, string blobName)
+        {
+            if (stream.Position != 0)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
 
+            using (var destStream = new MemoryStream())
+            {
+                var instructions = new Instructions()
+                {
+                    Width = size,
+                    Height = size,
+                    OutputFormat = OutputFormat.Jpeg,
+                    Mode = FitMode.Crop,
+                };
 
+                var imageJob = new ImageJob(stream, destStream, instructions);
+                imageJob.DisposeSourceObject = false; // Otherwise the stream is empty on a consecutive read.
+                imageJob.Build();
 
+               await AzureStorageUtils.UploadBlobAsync(destStream, containerName, blobName, "image/jpeg");
+            }     
+        }
 
     }
 }

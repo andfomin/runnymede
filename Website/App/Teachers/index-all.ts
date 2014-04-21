@@ -27,16 +27,16 @@ module App.Teachers_Index {
 
         private addTeacher(teacher: App.Model.IUser) {
             var url = App.Utils.teachersApiUrl('Teachers/' + teacher.id.toString());
-            this.$http.put(url, null, { headers: App.Utils.getSecurityHeader() })
+            this.$http.put(url, null)
                 .success(() => {
-                    toastr.success('The teacher has been added to your teacher list');
+                    toastr.success('The teacher has been added to your favorites list');
                 })
                 .error((data, status) => {
                     if (status === 400 && data.message) {
                         // data.message expected 'Relation already exists'.
                         toastr.info(data.message);
                     }
-                    else App.Utils.logNgHttpError(data, status);
+                    else App.Utils.logError(data, status);
             });
         }
     }

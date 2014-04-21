@@ -25,6 +25,7 @@
             <!--<caption style="text-align:center;"><strong>Your favorite teachers</strong></caption>-->
             <thead>
                 <tr>
+                    <th></th>
                     <th>Name</th>
                     <th>Review rate</th>
                     <th>Session rate</th>
@@ -36,7 +37,10 @@
             <tbody data-ng-repeat="t in vm.teachers">
                 <tr>
                     <td>
-                        {{t.displayName}}
+                        <img ng-src="{{t.avatarSmallUrl}}" width="36" height="36" />&nbsp;&nbsp;
+                    </td>
+                    <td>
+                        <strong>{{t.displayName}}</strong>
                     </td>
                     <td>
                         ${{t.reviewRate | number:2}}/hour

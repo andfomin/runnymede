@@ -11,9 +11,9 @@ namespace Runnymede.Website.Utils
 {
     public static class ControllerHelper
     {
-        //public const string Base36Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // Base36
+        private const string Base36Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // Base36
         // Base32. Exclude 0, O, 1, I to avoid visual ambiguity. Use capital letters only to allow for case-insensitive search.
-        public const string Base32Chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+        private const string Base32Chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 
         /// <summary>
         /// Geenrates a random number in which every digit is a random Base32 character.
@@ -23,7 +23,7 @@ namespace Runnymede.Website.Utils
         /// <returns></returns>
         public static string GetBase32Number(int digits, Random[] randoms = null)
         {
-            /* Random() uses an int32 seed. There may be 2^32 unique sequenses produced, so one can expect a collision once a year :).
+            /* Random() uses an int32 seed. There may be 2^32 unique sequenses produced, so we can expect a collision once a year :).
              * The range of 8-digit Base32 number is larger than the range of Int32. We use each Random to generate four Base32 digits.
             */
             if (randoms == null)
@@ -56,9 +56,7 @@ namespace Runnymede.Website.Utils
         /// <returns></returns>
         public static string GetTenDigitBase36Number()
         {
-            const int radix = 36;
-            const string Digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Base36
-
+            int radix = Base36Chars.Length;
             char[] charArray = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' }; // The number is padded with zeros at the beginning.
             int index = 9;
 
@@ -68,7 +66,7 @@ namespace Runnymede.Website.Utils
             while (index > 6)
             {
                 int remainder = (int)(hash % radix);
-                charArray[index--] = Digits[remainder];
+                charArray[index--] = Base36Chars[remainder];
                 hash = hash / radix;
             }
 
@@ -76,7 +74,7 @@ namespace Runnymede.Website.Utils
 
             // The seventh digit is the projection of milliseconds.
             int digit = now.Millisecond * (radix - 1) / 999;
-            charArray[index--] = Digits[digit];
+            charArray[index--] = Base36Chars[digit];
 
             // The six first chars are seconds since the origin.	
             DateTime origin = new DateTime(2013, 12, 01, 16, 20, 00, DateTimeKind.Utc); // Arbitrary origin. The same as in the SQL code.
@@ -86,7 +84,7 @@ namespace Runnymede.Website.Utils
             while (seconds != 0)
             {
                 int remainder = (int)(seconds % radix);
-                charArray[index--] = Digits[remainder];
+                charArray[index--] = Base36Chars[remainder];
                 seconds = seconds / radix;
             }
 
@@ -99,10 +97,7 @@ namespace Runnymede.Website.Utils
         /// <returns></returns>
         public static string GetTvelveDigitBase32Number()
         {
-            const int radix = 32;
-            // Base32. Exclude 0, O, 1, I to avoid visual ambiguity. Use capital letters only to allow for case-insensitive search.
-            const string Digits = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
-
+            int radix = Base32Chars.Length;
             char[] charArray = { '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2' }; // Number is padded with zeros (wich are "2" in our case) at the beginning.
             int index = 11;
 
@@ -112,7 +107,7 @@ namespace Runnymede.Website.Utils
             while (index > 7)
             {
                 int remainder = (int)(hash % radix);
-                charArray[index--] = Digits[remainder];
+                charArray[index--] = Base32Chars[remainder];
                 hash = hash / radix;
             }
 
@@ -126,7 +121,7 @@ namespace Runnymede.Website.Utils
             while (milliseconds != 0)
             {
                 int remainder = (int)(milliseconds % radix);
-                charArray[index--] = Digits[remainder];
+                charArray[index--] = Base32Chars[remainder];
                 milliseconds = milliseconds / radix;
             }
 
@@ -167,7 +162,7 @@ namespace Runnymede.Website.Utils
             return JsonConvert.SerializeObject(value, settings);
         }
 
-        public static string GetKeeper(this Controller controller)
+        public static Guid GetKeeper(this Controller controller)
         {
             var requestCookies = controller.Request.Cookies;
             var responseCookies = controller.Response.Cookies;
@@ -178,8 +173,8 @@ namespace Runnymede.Website.Utils
                     ? responseCookies 
                     : null
                 );
-            return cookies != null ? cookies[LoggingUtils.KeeperCookieName].Value : Guid.Empty.ToString("N").ToUpper();
-            //Guid.TryParseExact(keeperCookieValue, "N", out keeper); // If input is null, it does not throw an exception, outputs Guid.Empty.
+            //Not Guid.TryParseExact(keeperCookieValue, "N", out keeper); If input is null, it does not throw an exception, but outputs Guid.Empty.
+            return cookies != null ? new Guid(cookies[LoggingUtils.KeeperCookieName].Value) : Guid.Empty;
         }
 
 

@@ -29,7 +29,7 @@ namespace Runnymede.Website.Controllers.Api
             string partitionKey = AzureStorageUtils.IntToKey(reviewId); // ReviewId is the partition key.
             var filter = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey);
             var query = new TableQuery<RemarkEntity>().Where(filter);
-            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.RemarksTableName);
+            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.Remarks);
             var entities = table.ExecuteQuery(query);
 
             var result = entities
@@ -58,7 +58,7 @@ namespace Runnymede.Website.Controllers.Api
                 RowKey = remarkId,
                 ETag = "*"
             };
-            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.RemarksTableName);
+            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.Remarks);
             await table.ExecuteAsync(TableOperation.Delete(entity));
             return StatusCode(HttpStatusCode.NoContent);
         }
@@ -127,7 +127,7 @@ select UserId from dbo.exeReviews where Id = @Id;
                 batchOperation.InsertOrReplace(entity);
             }
 
-            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.RemarksTableName);
+            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.Remarks);
             await table.ExecuteBatchAsync(batchOperation);
 
             return StatusCode(HttpStatusCode.NoContent); // Since we send no content back, 200 OK causes error on the JQuery side.
@@ -158,7 +158,7 @@ where R.Id in @ReviewIds;
                 return BadRequest("UserId");
             }
 
-            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.RemarksTableName);
+            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.Remarks);
 
             foreach (var remark in remarks)
             {

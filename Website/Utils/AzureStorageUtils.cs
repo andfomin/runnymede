@@ -5,6 +5,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -13,13 +14,24 @@ namespace Runnymede.Website.Utils
 {
     public class AzureStorageUtils
     {
+        public class ContainerNames
+        {
+            public const string Recordings = "recordings";
+            public const string AvatarsLarge = "avatars-large";
+            public const string AvatarsSmall = "avatars-small";
+        }
+
+        public class TableNames
+        {
+            public const string Remarks = "remarks";
+            public const string KeeperLog = "keeperlog";
+            public const string PaymentLog = "paymentlog";
+            public const string Statistics = "statistics";
+            public const string Topics = "topics";
+        }
+
         public const string StorageConnectionStringName = "StorageConnection";
-        public const string RecordingsContainerName = "recordings";
-        public const string RemarksTableName = "remarks";
-        public const string KeeperLogTableName = "keeperlog";
-        public const string PaymentLogTableName = "paymentlog";
-        public const string StatisticsTableName = "statistics";
-        public const string TopicsTableName = "topics";
+        private const string AzureStorageDomainName = "blob.englc.com"; // "englc.blob.core.windows.net";
 
         public static string GetConnectionString()
         {
@@ -54,25 +66,34 @@ namespace Runnymede.Website.Utils
             // Blobs
             var blobClient = storageAccount.CreateCloudBlobClient();
 
-            var container = blobClient.GetContainerReference(AzureStorageUtils.RecordingsContainerName);
-            if (!container.Exists())
+            new List<string>
             {
-                container.CreateIfNotExists();
-                // Configure container for public access
-                var permissions = container.GetPermissions();
-                permissions.PublicAccess = BlobContainerPublicAccessType.Blob;
-                container.SetPermissions(permissions);
+                ContainerNames.Recordings,
+                ContainerNames.AvatarsLarge,
+                ContainerNames.AvatarsSmall,
             }
+            .ForEach(i =>
+            {
+                var container = blobClient.GetContainerReference(i);
+                if (!container.Exists())
+                {
+                    container.CreateIfNotExists();
+                    // Configure container for public access
+                    var permissions = container.GetPermissions();
+                    permissions.PublicAccess = BlobContainerPublicAccessType.Blob;
+                    container.SetPermissions(permissions);
+                }
+            });
 
             // Tables
             var tableClient = storageAccount.CreateCloudTableClient();
 
             new List<string> {
-                AzureStorageUtils.KeeperLogTableName,
-                AzureStorageUtils.RemarksTableName,
-                AzureStorageUtils.PaymentLogTableName,
-                AzureStorageUtils.StatisticsTableName,
-                AzureStorageUtils.TopicsTableName,
+                AzureStorageUtils.TableNames.KeeperLog,
+                AzureStorageUtils.TableNames.Remarks,
+                AzureStorageUtils.TableNames.PaymentLog,
+                AzureStorageUtils.TableNames.Statistics,
+                AzureStorageUtils.TableNames.Topics,
             }
             .ForEach(i =>
             {
@@ -110,7 +131,7 @@ namespace Runnymede.Website.Utils
 
         public static string IntToKey(int value)
         {
-            return value.ToString("D10");
+            return value.ToString("D10"); // Prepend with zeroes.
         }
 
         public static int KeyToInt(string value)
@@ -123,19 +144,41 @@ namespace Runnymede.Website.Utils
             return value.ToString("u"); // "yyyy-MM-dd HH:mm:ssZ"
         }
 
-        public static string GetRecordingsBaseUrl()
+        public static string GetContainerBaseUrl(string containerName, bool secure = false)
         {
-            var urlBase = IsLocalEmulator()
-                ? "127.0.0.1:10000/devstoreaccount1"
-                : "blob.englc.com"; // "englc.blob.core.windows.net";
-            return string.Format("http://{0}/{1}/", urlBase, RecordingsContainerName);
+            var isLocal = IsLocalEmulator();
+            var baseUrl = isLocal
+                            ? "127.0.0.1:10000/devstoreaccount1"
+                            : AzureStorageDomainName;
+
+            return string.Format("http{0}://{1}/{2}/", (secure && !isLocal) ? "s" : "",  baseUrl, containerName);
         }
 
+        private static CloudBlockBlob InternalPrepareBlobUpload(Stream stream, string containerName, string blobName, string contentType)
+        {
+            var blobContainer = AzureStorageUtils.GetCloudBlobContainer(containerName);
+            var blob = blobContainer.GetBlockBlobReference(blobName);
+            if (!string.IsNullOrEmpty(contentType))
+            {
+                blob.Properties.ContentType = contentType;
+            }
+            if (stream.Position != 0)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
+            return blob;
+        }
 
+        public static void UploadBlob(Stream stream, string containerName, string blobName, string contentType)
+        {
+            var blob = InternalPrepareBlobUpload(stream, containerName, blobName, contentType);
+            blob.UploadFromStream(stream);
+        }
 
-
-
-
-
+        public static async Task UploadBlobAsync(Stream stream, string containerName, string blobName, string contentType)
+        {
+            var blob = InternalPrepareBlobUpload(stream, containerName, blobName, contentType);
+            await blob.UploadFromStreamAsync(stream);
+        }
     }
 }

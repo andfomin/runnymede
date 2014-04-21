@@ -29,7 +29,7 @@ module App.Sessions_Teacher {
                                 start: start.toDate().toISOString(),
                                 end: end.toDate().toISOString(),
                                 localTime: timeInfo.time,
-                                localTimezoneOffset: timeInfo.timeZoneOffset,
+                                localTimezoneOffset: timeInfo.timezoneOffset,
                             },
                             (data) => {
                                 angular.forEach(data, (event) => {
@@ -169,7 +169,7 @@ module App.Sessions_Teacher {
                     start: this.start,
                     end: this.end,
                     localTime: timeInfo.time,
-                    localTimezoneOffset: timeInfo.timeZoneOffset,
+                    localTimezoneOffset: timeInfo.timezoneOffset,
                 },
                 () => {
                     this.$modalInstance.close();
@@ -205,11 +205,9 @@ module App.Sessions_Teacher {
         ok = () => {
             this.sending = true;
 
-            this.$http.delete(
-                App.Utils.sessionsApiUrl('Offer/' + this.event.id),
-                null)
+            this.$http.delete(App.Utils.sessionsApiUrl('Offer/' + this.event.id))
                 .success(() => { this.$modalInstance.close(); })
-                .error(App.Utils.logNgHttpError)
+                .error(App.Utils.logError)
                 .finally(() => { this.sending = false; });
         };
 

@@ -50,31 +50,17 @@ module App.Utils {
             }]);
     }
 
-    export function logNgHttpError(data, status) {
-        var m = data.exceptionMessage ? data.exceptionMessage : (data.message ? data.message : (data.error_description ? data.error_description : ''));
-        toastr.error('Error. ' + m);// + ' Status code ' + status);
-    }
-
-    // $http does not send data in body in GET request, only as params.
     export function ngHttpGet(http: ng.IHttpService, url: string, successCallback: ng.IHttpPromiseCallback<any>) {
-        http.get(
-            url,
-            { headers: App.Utils.getSecurityHeader() }
-            )
+        http.get(url)
             .success(successCallback)
-            .error(App.Utils.logNgHttpError);
+            .error(App.Utils.logError);
     }
 
+    // $http does not send data in body in a GET request, only as params.
     export function ngHttpGetWithParams(http: ng.IHttpService, url: string, params: any, successCallback: ng.IHttpPromiseCallback<any>) {
-        http.get(
-            url,
-            {
-                params: params,
-                headers: App.Utils.getSecurityHeader()
-            }
-            )
+        http.get(url, { params: params })
             .success(successCallback)
-            .error(App.Utils.logNgHttpError);
+            .error(App.Utils.logError);
     }
 
     export function ngHttpGetWithParamsNoCache(http: ng.IHttpService, url: string, params: any, successCallback: ng.IHttpPromiseCallback<any>) {
@@ -84,24 +70,33 @@ module App.Utils {
     }
 
     export function ngHttpPost(http: ng.IHttpService, url: string, data: any, successCallback: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
-        http.post(
-            url,
-            data,
-            { headers: App.Utils.getSecurityHeader() }
-            )
+        http.post(url, data)
             .success(successCallback)
-            .error(App.Utils.logNgHttpError)
+            .error(App.Utils.logError)
             .finally(finallyCallback);
     }
 
+    /* How to post a form-encoded, not JSON-encoded, data */
+    //    $http({
+    //        method: 'POST',
+    //        url: Utils.loginUrl(),
+    //        data: {
+    //            userName: userName,
+    //        },
+    //        /* The OWIN authintication middleware does not accept JSON. It wants a form. */
+    //        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+    //        transformRequest: function (obj) {
+    //            var str = [];
+    //            for (var p in obj)
+    //                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+    //            return str.join("&");
+    //        }
+    //    })
+
     export function ngHttpPut(http: ng.IHttpService, url: string, data: any, successCallback: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
-        http.put(
-            url,
-            data,
-            { headers: App.Utils.getSecurityHeader() }
-            )
+        http.put(url, data)
             .success(successCallback)
-            .error(App.Utils.logNgHttpError)
+            .error(App.Utils.logError)
             .finally(finallyCallback);
     }
 
@@ -154,7 +149,7 @@ module App.Utils {
         };
     } // end of PaginatorFactory
 
-    // We inject the $filter service to be able to call a standard filter internally.
+    // We inject the $filter service to be able to call the standard filter internally.
     export function AppDateFilterFactory($filter) {
         return (date) => {
             var f = $filter('date'); // The standard filter.

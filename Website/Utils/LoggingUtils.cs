@@ -51,12 +51,12 @@ namespace Runnymede.Website.Utils
 
         public static void WriteKeeperLog(string logData)
         {
-            AzureStorageUtils.InsertEntry(AzureStorageUtils.KeeperLogTableName, CreateKeeperLogEntity(logData));
+            AzureStorageUtils.InsertEntry(AzureStorageUtils.TableNames.KeeperLog, CreateKeeperLogEntity(logData));
         }
 
         public static async Task WriteKeeperLogAsync(string logData)
         {
-            await AzureStorageUtils.InsertEntryAsync(AzureStorageUtils.KeeperLogTableName, CreateKeeperLogEntity(logData));
+            await AzureStorageUtils.InsertEntryAsync(AzureStorageUtils.TableNames.KeeperLog, CreateKeeperLogEntity(logData));
         }
 
         public static int? CalculateTimeOffsetSec(string localTime)

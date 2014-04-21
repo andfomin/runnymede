@@ -42,18 +42,18 @@ module App.Statistics {
 
         constructor() {
 
-            this.firstFrom = ko.observable();
-            this.firstTo = ko.observable();
-            this.secondFrom = ko.observable();
-            this.secondTo = ko.observable();
+            this.firstFrom = ko.observable(null);
+            this.firstTo = ko.observable(null);
+            this.secondFrom = ko.observable(null);
+            this.secondTo = ko.observable(null);
 
-            this.firstStats = ko.observableArray();
-            this.secondStats = ko.observableArray();
+            this.firstStats = ko.observableArray([]);
+            this.secondStats = ko.observableArray([]);
 
             var exercisesParam = (<any>App).exercisesParam || [];
 
-            this.firstFromArr = ko.observableArray($.map(exercisesParam, i => new SelectOption(i)));
-            this.secondFromArr = ko.observableArray($.map(exercisesParam, i => new SelectOption(i)));
+            this.firstFromArr = ko.observableArray(<ISelectOption[]>($.map(exercisesParam, i => new SelectOption(i))));
+            this.secondFromArr = ko.observableArray(<ISelectOption[]>($.map(exercisesParam, i => new SelectOption(i))));
 
             this.firstToArr = ko.computed(() => {
                 return this.firstFrom()

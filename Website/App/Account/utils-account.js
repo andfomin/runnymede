@@ -21,7 +21,7 @@ var App;
                 }
             }).success(function (data) {
                 // Store the access token for using with WebAPI.
-                App.Utils.setAccessToken(data.access_token, persistent);
+                App.Utils.setAccessToken(data.access_token);
 
                 /* We send the client-side time and the local TimezoneOffset with the form to infer the client's actual time zone. */
                 var timeInfo = App.Utils.getLocalTimeInfo();
@@ -31,7 +31,7 @@ var App;
                     localTime: timeInfo.time,
                     localTimezoneOffset: timeInfo.timeZoneOffset
                 }, function (data) {
-                    App.Utils.TimezoneOffsetMin = data.timezoneOffsetMin;
+                    //App.Utils.TimezoneOffsetMin = data.timezoneOffsetMin;
                 }, function () {
                     if (finallyCallback) {
                         finallyCallback();

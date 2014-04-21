@@ -27,13 +27,13 @@ module App.Teachers_Index {
 
         private removeTeacher(teacher: App.Model.IUser) {
             var url = App.Utils.teachersApiUrl('Teachers/' + teacher.id.toString());
-            this.$http.delete(url, { headers: App.Utils.getSecurityHeader() })
+            this.$http.delete(url)
                 .success(() => {
                     toastr.success('The teacher has been removed from your teacher list');
                     var index = this.teachers.indexOf(teacher);
                     this.teachers.splice(index, 1);
                 })
-                .error(App.Utils.logNgHttpError);
+                .error(App.Utils.logError);
         }
 
         private payTeacher(teacher: App.Model.IUser) {

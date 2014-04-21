@@ -20,7 +20,7 @@
 
         @if (!Request.IsAuthenticated)
         {
-            @Html.HrSeparator("col-sm-12")
+            <hr class="app-separator" />
             <div class="row">
                 <div class="col-sm-offset-4 col-sm-4">
                     @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Create", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })

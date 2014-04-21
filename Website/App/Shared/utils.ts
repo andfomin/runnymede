@@ -16,63 +16,18 @@ module App.Utils {
     export function teachersApiUrl(path?: string) { return '/api/TeachersApi/' + (path || ''); };
     export function sessionsApiUrl(path?: string) { return '/api/SessionsApi/' + (path || ''); };
 
-    // Header for authentication with WebAPI
-    var accessTokenKey: string = 'accessToken';
-    var timezoneOffsetMinKey: string = 'timezoneOffsetMin';
-
-    export function setAccessToken(token: string, persistent: boolean) {
-        // sessionStorage and session cookie work differently across tabs. // See +http://dev.w3.org/html5/webstorage/#introduction
-        // If the user opens a new tab, she is still authorized to view the page, but AJAX requests from that page will fail.
-        // We do not use sessionStorage to compliment the cookie behavior.
-        //if (persistent) {
-        localStorage[accessTokenKey] = token;
-        //} else {
-        //    sessionStorage[accessTokenKey] = token;
-        //}
-    };
-
-    export function getSecurityHeader() {
-        var token = sessionStorage[accessTokenKey] || localStorage[accessTokenKey];
-        if (token) {
-            return { "Authorization": "Bearer " + token };
-        }
-        return {};
-    }
-
-    //export function setTimezoneOffsetMin(value) {
-    //    timezoneOffsetMin = value;
-    //    localStorage[timezoneOffsetMinKey] = value;
-    //};
-
-    //export function getTimezoneOffsetMin() {
-    //    return timezoneOffsetMin;
-    //}
-
-    export var TimezoneOffsetMin;
-    var timezoneOffsetMin: number = localStorage[timezoneOffsetMinKey];
-    Object.defineProperty(App.Utils, "TimezoneOffsetMin", {
-        get: function () {
-            return timezoneOffsetMin;
-        },
-        set: function (val) {
-            timezoneOffsetMin = val;
-            localStorage[timezoneOffsetMinKey] = val;
-        },
-        enumerable: true,
-        configurable: true
-    });
 
     // Returns a Deffered object
     export function ajaxRequest(type: string, url: string, data?: any) {
-        return $.ajax({
+        var settings: JQueryAjaxSettings = {
             type: type,
             url: url,
             data: ko.toJSON(data),
             dataType: 'json',
             contentType: 'application/json',
             cache: false,
-            headers: getSecurityHeader(),
-        });
+        };
+        return $.ajax(settings);
     }
 
     // Returns a Deffered object
@@ -103,7 +58,6 @@ module App.Utils {
                 },
                 context: this,
                 dataType: 'json',
-                headers: getSecurityHeader(),
             })
                 .done(function (dto) {
                     if (dto.items) {
@@ -173,9 +127,6 @@ module App.Utils {
         return val && val.length > 0 && /^\d+(?:(?:\.|,)\d{1,2})?$/.test(val);
     };
 
-    //export function getNoCacheUrl(prefix?: string) {
-    //    return (prefix ? prefix : '') + '_=' + safeDateNow();
-    //}
     export function getNoCacheUrl() {
         return '_=' + safeDateNow();
     }
@@ -187,7 +138,7 @@ module App.Utils {
 
     export interface ILocalTimeInfo {
         time: string;
-        timeZoneOffset: number;
+        timezoneOffset: number;
     }
 
     // We send the client-side time and the local TimezoneOffset with the form to infer the client's actual time zone.
@@ -195,7 +146,7 @@ module App.Utils {
         var d = new Date();
         return {
             time: '' + d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getHours() + '/' + d.getMinutes() + '/' + d.getSeconds(),
-            timeZoneOffset: d.getTimezoneOffset()
+            timezoneOffset: d.getTimezoneOffset()
         }
     }
 
@@ -214,19 +165,22 @@ module App.Utils {
     }
 
     export function logAjaxError(jqXHR: any, defaultMessage: string) {
-        var r = jqXHR.responseJSON;
-        var m: string;
-        if (r) {
-            var em = r.exceptionMessage ? ('' + r.exceptionMessage) : '';
+        logError(jqXHR.responseJSON, defaultMessage);
+    }
+
+    export function logError(data: any, defaultMessage: any) {
+        var m = defaultMessage;
+        if (data) {
+            var em = data.exceptionMessage ? ('' + data.exceptionMessage) : '';
             // SQL stored procedures return custom formatted error messages with values at the beginning of the message.
             var i = em.indexOf('::');
             if (i > -1) {
                 em = em.substring(i + 2);
             }
-            m = em ? em : (r.message ? r.message : (r.error_description ? r.error_description : ''));
+            m = em ? em : (data.message ? data.message : (data.error_description ? data.error_description : ''));
         }
-
-        toastr.error('Error. ' + r ? m : defaultMessage);
+        toastr.error('Error. ' + m);
     }
+
 
 }

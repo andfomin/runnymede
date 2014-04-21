@@ -226,7 +226,7 @@ module App.Utils {
                     start: this.start,
                     duration: this.duration,
                     localTime: timeInfo.time,
-                    localTimezoneOffset: timeInfo.timeZoneOffset,
+                    localTimezoneOffset: timeInfo.timezoneOffset,
                     message: this.message,
                 },
                 () => {

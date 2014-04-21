@@ -33,6 +33,9 @@ begin try
 		[End] smalldatetime not null
 	);
 
+	if not exists (select * from dbo.appUsers where Id = @UserId and Skype is not null)
+		raiserror('%s:: The user has no Skype name on the profile.', 16, 1, @ProcName);
+
 	-- [Start]<[End] implemented as a constraint on dbo.relSchedulePeriods 
 	-- The UI operates with 15 minute steps, i.e. 00:00, 00:15, 00:30, 00:45,
 	if  @Start < dateadd(minute, -17, sysutcdatetime())

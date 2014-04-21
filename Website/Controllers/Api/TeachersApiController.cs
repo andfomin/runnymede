@@ -22,7 +22,7 @@ namespace Runnymede.Website.Controllers.Api
         public async Task<IHttpActionResult> GetTeachers()
         {
             var sql = @"
-select Id, DisplayName, ReviewRate, SessionRate 
+select Id, DisplayName, ReviewRate, SessionRate, dbo.appExtIdToUrl(@BaseUrl, ExtId) as AvatarSmallUrl
 from dbo.relGetTeachers(@UserId)
 order by DisplayName;
 ";
@@ -30,6 +30,7 @@ order by DisplayName;
                 new
                 {
                     UserId = this.GetUserId(),
+                    BaseUrl = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.AvatarsSmall),
                 });
 
             return Ok<object>(result);
@@ -45,7 +46,7 @@ order by DisplayName;
             //queryOptions.ApplyTo(null);
 
             const string sql = @"
-select Id, DisplayName, ReviewRate, SessionRate, Announcement 
+select Id, DisplayName, ReviewRate, SessionRate, Announcement, dbo.appExtIdToUrl(@BaseUrl, ExtId) as AvatarLargeUrl 
 from dbo.relGetRandomTeachers (@ViewSession, @Bucket) 
 order by RowNumber;
 ";
@@ -54,9 +55,9 @@ order by RowNumber;
                 {
                     ViewSession = viewSession,
                     Bucket = bucket,
+                    BaseUrl = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.AvatarsLarge),
                 });
 
-            //return result;
             return Ok<object>(result);
         }
 

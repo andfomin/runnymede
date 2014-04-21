@@ -16,6 +16,12 @@ module App.Model {
         reviewRate: number;
         sessionRate: number;
         announcement: string;
+        avatarLargeUrl: string;
+        avatarSmallUrl: string;
+        phoneNumber: string;
+        phoneNumberConfirmed: boolean;
+        email: string;
+        emailConfirmed: boolean;
     }
 
     export interface IExercise {
@@ -78,7 +84,7 @@ module App.Model {
             this.length = data.length;
             this.title = ko.observable(data.title);
             this.createTime = App.Utils.formatDateLocal(data.createTime);
-            this.reviews = ko.observableArray($.map(data.reviews || [], i => new Review(i)));
+            this.reviews = ko.observableArray(<Review[]>$.map(data.reviews || [], i => new Review(i)));
             this.formattedLength = App.Utils.formatMsec(this.length);
 
             //var titles = $.map(this.reviews(), (i) => { return i.note; });

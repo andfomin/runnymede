@@ -1,0 +1,50 @@
+﻿@model Runnymede.Website.Models.ExternalLoginBindingModel
+@{
+    ViewBag.Title = "Finish Account Creation";
+}
+
+<div class="row">
+    <div class="col-md-offset-3 col-md-6">
+            You have successfully authenticated with <strong>@ViewBag.LoginProvider</strong>.
+            Please enter your email address and a name for this site and click the button to finish registering.
+    </div>
+</div>
+<br/>
+
+<div class="row">
+    <div class="col-md-offset-3 col-md-6">
+        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    </div>
+</div>
+
+@using (Html.BeginForm("ExternalLoginConfirmation", "Account", null, FormMethod.Post, new { @class = "form-horizontal", role = "form" })){
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="userName">Your email address</label>
+        <div class="col-sm-8">
+            <div class="row">
+                <div class="col-sm-6">
+                    <input type="email" id="email" class="form-control" name="email" value="@(Model.Email)" required />
+                </div>
+            </div>
+            <p class="help-block"><small>This email address will be your login name. It&nbsp;will&nbsp;not be shown publicly.</small></p>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="name">Your name</label>
+        <div class="col-sm-8">
+            <div class="row">
+                <div class="col-sm-6">
+                    <input type="text" id="name" class="form-control" name="name" value="@(Model.Name)" ng-maxlength="100" />
+                </div>
+            </div>
+            <p class="help-block"><small>This name will be visible to other users. Please use Western characters.</small></p>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-2">
+            <input type="submit" class="btn btn-primary" value="Create account" />
+        </div>
+    </div>
+}
+

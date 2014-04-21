@@ -37,7 +37,7 @@ namespace Runnymede.Website.Utils
                 Kind = kind.ToString(),
                 LogData = logData,
             };
-            AzureStorageUtils.InsertEntry(AzureStorageUtils.PaymentLogTableName, entity);
+            AzureStorageUtils.InsertEntry(AzureStorageUtils.TableNames.PaymentLog, entity);
 
             return rowKey;
         }

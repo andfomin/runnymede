@@ -122,7 +122,7 @@ update dbo.exeExercises set Title = @Title where Id = @Id and UserId = @UserId;
             var rowKey = title;
 
             // Find the topic if it already exists.
-            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TopicsTableName);
+            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.Topics);
             // Prevent exception if not found
             table.ServiceClient.GetTableServiceContext().IgnoreResourceNotFoundException = true;
             var retrieveOperation = TableOperation.Retrieve<TableEntity>(partitionKey, rowKey);
@@ -138,7 +138,7 @@ update dbo.exeExercises set Title = @Title where Id = @Id and UserId = @UserId;
                     Type = type,
                     Lines = allLines,
                 };
-                AzureStorageUtils.InsertEntry(AzureStorageUtils.TopicsTableName, entity);
+                AzureStorageUtils.InsertEntry(AzureStorageUtils.TableNames.Topics, entity);
             }
 
             return Ok<object>(new { Id = id });

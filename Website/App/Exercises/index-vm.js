@@ -5,12 +5,12 @@ var App;
             function ViewModel() {
                 var _this = this;
                 this.realExeObsArr = ko.observableArray([]);
-                this.dialogExercise = ko.observable();
-                this.dialogReview = ko.observable();
-                this.balance = ko.observable();
+                this.dialogExercise = ko.observable(null);
+                this.dialogReview = ko.observable(null);
+                this.balance = ko.observable(null);
                 this.workDurationRatio = 4;
-                this.reward1 = ko.observable();
-                this.reward2 = ko.observable();
+                this.reward1 = ko.observable(null);
+                this.reward2 = ko.observable(null);
                 this.isEmpty = ko.observable(false);
                 this.isLoading = ko.observable(false);
                 this.teachers = ko.observableArray([]);
@@ -29,7 +29,7 @@ var App;
                     }
                 });
 
-                (this.exercises).loading.subscribe(function (value) {
+                this.exercises.loading.subscribe(function (value) {
                     // If returned data contains an empty/non-empty array, it works. If the array is null, the subscription gets broken and does not work.
                     _this.isLoading(value);
                     var isEmpty = (_this.realExeObsArr().length === 0) && !value;
@@ -58,7 +58,7 @@ var App;
                         });
                     });
                     _this.dialogExercise(exercise);
-                    ($('#cancelRequestDialog')).modal();
+                    $('#cancelRequestDialog').modal();
                 };
 
                 this.cancelRequestCmd = ko.asyncCommand({
@@ -69,13 +69,13 @@ var App;
                         }).fail(function () {
                             toastr.error('Error canceling review request.');
                             window.setTimeout(function () {
-                                (_this.exercises).refresh();
+                                _this.exercises.refresh();
                             }, 0);
                         }).always(function () {
                             _this.dialogReview(null);
                             _this.dialogExercise(null);
                             complete();
-                            ($('#cancelRequestDialog')).modal('hide');
+                            $('#cancelRequestDialog').modal('hide');
                         });
                     },
                     canExecute: function (isExecuting) {
@@ -103,7 +103,7 @@ var App;
                             $('#reward1').focus();
                         });
 
-                        ($('#createRequestDialog')).modal();
+                        $('#createRequestDialog').modal();
                     }).fail(function () {
                         toastr.error('Error getting review conditions.');
                     }).always(function () {
@@ -125,10 +125,10 @@ var App;
                             App.Utils.logAjaxError(jqXHR, 'Review request for exercise failed.');
                         }).always(function () {
                             complete();
-                            ($('#createRequestDialog')).modal('hide');
+                            $('#createRequestDialog').modal('hide');
                             _this.dialogExercise(null);
                             window.setTimeout(function () {
-                                (_this.exercises).refresh();
+                                _this.exercises.refresh();
                             }, 0);
                         });
                     },
@@ -145,7 +145,7 @@ var App;
                 };
 
                 window.setInterval(function () {
-                    (_this.exercises).refresh();
+                    _this.exercises.refresh();
                 }, 300000);
             }
             return ViewModel;

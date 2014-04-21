@@ -12,8 +12,14 @@
     </div>
     <div class="col-md-10">
         <div class="row" data-ng-repeat="t in vm.teachers">
-            <div class=" col-md-offset-1 col-md-3">
+            <div class=" col-md-3">
                 <strong>{{t.displayName}}</strong>
+                <br />
+                <br />
+                <img class="img-thumbnail" ng-src="{{t.avatarLargeUrl}}" width="130" height="130" />&nbsp;&nbsp;
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-default btn-xs" data-ng-click="vm.addTeacher(t)" title="Add"><i class="fa fa-plus" /> Add to favorites</button>
                 <br />
                 <br />
                 Review rate: {{t.reviewRate | number:2}} $/hour
@@ -21,11 +27,8 @@
                 Session rate: {{t.sessionRate | number:2}} $/hour
                 <br />
                 <a href="#/teacher-schedule/{{t.id}}/{{t.displayName}}/{{t.sessionRate || 0}}">Sessions schedule</a>
-                <br />
-                <br />
-                <button class="btn btn-default btn-xs" data-ng-click="vm.addTeacher(t)" title="Add"><i class="fa fa-plus" /> Add</button>
             </div>
-            <div class="col-md-7" ng-show="{{t.announcement}}">
+            <div class="col-md-6" ng-show="{{t.announcement}}">
                 <span style="white-space: pre-line;">{{(isVisible ? t.announcement : (t.announcement | limitTo:500)) + '\u00A0\u00A0\u00A0'}}</span>
                 <a href="" data-ng-click="isVisible = !isVisible">{{isVisible ? 'Less...' : 'More...'}}</a>
             </div>

@@ -140,10 +140,10 @@ In Web.Release.Config, add the following to clear out HttpPort and HttpsPort (to
             }
         }
 
-        protected string GetControllerName()
-        {
-            return this.RouteData.GetRequiredString("controller");
-        }
+        ////protected string GetControllerName()
+        ////{
+        ////    return this.RouteData.GetRequiredString("controller");
+        ////}
 
 
     }

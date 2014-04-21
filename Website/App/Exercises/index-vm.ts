@@ -10,12 +10,12 @@ module App.Exercises_Index {
         requestCmd: KoliteCommand;
         deleteExerciseCmd: KoliteCommand;
         cancelRequestCmd: KoliteCommand;
-        dialogExercise: KnockoutObservable<App.Model.Exercise> = ko.observable();
-        dialogReview: KnockoutObservable<App.Model.Review> = ko.observable();
-        balance: KnockoutObservable<number> = ko.observable();
+        dialogExercise: KnockoutObservable<App.Model.Exercise> = ko.observable(null);
+        dialogReview: KnockoutObservable<App.Model.Review> = ko.observable(null);
+        balance: KnockoutObservable<number> = ko.observable(null);
         workDurationRatio: number = 4; // Average ratio of work duration to exercise length. It is used for calculation of suggested offers.
-        reward1: KnockoutObservable<string> = ko.observable();
-        reward2: KnockoutObservable<string> = ko.observable();
+        reward1: KnockoutObservable<string> = ko.observable(null);
+        reward2: KnockoutObservable<string> = ko.observable(null);
         submitRequest: () => void;
         isEmpty: KnockoutObservable<boolean> = ko.observable(false);
 

@@ -4,15 +4,21 @@
 
 /* #region AngularJS API Reference / ng / directive / ngCloak ----------- */
 [ng-cloak], [data-ng-cloak], .ng-cloak {
-  display: none !important;
+    display: none !important;
 }
 /* #endregion */
 
-/* #region loading-bar-spinner customization ----------- */
+/* #region loading-bar-spinner customization. Change position. ----------- */
 div#loading-bar-spinner {
     top: 50px;
 }
 /* #endregion */
+
+/* #region toastr customization. Remove opacity. ----------- */
+#toast-container > div {
+    opacity: 1;
+}
+/*#endregion*/
 
 /* #region Custom elements ----------- */
 
@@ -29,9 +35,9 @@ hr.app-separator {
         padding-left: 30px;
     }
 
-        a.credit {
-            padding-left: 0;
-        }
+    a.credit {
+        padding-left: 0;
+    }
 }
 
 /*.validationMessage, .validation-summary-errors {
@@ -86,15 +92,15 @@ input.form-control.ng-dirty.ng-invalid {
     z-index: 20;
 }
 
-    .spot-mark.bottom-mark {
-        top: 0px;
-    }
+.spot-mark.bottom-mark {
+    top: 0px;
+}
 
-    .spot-mark.selected-mark {
-        background-color: #c00b16;
-        top: -16px;
-        z-index: 10;
-    }
+.spot-mark.selected-mark {
+    background-color: #c00b16;
+    top: -16px;
+    z-index: 10;
+}
 
 tr.edited-remark .edited-hidden {
     display: none;
@@ -112,9 +118,9 @@ tr.ignored-remark {
     color: gainsboro; //whitesmoke; //gainsboro; // lightgrey;
 }
 
-    tr.ignored-remark a {
-        color: gainsboro; //whitesmoke; // gainsboro;// lightgrey; MintCream
-    }
+tr.ignored-remark a {
+    color: gainsboro; //whitesmoke; // gainsboro;// lightgrey; MintCream
+}
 
 tr.rival-remark {
     background-color: beige;

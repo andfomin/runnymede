@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Newtonsoft.Json.Linq;
-using Owin;
 using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
@@ -22,164 +22,158 @@ namespace Runnymede.Website.Controllers.Api
     [RoutePrefix("api/AccountApi")]
     public class AccountApiController : ApiController
     {
-        private const string LocalLoginProvider = "Local";
 
-        public AccountApiController()
-            //: this(Startup0.UserManagerFactory(), Startup0.OAuthOptions.AccessTokenFormat)
-            : this(Startup.UserManagerFactory(), Startup.OAuthOptions.AccessTokenFormat)
+        private ApplicationUserManager owinUserManager;
+        private ApplicationUserManager OwinUserManager
         {
+            get
+            {
+                if (owinUserManager == null)
+                {
+                    owinUserManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
+                }
+                return owinUserManager;
+            }
         }
 
-        //public AccountApiController(UserManager<IdentityUser> userManager, ISecureDataFormat<AuthenticationTicket> accessTokenFormat)
-        public AccountApiController(ApplicationUserManager userManager, ISecureDataFormat<AuthenticationTicket> accessTokenFormat)
+        private IAuthenticationManager owinAuthenticationManager;
+        private IAuthenticationManager OwinAuthenticationManager
         {
-            UserManager = userManager;
-            AccessTokenFormat = accessTokenFormat;
+            get
+            {
+                if (owinAuthenticationManager == null)
+                {
+                    owinAuthenticationManager = Request.GetOwinContext().Authentication;
+                }
+                return owinAuthenticationManager;
+            }
         }
 
-        //public UserManager<IdentityUser> UserManager { get; private set; }
-        public ApplicationUserManager UserManager { get; private set; }
-
-        public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
-
-        // POST api/AccountApi/SignedIn
-        [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
-        [Route("SignedIn")]
-        public IHttpActionResult SignedIn(SignedInBindingModel model)
+        // POST api/AccountApi/Signup
+        [Route("Signup")]
+        [AllowAnonymous]
+        public async Task<IHttpActionResult> PostSignup(SignupBindingModel model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var inferredTimeOffsetMin = LoggingUtils.InferTimeOffsetMin(model.LocalTime, model.LocalTimezoneOffset);
-            var userId = this.GetUserId();
+            var loginHelper = new LoginHelper(OwinUserManager, OwinAuthenticationManager);
 
-            string sql = @"
-update dbo.appUsers set TimezoneOffsetMin = @TimezoneOffsetMin where Id = @UserId
-";
-            DapperHelper.ExecuteResiliently(sql, new
-                {
-                    TimezoneOffsetMin = inferredTimeOffsetMin,
-                    UserId = userId
-                });
+            // Create the user account
+            var user = await loginHelper.Signup(model, null, this.GetKeeper(), Request.RequestUri);
 
-            return Ok<object>(new { TimezoneOffsetMin = inferredTimeOffsetMin });
-        }
-
-        // POST api/AccountApi/
-        [AllowAnonymous]
-        public async Task<IHttpActionResult> PostCreate(CreateBindingModel model)
-        {
-            if (!ModelState.IsValid || !model.Consent)
+            var error = loginHelper.InspectErrorAfterSignup(user);
+            if (!string.IsNullOrEmpty(error))
             {
-                return BadRequest(ModelState);
+                throw new Exception(error);
             }
 
-            int userId = 0;
-            var displayName = CoalesceDisplayName(model.DisplayName);
-
-            // The internal Connection Resiliency strategy does not work with user-initiated transactions.
-            // The workaround is described at "Limitations with Retrying Execution Strategies" +http://msdn.microsoft.com/en-us/data/dn307226.aspx
-            AppDbConfiguration.SuspendExecutionStrategy = true; // Try/Finally is not needed. The value is stored per request.
-
-            var executionStrategy = new SqlAzureExecutionStrategy();
-
-            await executionStrategy.Execute(
-                async () =>
-                {
-                    // The context should be constructed within the code block to be retried. This ensures that we are starting with a clean state for each retry.
-                    // NOT using (var userManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>())
-                    using (var userManager = new ApplicationUserManager())
-                    {
-                        // We use email as user name. By default AllowOnlyAlphanumericUserNames is true.
-                        userManager.UserValidator = new UserValidator<ApplicationUser, int>(userManager) { AllowOnlyAlphanumericUserNames = false };
-                        userManager.PasswordValidator = new MinimumLengthValidator(6);
-
-                        var context = userManager.Context;
-                        using (var transaction = context.Database.BeginTransaction())
-                        {
-                            // First phase. Identity user.
-                            var identityUser = new ApplicationUser
-                            {
-                                UserName = model.UserName,
-                                Email = model.UserName,
-                            };
-
-                            // Make DisplayName available in authorized requests without querying the database.
-                            identityUser.Claims.Add(new CustomUserClaim { ClaimType = AppClaimTypes.DisplayName, ClaimValue = displayName });
-
-                            IdentityResult result = await userManager.CreateAsync(identityUser, model.Password);
-
-                            if (!result.Succeeded)
-                            {
-                                throw new Exception(result.Errors != null ? string.Join("\n", result.Errors) : "IdentityResult");
-                            }
-
-                            // Second phase. dbo.appUsers and accounting.
-                            // identityUser.Id is auto-generated in dbo.aspnetUsers.
-
-                            await context.Database.ExecuteSqlCommandAsync(
-                                "execute dbo.appCreateUserAndAccounts @UserId = @p0, @DisplayName = @p1",
-                                identityUser.Id, displayName);
-
-                            transaction.Commit();
-
-                            userId = identityUser.Id;
-                        }
-                    }
-                });
-
-            AppDbConfiguration.SuspendExecutionStrategy = false;
-
-            // Logging.
-            var logData =
-                new XElement("LogData",
-                    new XElement("Kind", LoggingUtils.Kind.Signup),
-                    new XElement("Time", DateTime.UtcNow),
-                    new XElement("Keeper", this.GetKeeper()),
-                    new XElement("UserId", userId),
-                    new XElement("TimeOffsetMin", LoggingUtils.InferTimeOffsetMin(model.LocalTime, model.LocalTimezoneOffset))
-                    )
-                    .ToString(SaveOptions.DisableFormatting);
-
-            var logTask = LoggingUtils.WriteKeeperLogAsync(logData);
-
-            // Send the confirmation link.
-            var token = OwinUserManager.GetConfirmationToken<ApplicationUser, int>(userId);
-            var queryString = IdentityHelper.GetMailLinkQueryString(token, userId);
-            var host = Request.RequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
-            var link = "https://" + host + "/account/confirm?" + queryString;
-            var emailTask = this.SendConfirmationEmailAsync(model.UserName, link);
-
-            // Parallel Async.
-            await Task.WhenAll(logTask, emailTask);
-
-            //return StatusCode(HttpStatusCode.NoContent); //JQuery 2.0 has changed behavior. Status OK 200 with empty response body is treated as a failure.
-            //string redirectUrl = Url.Route("Default", new { controller = "Account", action = "Thanks" });
-            //return Content<object>(HttpStatusCode.Created, new { redirectUrl = redirectUrl });
             return StatusCode(HttpStatusCode.Created);
         }
 
-        // GET api/AccountApi/Profile
-        [Route("Profile")]
-        public async Task<IHttpActionResult> GetProfile()
+        // POST api/AccountApi/Login
+        [AllowAnonymous]
+        [Route("Login")]
+        public async Task<IHttpActionResult> PostLogin(JObject value)
+        {
+            var userName = (string)value["userName"];
+            var password = (string)value["password"];
+            var persistent = (bool)value["persistent"];
+
+            ApplicationUser user = await OwinUserManager.FindAsync(userName, password);
+            if (user == null)
+            {
+                return BadRequest("The email address or password is incorrect.");
+            }
+
+            await new LoginHelper(OwinUserManager, OwinAuthenticationManager).Sigin(user, persistent);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        // GET api/AccountApi/PersonalProfile
+        [Route("PersonalProfile")]
+        public async Task<IHttpActionResult> GetPersonalProfile()
         {
             var sql = @"
-select @UserName as UserName, DisplayName, IsTeacher, Skype, TimezoneName, ReviewRate, SessionRate, Announcement
-from dbo.appUsers
-where Id = @Id;
+select U.DisplayName, U.IsTeacher, U.Skype, U.ExtIdUpperCase, AU.Email, AU.EmailConfirmed
+from dbo.appUsers U
+	inner join dbo.aspnetUsers AU on U.Id = AU.Id
+where U.Id = @Id;
 ";
             var result = (await DapperHelper.QueryResilientlyAsync<dynamic>(sql,
                 new
                 {
-                    UserName = this.GetUserName(),
                     Id = this.GetUserId(),
                 }))
+                .Select(i => new
+                {
+                    UserName = this.GetUserName(),
+                    DisplayName = (string)i.DisplayName,
+                    IsTeacher = (bool)i.IsTeacher,
+                    Skype = (string)i.Skype,
+                    Email = (string)i.Email,
+                    EmailConfirmed = (bool)i.EmailConfirmed,
+                    AvatarLargeUrl = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.AvatarsLarge) + i.ExtIdUpperCase,
+                    AvatarSmallUrl = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.AvatarsSmall) + i.ExtIdUpperCase,
+                })
                 .Single();
 
             return Ok<object>(result);
         }
+
+        // GET api/AccountApi/TeacherProfile
+        [Route("TeacherProfile")]
+        public async Task<IHttpActionResult> GetTeacherProfile()
+        {
+            var sql = @"
+select U.IsTeacher, U.ReviewRate, U.SessionRate, U.Announcement, PhoneNumber, PhoneNumberConfirmed
+from dbo.appUsers U
+	inner join dbo.aspnetUsers AU on U.Id = AU.Id
+where U.Id = @Id;
+";
+            var result = (await DapperHelper.QueryResilientlyAsync<dynamic>(sql, new { Id = this.GetUserId(), }))
+                .Single();
+
+            return Ok<object>(result);
+        }
+
+        // GET api/AccountApi/Logins
+        [Route("Logins")]
+        public async Task<IHttpActionResult> GetLogins()
+        {
+            var userId = this.GetUserId();
+
+            var userLogins = (await OwinUserManager.GetLoginsAsync(userId))
+                .Select(i => new
+                {
+                    LoginProvider = i.LoginProvider,
+                    ProviderKey = i.ProviderKey,
+                })
+                .ToList();
+
+            var otherLogins = OwinAuthenticationManager.GetExternalAuthenticationTypes()
+                .Where(i => userLogins.All(u => u.LoginProvider != i.AuthenticationType))
+                .Select(i => i.AuthenticationType)
+                .ToList();
+
+
+            var hasPassword = await OwinUserManager.HasPasswordAsync(userId);
+            //var user = OwinUserManager.FindById(this.GetUserId());
+            //var hasPassword = (user != null) && !string.IsNullOrEmpty(user.PasswordHash);
+
+            var result = new
+            {
+                UserLogins = userLogins,
+                OtherLogins = otherLogins,
+                HasPassword = hasPassword,
+            };
+
+            return Ok<object>(result);
+        }
+
 
 
         // PUT api/AccountApi/Profile
@@ -190,7 +184,7 @@ where Id = @Id;
             var displayName = (string)value["displayName"];
             if (displayName != null)
             {
-                displayName = CoalesceDisplayName(displayName);
+                displayName = LoginHelper.CoalesceDisplayName(displayName);
             }
 
             var skype = (string)value["skype"];
@@ -229,24 +223,102 @@ where Id = @Id;
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST api/AccountApi/Password
+        // PUT api/AccountApi/Password
         [Route("Password")]
-        public async Task<IHttpActionResult> PostPassword(ChangePasswordBindingModel model)
+        public async Task<IHttpActionResult> PutPassword(JObject value)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var oldPassword = (string)value["oldPassword"];
+            var newPassword = (string)value["newPassword"];
+            var userId = this.GetUserId();
 
-            var manager = OwinUserManager;
-            var result = await manager.ChangePasswordAsync(this.GetUserId(), model.OldPassword, model.NewPassword1);
+            var result = string.IsNullOrEmpty(oldPassword)
+                ? await OwinUserManager.AddPasswordAsync(userId, newPassword)
+                : await OwinUserManager.ChangePasswordAsync(userId, oldPassword, newPassword);
 
             if (result.Succeeded)
             {
-                this.OwinAuthentication.SignOut();
+                OwinAuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+            else
+            {
+                return BadRequest(result.PlainErrorMessage());
+            }
+        }
+
+        // POST api/AccountApi/PhoneNumber
+        [Route("PhoneNumber")]
+        public async Task<IHttpActionResult> PostPhoneNumber(JObject value)
+        {
+            var phoneNumber = (string)value["phoneNumber"];
+            string code = null;
+            if (!string.IsNullOrEmpty(phoneNumber))
+            {
+                code = await OwinUserManager.GenerateChangePhoneNumberTokenAsync(this.GetUserId(), phoneNumber.Trim());
+            }
+            if (!string.IsNullOrEmpty(code))
+            {
+                return StatusCode(HttpStatusCode.NoContent);
+                // Do not return the code to the client while in production! Send it via SMS.
+                //return Ok<string>(code); 
+            }
+            else
+                return BadRequest("Verification code not sent.");
+
+            // A phone number can be removed by calling UserManager.SetPhoneNumberAsync(userId, null);
+        }
+
+        // POST api/AccountApi/PhoneVerification
+        [Route("PhoneVerification")]
+        public async Task<IHttpActionResult> PostPhoneVerification(JObject value)
+        {
+            var phoneNumber = (string)value["phoneNumber"];
+            var code = (string)value["phoneCode"];
+            if (string.IsNullOrWhiteSpace(phoneNumber) || string.IsNullOrWhiteSpace(code))
+            {
+                return BadRequest();
+            }
+            phoneNumber = phoneNumber.Trim();
+
+            var result = await OwinUserManager.ChangePhoneNumberAsync(this.GetUserId(), phoneNumber, code);
+
+            return result.Succeeded
+                ? (IHttpActionResult)StatusCode(HttpStatusCode.NoContent)
+                : (IHttpActionResult)BadRequest("Failed to verify phone");
+        }
+
+        // PUT api/AccountApi/Email
+        [Route("Email")]
+        public async Task<IHttpActionResult> PutEmail(JObject value)
+        {
+            var userId = this.GetUserId();
+            // To replace a confirmed email with an unconfirmed one is a bed idea. But we have no infrastructure currently to store an unconfirmed email temporarily. 
+            if (await OwinUserManager.IsEmailConfirmedAsync(userId))
+            {
+                return BadRequest("Unable to change a confirmed email address.");
             }
 
-            return result.Succeeded ? StatusCode(HttpStatusCode.NoContent) : this.GetErrorResult(result);
+            var email = (string)value["email"];
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return BadRequest();
+            }
+            email = email.Trim();
+
+            var result = await OwinUserManager.SetEmailAsync(userId, email);
+            if (result.Succeeded)
+            {
+                var confirmationToken = await OwinUserManager.GenerateEmailConfirmationTokenAsync(userId);
+                var queryString = IdentityHelper.GetMailLinkQueryString(confirmationToken, userId);
+                var host = Request.RequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
+                var link = "http://" + host + "/account/confirm-email?" + queryString;
+                await EmailUtils.SendVerificationEmailAsync(email, link);
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+            else
+            {
+                return BadRequest(result.PlainErrorMessage("Failed to change email address."));
+            }
         }
 
         // POST api/AccountApi/Forgot
@@ -257,18 +329,18 @@ where Id = @Id;
             var email = (string)value["email"];
             if (!string.IsNullOrEmpty(email))
             {
-                email = email.Trim();
-                var userManager = this.OwinUserManager;
-                ApplicationUser user = userManager.FindByName(email);
-                if (user != null /*&& manager.IsConfirmed(user.Id)*/)
+                var user = await OwinUserManager.FindByEmailAsync(email.Trim());
+                if (user != null)
                 {
-                    // Send the link.
-                    var token = userManager.GetPasswordResetToken<ApplicationUser, int>(user.Id);
-                    var queryString = IdentityHelper.GetMailLinkQueryString(token, user.Id);
-                    var host = Request.RequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
-                    var link = "https://" + host + "/account/reset-password?" + queryString;
-                    // TODO. Send email really asynchronousy.
-                    await this.SendPasswordResetEmailAsync(email, link);
+                    if (await OwinUserManager.IsEmailConfirmedAsync(user.Id))
+                    {
+                        // Send the link.
+                        var token = await OwinUserManager.GeneratePasswordResetTokenAsync(user.Id);
+                        var queryString = IdentityHelper.GetMailLinkQueryString(token, user.Id);
+                        var host = Request.RequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
+                        var link = "https://" + host + "/account/reset-password?" + queryString;
+                        await this.SendPasswordResetEmailAsync(email, link);
+                    }
                 }
             }
 
@@ -286,16 +358,11 @@ where Id = @Id;
             {
                 return BadRequest();
             }
-
-            var password1 = (string)value["password1"];
-            var password2 = (string)value["password2"];
-            if (password1 != password2)
-            {
-                return BadRequest("Passwords do not match.");
-            }
-
-            var result = await OwinUserManager.ResetPasswordAsync(userId, code, password1);
-            return result.Succeeded ? StatusCode(HttpStatusCode.NoContent) : this.GetErrorResult(result);
+            var password = (string)value["password"];
+            var result = await OwinUserManager.ResetPasswordAsync(userId, code, password);
+            return result.Succeeded
+                ? StatusCode(HttpStatusCode.NoContent)
+                : (IHttpActionResult)BadRequest(result.PlainErrorMessage());
         }
 
         // POST api/AccountApi/PaymentToTeacher
@@ -305,7 +372,7 @@ where Id = @Id;
         {
             // Revalidate the sender's password.
             var password = ((string)value["password"]);
-            var user = await UserManager.FindAsync(this.GetUserName(), password);
+            var user = await OwinUserManager.FindAsync(this.GetUserName(), password);
             if (user == null)
             {
                 return BadRequest("Wrong password.");
@@ -352,66 +419,31 @@ where Id = @Id;
             return Ok<object>(result);
         }
 
-
-
-
-        private string CoalesceDisplayName(string postedDisplayName)
+        // DELETE: api/AccountApi/ExternalLogin
+        [Route("ExternalLogin")]
+        public async Task<IHttpActionResult> DeleteExternalLogin([FromUri] string loginProvider, [FromUri] string providerKey)
         {
-            return string.IsNullOrWhiteSpace(postedDisplayName) ? "Anonymous" : postedDisplayName.Trim();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
+            var result = await OwinUserManager.RemoveLoginAsync(this.GetUserId(), new UserLoginInfo(loginProvider, providerKey));
+            if (result.Succeeded)
             {
-                UserManager.Dispose();
-            }
-
-            base.Dispose(disposing);
-        }
-
-        #region Helpers
-
-        private IAuthenticationManager OwinAuthentication
-        {
-            get { return Request.GetOwinContext().Authentication; }
-        }
-
-        private ApplicationUserManager OwinUserManager
-        {
-            get { return Request.GetOwinContext().GetUserManager<ApplicationUserManager>(); }
-        }
-
-
-        private IHttpActionResult GetErrorResult(IdentityResult result)
-        {
-            if (result == null)
-            {
-                return InternalServerError();
-            }
-
-            if (!result.Succeeded)
-            {
-                if (result.Errors != null)
+                var user = await OwinUserManager.FindByIdAsync(this.GetUserId());
+                if (user != null)
                 {
-                    foreach (string error in result.Errors)
-                    {
-                        ModelState.AddModelError("", error);
-                    }
+                    await new LoginHelper(OwinUserManager, OwinAuthenticationManager).Sigin(user, false);
                 }
-
-                if (ModelState.IsValid)
-                {
-                    // No ModelState errors are available to send, so just return an empty BadRequest.
-                    return BadRequest();
-                }
-
-                return BadRequest(ModelState);
             }
-
-            return null;
+            else
+            {
+                throw new Exception(result.PlainErrorMessage("Failed to remove external login"));
+            }
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        #endregion
-    }
+
+
+
+
+
+
+    } // end of class
 }

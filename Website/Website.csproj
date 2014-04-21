@@ -53,26 +53,29 @@
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityFramework.6.1.0-alpha1\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityFramework.6.1.0-alpha1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="ImageResizer">
+      <HintPath>..\packages\ImageResizer.3.4.2\lib\ImageResizer.dll</HintPath>
     </Reference>
     <Reference Include="LowercaseDashedRouting">
       <HintPath>..\packages\LowercaseDashedRoute.1.0.14\lib\LowercaseDashedRouting.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.Identity.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.0.0-alpha1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.0.0\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.0.0-alpha1\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.0.0\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.Identity.Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.AspNet.Identity.Owin, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.0.0-alpha1\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.0.0\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Data.Edm, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -102,6 +105,12 @@
     <Reference Include="Microsoft.Owin.Security.Cookies, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Owin.Security.Cookies.2.1.0\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Facebook">
+      <HintPath>..\packages\Microsoft.Owin.Security.Facebook.2.1.0\lib\net45\Microsoft.Owin.Security.Facebook.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Google">
+      <HintPath>..\packages\Microsoft.Owin.Security.Google.2.1.0\lib\net45\Microsoft.Owin.Security.Google.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Security.OAuth, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -138,6 +147,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.1.1\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Spatial, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\System.Spatial.5.6.0\lib\net40\System.Spatial.dll</HintPath>
@@ -205,8 +215,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App\Account\edit-password.html" />
-    <Content Include="App\Account\edit-profile.html" />
+    <Content Include="App\Account\edit-logins.html" />
+    <Content Include="App\Account\edit-teacher.html" />
+    <Content Include="App\Account\edit-personal.html" />
     <Content Include="App\Sessions\learner-offers.html" />
     <Content Include="App\Sessions\learner-schedule.html" />
     <Content Include="App\Sessions\learner-session.html" />
@@ -218,33 +229,32 @@
     <Content Include="App\Teachers\index-all.html" />
     <Content Include="App\Teachers\index-favorites.html" />
     <Content Include="App\Teachers\index-teacherSchedule.html" />
-    <Content Include="bower_components\angular-bootstrap-datetimepicker\src\css\datetimepicker.css" />
-    <Content Include="bower_components\angular-bootstrap-datetimepicker\src\js\datetimepicker.js" />
-    <Content Include="bower_components\angular-bootstrap\ui-bootstrap-tpls.min.js" />
-    <Content Include="bower_components\angular-loading-bar\build\loading-bar.min.css" />
-    <Content Include="bower_components\angular-loading-bar\build\loading-bar.min.js" />
-    <Content Include="bower_components\angular-route\angular-route.min.js" />
-    <Content Include="bower_components\angular-ui-calendar\src\calendar.js" />
-    <Content Include="bower_components\angular\angular.min.js" />
-    <Content Include="bower_components\bootstrap3-typeahead\bootstrap3-typeahead.min.js" />
-    <Content Include="bower_components\bootstrap\dist\js\bootstrap.min.js" />
-    <Content Include="bower_components\fullcalendar\fullcalendar.css" />
-    <Content Include="bower_components\fullcalendar\fullcalendar.min.js" />
-    <Content Include="bower_components\jquery\dist\jquery.min.js" />
-    <Content Include="bower_components\knockout.js\knockout.js" />
-    <Content Include="bower_components\ko.datasource\ko.datasource.js" />
-    <Content Include="bower_components\kolite\knockout.command.js" />
-    <Content Include="bower_components\kolite\knockout.dirtyFlag.js" />
-    <Content Include="bower_components\moment\min\moment.min.js" />
-    <Content Include="bower_components\toastr\toastr.min.css" />
-    <Content Include="bower_components\toastr\toastr.min.js" />
+    <Content Include="bower_installer\angular-bootstrap-datetimepicker\datetimepicker.css" />
+    <Content Include="bower_installer\angular-bootstrap-datetimepicker\datetimepicker.js" />
+    <Content Include="bower_installer\angular-bootstrap\ui-bootstrap-tpls.min.js" />
+    <Content Include="bower_installer\angular-loading-bar\loading-bar.min.css" />
+    <Content Include="bower_installer\angular-loading-bar\loading-bar.min.js" />
+    <Content Include="bower_installer\angular-route\angular-route.min.js" />
+    <Content Include="bower_installer\angular-ui-calendar\calendar.js" />
+    <Content Include="bower_installer\angular\angular.min.js" />
+    <Content Include="bower_installer\bootstrap3-typeahead\bootstrap3-typeahead.min.js" />
+    <Content Include="bower_installer\bootstrap\bootstrap.min.js" />
+    <Content Include="bower_installer\jquery\jquery.min.js" />
+    <Content Include="bower_installer\knockout.js\knockout.js" />
+    <Content Include="bower_installer\ko.datasource\ko.datasource.js" />
+    <Content Include="bower_installer\kolite\knockout.command.js" />
+    <Content Include="bower_installer\kolite\knockout.dirtyFlag.js" />
+    <Content Include="bower_installer\moment\moment.min.js" />
+    <Content Include="bower_installer\ngUpload\ng-upload.min.js" />
+    <Content Include="bower_installer\Readme.txt" />
+    <Content Include="bower_installer\toastr\toastr.min.css" />
+    <Content Include="bower_installer\toastr\toastr.min.js" />
     <Content Include="Content\Audior\Audior.swf" />
     <Content Include="Content\Audior\audior_settings.xml" />
     <Content Include="Content\Audior\en.xml" />
     <Content Include="Content\Audior\swfobject.js" />
     <Content Include="Content\fullcalendar\fullcalendar.css" />
     <Content Include="Content\fullcalendar\fullcalendar.min.js" />
-    <Content Include="Content\Images\about0.jpg" />
     <Content Include="Content\Images\conversation-three.jpg" />
     <Content Include="Content\Images\cooperation.jpg" />
     <Content Include="Content\Images\do-you-speak-english.jpg" />
@@ -262,7 +272,6 @@
     <Content Include="Content\Images\skype-no-contact.png" />
     <Content Include="Content\Images\skype-together.jpg" />
     <Content Include="Content\Images\teacher.jpg" />
-    <Content Include="Content\Images\tutor0.jpg" />
     <Content Include="Content\jqueryui\images\ui-bg_flat_75_ffffff_40x100.png" />
     <Content Include="Content\jqueryui\images\ui-bg_glass_65_ffffff_1x400.png" />
     <Content Include="Content\jqueryui\images\ui-bg_glass_75_dadada_1x400.png" />
@@ -282,7 +291,7 @@
     <Content Include="Scripts\xcopy\knockout.activity.js" />
     <Content Include="~App_Offline.htm" />
     <Content Include="bower.json" />
-    <Content Include="bower_components\bootstrap\dist\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="bower_installer\bootstrap\glyphicons-halflings-regular.woff" />
     <None Include="Properties\PublishProfiles\englc__staging.pubxml" />
     <Content Include="Scripts\sm2\soundmanager2-nodebug-jsmin.js" />
     <Content Include="Scripts\sm2\soundmanager2_flash9.swf" />
@@ -296,6 +305,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Content Include="App_Start\Startup.Auth.txt" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Api\AccountApiController.cs" />
@@ -322,7 +332,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\AccountApiBindingModels.cs" />
+    <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\BalanceEntryDto.cs" />
     <Compile Include="Models\MessageDto.cs" />
     <Compile Include="Models\PageViewModel.cs" />
@@ -341,8 +351,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Utils\AccountControllerUtils.cs" />
+    <Compile Include="Utils\AccountUtils.cs" />
     <Compile Include="Utils\ApiControllerHelper.cs" />
-    <Compile Include="Utils\ApplicationOAuthProvider.cs" />
+    <Compile Include="Utils\ApplicationOAuthProvider0.cs" />
     <Compile Include="Utils\AzureStorageUtils.cs" />
     <Compile Include="Utils\ChallengeResult.cs" />
     <Compile Include="Utils\CustomController.cs" />
@@ -351,7 +362,8 @@
     <Compile Include="Utils\DapperODataUtils.cs" />
     <Compile Include="Utils\DapperSqlBuilder.cs" />
     <Compile Include="Utils\HtmlHelperExtensions.cs" />
-    <Compile Include="Utils\IdentityHelpers.cs" />
+    <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Utils\IdentityHelper.cs" />
     <Compile Include="Utils\LoggingUtils.cs" />
     <Compile Include="Utils\EmailUtils.cs" />
     <Compile Include="Utils\NAudio\ChannelMode.cs" />
@@ -373,9 +385,8 @@
     <Content Include="Views\Shared\_PagerPartial.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Account\Create.cshtml" />
-    <Content Include="Views\Account\Signin.cshtml" />
-    <Content Include="Views\Account\~Signout.cshtml" />
+    <Content Include="Views\Account\Signup.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Exercises\Topics.cshtml" />
     <Content Include="Views\Exercises\Record.cshtml" />
     <Content Include="Views\Reviews\View.cshtml" />
@@ -423,6 +434,8 @@
     <Content Include="Views\Sessions\Learner.cshtml" />
     <Content Include="Views\Sessions\_ClockWarning.cshtml" />
     <Content Include="Views\Teachers\Index.cshtml" />
+    <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
+    <Content Include="Views\Shared\_TermsOfServicePartial.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -433,15 +446,15 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="App\Account\balance-vm.ts" />
-    <TypeScriptCompile Include="App\Account\create-app.ts" />
+    <TypeScriptCompile Include="App\Account\signup-app.ts" />
     <TypeScriptCompile Include="App\Account\edit-app.ts" />
-    <TypeScriptCompile Include="App\Account\edit-password.ts" />
-    <TypeScriptCompile Include="App\Account\edit-profile.ts" />
+    <TypeScriptCompile Include="App\Account\edit-logins.ts" />
+    <TypeScriptCompile Include="App\Account\edit-teacher.ts" />
+    <TypeScriptCompile Include="App\Account\edit-personal.ts" />
     <TypeScriptCompile Include="App\Account\forgot-app.ts" />
     <TypeScriptCompile Include="App\Account\payTeacher-ctrl.ts" />
     <TypeScriptCompile Include="App\Account\reset-app.ts" />
-    <TypeScriptCompile Include="App\Account\signin-app.ts" />
-    <TypeScriptCompile Include="App\Account\utils-account.ts" />
+    <TypeScriptCompile Include="App\Account\login-app.ts" />
     <TypeScriptCompile Include="App\Exercises\index-vm.ts" />
     <TypeScriptCompile Include="App\Relationships\skypeDirectory-app.ts" />
     <TypeScriptCompile Include="App\Relationships\skypeDirectoryJoin-app.ts" />
@@ -472,6 +485,7 @@
     <TypeScriptCompile Include="App\Teachers\index-favorites.ts" />
     <TypeScriptCompile Include="App\Teachers\index-teacherSchedule.ts" />
     <TypeScriptCompile Include="Scripts\typings\angular-ui-bootstrap\angular-ui-bootstrap.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\angularjs\angular-animate.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular-cookies.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular-mocks.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular-resource.d.ts" />

@@ -55,8 +55,6 @@ insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.Reviews.W
 -- Update
 insert into dbo.appConstants (Name, Value, Comment) values ('Accounting.Transfer.MinimalAmount', '1.0', 'Minimal amount of internal transfer from learner to teacher.');
 
-insert into dbo.appConstants (Name, Value, Comment) values ('Users.ClaimTypes.IsTeacher', 'englc.com/IsTeacher', null);
-insert into dbo.appConstants (Name, Value, Comment) values ('Users.ClaimTypes.DisplayName', 'englc.com/DisplayName', null);
 --Insert
 insert into dbo.appConstants (Name, Value, Comment) values ('Relationships.Sessions.ServiceFeeRate', '0.29', 'Service fee rate. 29% of session price.');
 

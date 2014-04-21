@@ -51,13 +51,13 @@
                             <li>@Html.ActionLinkWithProtocol("View balance", "Balance", "Account", "https", new { tabindex = "-1" })</li>
                             @*<li>@Html.ActionLinkWithProtocol("Add money to account", "AddMoney", "Account", "https", new { tabindex = "-1" })</li>*@
                             <li class="divider"></li>
-                            <li>@Html.ActionLinkWithProtocol("Sign out", "Signout", "Account", "http", new { tabindex = "-1" })</li>
+                            <li>@Html.ActionLinkWithProtocol("Log out", "Logout", "Account", "http", new { tabindex = "-1" })</li>
                         </ul>
                     </li>
                 }
                 else
                 {
-                    <li class="@NavClass("Account")">@Html.ActionLinkWithProtocol("Sign in", "Signin", "Account", "https", null)</li>
+                    <li class="@NavClass("Account")">@Html.ActionLinkWithProtocol("Log in", "Login", "Account", "https", null)</li>
                 }
             </ul>
         </div><!-- /.navbar-collapse -->

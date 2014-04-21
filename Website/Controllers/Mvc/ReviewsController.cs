@@ -111,7 +111,7 @@ where E.Id = @Id and E.UserId = @UserId;
                 return HttpNotFound();
             }
 
-            ViewBag.SoundUrlParam = AzureStorageUtils.GetRecordingsBaseUrl() + dto.ArtefactId;
+            ViewBag.SoundUrlParam = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.Recordings) + dto.ArtefactId;
             ViewBag.ExerciseParamJson = ControllerHelper.SerializeAsJson(dto);
 
             return View(viewName);

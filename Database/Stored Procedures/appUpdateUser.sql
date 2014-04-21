@@ -44,14 +44,6 @@ begin try
 			raiserror('%s,%d:: The user profile update failed.', 16, 1, @ProcName, @UserId);
 
 		if (@DisplayName is not null) begin
-			update dbo.aspnetUserClaims set
-				ClaimValue = @DisplayName
-			where UserId = @UserId
-				and ClaimType = 'englc.com/DisplayName';
-
-			if @@rowcount = 0
-				raiserror('%s,%d:: Display name claim update failed.', 16, 1, @ProcName, @UserId);
-
 			update dbo.relLearnersTeachers set LearnerDisplayName = @DisplayName where LearnerUserId = @UserId;
 			update dbo.relLearnersTeachers set TeacherDisplayName = @DisplayName where TeacherUserId = @UserId;
 		end	

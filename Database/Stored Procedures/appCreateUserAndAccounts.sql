@@ -2,7 +2,8 @@
 
 CREATE PROCEDURE [dbo].[appCreateUserAndAccounts]
 	@UserId int,
-	@DisplayName nvarchar(100) 
+	@DisplayName nvarchar(100),
+	@ExtId uniqueidentifier
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -17,7 +18,8 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
-		insert dbo.appUsers (Id, DisplayName) values (@UserId, @DisplayName);
+		insert dbo.appUsers (Id, DisplayName, ExtId) 
+		values (@UserId, @DisplayName, @ExtId);
 
 		exec dbo.accCreateUserAccounts @UserId;
 

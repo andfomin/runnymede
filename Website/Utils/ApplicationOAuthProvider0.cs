@@ -10,15 +10,16 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OAuth;
 using System.Web;
 using Owin;
+using Runnymede.Website.Models;
 
 namespace Runnymede.Website.Utils
 {
-    public class ApplicationOAuthProvider : OAuthAuthorizationServerProvider
+    public class ApplicationOAuthProvider0 : OAuthAuthorizationServerProvider
     {
         private readonly string _publicClientId;
         private readonly Func<ApplicationUserManager> _userManagerFactory;
 
-        public ApplicationOAuthProvider(string publicClientId, Func<ApplicationUserManager> userManagerFactory)
+        public ApplicationOAuthProvider0(string publicClientId, Func<ApplicationUserManager> userManagerFactory)
         {
             if (publicClientId == null)
             {
@@ -54,7 +55,7 @@ namespace Runnymede.Website.Utils
                 // AF. A hack to enable the option of session or persistent cookies. We piggy-back the request and pass our custom value. Scope may be sent as a list of values separated by spaces.
                 var isPersistent = context.Scope.Any(i => i == "persistent_cookie");
 
-                IdentityHelper.SignIn(userManager, user, isPersistent);
+               // IdentityHelper.SignIn(userManager, user, isPersistent);
 
                 /* Warning! 
                  * sessionStorage and session cookie work differently across tabs. // See +http://dev.w3.org/html5/webstorage/#introduction

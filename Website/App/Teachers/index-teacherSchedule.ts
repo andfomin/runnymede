@@ -40,7 +40,7 @@ module App.Teachers_Index {
                                 start: start.toDate().toISOString(),
                                 end: end.toDate().toISOString(),
                                 localTime: timeInfo.time,
-                                localTimezoneOffset: timeInfo.timeZoneOffset,
+                                localTimezoneOffset: timeInfo.timezoneOffset,
                             },
                             (data) => {
                                 angular.forEach(data, (event) => {

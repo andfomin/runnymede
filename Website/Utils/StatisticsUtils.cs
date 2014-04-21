@@ -24,8 +24,8 @@ where R.Id = @ReviewId
             var exercise = (await DapperHelper.QueryResilientlyAsync<ExerciseDto>(sql, new { ReviewId = reviewId, UserId = userId })).Single();
 
             var tableClient = AzureStorageUtils.GetCloudTableClient();
-            var remarksTable = tableClient.GetTableReference(AzureStorageUtils.RemarksTableName);
-            var statisticsTable = tableClient.GetTableReference(AzureStorageUtils.StatisticsTableName);
+            var remarksTable = tableClient.GetTableReference(AzureStorageUtils.TableNames.Remarks);
+            var statisticsTable = tableClient.GetTableReference(AzureStorageUtils.TableNames.Statistics);
 
             var filter = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, AzureStorageUtils.IntToKey(reviewId));
 

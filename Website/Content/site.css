@@ -2359,8 +2359,8 @@ input[type="button"].btn-block {
 }
 @font-face {
   font-family: 'Glyphicons Halflings';
-  src: url('../bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.eot');
-  src: url('../bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff') format('woff'), url('../bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+  src: url('../bower_installer/bootstrap/glyphicons-halflings-regular.eot');
+  src: url('../bower_installer/bootstrap/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../bower_installer/bootstrap/glyphicons-halflings-regular.woff') format('woff'), url('../bower_installer/bootstrap/glyphicons-halflings-regular.ttf') format('truetype'), url('../bower_installer/bootstrap/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
 }
 .glyphicon {
   position: relative;
@@ -5897,11 +5897,16 @@ td.visible-print {
   display: none !important;
 }
 /* #endregion */
-/* #region loading-bar-spinner customization ----------- */
+/* #region loading-bar-spinner customization. Change position. ----------- */
 div#loading-bar-spinner {
   top: 50px;
 }
 /* #endregion */
+/* #region toastr customization. Remove opacity. ----------- */
+#toast-container > div {
+  opacity: 1;
+}
+/*#endregion*/
 /* #region Custom elements ----------- */
 hr.app-separator {
   border-top-color: #eeeeee;

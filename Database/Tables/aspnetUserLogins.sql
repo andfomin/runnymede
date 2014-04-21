@@ -1,10 +1,12 @@
 ﻿CREATE TABLE [dbo].[aspnetUserLogins] (
-    [UserId]        INT            NOT NULL,
     [LoginProvider] NVARCHAR (128) NOT NULL,
     [ProviderKey]   NVARCHAR (128) NOT NULL,
-    CONSTRAINT [PK_AspNetUserLogins] PRIMARY KEY CLUSTERED ([UserId] ASC, [LoginProvider] ASC, [ProviderKey] ASC),
-    CONSTRAINT [FK_AspNetUserLogins_AspNetUsers_UserId] FOREIGN KEY ([UserId]) REFERENCES [dbo].[aspnetUsers] ([Id]) ON DELETE CASCADE
+    [UserId]        INT            NOT NULL,
+    CONSTRAINT [PK_aspnetUserLogins] PRIMARY KEY CLUSTERED ([LoginProvider] ASC, [ProviderKey] ASC, [UserId] ASC),
+    CONSTRAINT [FK_aspnetUserLogins_aspnetUsers_UserId] FOREIGN KEY ([UserId]) REFERENCES [dbo].[aspnetUsers] ([Id]) ON DELETE CASCADE
 );
+
+
 
 
 
@@ -23,9 +25,7 @@ CREATE NONCLUSTERED INDEX [IX_UserId]
 
 
 GO
-GRANT UPDATE
-    ON OBJECT::[dbo].[aspnetUserLogins] TO [websiterole]
-    AS [dbo];
+
 
 
 GO

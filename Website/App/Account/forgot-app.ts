@@ -36,5 +36,5 @@ module App.Account_Forgot {
     } // end of class
 } // end of module
 
-var app = angular.module("app", []);
+var app = angular.module("app", ['chieffancypants.loadingBar']);
 app.controller("Ctrl", App.Account_Forgot.Ctrl);

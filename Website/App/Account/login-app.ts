@@ -1,10 +1,10 @@
-module App.Account_Signin {
+module App.Account_Login {
 
     export class Ctrl {
 
         userName: string;
         password: string;
-        persistent: boolean = false;
+        persistent: boolean = true;
         sending: boolean;
 
         static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
@@ -20,14 +20,18 @@ module App.Account_Signin {
         post(form) {
             if (form.$valid) {
                 this.sending = true;
-                // returnUrl is passed by the controller through the page.
-                var redirectTo: string = App['returnUrl'] || '/';
+                // returnUrl is passed by the server through the page.
+                var returnUrl: string = App['returnUrl'] || '/';
 
-                App.Utils.signIn(this.$http, this.userName, this.password, this.persistent,
-                    () => {
-                        this.sending = false;
+                App.Utils.ngHttpPost(this.$http,
+                    App.Utils.accountApiUrl('Login'),
+                    {
+                        userName: this.userName,
+                        password: this.password,
+                        persistent: this.persistent
                     },
-                    redirectTo
+                    () => { window.location.replace(returnUrl); },
+                    () => { this.sending = false; }
                     );
             }
         }
@@ -35,4 +39,4 @@ module App.Account_Signin {
 } // end of module
 
 var app = angular.module("app", ['chieffancypants.loadingBar']);
-app.controller("Ctrl", App.Account_Signin.Ctrl);
+app.controller("Ctrl", App.Account_Login.Ctrl);

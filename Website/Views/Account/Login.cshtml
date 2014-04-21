@@ -1,0 +1,126 @@
+﻿@using Microsoft.Owin.Security
+
+@{
+    ViewBag.Title = "Log in";
+    ViewBag.NavItem = "Account";
+
+    string alertText = null;
+    string alertStyle = null;
+    var query = Request.Url.Query;
+    if (!string.IsNullOrEmpty(query))
+    {
+        if (query.Contains("password-changed"))
+        {
+            alertText = "Password changed.";
+            alertStyle = "alert-info";
+        }
+        else
+        {
+            if (query.Contains("confirmed=True"))
+            {
+                alertText = "Thank you! You have successfully confirmed your email address.";
+                alertStyle = "alert-success";
+            }
+            else
+            {
+                if (query.Contains("confirmed=False"))
+                {
+                    alertText = "There was a problem while confirming your email address.";
+                    alertStyle = "alert-danger";
+                }
+            }
+        }
+    }
+}
+@if (!string.IsNullOrEmpty(alertText))
+{
+    <div class="row">
+        <div class="col-sm-offset-2 col-sm-8 alert @alertStyle">
+            <p class="text-center">
+                @alertText
+            </p>
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-md-offset-1 col-md-6">
+        <h4 class="text-center">Log in with password</h4>
+        <br />
+        @* If the attribute method="post" is omitted and the script loading fails, the form will be submited as GET and the password will appear on the address bar in plaintext. *@
+        <form method="post" class="form-horizontal" name="mainForm" role="form" data-ng-app="app" data-ng-controller="Ctrl" novalidate>
+            <div class="form-group">
+                <label for="userName" class="col-sm-4 control-label">Email address</label>
+                <div class="col-sm-6">
+                    <input type="email" id="userName" class="form-control" name="userName" data-ng-model="vm.userName" required autofocus />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password" class="col-sm-4 control-label">Password</label>
+                <div class="col-sm-6">
+                    <input type="password" id="password" class="form-control" name="password" data-ng-model="vm.password" required data-ng-minlength="6" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-8">
+                    <div class="checkbox">
+                        <p>
+                            <label>
+                                <input type="checkbox" data-ng-model="vm.persistent" />&nbsp;Remember me (for a maximum of 14 days)
+                            </label>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-3">
+                    <button type="submit" class="btn btn-primary btn-block" data-ng-click="vm.post(mainForm)" data-ng-disabled="mainForm.$invalid || vm.sending">Log in</button>
+                </div>
+            </div>
+        </form>
+        <br />
+    </div>
+    <div class="col-md-3">
+        @using (Html.BeginForm("ExternalLogin", "Account", new { ReturnUrl = ViewBag.ReturnUrl }))
+        {
+            @Html.AntiForgeryToken()
+            <h4 class="text-center">Or log in with Facebook</h4>
+            <br />
+            <div class="row">
+                <div class="col-sm-offset-3 col-sm-6">
+                    <button type="submit" class="btn btn-primary btn-block" id="Facebook" name="provider" value="Facebook" title="Sign up using your Facebook account"><i class="fa fa-facebook fa-fw fa-lg"></i> Log in</button>
+                </div>
+            </div>
+            <br />
+            <br />
+            <h4 class="text-center">Or log in with Google</h4>
+            <br />
+            <div class="row">
+                <div class="col-sm-offset-3 col-sm-6">
+                    <button type="submit" class="btn btn-primary btn-block" id="Google" name="provider" value="Google" title="Sign up using your Google account"><i class="fa fa-google-plus fa-fw fa-lg"></i> Log in</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@Html.HrSeparator("col-md-offset-1 col-md-10")
+<div class="col-md-offset-3 col-md-7">
+    Not yet a member? @Html.ActionLink(HttpUtility.HtmlDecode("Create an account here"), "SignUp", "Account")
+    <br />
+    Forgot your password? @Html.ActionLink(HttpUtility.HtmlDecode("Reset here"), "ForgotPassword", "Account")
+</div>
+
+
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/App/Account/login-app.js"
+)
+    @* Pass ReturnUrl from the server to the client. *@
+    <script type="text/javascript">
+        var App = App || {};
+        App.returnUrl = '@Html.Raw(ViewBag.ReturnUrl)';
+    </script>
+}

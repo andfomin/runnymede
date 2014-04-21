@@ -13,8 +13,8 @@ var App;
                 var _this = this;
                 _super.call(this);
                 this.autoSaved = ko.observable(false);
-                this.tagValue = ko.observable();
-                this.tagValue2 = ko.observable();
+                this.tagValue = ko.observable(null);
+                this.tagValue2 = ko.observable(null);
 
                 this.savingSourceName = 'FromEdit';
 
@@ -93,7 +93,7 @@ var App;
                 this.deleteRemark = function (remark) {
                     _this.sound.stop();
                     _this.dialogRemark = remark;
-                    ($('#dialogDelete')).modal();
+                    $('#dialogDelete').modal();
                 };
 
                 this.deleteCmd = ko.asyncCommand({
@@ -107,7 +107,7 @@ var App;
                         }).always(function () {
                             _this.dialogRemark = null;
                             complete();
-                            ($('#dialogDelete')).modal('hide');
+                            $('#dialogDelete').modal('hide');
                         });
                     },
                     canExecute: function (isExecuting) {
@@ -118,7 +118,7 @@ var App;
                 this.showFinishDialogCmd = ko.asyncCommand({
                     execute: function (complete) {
                         _this.turnPlayer(false);
-                        ($('#dialogFinish')).modal();
+                        $('#dialogFinish').modal();
                         complete();
                     },
                     canExecute: function (isExecuting) {
@@ -130,7 +130,7 @@ var App;
                     execute: function (complete) {
                         var wrapup = function (success) {
                             complete();
-                            ($('#dialogFinish')).modal('hide');
+                            $('#dialogFinish').modal('hide');
                             if (success) {
                                 toastr.success('Review finished');
                             } else {
@@ -247,7 +247,7 @@ var App;
             };
 
             ViewModel.prototype.tagButtonClickHadler = function (event) {
-                var tag = (event.target).id;
+                var tag = event.target.id;
                 var remark = this.selectedRemark();
                 if (tag && remark) {
                     var t = remark.tags() || '';
@@ -278,6 +278,7 @@ var App;
                 };
 
                 window.setInterval(function () {
+                    // Avoid confusion on returning after an exit attempt, let the user to save manually.
                     if (_this.saveCmd.canExecute() && !$('#saveButton').hasClass('on-page-exit')) {
                         _this.saveCmd.execute(callback);
                     }
@@ -312,10 +313,10 @@ $(function () {
     var element = $('#tagInput');
     element.hide();
     var options = {
-        source: (App).TagList,
+        source: App.TagList,
         items: 'all',
         minLength: 3
     };
-    (element).typeahead(options);
+    element.typeahead(options);
 });
 //# sourceMappingURL=edit-vm.js.map

@@ -73,12 +73,10 @@ namespace Runnymede.Website.Utils
             }
         }
 
-        public static async Task SendConfirmationEmailAsync(this ApiController controller, string email, string link)
+        public static async Task SendConfirmationEmailAsync(string email, string link)
         {
-            //string subject = "=?utf-8?Q?=E2=98=85?= Please confirm your registration"; // + " Second reminder."
-            string subject = "=?utf-8?Q?=E2=98=91?= Please confirm your email address"; // U+2611: ballot box with check // + " Second reminder."
-            //string host = controller.Request.RequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
-            //string link = "http://" + host + VirtualPathUtility.ToAbsolute("~/user/confirm?token=" + HttpUtility.UrlEncode(token));
+            string subject = "=?utf-8?Q?=E2=98=85?= Please confirm your registration"; // + " Second reminder."
+            //string subject = "=?utf-8?Q?=E2=98=91?= Please confirm your email address"; // U+2611: ballot box with check // + " Second reminder."
 
             string textBodyTemplate =
 @"Thank you for registering with English Cosmos!
@@ -99,9 +97,6 @@ Please click the following link to confirm your email address<br/><a href=""{0}"
         {
             string subject = "=?utf-8?Q?=E2=98=91?= Password reset request";
 
-            //string host = controller.Request.RequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
-            //string link = "https://" + host + VirtualPathUtility.ToAbsolute("~/user/resetpassword?token=" + HttpUtility.UrlEncode(token));
-
             string textBodyTemplate =
 @"Please go to the following link to reset your password for English Cosmos.
 {0}";
@@ -113,6 +108,27 @@ Please click the following link to confirm your email address<br/><a href=""{0}"
 
             await SendEmailAsync(email, subject, textyBody, htmlBody);
         }
+
+        public static async Task SendVerificationEmailAsync(string email, string link)
+        {
+            string subject = "=?utf-8?Q?=E2=98=85?= Please confirm your email address"; // + " Second reminder."
+            //string subject = "=?utf-8?Q?=E2=98=91?= Please confirm your email address"; // U+2611: ballot box with check // + " Second reminder."
+
+            string textBodyTemplate =
+@"Thank you for using English Cosmos!
+Please go to the following link to confirm your email address:
+{0}
+";
+            string textyBody = string.Format(textBodyTemplate, link);
+
+            string htmlBodyTemplate = @"<html><body>Thank you for using English Cosmos!</br>
+Please click the following link to confirm your email address<br/><a href=""{0}"">{0}</a>
+</body></html>";
+            string htmlBody = string.Format(htmlBodyTemplate, link);
+
+            await SendEmailAsync(email, subject, textyBody, htmlBody);
+        }
+
 
 
 

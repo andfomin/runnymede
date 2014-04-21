@@ -3,8 +3,10 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.DataProtection;
+using Microsoft.Owin.Security.Facebook;
 using Microsoft.Owin.Security.OAuth;
 using Owin;
+using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
 
@@ -12,48 +14,26 @@ namespace Runnymede.Website
 {
     public partial class Startup
     {
-
-        static Startup()
-        {
-            PublicClientId = "self";
-
-            //UserManagerFactory = () => new UserManager<IdentityUser>(new UserStore<IdentityUser>());
-            UserManagerFactory = () =>
-            {
-                return new ApplicationUserManager();
-            };
-
-            OAuthOptions = new OAuthAuthorizationServerOptions
-            {
-                TokenEndpointPath = new PathString("/Token"),
-                Provider = new ApplicationOAuthProvider(PublicClientId, UserManagerFactory),
-                AuthorizeEndpointPath = new PathString("/api/AccountApi/ExternalLogin"),
-                AccessTokenExpireTimeSpan = TimeSpan.FromDays(14 + 1), // AF. Longer than the persistant cookie to prevent a situation when a page is opening but "not working".
-                AllowInsecureHttp = true
-            };
-        }
-
-        public static OAuthAuthorizationServerOptions OAuthOptions { get; private set; }
-
-        public static Func<ApplicationUserManager> UserManagerFactory { get; set; }
-
-        public static string PublicClientId { get; private set; }
-
-
-        // For more information on configuring authentication, please visit +http://go.microsoft.com/fwlink/?LinkId=301883
+        // For more information on configuring authentication, please visit +http://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
-            app.UseDbContextFactory(ApplicationDbContext.Create);
+            // Configure the db context, user manager and role manager to use a single instance per request
+            app.CreatePerOwinContext<ApplicationDbContext>(ApplicationDbContext.Create);
+            app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
+            //app.CreatePerOwinContext<ApplicationRoleManager>(ApplicationRoleManager.Create); // We don't use user roles. We use exclusively custom claims.
 
-            // Configure the UserManager
-            app.UseUserManagerFactory(new IdentityFactoryOptions<ApplicationUserManager>()
-            {
-                DataProtectionProvider = app.GetDataProtectionProvider(),
-                Provider = new IdentityFactoryProvider<ApplicationUserManager>()
-                {
-                    OnCreate = ApplicationUserManager.Create
-                }
-            });
+            /* THE SAD STORY. I have tryed to use [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)] in ApiControllers.
+             * 
+             * But the problem is HTML5's localStorage has the strict same-domain policy. A bearer token stored in HTTPS is not available in HTTP.
+             * Workarounds are very hacky and involve extra round-trips. 
+             * 
+             * Another problem is that different authentication methods for pages and AJAX may have different expire time and cause the situation when a page opens but "is not working".
+             * 
+             * Session cookie and sessionStorage work differently across tabs. See +http://dev.w3.org/html5/webstorage/#introduction
+             * If the user opens a new tab, she is still authorized to view the page, but AJAX requests from that page will fail.
+             * 
+             * So I have surrendered to [HostAuthentication(DefaultAuthenticationTypes.ApplicationCookie)] in ApiControllers.
+             */
 
             // Enable the application to use a cookie to store information for the signed in user
             // and to use a cookie to temporarily store information about a user logging in with a third party login provider
@@ -61,38 +41,20 @@ namespace Runnymede.Website
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                LoginPath = new PathString("/account/signin"),
-                CookieSecure = CookieSecureOption.Never,
-                SlidingExpiration = false, // I do not know how to re-issue the complimented bearer token automaticaly.
+                LoginPath = new PathString("/account/login"),
                 Provider = new CookieAuthenticationProvider
                 {
-                    // It seems breaks pesistant cookie continuaty.
-                    //OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser, int>(
-                    //    validateInterval: TimeSpan.FromMinutes(20),
-                    //    regenerateIdentityCallback: (manager, user) => user.GenerateUserIdentityAsync(manager),
-                    //    getUserIdCallback: (id) => (Int32.Parse(id.GetUserId())))
-                }
+                    // Enables the application to validate the security stamp when the user logs in.
+                    // This is a security feature which is used when you change a password or add an external login to your account.  
+                    OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser, int>(
+                        validateInterval: TimeSpan.FromMinutes(30),
+                        regenerateIdentityCallback: (manager, user) => user.GenerateUserIdentityAsync(manager),
+                        getUserIdCallback: (identity) => Convert.ToInt32(identity.GetUserId())),
+                },
+                CookieSecure = CookieSecureOption.Never,
             });
 
-            // Use a cookie to temporarily store information about a user logging in with a third party login provider
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
-
-
-            /* SAD STORY. I tryed to use [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)] in ApiControllers. 
-             * But the problem is HTML5's localStorage has the strict same-domain policy. A bearer token stored in HTTPS is not available in HTTP.
-               Workarounds are very hacky and involve extra round-trips. 
-               So I have surrendered to [HostAuthentication(DefaultAuthenticationTypes.ApplicationCookie)] in ApiControllers.
-             */
-            // Enable the application to use bearer tokens to authenticate users
-            //app.UseOAuthBearerTokens(new OAuthAuthorizationServerOptions
-            //{
-            //    TokenEndpointPath = new PathString("/Token"),
-            //    Provider = new ApplicationOAuthProvider(PublicClientId, UserManagerFactory),
-            //    AuthorizeEndpointPath = new PathString("/api/AccountApi/ExternalLogin"),
-            //    AccessTokenExpireTimeSpan = TimeSpan.FromDays(14 + 1), // AF. Longer than the persistant cookie to prevent a situation when a page is opening but "not working".
-            //    AllowInsecureHttp = true
-            //});
-            app.UseOAuthBearerTokens(OAuthOptions);
 
             // Uncomment the following lines to enable logging in with third party login providers
             //app.UseMicrosoftAccountAuthentication(
@@ -104,10 +66,20 @@ namespace Runnymede.Website
             //   consumerSecret: "");
 
             //app.UseFacebookAuthentication(
-            //   appId: "",
-            //   appSecret: "");
+            //   appId: "747054965334390",
+            //   appSecret: "a34f4ee5071edd9a6bb3e90235f6790c");
 
-            //app.UseGoogleAuthentication();
+            var facebookOptions = new FacebookAuthenticationOptions()
+            {
+                AppId = "747054965334390",
+                AppSecret = "a34f4ee5071edd9a6bb3e90235f6790c"
+            };
+            facebookOptions.Scope.Add("email");
+            app.UseFacebookAuthentication(facebookOptions);
+
+            app.UseGoogleAuthentication(
+                clientId: "249308630710-ghobj6niicie0193ldqkkfffts58fs15.apps.googleusercontent.com",
+                clientSecret: "fzrQHJ5_KXK90wXdE-Uo_c0L");
         }
     }
 }

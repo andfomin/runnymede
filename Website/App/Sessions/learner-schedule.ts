@@ -28,7 +28,7 @@ module App.Sessions_Learner {
                                 start: start.toDate().toISOString(),
                                 end: end.toDate().toISOString(),
                                 localTime: timeInfo.time,
-                                localTimezoneOffset: timeInfo.timeZoneOffset,
+                                localTimezoneOffset: timeInfo.timezoneOffset,
                             },
                             (data) => {
                                 angular.forEach(data, (event) => {

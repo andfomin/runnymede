@@ -28,7 +28,7 @@ module App.Relationships_SkypeDirectory {
 
         private remove = () => {
             var url = App.Utils.relationshipsApiUrl('SkypeDirectory');
-            this.$http.delete(url, { headers: App.Utils.getSecurityHeader() })
+            this.$http.delete(url)
                 .finally(() => window.location.assign(App.Utils.relationshipsUrl('skype-directory/join')));
         }
 

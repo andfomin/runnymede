@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.NavItem = "Account";
+    var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
 }
 <div data-ng-app="app">
     <div data-ng-view=""></div>
@@ -10,9 +11,17 @@
 "~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
-"~/App/Account/edit-profile.js",
-"~/App/Account/edit-password.js",
+"~/bower_installer/ngUpload/ng-upload.min.js",
+"~/App/Account/edit-personal.js",
+"~/App/Account/edit-teacher.js",
+"~/App/Account/edit-logins.js",
 "~/App/Account/edit-app.js"
 )
+@* Pass the user info from the server to the client. Some views need the value, but their controllers do not request the profile.*@
+<script type="text/javascript">
+    var App = App || {};
+    App.isTeacher = '@Html.Raw(pageViewModel.IsTeacher ? "y" : "" )';
+    App.userName = '@Html.Raw(pageViewModel.UserName)';
+</script>
 }
 

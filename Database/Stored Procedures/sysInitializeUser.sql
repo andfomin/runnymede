@@ -19,18 +19,15 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
-declare @UserId int;
+declare @UserId int, @ExtId uniqueidentifier;
 
 insert dbo.aspnetUsers (UserName, PasswordHash, SecurityStamp, Email) values (@UserName, @PasswordHash, @SecurityStamp, @UserName);
 
-select @UserId = Id from dbo.aspnetUsers where Id = scope_identity() and @@rowcount != 0;
+select @UserId = Id, @ExtId = newid() from dbo.aspnetUsers where Id = scope_identity() and @@rowcount != 0;
 
-exec dbo.appCreateUserAndAccounts @UserId = @UserId, @DisplayName = @DisplayName;
-
-insert dbo.aspnetUserClaims (ClaimType, ClaimValue, UserId) values ('englc.com/DisplayName', @DisplayName, @UserId);
+exec dbo.appCreateUserAndAccounts @UserId = @UserId, @DisplayName = @DisplayName, @ExtId = @ExtId;
 
 if (@IsTeacher = 1) begin
-	insert dbo.aspnetUserClaims (ClaimType, ClaimValue, UserId) values ('englc.com/IsTeacher', 'true', @UserId);
 	update dbo.appUsers set IsTeacher = 1 where Id = @UserId;
 end;
 

@@ -1,15 +1,18 @@
 module App.Account_Edit {
 
-    export class Profile {
+    export class Personal {
 
         profile: App.Model.IUser;
 
         sending: boolean;
         displayNameChanged: boolean;
         skypeChanged: boolean;
-        reviewRateChanged: boolean;
-        sessionRateChanged: boolean;
-        anmtChanged: boolean;
+        isTeacher: boolean;
+
+        email: string;
+        emailConfirmed: boolean;
+        linkSent: boolean = false;
+        newEmail: string;
 
         static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
 
@@ -18,15 +21,17 @@ module App.Account_Edit {
             private $http: ng.IHttpService
             ) {
             $scope.vm = this;
+            this.isTeacher = (<any>App).isTeacher; // Passed via the page.
             this.load();
-
         } // end of ctor
         
-        private load = () => {
+        private load() {
             App.Utils.ngHttpGet(this.$http,
-                App.Utils.accountApiUrl('Profile'),
+                App.Utils.accountApiUrl('PersonalProfile'),
                 (data) => {
                     this.profile = data;
+                    this.refreshAvatarUrls();
+                    this.newEmail = this.profile.email;
                 });
         }
 
@@ -55,41 +60,49 @@ module App.Account_Edit {
             }
         }
 
-        saveTeacher(form: ng.IFormController) {
-            if (form.$valid) {
-                this.sending = true;
-                this.clearChanged();
-                var reviewRateDirty = (<any>form).reviewRate.$dirty ? true : false;
-                var sessionRateDirty = (<any>form).sessionRate.$dirty ? true : false;
-                var anmtDirty = (<any>form).announcement.$dirty ? true : false;
-
-                App.Utils.ngHttpPut(this.$http,
-                    Utils.accountApiUrl('TeacherProfile'),
-                    {
-                        reviewRate: reviewRateDirty ? this.profile.reviewRate : null,
-                        sessionRate: sessionRateDirty ? this.profile.sessionRate : null,
-                        announcement: anmtDirty ? this.profile.announcement : null,
-                    },
-                    () => {
-                        form.$setPristine();
-                        this.reviewRateChanged = reviewRateDirty;
-                        this.sessionRateChanged = sessionRateDirty;
-                        this.anmtChanged = anmtDirty;
-                    },
-                    () => {
-                        this.sending = false;
-                    }
-                    );
-            }
-        }
-
         clearChanged() {
             this.displayNameChanged = false;
             this.skypeChanged = false;
-            this.reviewRateChanged = false;
-            this.sessionRateChanged = false;
-            this.anmtChanged = false;
         }
+
+        complete(content) {
+            this.refreshAvatarUrls();
+        }
+
+        private refreshAvatarUrls() {
+            var d = '?_=' + new Date().getTime();
+
+            var src = this.profile.avatarLargeUrl;
+            var i = src.indexOf('?_=');
+            src = i === -1 ? src : src.substring(0, i);
+            this.profile.avatarLargeUrl = src + d;
+
+            src = this.profile.avatarSmallUrl;
+            i = src.indexOf('?_=');
+            src = i === -1 ? src : src.substring(0, i);
+            this.profile.avatarSmallUrl = src + d;
+        }
+
+        startUploading() {
+            //this.profile.userName = 'Uploading...';
+        }
+
+        sendEmailLink() {
+            this.sending = true;
+            App.Utils.ngHttpPut(this.$http,
+                Utils.accountApiUrl('Email'),
+                {
+                    email: this.newEmail
+                },
+                () => {
+                    this.linkSent = true;
+                },
+                () => { this.sending = false; }
+                );
+        }
+
+
+
 
     } // end of class
 } // end of module

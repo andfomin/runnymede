@@ -1,10 +1,10 @@
+////module App {
+////    // Passed via a script in the HTML
+////    declare var exerciseParam: any;
+////    declare var soundUrlParam: string;
+////}
 var App;
 (function (App) {
-    ////module App {
-    ////    // Passed via a script in the HTML
-    ////    declare var exerciseParam: any;
-    ////    declare var soundUrlParam: string;
-    ////}
     (function (Reviews) {
         var ViewModelBase = (function () {
             function ViewModelBase() {
@@ -12,9 +12,9 @@ var App;
                 this.sound = null;
                 this.remarks = ko.observableArray([]);
                 this.soundPosition = ko.observable(0);
-                this.selectedRemark = ko.observable();
+                this.selectedRemark = ko.observable(null);
                 this.dirtyAutoSaveInterval = 0;
-                this.exercise = ko.observable(new App.Model.Exercise((App).exerciseParam));
+                this.exercise = ko.observable(new App.Model.Exercise(App.exerciseParam));
                 this.review = this.exercise().reviews()[0];
 
                 this.loadRemarks();
@@ -57,6 +57,7 @@ var App;
                     var old = _this.selectedRemark();
                     _this.selectedRemark(remark);
 
+                    // A remark can be selected manually or programmatically
                     if ((remark !== old) || !event) {
                         _this.onRemarkSelected(remark);
                         if (remark) {
@@ -71,7 +72,7 @@ var App;
                 this.createSound = function () {
                     _this.sound = window['soundManager'].createSound({
                         id: 'mySound',
-                        url: (App).soundUrlParam,
+                        url: App.soundUrlParam,
                         autoLoad: true,
                         multiShot: false,
                         onload: function (success) {
@@ -82,7 +83,7 @@ var App;
                             }
                         },
                         whileplaying: function () {
-                            ($('#slider')).slider("value", _this.sound.position);
+                            $('#slider').slider("value", _this.sound.position);
                             _this.soundPosition(_this.sound.position);
                         },
                         onfinish: function () {
@@ -179,7 +180,7 @@ var App;
             ViewModelBase.prototype.rewind = function () {
                 var newPosition = Math.max(this.sound.position - 5000, 0);
                 this.sound.setPosition(newPosition);
-                ($('#slider')).slider("value", newPosition);
+                $('#slider').slider("value", newPosition);
                 this.soundPosition(newPosition);
 
                 this.selectRemark(null);
@@ -202,9 +203,9 @@ var App;
 
             ViewModelBase.prototype.setupControls = function () {
                 var _this = this;
-                $('#editor').hide();
+                $('#editor').hide(); // will be shown after the sound is loaded
 
-                ($('#slider')).slider({
+                $('#slider').slider({
                     min: 0,
                     max: this.exercise().length,
                     change: function (event, ui) {
@@ -243,6 +244,7 @@ var App;
                     // 3. The user pulled the plug :-)
                     toastr.error('Error saving remarks.');
 
+                    // Error 400 "Bad request" is send by the server.
                     if (jqXHR.status === 400) {
                         toastr.warning('The page will be reloaded in 5 seconds.');
                         window.setTimeout(function () {

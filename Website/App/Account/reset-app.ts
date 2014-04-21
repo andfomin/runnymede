@@ -2,8 +2,7 @@ module App.Account_Reset {
 
     export class Ctrl {
 
-        password1: string;
-        password2: string;
+        password: string;
         sending: boolean;
 
         static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
@@ -22,14 +21,11 @@ module App.Account_Reset {
                 App.Utils.ngHttpPost(this.$http,
                     Utils.accountApiUrl('Reset' + window.location.search),
                     {
-                        password1: this.password1,
-                        password2: this.password2,
+                        password: this.password,
                     },
                     () => {
                         // The controller signs out and cleans the authorization cookie.
-                        window.localStorage.removeItem('accessToken');
-                        window.sessionStorage.removeItem('accessToken');
-                        window.location.assign('/account/signin?password-changed');                        
+                        window.location.assign('/account/login?password-changed');                        
                     },
                     () => {
                         this.sending = false;
@@ -40,5 +36,5 @@ module App.Account_Reset {
     } // end of class
 } // end of module
 
-var app = angular.module("app", []);
+var app = angular.module("app", ['chieffancypants.loadingBar']);
 app.controller("Ctrl", App.Account_Reset.Ctrl);

@@ -10,10 +10,7 @@
     @*<title>@(ViewBag.HeadTitle ?? ViewBag.Title) - English Cosmos</title>*@
     <title>English Cosmos</title>
     <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
-    @if (Request.IsAuthenticated)
-    {
-        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-    }
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     @*<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
     @Styles.Render("~/bundles/app-css")
     @RenderSection("HeadScripts", required: false)

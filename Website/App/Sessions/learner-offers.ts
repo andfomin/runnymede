@@ -170,7 +170,7 @@ module App.Sessions_Learner {
                     startHour: this.startHour,
                     endHour: this.endHour,
                     localTime: timeInfo.time,
-                    localTimezoneOffset: timeInfo.timeZoneOffset,
+                    localTimezoneOffset: timeInfo.timezoneOffset,
                 },
                 (data) => {
                     this.users = data;

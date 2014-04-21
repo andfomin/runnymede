@@ -35,7 +35,7 @@ namespace Runnymede.Website.Controllers.Mvc
             IEnumerable<string> model = null;
             if (!string.IsNullOrEmpty(topic))
             {
-                var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TopicsTableName);
+                var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.Topics);
                 var filter = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, topic);
                 var query = new TableQuery<TopicEntity>().Where(filter);
                 var entity = table.ExecuteQuery(query).Single();
@@ -228,7 +228,7 @@ namespace Runnymede.Website.Controllers.Mvc
 
                         var batchOperation = new TableBatchOperation();
                         entities.ToList().ForEach(i => batchOperation.InsertOrReplace(i));
-                        var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.RemarksTableName);
+                        var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.Remarks);
                         await table.ExecuteBatchAsync(batchOperation);
 
                         // Redirect to the reviews page.

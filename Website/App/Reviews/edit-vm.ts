@@ -13,8 +13,8 @@ module App.Reviews_Edit {
         deleteCmd: KoliteCommand;
         dialogRemark: App.Model.IRemark;
         autoSaved: KnockoutObservable<boolean> = ko.observable(false);
-        tagValue: KnockoutObservable<string> = ko.observable();
-        tagValue2: KnockoutObservable<string> = ko.observable();
+        tagValue: KnockoutObservable<string> = ko.observable(null);
+        tagValue2: KnockoutObservable<string> = ko.observable(null);
 
         constructor() {
             super();
