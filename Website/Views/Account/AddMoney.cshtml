@@ -3,7 +3,7 @@
     ViewBag.NavItem = "Account";
     var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
     // Protect userName from tampering with.
-    var englcCode = Runnymede.Website.Utils.AccountControllerUtils.GetTimestampedUserName(pageViewModel.UserName);
+    var englcCode = Runnymede.Website.Utils.PayPalHelper.GetTimestampedUserName(pageViewModel.UserName);
 }
 @if (ViewBag.IsConfirmed ?? false)
 {

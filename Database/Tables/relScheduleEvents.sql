@@ -6,7 +6,7 @@
     [UserId]           INT             NOT NULL,
     [SecondUserId]     INT             NULL,
     [Price]            DECIMAL (18, 2) NULL,
-    [CreationTime]     DATETIME2 (2)   NOT NULL,
+    [CreationTime]     DATETIME2 (2)   CONSTRAINT [DF_relScheduleEvents_CreationTime] DEFAULT (sysutcdatetime()) NOT NULL,
     [ConfirmationTime] DATETIME2 (2)   NULL,
     [CancellationTime] DATETIME2 (2)   NULL,
     [ClosingTime]      DATETIME2 (2)   NULL,
@@ -15,6 +15,8 @@
     CONSTRAINT [FK_relScheduleEvents_appUsers] FOREIGN KEY ([UserId]) REFERENCES [dbo].[appUsers] ([Id]),
     CONSTRAINT [FK_relScheduleEvents_relScheduleEventTypes] FOREIGN KEY ([Type]) REFERENCES [dbo].[relScheduleEventTypes] ([Id])
 );
+
+
 
 
 

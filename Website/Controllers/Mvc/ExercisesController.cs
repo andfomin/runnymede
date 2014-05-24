@@ -44,7 +44,7 @@ namespace Runnymede.Website.Controllers.Mvc
 
                 var title = entity.RowKey ?? "";
                 ViewBag.TopicTitle = title;
-                ViewBag.TopicShortTitle = title.Length <= UploadHelper.MaxExerciseTitleLength ? title : title.Substring(0, UploadHelper.MaxExerciseTitleLength);
+                ViewBag.TopicShortTitle = title.Length <= UploadUtils.MaxExerciseTitleLength ? title : title.Substring(0, UploadUtils.MaxExerciseTitleLength);
 
                 var lines = entity.Lines ?? "";
                 model = lines.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
@@ -63,7 +63,7 @@ namespace Runnymede.Website.Controllers.Mvc
             {
                 using (var stream = Request.InputStream)
                 {
-                    UploadHelper.SaveRecording(
+                    UploadUtils.SaveRecording(
                                                 stream,
                                                 this.GetUserId(),
                                                 ExerciseType.AudioRecording,
@@ -118,14 +118,14 @@ namespace Runnymede.Website.Controllers.Mvc
                 {
                     using (var stream = mp3File.InputStream)
                     {
-                        var durationMsec = UploadHelper.GetMp3DurationMsec(stream);
+                        var durationMsec = UploadUtils.GetMp3DurationMsec(stream);
                         if (durationMsec > 0)
                         {
                             var exerciseTitle = !string.IsNullOrEmpty(title)
                                 ? title
                                 : Path.GetFileNameWithoutExtension(mp3File.FileName);
 
-                            exerciseId = UploadHelper.SaveRecording(
+                            exerciseId = UploadUtils.SaveRecording(
                                 stream,
                                 userId,
                                 ExerciseType.AudioRecording,

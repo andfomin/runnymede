@@ -116,7 +116,7 @@ update dbo.exeExercises set Title = @Title where Id = @Id and UserId = @UserId;
             var seed1 = ((type ?? "") + (title ?? "") + (allLines ?? "")).GetHashCode();
             var seed2 = ((allLines ?? "") + (title ?? "")).GetHashCode();
             var hashingRandoms = new[] { new Random(seed1), new Random(seed2) };
-            var id = ControllerHelper.GetBase32Number(8, hashingRandoms);
+            var id = LoggingUtils.GetBase32Number(8, hashingRandoms);
 
             var partitionKey = id;
             var rowKey = title;

@@ -2,157 +2,158 @@
     ViewBag.Title = "Exercises";
     ViewBag.NavItem = "Exercises";
 }
-<div data-bind="if: isEmpty">
-    <p class="text-center">
-        You have not done any exercises yet.
-    </p>
-    <br />&nbsp;
-</div>
-<div class="row">
-    <div class="col-sm-offset-2 col-md-3">
-        <a href="@Url.Action("Topics")" class="btn btn-primary btn-block">Record a monologue &raquo;</a>
-    </div>
-    <div class="col-md-1">
-        &nbsp;
-    </div>
-    <div class="col-sm-offset-1 col-md-3">
-        <a href="http://blob.englc.com/recorder/EnglishCosmosSkypeRecorder.exe" class="btn btn-primary btn-block">Record a Skype conversation &raquo;</a>
-    </div>
-</div>
-<hr class="app-separator" />
-<table id="exercisestable" class="table table-condensed" data-bind="if: exercises().length > 0">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th style="text-align: right;">Length</th>
-            <th style="text-align: right;">Created</th>
-            <th>Review status</th>
-            <th style="text-align: right;">Reward</th>
-        </tr>
-    </thead>
-    <tbody data-bind="foreach: { data: exercises, as: 'exercise' }">
-        <tr>
-            <td>
-                <a data-bind=" text: title, attr: { href: viewUrl() }"></a>
-            </td>
-            <td style="text-align: right;">
-                <span data-bind="text: formattedLength"></span>
-            </td>
-            <td style="text-align: right;">
-                <span data-bind="text: createTime"></span>
-            </td>
-            <td>
-                <button class="btn btn-default btn-xs" data-bind="click: $parent.requestReview">Request&nbsp;review</button>
-            </td>
-            <td></td>
-        </tr>
-
-        <!-- ko foreach: exercise.reviews -->
-        <tr class="app-row-review">
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>
-                <span data-bind="text: status()"></span>
-                <button class="btn btn-default btn-xs" data-bind="visible: !(startTime() || cancelTime()), click: $root.cancelRequest">Cancel</button>
-            </td>
-            <td style="text-align: right;">
-                <span data-bind="text: formattedReward"></span>
-            </td>
-        </tr>
-        <!-- /ko -->
-
-    </tbody>
-</table>
-
-@Html.Partial("_PagerPartial", "exercises")
-
-<div id="createRequestDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="createRequestLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            @* The form will not submit on Enter keypress until it contains a button. So the form tag wraps all the dialog sections, not the input section alone. *@
-            <form class="form-horizontal" data-bind="submit: submitRequest" role="form" style="margin-bottom: 0;">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="createRequestLabel"><strong>Request a review of the exercise</strong></h4>
-                </div>
-                <div class="modal-body">
-                    <p data-bind="with: dialogExercise">
-                        You are requesting a review for exercise &quot;<span data-bind="text: title"></span>&quot; created <span data-bind="text: createTime"></span>. It has length <span data-bind="text: formattedLength"></span> minutes:seconds.
-                    </p>
-                    <hr class="app-separator" />
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" data-bind="checked: anyReviewer, enable:teachers().length > 0" />&nbsp;Any teacher can see this request and review the exercise
-                        </label>
-                    </div>
-                    <div data-bind="if: teachers().length === 0">
-                        To be able to select a particular teacher, first add it to your @Html.ActionLink("favorite teacher list", "Teachers", "Relationships", null, new { @class = "" }).
-                    </div>
-                    <div data-bind="visible: !anyReviewer()">
-                        <br />
-                       Select teachers who can see this request. Suggested reward is calculated based on this exercise's length and the teacher's rate.
-                        <!-- ko foreach: teachers -->
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" data-bind="value: id, checked: $root.selectedTeachers" /><span data-bind="text: displayName"></span> (suggested reward <span data-bind="text: $root.suggestedReward(reviewRate)"></span>)
-                            </label>
-                        </div>
-                        <!-- /ko -->
-                    </div>
-                    <hr class="app-separator" />
-                    <p>
-                        Your account balance is currently <span data-bind="text: App.Utils.formatMoney(balance())"></span>&nbsp;dollars.
-                        <span data-bind="visible: balance() === 0">@Html.ActionLink("Add money to account »", "AddMoney", "Account", "https", null, null, null, new { @class = "btn btn-primary btn-sm" })</span>
-                    </p>
-                    <p data-bind="with: dialogExercise">
-                        Please enter the amount of money that you are offering to the teacher as a reward for reviewing the exercise.
-                    </p>
-                    <div class="form-group">
-                        <label class="col-sm-5 control-label" for="reward1">Enter the reward</label>
-                        <div class="col-sm-2">
-                            <input type="text" id="reward1" class="form-control" data-bind="value: reward1, valueUpdate: 'afterkeydown'" autocomplete="off" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-5 control-label" for="reward2">Enter the reward again</label>
-                        <div class="col-sm-2">
-                            <input type="text" id="reward2" class="form-control" data-bind="value: reward2, valueUpdate: 'afterkeydown'" autocomplete="off" />
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" data-bind="command: requestCmd, activity: requestCmd.isExecuting">OK</button>
-                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-                </div>
-            </form>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-<div id="cancelRequestDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="cancelRequestLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="cancelRequestLabel"><strong>Cancel review request</strong></h4>
+<div class="row" ng-app="app" ng-cloak>
+    <div ng-controller="Ctrl">
+        <div ng-show="vm.isEmpty()">
+            <p class="text-center">
+                You have not done any exercises yet.
+            </p>
+            <br />&nbsp;
+        </div>
+        <div class="row">
+            <div class="col-md-1">
+                &nbsp;
             </div>
+            <div class="col-md-offset-1 col-md-3">
+                <a href="@Url.Action("Topics")" class="btn btn-primary btn-block">Record a monologue &raquo;</a>
+            </div>
+            <div class="col-md-1">
+                &nbsp;
+            </div>
+            <div class="col-md-offset-1 col-md-3">
+                <a href="http://blob.englc.com/recorder/EnglishCosmosSkypeRecorder.exe" class="btn btn-primary btn-block">Record a Skype conversation &raquo;</a>
+            </div>
+        </div>
+        <div class="col-md-offset-1 col-md-10" ng-hide="vm.isEmpty()">
+            <hr class="app-separator" />
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th style="text-align: right;">Length</th>
+                        <th>Created</th>
+                        <th>Review status</th>
+                        <th style="text-align: right;">Reward</th>
+                    </tr>
+                </thead>
+                <tbody ng-repeat="e in vm.exercises">
+                    <tr>
+                        <td>
+                            <a ng-href="{{App.Utils.reviewsUrl('view/' + e.id)}}">{{e.title}}</a>
+                        </td>
+                        <td style="text-align: right;">
+                            {{e.length | appMsecToMinSec}}
+                        </td>
+                        <td>
+                            {{e.createTime | appDate}}
+                        </td>
+                        <td>
+                            <button class="btn btn-default btn-xs" ng-click="vm.showCreateRequestModal(e)">Request&nbsp;review</button>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr class="app-row-review" ng-repeat="r in e.reviews">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <span ng-class="vm.getReviewStatusStyle(r)"><strong>{{vm.getReviewStatusText(r)}}</strong></span>&nbsp;&nbsp;{{vm.getReviewStatusTime(r) | appDate}}
+                            <button class="btn btn-default btn-xs" ng-show="!(r.cancelTime || r.startTime)" ng-click="vm.showCancelRequestModal(r)">Cancel</button>
+                        </td>
+                        <td style="text-align: right;">
+                            {{r.reward | number:2}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <pagination class="pagination-sm" total-items="vm.totalCount" items-per-page="vm.limit" ng-model="vm.currentPage" ng-change="vm.getExercises()" max-size="10" boundary-links="true" rotate="false"></pagination>
+        </div>
+    </div><!-- /ng-controller="Ctrl" -->
+    <!-- Modals -->
+    <!-- createRequestDialog.html -->
+    <script type="text/ng-template" id="createRequestDialog.html">
+        <div class="modal-header">
+            <h3>Request a review of the exercise</h3>
+        </div>
+        @* The form will not submit on Enter keypress until it contains a button. So the form tag wraps all the footer too, not the input section alone. *@
+        <form class="form-horizontal" ng-submit="vm.ok()">
             <div class="modal-body">
-                <!-- ko with: dialogReview -->
-                Review request created <span data-bind="text: requestTime"></span>
-                <!-- /ko -->
-                <!-- ko with: dialogExercise -->
-                for exercise &quot;<span data-bind="text: title"></span>&quot; will be canceled permanently.
-                <!-- /ko -->
+                <p data-bind="with: dialogExercise">
+                    You are requesting a review of exercise &quot;<strong>{{vm.modalParams.exercise.title}}</strong>&quot;
+                    created on <strong>{{vm.modalParams.exercise.createTime | appDate}}</strong>.
+                    It has length <strong>{{vm.modalParams.exercise.length | appMsecToMinSec}}</strong> minutes:seconds.
+                </p>
+                <hr class="app-separator" />
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="vm.anyReviewer" ng-disabled="vm.teachers.length === 0" />&nbsp;Any teacher can review the exercise
+                    </label>
+                </div>
+                <div ng-show="vm.teachers.length === 0">
+                    To be able to select a particular teacher, first add him or her to your @Html.ActionLink("favorite teacher list", "Teachers", "Relationships", null, new { @class = "" }).
+                </div>
+                <div ng-show="!vm.anyReviewer">
+                    <br />
+                    Select the teacher who you ask to review the exercise.
+                    <select ng-model="vm.selectedTeacher" ng-options="t.displayName for t in vm.teachers">
+                        <option value="">-- select teacher --</option>
+                    </select>
+                </div>
+                <hr class="app-separator" />
+                <p>
+                    Your account balance is currently <strong>{{vm.balance | number:2}}</strong>&nbsp;dollars.
+                    <span ng-show="vm.balance === 0">@Html.ActionLink("Add money to account »", "AddMoney", "Account", "https", null, null, null, new { @class = "btn btn-primary btn-sm" })</span>
+                </p>
+                <p>
+                    Please enter the amount of money that you are offering to the teacher as a reward for reviewing the exercise.
+                </p>
+                <p ng-show="vm.selectedTeacher">
+                    Suggested reward is {{vm.suggestedReward() | number:2}}, it depends on the exercise length and the teacher's rate.
+                </p>
+                <div class="form-group">
+                    <label class="col-sm-5 control-label" for="reward1">Enter the reward</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="reward1" class="form-control" ng-model="vm.reward1" autocomplete="off" autofocus />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-5 control-label" for="reward2">Enter the reward again</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="reward2" class="form-control" ng-model="vm.reward2" autocomplete="off" />
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bind="command: cancelRequestCmd, activity: cancelRequestCmd.isExecuting">OK</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary" data-ng-click="vm.ok()" data-ng-disabled="vm.executing || vm.disabled()">OK</button>
+                <button class="btn btn-default" data-ng-click="vm.cancel()">Close</button>
             </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
+        </form>
+    </script>
+    <!-- /createRequestDialog.html -->
+    <!-- cancelRequestDialog.html -->
+    <script type="text/ng-template" id="cancelRequestDialog.html">
+        <div class="modal-header">
+            <h3>Cancel review request</h3>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-offset-1 col-md-10">
+                    <p>
+                        Review request created on <strong>{{vm.modalParams.review.requestTime | appDate }}</strong>
+                        for exercise &quot;<strong>{{vm.modalParams.exercise.title}}</strong>&quot; will be canceled.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" data-ng-click="vm.ok()" data-ng-disabled="vm.executing">OK</button>
+            <button class="btn btn-default" data-ng-click="vm.cancel()">Close</button>
+        </div>
+    </script>
+    <!-- /cancelRequestDialog.html -->
+    <!-- /Modals -->
+</div><!-- /ng-app="app" -->
 @using (Html.BeginInstructionsContainer())
 {
     <li>You can press the <em>Record a monologue</em> button to record a speech.</li>
@@ -163,9 +164,11 @@
 }
 @section BottomScripts {
     @Scripts.Render(
-"~/bundles/knockout",
-"~/bundles/ko-libs",
+"~/bundles/angular",
+"~/bundles/angular-bootstrap",
+"~/bundles/angular-libs",
 "~/bundles/ext-libs",
-"~/bundles/app",
-"~/App/Exercises/index-vm.js"
+"~/bundles/app-utils",
+
+"~/App/Exercises/index-app.js"
 )}

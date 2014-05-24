@@ -60,8 +60,8 @@
                     <tr>
                         <th></th>
                         <th>Spot</th>
+                        <th>Keywords</th>
                         <th>Remark</th>
-                        <th>Tag</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -88,16 +88,16 @@
                                 to&nbsp;<span data-bind="text: formatFinish"></span>
                             </div>
                         </td>
-                        <td class="text-column">
-                            <span class="edited-hidden" data-bind="text: text"></span>
-                            <textarea rows="2" cols="40" class="not-edited-hidden" data-bind="value: text, valueUpdate: 'afterkeydown'"></textarea>
-                        </td>
                         <td class="tag-column">
                             <span class="edited-hidden" data-bind="text: tags"></span>
 
                             <div class="not-edited-hidden">
                                 <div class="not-edited-hidden tag-input-placeholder"></div>
                             </div>
+                        </td>
+                        <td class="text-column">
+                            <span class="edited-hidden" data-bind="text: text"></span>
+                            <textarea rows="2" cols="40" class="not-edited-hidden" data-bind="value: text, valueUpdate: 'afterkeydown'"></textarea>
                         </td>
                         <td>
                             <button class="btn btn-default btn-xs not-edited-hidden" data-bind="click: $parent.deleteRemark" title="Delete">&times;</button>

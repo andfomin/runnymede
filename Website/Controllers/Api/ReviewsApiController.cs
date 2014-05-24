@@ -62,6 +62,7 @@ fetch next @RowLimit rows only
         public async Task<IHttpActionResult> PostReview(JObject value)
         {
             int exerciseId = (int)value["exerciseId"];
+            // The current version of GUI allows for selection of a single teacher only. The backend is able to accept an array of teachers.
             var teachersIds = value["teachers"].Values<int>();
 
             // Parse the reward value entered by the user.

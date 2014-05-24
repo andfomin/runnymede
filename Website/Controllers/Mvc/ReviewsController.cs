@@ -112,7 +112,7 @@ where E.Id = @Id and E.UserId = @UserId;
             }
 
             ViewBag.SoundUrlParam = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.Recordings) + dto.ArtefactId;
-            ViewBag.ExerciseParamJson = ControllerHelper.SerializeAsJson(dto);
+            ViewBag.ExerciseParamJson = LoggingUtils.SerializeAsJson(dto);
 
             return View(viewName);
         }

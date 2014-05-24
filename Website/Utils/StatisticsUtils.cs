@@ -64,7 +64,7 @@ where R.Id = @ReviewId
 
             var totalTagCount = tagCounts.Select(i => i.C).Sum();
 
-            var tagCountsStr = ControllerHelper.SerializeAsJson(tagCounts);
+            var tagCountsStr = LoggingUtils.SerializeAsJson(tagCounts);
 
             var entity = new StatisticsEntity
             {

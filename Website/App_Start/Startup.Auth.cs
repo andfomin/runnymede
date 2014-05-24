@@ -65,10 +65,10 @@ namespace Runnymede.Website
             //   consumerKey: "",
             //   consumerSecret: "");
 
-            //app.UseFacebookAuthentication(
-            //   appId: "747054965334390",
-            //   appSecret: "a34f4ee5071edd9a6bb3e90235f6790c");
-
+            /* +http://www.asp.net/mvc/tutorials/mvc-5/create-an-aspnet-mvc-5-app-with-facebook-and-google-oauth2-and-openid-sign-on
+             * Lookup "Creating a Google app for OAuth 2 and connecting the app to the project" +https://console.developers.google.com/
+             * Lookup "Creating the app in Facebook and connecting the app to the project" +https://developers.facebook.com/apps            
+             */
             var facebookOptions = new FacebookAuthenticationOptions()
             {
                 AppId = "747054965334390",

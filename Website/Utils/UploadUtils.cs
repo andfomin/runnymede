@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Runnymede.Website.Utils
 {
-    public static class UploadHelper
+    public static class UploadUtils
     {
         // Topics.cshtml. <input type="text" class="span8" data-ng-model="vm.ownTopic.title" maxlength="100" required placeholder="Write your topic here (maximum 100 characters.)" />
         public const int MaxExerciseTitleLength = 100;
@@ -33,7 +33,7 @@ namespace Runnymede.Website.Utils
         /// <returns>Exercise Id</returns>
         public static int SaveRecording(Stream stream, int userId, string type, int durationMsec, string topicId = null, string exerciseTitle = null)
         {
-            var artefactId = ControllerHelper.GetTvelveDigitBase32Number();
+            var artefactId = LoggingUtils.GetTvelveDigitBase32Number();
             var contentType = type == ExerciseType.AudioRecording ? "audio/mpeg" : "application/octet-stream";
             // Save the recording
             AzureStorageUtils.UploadBlob(stream, AzureStorageUtils.ContainerNames.Recordings, artefactId, contentType);

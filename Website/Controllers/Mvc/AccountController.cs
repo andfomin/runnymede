@@ -29,11 +29,7 @@ namespace Runnymede.Website.Controllers.Mvc
         {
             get
             {
-                if (owinUserManager == null)
-                {
-                    owinUserManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-                }
-                return owinUserManager;
+                return owinUserManager ?? (owinUserManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>());
             }
         }
 
@@ -42,11 +38,7 @@ namespace Runnymede.Website.Controllers.Mvc
         {
             get
             {
-                if (owinAuthenticationManager == null)
-                {
-                    owinAuthenticationManager = HttpContext.GetOwinContext().Authentication;
-                }
-                return owinAuthenticationManager;
+                return owinAuthenticationManager ?? (owinAuthenticationManager = HttpContext.GetOwinContext().Authentication);
             }
         }
 
@@ -67,8 +59,8 @@ namespace Runnymede.Website.Controllers.Mvc
         [AllowAnonymous]
         public async Task<ActionResult> ConfirmEmail()
         {
-            int userId = IdentityHelper.GetUserIdFromRequest(Request);
-            string code = IdentityHelper.GetCodeFromRequest(Request);
+            int userId = AccountUtils.GetUserIdFromRequest(Request);
+            string code = AccountUtils.GetCodeFromRequest(Request);
             bool success = false;
             if (userId != 0 && !string.IsNullOrEmpty(code))
             {
@@ -374,8 +366,8 @@ select ExtIdUpperCase from dbo.appUsers where Id = @UserId
 
                 var stream = avatarFile.InputStream;
                 // ResizeAndSaveAvatar() will rewind the stream to the beginning.
-                await UploadHelper.ResizeAndSaveAvatar(stream, AccountControllerUtils.AvatarSmallSize, AzureStorageUtils.ContainerNames.AvatarsSmall, blobName);
-                await UploadHelper.ResizeAndSaveAvatar(stream, AccountControllerUtils.AvatarLargeSize, AzureStorageUtils.ContainerNames.AvatarsLarge, blobName);
+                await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarSmallSize, AzureStorageUtils.ContainerNames.AvatarsSmall, blobName);
+                await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarLargeSize, AzureStorageUtils.ContainerNames.AvatarsLarge, blobName);
             }
         }
 
@@ -445,10 +437,6 @@ select ExtIdUpperCase from dbo.appUsers where Id = @UserId
             }
         }
         #endregion
-
-
-
-
 
     }
 }

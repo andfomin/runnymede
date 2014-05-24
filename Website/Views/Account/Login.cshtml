@@ -28,6 +28,14 @@
                     alertText = "There was a problem while confirming your email address.";
                     alertStyle = "alert-danger";
                 }
+                else
+                {
+                    if (query.Contains("external-login-failure"))
+                    {
+                        alertText = "Sorry, there was an error authorizing your account. Perhaps you did not approve authorization?";
+                        alertStyle = "alert-danger";
+                    }
+                }
             }
         }
     }

@@ -24,71 +24,72 @@
             break;
     }
 }
-@if (!string.IsNullOrEmpty(alertText))
-{
-    <div class="row">
-        <div class="col-sm-offset-4 col-sm-4 alert @alertStyle">
-            <p class="text-center">
-                @alertText
-            </p>
-        </div>
-    </div>
-}
-@if (!pageViewModel.IsTeacher)
-{
-    <div class="row">
-        <div class="col-sm-3">
-            <a href="@Url.Action("AddMoney")" class="btn btn-primary">Add money to account</a>
-        </div>
-    </div>
-    <br />
-}
-<table class="table table-bordered table-condensed" data-bind="if: entries().length > 0">
-    <thead class="theme-red">
-        <tr>
-            <th>Time</th>
-            <th>Description</th>
-            <th style="text-align: right;">Debit, USD</th>
-            <th style="text-align: right;">Credit, USD</th>
-            <th style="text-align: right;">Balance, USD</th>
-        </tr>
-    </thead>
-    <tbody data-bind="foreach: entries">
-        <tr>
-            <td>
-                <span data-bind="text: observedTime"></span>
-            </td>
-            <td>
-                <span data-bind="text: description"></span>
-            </td>
-            <td style="text-align: right;">
-                <span data-bind="text: debit"></span>
-            </td>
-            <td style="text-align: right;">
-                <span data-bind="text: credit"></span>
-            </td>
-            <td style="text-align: right;">
-                <span data-bind="text: balance"></span>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="row" ng-app="app" ng-controller="Ctrl">
+    <div class="col-md-offset-1 col-md-10">
 
-@Html.Partial("_PagerPartial", "entries")
+        @if (!string.IsNullOrEmpty(alertText))
+        {
+            <div class="row">
+                <div class="col-sm-offset-4 col-sm-4 alert @alertStyle">
+                    <p class="text-center">
+                        @alertText
+                    </p>
+                </div>
+            </div>
+        }
+        @if (!pageViewModel.IsTeacher)
+        {
+            <div class="row">
+                <div class="col-sm-3">
+                    <a href="@Url.Action("AddMoney")" class="btn btn-primary">Add money to account</a>
+                </div>
+            </div>
+            <br />
+        }
+        
+        <table class="table table-bordered table-condensed">
+            <thead class="theme-red">
+                <tr>
+                    <th>Time</th>
+                    <th>Description</th>
+                    <th style="text-align: right;">Amount, USD</th>
+                    <th style="text-align: right;">Balance, USD</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="e in vm.entries">
+                    <td>
+                        {{e.observedTime | appDate}}
+                    </td>
+                    <td>
+                        {{e.description}}
+                    </td>
+                    <td style="text-align: right;">
+                        {{e.credit - e.debit}}
+                    </td>
+                    <td style="text-align: right;">
+                        {{e.balance | number:2}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <pagination class="pagination-sm" total-items="vm.totalCount" items-per-page="vm.limit" ng-model="vm.currentPage" ng-change="vm.getEntries()" max-size="10" boundary-links="true" rotate="false"></pagination>
+    </div>
+</div>
 
 @using (Html.BeginInstructionsContainer())
 {
     <li>Amounts are US dollars.</li>
 }
 
-@*<div data-bind="text: ko.toJSON($root.entries())"></div>*@
-
 @section BottomScripts {
     @Scripts.Render(
-"~/bundles/knockout",
-"~/bundles/ko-libs",
+"~/bundles/angular",
+"~/bundles/angular-bootstrap",
+"~/bundles/angular-libs",
 "~/bundles/ext-libs",
-"~/bundles/app",
-"~/App/Account/balance-vm.js"
+"~/bundles/app-utils",
+
+"~/App/Account/balance-app.js"
     )
 }

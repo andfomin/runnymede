@@ -15,6 +15,7 @@ module App.Utils {
     export function relationshipsApiUrl(path?: string) { return '/api/RelationshipsApi/' + (path || ''); };
     export function teachersApiUrl(path?: string) { return '/api/TeachersApi/' + (path || ''); };
     export function sessionsApiUrl(path?: string) { return '/api/SessionsApi/' + (path || ''); };
+    export function resourcesApiUrl(path?: string) { return '/api/ResourcesApi/' + (path || ''); };
 
 
     // Returns a Deffered object
@@ -89,7 +90,7 @@ module App.Utils {
         }
     }
 
-    export var dateTimeFormat = 'D MMM YYYY HH:mm';
+    export var dateTimeFormat = 'DD MMM YYYY HH:mm';
 
     function internalFormatDate(val: string, local: boolean): string {
         if (val && val.length > 0) {
@@ -151,8 +152,15 @@ module App.Utils {
     }
 
     // Find an array element satisfying the test. Pure JavaScript.
-    export function find(arr, test, ctx?) {
-        var result = null;
+    //export function find(arr, test, ctx?) {
+    //    var result = null;
+    //    arr.some(function (el, i) {
+    //        return test.call(ctx, el, i, arr) ? ((result = el), true) : false;
+    //    });
+    //    return result;
+    //}
+    export function find<T>(arr: T[], test: (el: T, i: number, arr: T[]) => boolean, ctx?: any) {
+        var result: T = null;
         arr.some(function (el, i) {
             return test.call(ctx, el, i, arr) ? ((result = el), true) : false;
         });
@@ -168,7 +176,7 @@ module App.Utils {
         logError(jqXHR.responseJSON, defaultMessage);
     }
 
-    export function logError(data: any, defaultMessage: any) {
+    export function logError(data: any, defaultMessage?: any) {
         var m = defaultMessage;
         if (data) {
             var em = data.exceptionMessage ? ('' + data.exceptionMessage) : '';

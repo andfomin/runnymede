@@ -16,6 +16,7 @@ namespace Runnymede.Website.Utils
     public class PayPalHelper
     {
         private const string PayPalAddress = "https://www.paypal.com/cgi-bin/webscr";
+        public const string PayPalUserNameHashSalt = "#Salt7B190B1B03B9#";
 
         public PayPalHelper()
         {
@@ -204,8 +205,22 @@ execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @Rece
             return pairs;
         }
 
-
-
+        /// <summary>
+        /// Protect userName from tampering with when sending form data to PayPal.
+        /// </summary>
+        public static string GetTimestampedUserName(string userName)
+        {
+            var timeText = DateTime.UtcNow.ToBinary().ToString("X"); // 16 chars
+            var textToHash = userName + timeText + PayPalUserNameHashSalt;
+            var bytesToHash = System.Text.Encoding.UTF8.GetBytes(textToHash);
+            var hash = System.Security.Cryptography.MD5.Create().ComputeHash(bytesToHash);
+            var hashText = new Guid(hash).ToString("N").ToUpper(); // 32 chars
+            var text = timeText + hashText;
+            var chunkSize = 24;
+            // 49 chars = 2 chunks * 24 chars + 1 separating space.
+            var chunkedText = string.Join(" ", Enumerable.Range(0, text.Length / chunkSize).Select(i => text.Substring(i * chunkSize, chunkSize)));
+            return chunkedText;
+        }
 
     }
 }

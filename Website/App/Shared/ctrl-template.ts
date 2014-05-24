@@ -2,7 +2,7 @@ module App._ {
 
     export class Ctrl {
 
-        static $inject = ['$scope', '$http'];
+        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
 
         constructor(
             private $scope: Utils.IScopeWithViewModel,

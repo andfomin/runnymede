@@ -2,36 +2,48 @@
     ViewBag.Title = "Reviews";
     ViewBag.NavItem = "Reviews";
 }
-<span data-bind="if: reviews().length === 0">You haven't done any reviews yet. Please go to the @Html.ActionLink("Requests", "Requests", "Reviews") page to pick up an exercise for reviewing.</span>
 
-<table class="table" data-bind="if: reviews().length > 0">
-    <thead>
-        <tr>
-            <th>Started</th>
-            <th>Finished</th>
-            <th>Reward</th>
-            <th>Exercise author</th>
-        </tr>
-    </thead>
-    <tbody data-bind="foreach: reviews">
-        <tr>
-            <td>
-                <a data-bind="text: startTime, attr: { href: editUrl() }"></a>
-            </td>
-            <td>
-                <span data-bind="text: finishTime"></span>
-            </td>
-            <td>
-                <span data-bind="text: formattedReward"></span>
-            </td>
-            <td>
-                <span data-bind="text: authorName"></span>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="row" ng-app="app" ng-cloak>
+    <div ng-controller="Ctrl">
+        <div ng-show="vm.isEmpty()">
+            <p class="text-center">
+                You haven't done any reviews yet. Please go to the @Html.ActionLink("Requests", "Requests", "Reviews") page to pick up an exercise for reviewing.            </p>
+            <br />&nbsp;
+        </div>
 
-@Html.Partial("_PagerPartial", "reviews")
+        <div class="col-md-offset-1 col-md-10" ng-hide="vm.isEmpty()">
+            <hr class="app-separator" />
+            <table id="reviewstable" class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Started</th>
+                        <th>Finished</th>
+                        <th style="text-align: right;">Reward</th>
+                        <th>Exercise author</th>
+                    </tr>
+                </thead>
+                <tbody ng-repeat="r in vm.reviews">
+                    <tr>
+                        <td>
+                            <a ng-href="{{App.Utils.reviewsUrl('edit/' + e.id)}}">{{r.startTime | appDateTime}}</a>                            
+                        </td>
+                        <td>
+                            {{r.finishTime | appDateTime}}
+                        </td>
+                        <td style="text-align: right;">
+                            {{r.reward | number:2}}
+                        </td>
+                        <td>
+                            {{r.authorName}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <pagination class="pagination-sm" total-items="vm.totalCount" items-per-page="vm.limit" ng-model="vm.currentPage" ng-change="vm.getReviews()" max-size="10" boundary-links="true" rotate="false"></pagination>
+        </div>
+    </div>
+</div>
 
 @using (Html.BeginInstructionsContainer())
 {
@@ -40,10 +52,11 @@
 
 @section BottomScripts {
     @Scripts.Render(
-//"~/bundles/jqueryui",
-"~/bundles/knockout",
-"~/bundles/ko-libs",
+"~/bundles/angular",
+"~/bundles/angular-bootstrap",
+"~/bundles/angular-libs",
 "~/bundles/ext-libs",
-"~/bundles/app",
-"~/App/Reviews/index-vm.js"
+"~/bundles/app-utils",
+
+"~/App/Reviews/index-app.js"
 )}

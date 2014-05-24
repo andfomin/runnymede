@@ -25,7 +25,7 @@ where E.UserId = @UserId
 order by E.CreateTime;
 ";
             var exercises = await DapperHelper.QueryResilientlyAsync<dynamic>(sql, new { UserId = this.GetUserId() });
-            ViewBag.ExercisesParamJson = ControllerHelper.SerializeAsJson(exercises);
+            ViewBag.ExercisesParamJson = LoggingUtils.SerializeAsJson(exercises);
             return View();
         }
 	}

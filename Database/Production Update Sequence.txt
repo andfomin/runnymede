@@ -1,6 +1,6 @@
 -- Copy database to the test database. (use master)
---CREATE DATABASE englcdb_test AS COPY OF englcdb;
---SELECT name, state, state_desc FROM sys.databases WHERE name = 'englcdb_test';
+--CREATE DATABASE englcdb_copy AS COPY OF englcdb;
+--SELECT name, state, state_desc FROM sys.databases WHERE name = 'englcdb_copy';
 
 -- Prepare manual SQL schema update scripts.
 

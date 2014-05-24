@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [dbo].[relMessages] (
     [Id]                   INT             IDENTITY (1, 1) NOT NULL,
     [Type]                 NCHAR (4)       NOT NULL,
-    [PostTime]             DATETIME2 (2)   NOT NULL,
+    [PostTime]             DATETIME2 (2)   CONSTRAINT [DF_relMessages_PostTime] DEFAULT (sysutcdatetime()) NOT NULL,
     [ReceiveTime]          DATETIME2 (2)   NULL,
     [SenderUserId]         INT             NOT NULL,
     [RecipientUserId]      INT             NOT NULL,
@@ -14,6 +14,8 @@
     CONSTRAINT [FK_relMessages_appUsers1] FOREIGN KEY ([RecipientUserId]) REFERENCES [dbo].[appUsers] ([Id]),
     CONSTRAINT [FK_relMessages_relMessageTypes] FOREIGN KEY ([Type]) REFERENCES [dbo].[relMessageTypes] ([Id])
 );
+
+
 
 
 

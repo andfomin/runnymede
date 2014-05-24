@@ -16,8 +16,8 @@
     "bower_installer"
   ],
   "dependencies": {
-    "angular": "~1.2.17",
-    "angular-bootstrap": "~0.10.0",
+    "angular": "~1.2.16",
+    "angular-bootstrap": "~0.11.0",
     "angular-bootstrap-datetimepicker": "latest",
     "angular-loading-bar": "~0.3.0",
     "angular-route": "~1.2.0",
@@ -33,40 +33,40 @@
     "toastr": "~2.0.0"
   },
   "resolutions": {
-    "angular": "~1.2.x",
+    "angular": "~1.2.16",
     "jquery": "~2.1.0"
   },
   "install": {
     "path": "bower_installer",
-    "sources" : {
-      "angular" : "bower_components/angular/angular.min.js",
+    "sources": {
+      "angular": "bower_components/angular/angular.min.js",
       "angular-bootstrap": "bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js",
-      "angular-loading-bar" : [
-          "bower_components/angular-loading-bar/build/loading-bar.min.css",
-          "bower_components/angular-loading-bar/build/loading-bar.min.js"
+      "angular-loading-bar": [
+        "bower_components/angular-loading-bar/build/loading-bar.min.css",
+        "bower_components/angular-loading-bar/build/loading-bar.min.js"
       ],
-      "angular-route" : "bower_components/angular-route/angular-route.min.js",
-      "bootstrap" : [
-          "bower_components/bootstrap/dist/js/bootstrap.min.js",
-          "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.eot",
-          "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.svg",
-          "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf",
-          "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff"
+      "angular-route": "bower_components/angular-route/angular-route.min.js",
+      "bootstrap": [
+        "bower_components/bootstrap/dist/js/bootstrap.min.js",
+        "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.eot",
+        "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.svg",
+        "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf",
+        "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff"
       ],
-      "bootstrap3-typeahead" : "bower_components/bootstrap3-typeahead/bootstrap3-typeahead.min.js", 
-      "fullcalendar" : "ver2-in-Content",
-      "jquery" : "bower_components/jquery/dist/jquery.min.js",
-      "jquery-ui" : "slider-in-Content",
-      "ko.datasource" : "bower_components/ko.datasource/ko.datasource.js",
-      "kolite" : [
-          "bower_components/kolite/knockout.command.js",
-          "bower_components/kolite/knockout.dirtyFlag.js"
+      "bootstrap3-typeahead": "bower_components/bootstrap3-typeahead/bootstrap3-typeahead.min.js",
+      "fullcalendar": "ver2-in-Content",
+      "jquery": "bower_components/jquery/dist/jquery.min.js",
+      "jquery-ui": "slider-in-Content",
+      "ko.datasource": "bower_components/ko.datasource/ko.datasource.js",
+      "kolite": [
+        "bower_components/kolite/knockout.command.js",
+        "bower_components/kolite/knockout.dirtyFlag.js"
       ],
       "moment": "bower_components/moment/min/moment.min.js",
       "ngUpload": "bower_components/ngUpload/ng-upload.min.js",
-      "toastr" : [
-          "bower_components/toastr/toastr.min.css",
-          "bower_components/toastr/toastr.min.js"
+      "toastr": [
+        "bower_components/toastr/toastr.min.css",
+        "bower_components/toastr/toastr.min.js"
       ]
     }
   }

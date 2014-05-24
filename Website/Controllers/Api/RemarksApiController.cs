@@ -99,20 +99,21 @@ select UserId from dbo.exeReviews where Id = @Id;
 
             if (userId != this.GetUserId())
             {
-                return BadRequest("UserId");
+                return BadRequest("User.");
             }
 
             var batchOperation = new TableBatchOperation();
 
             foreach (var remark in remarks)
             {
-                // Sanitize the CSV text in the tags field.
-                var tags = (string.IsNullOrWhiteSpace(remark.Tags) ? "" : remark.Tags)
-                        .Split(',')
-                        .Select(i => i.Trim())
-                        .Where(i => !string.IsNullOrWhiteSpace(i));
+                // We do not use tags separated by commas anymore. We use a keyword phrase.
+                //// Sanitize the CSV text in the tags field.
+                //var tags = (string.IsNullOrWhiteSpace(remark.Tags) ? "" : remark.Tags)
+                //        .Split(',')
+                //        .Select(i => i.Trim())
+                //        .Where(i => !string.IsNullOrWhiteSpace(i));
 
-                remark.Tags = tags.Count() > 0 ? string.Join(", ", tags) : null;
+                //remark.Tags = tags.Count() > 0 ? string.Join(", ", tags) : null;
 
                 var entity = new RemarkEntity
                 {
@@ -121,7 +122,7 @@ select UserId from dbo.exeReviews where Id = @Id;
                     Start = remark.Start,
                     Finish = remark.Finish,
                     Text = remark.Text,
-                    Tags = remark.Tags,
+                    Tags = remark.Tags.Trim(),
                 };
 
                 batchOperation.InsertOrReplace(entity);

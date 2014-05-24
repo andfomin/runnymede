@@ -29,6 +29,7 @@ module App.Account_Signup {
                     )
                     .success(() => {
                         // The user is logged in during signup automatically.
+                        // Please check your email and click the link provided to confirm your registration.
                         window.location.assign('/');
                     })
                     .error((data, status) => {

@@ -40,6 +40,7 @@
                             <li>@Html.ActionLink("IELTS", "Ielts", "Search", null, new { tabindex = "-1" })</li>
                         </ul>
                     </li>*@
+                <li class="@NavClass("Resources")">@Html.ActionLink("Resources", "Youtube", "Resources")</li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 @if (Request.IsAuthenticated)

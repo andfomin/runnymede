@@ -1,201 +1,384 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using Runnymede.Website.Models;
-using System;
-using System.Data.Entity.SqlServer;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Http;
+using System.Web.Mvc;
+using System.Xml.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Security.Principal;
+using Microsoft.AspNet.Identity;
+using System.Security.Claims;
+using Runnymede.Website.Models;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 
 namespace Runnymede.Website.Utils
 {
-    public class LoginHelper
+    public static class AccountUtils
     {
+        public const string KeeperCookieName = "keeper";
+        private const string CodeKey = "code";
+        private const string UserIdKey = "time"; // Originally "userId". Security through obscurity :(
+        private const string skip32Key = "yh5bvgCWew"; // Key must be 10 bytes long.
+        public const int AvatarLargeSize = 120;
+        public const int AvatarSmallSize = 36;
 
-        private ApplicationUserManager userManager;
-        private IAuthenticationManager authManager;
+        #region Identity utils
 
-        public LoginHelper(ApplicationUserManager userManager, IAuthenticationManager authManager)
+        public static int GetUserId(IIdentity identity)
         {
-            this.userManager = userManager;
-            this.authManager = authManager;
+            return Convert.ToInt32(identity.GetUserId()); // Extention method in Microsoft.AspNet.Identity
         }
 
-        public async Task<ApplicationUser> Signup(SignupBindingModel model, ExternalLoginInfo loginInfo, Guid keeper, Uri currentRequestUri)
+        public static string GetUserName(IIdentity identity)
         {
-            // Guid ExtId is used to avoid direct Id-to-icon realtionship and prevent a bad guy from downloading all user photos in bulk.
-            // Ideally extId is assigned the Keeper cookie value.
-            var extId = keeper != Guid.Empty ? keeper : Guid.NewGuid();
-
-            var user = await InternalSignup(model, loginInfo, extId);
-
-            var error = InspectErrorAfterSignup(user);
-            if (string.IsNullOrEmpty(error))
-            {
-                // We await here. Otherwise error: A second operation started on this context before a previous asynchronous operation completed. Use 'await' to ensure that any asynchronous operations have completed before calling another method on this context.
-                var confirmationToken = await this.userManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                // Send the confirmation link.
-                var taskEmail = SendConfirmationEmailAsync(user.Email, user.Id, confirmationToken, currentRequestUri);
-
-                // Sign in the user.
-                var taskSignin = Sigin(user, false);
-
-                // Create a large and a small identicons and save them into the blob storage. 
-                // Each icon consists of 6 x 6 blocks (5 blocks pattern + 2 x 1/2 margin). So sizes below are 6 x 20 = 120 and 6 x 6 = 36 pixels.
-                var taskAvatarLarge = AccountControllerUtils.CreateAndSaveIdenticonAsync(extId, AccountControllerUtils.AvatarLargeSize / 6, AzureStorageUtils.ContainerNames.AvatarsLarge);
-                var taskAvatarSmall = AccountControllerUtils.CreateAndSaveIdenticonAsync(extId, AccountControllerUtils.AvatarSmallSize / 6, AzureStorageUtils.ContainerNames.AvatarsSmall);
-
-                // Perform the long-running tasks in parallel.    
-                await Task.WhenAll(taskEmail, taskSignin, taskAvatarLarge, taskAvatarSmall);
-            }
-
-            return user;
+            return identity.GetUserName();
         }
 
-        private async Task<ApplicationUser> InternalSignup(SignupBindingModel model, ExternalLoginInfo loginInfo, Guid extId)
+        public static string GetUserDisplayName(IIdentity identity)
         {
-            IdentityResult result;
-            string email = null;
-            string name = null;
-            string password = null;
+            var claimsIdentity = identity as System.Security.Claims.ClaimsIdentity;
+            return claimsIdentity != null ? claimsIdentity.FindFirstValue(AppClaimTypes.DisplayName) : null; // FindFirstValue() returns null if not found.
+        }
 
-            // ExternalLoginInfo comes from an external authentication provider, i.e. Facebook or Google.
-            if (loginInfo != null)
+        public static bool GetUserIsTeacher(IIdentity identity)
+        {
+            var claimsIdentity = identity as System.Security.Claims.ClaimsIdentity;
+            return (claimsIdentity != null) && claimsIdentity.HasClaim(i => i.Type == AppClaimTypes.IsTeacher);
+        }
+
+        public static string PlainErrorMessage(this IdentityResult result, string defaultErrorMessage = null)
+        {
+            return result.Succeeded
+                    ? null
+                    : result.Errors != null ? string.Join("\n", result.Errors) : defaultErrorMessage;
+        }
+
+        #endregion
+
+        #region Controller extension methods
+
+        public static int GetUserId(this Controller controller)
+        {
+            return GetUserId(controller.User.Identity);
+        }
+
+        public static string GetUserDisplayName(this Controller controller)
+        {
+            return GetUserDisplayName(controller.User.Identity);
+        }
+
+        public static bool GetUserIsTeacher(this Controller controller)
+        {
+            return GetUserIsTeacher(controller.User.Identity);
+        }
+
+        #endregion
+
+        #region ApiController extension methods
+
+        public static int GetUserId(this ApiController controller)
+        {
+            return GetUserId(controller.RequestContext.Principal.Identity);
+        }
+
+        public static string GetUserName(this ApiController controller)
+        {
+            return GetUserName(controller.RequestContext.Principal.Identity);
+        }
+
+        public static string GetUserDisplayName(this ApiController controller)
+        {
+            return GetUserDisplayName(controller.RequestContext.Principal.Identity);
+        }
+
+        public static bool GetUserIsTeacher(this ApiController controller)
+        {
+            return GetUserIsTeacher(controller.RequestContext.Principal.Identity);
+        }
+
+        #endregion
+
+        #region Confirmation mail utils
+
+        public static string GetCodeFromRequest(HttpRequestBase request)
+        {
+            return request.QueryString[CodeKey];
+        }
+
+        public static int GetUserIdFromRequest(HttpRequestBase request)
+        {
+            var queryStringValue = HttpUtility.UrlDecode(request.QueryString[UserIdKey]);
+            return GetUserIdFromQueryStringValue(queryStringValue);
+        }
+
+        public static string GetMailLinkQueryString(string code, int userId)
+        {
+            // 32-bit block cipher. +https://github.com/eleven41/Eleven41.Skip32
+            var cipher = new Eleven41.Skip32.Skip32Cipher(Encoding.ASCII.GetBytes(skip32Key));
+            var encrypted = cipher.Encrypt(userId);
+            // Convert to UInt32 to avoid a sign.
+            var bytes = BitConverter.GetBytes(encrypted);
+            var unsigned = BitConverter.ToUInt32(bytes, 0);
+            var encryptedString = unsigned.ToString();
+            return CodeKey + "=" + HttpUtility.UrlEncode(code) + "&" + UserIdKey + "=" + HttpUtility.UrlEncode(encryptedString);
+        }
+
+        public static int GetUserIdFromQueryStringValue(string queryStringValue)
+        {
+            uint unsigned;
+            if (UInt32.TryParse(queryStringValue, out unsigned))
             {
-                email = loginInfo.Email;
-                name = loginInfo.ExternalIdentity.Name;
+                var bytes = BitConverter.GetBytes(unsigned);
+                var encrypted = BitConverter.ToInt32(bytes, 0);
+                var cipher = new Eleven41.Skip32.Skip32Cipher(Encoding.ASCII.GetBytes(skip32Key));
+                return cipher.Decrypt(encrypted);
             }
-            // SignupBindingModel comes filled out manually by the user. Override values from the external service with the manually entered values.
-            if (model != null)
+            else
+                return 0;
+        }
+
+
+        #endregion
+
+        #region Keeper cookie utils
+
+        public static async Task EnsureKeeperCookieAsync(this Controller controller)
+        {
+            var request = controller.Request;
+
+            if (request.Browser.Crawler)
+                return;
+
+            if (!request.Cookies.AllKeys.Contains(KeeperCookieName))
             {
-                email = model.Email;
-                name = model.Name;
-                password = model.Password;
+                // Set the Keeper cookie
+                var value = Guid.NewGuid().ToString("N").ToUpper();
+                var cookie = new HttpCookie(KeeperCookieName, value);
+                cookie.Expires = DateTime.UtcNow.AddYears(1);
+                controller.Response.Cookies.Add(cookie);
+
+                // Log the contact.
+                var referer = request.UrlReferrer != null ? request.UrlReferrer.AbsoluteUri : null;
+                var languages = request.UserLanguages ?? Enumerable.Empty<string>();
+
+                var logData =
+                    new XElement("LogData",
+                        new XElement("Kind", LoggingUtils.Kind.Referer),
+                        new XElement("Time", DateTime.UtcNow),
+                        new XElement("Keeper", value),
+                        new XElement("RefererUrl", referer),
+                        new XElement("Host", request.UserHostAddress),
+                        new XElement("UserAgent", request.UserAgent),
+                        new XElement("UserLanguages",
+                            from language in languages
+                            select new XElement("Language", language)
+                        )
+                    )
+                    .ToString(SaveOptions.DisableFormatting);
+
+                await LoggingUtils.WriteKeeperLogAsync(logData);
+            }
+        }
+
+        public static Guid GetKeeper(this Controller controller)
+        {
+            var requestCookies = controller.Request.Cookies;
+            var responseCookies = controller.Response.Cookies;
+            var cookies = requestCookies.AllKeys.Contains(KeeperCookieName)
+                ? requestCookies
+                : (
+                    responseCookies.AllKeys.Contains(KeeperCookieName)
+                    ? responseCookies
+                    : null
+                );
+            //Not Guid.TryParseExact(keeperCookieValue, "N", out keeper); If input is null, it does not throw an exception, but outputs Guid.Empty.
+            return cookies != null ? new Guid(cookies[KeeperCookieName].Value) : Guid.Empty;
+        }
+
+        public static Guid GetKeeper(this ApiController controller)
+        {
+            var cookies = controller.Request.Headers.GetCookies(KeeperCookieName).FirstOrDefault();
+            var cookie = cookies != null ? cookies.Cookies.FirstOrDefault() : null;
+            return cookie != null ? new Guid(cookie.Value) : Guid.Empty;
+        }
+
+        #endregion
+
+        #region Identicon utils
+
+        // +http://labs.astrobunny.net/blog/2011/11/22/making-color-from-alpha-hue-saturation-and-brightness/
+        private static Color ColorFromAhsb(int a, float h, float s, float b)
+        {
+
+            if (0 > a || 255 < a)
+            {
+                throw new ArgumentOutOfRangeException("a");
+            }
+            if (0f > h || 360f < h)
+            {
+                throw new ArgumentOutOfRangeException("h");
+            }
+            if (0f > s || 1f < s)
+            {
+                throw new ArgumentOutOfRangeException("s");
+            }
+            if (0f > b || 1f < b)
+            {
+                throw new ArgumentOutOfRangeException("b");
             }
 
-            if ((string.IsNullOrEmpty(password) && loginInfo == null) || (extId == Guid.Empty))
+            if (0 == s)
             {
-                throw new ArgumentNullException();
+                return Color.FromArgb(a, Convert.ToInt32(b * 255),
+                    Convert.ToInt32(b * 255), Convert.ToInt32(b * 255));
             }
 
-            var user = new ApplicationUser
+            float fMax, fMid, fMin;
+            int iSextant, iMax, iMid, iMin;
+
+            if (0.5 < b)
             {
-                UserName = email,
-                Email = email,
-            };
+                fMax = b - (b * s) + s;
+                fMin = b + (b * s) - s;
+            }
+            else
+            {
+                fMax = b + (b * s);
+                fMin = b - (b * s);
+            }
 
-            var displayName = CoalesceDisplayName(name);
+            iSextant = (int)Math.Floor(h / 60f);
+            if (300f <= h)
+            {
+                h -= 360f;
+            }
+            h /= 60f;
+            h -= 2f * (float)Math.Floor(((iSextant + 1f) % 6f) / 2f);
+            if (0 == iSextant % 2)
+            {
+                fMid = h * (fMax - fMin) + fMin;
+            }
+            else
+            {
+                fMid = fMin - h * (fMax - fMin);
+            }
 
-            // The internal Connection Resiliency strategy does not work with user-initiated transactions.
-            // The workaround is described in "Limitations with Retrying Execution Strategies" +http://msdn.microsoft.com/en-us/data/dn307226.aspx
-            AppDbConfiguration.SuspendExecutionStrategy = true; // try-finally is not needed. The value is stored per request.
+            iMax = Convert.ToInt32(fMax * 255);
+            iMid = Convert.ToInt32(fMid * 255);
+            iMin = Convert.ToInt32(fMin * 255);
 
-            var executionStrategy = new SqlAzureExecutionStrategy();
+            switch (iSextant)
+            {
+                case 1:
+                    return Color.FromArgb(a, iMid, iMax, iMin);
+                case 2:
+                    return Color.FromArgb(a, iMin, iMax, iMid);
+                case 3:
+                    return Color.FromArgb(a, iMin, iMid, iMax);
+                case 4:
+                    return Color.FromArgb(a, iMid, iMin, iMax);
+                case 5:
+                    return Color.FromArgb(a, iMax, iMin, iMid);
+                default:
+                    return Color.FromArgb(a, iMax, iMid, iMin);
+            }
+        } // end of ColorFromAhsb()
 
-            await executionStrategy.Execute(
-                async () =>
+        /// <summary>
+        /// Creates a square identicon.
+        /// </summary>
+        /// <param name="seed">Seed</param>
+        /// <param name="stream">Output</param>
+        /// <param name="blockSize">The size of blocks in pixels. Total 6 blocks.</param>
+        private static void CreateIdenticon(Guid seed, Stream stream, int blockSize) // Total 6 blocks. 20 x 6 = 120; 8 x 6 = 48
+        {
+            int size = 5; // blocks
+            var bitmapSize = (size + 1) * blockSize; // pixels
+            var offset = blockSize / 2; // pixels
+
+            byte grayValue = 0xf0;
+            Color bgColor = Color.FromArgb(255, grayValue, grayValue, grayValue);
+
+            int hue = Math.Abs(seed.GetHashCode()) % 360;
+            var color = ColorFromAhsb(255, hue, 1, 0.4f);
+
+            var byteArr = seed.ToByteArray();
+            var arrLength = byteArr.Length;
+
+            using (var bitmap = new System.Drawing.Bitmap(bitmapSize, bitmapSize))
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                using (var bgBrush = new SolidBrush(bgColor))
                 {
-                    // We do not use this.userManager within the Connection Resiliency block.
-                    // The DbContext should be constructed within the code block to be retried. This ensures that we are starting with a clean state for each retry.
-                    var dbContext = new ApplicationDbContext();
-                    using (var userManager = new ApplicationUserManager(new CustomUserStore(dbContext)))
+                    graphics.FillRectangle(bgBrush, 0, 0, bitmapSize, bitmapSize);
+                }
+
+                using (var brush = new SolidBrush(color))
+                {
+                    for (var x = 0; x < size / 2 + 1; x++)
                     {
-                        // Reuse the original validators.
-                        userManager.UserValidator = this.userManager.UserValidator;
-                        userManager.PasswordValidator = this.userManager.PasswordValidator;
-
-                        using (var transaction = dbContext.Database.BeginTransaction())
+                        for (var y = 0; y < size; y++)
                         {
-                            // First phase. Create an ASP.NET Identity user.
-                            result = string.IsNullOrWhiteSpace(password)
-                                ? await this.userManager.CreateAsync(user)
-                                : await this.userManager.CreateAsync(user, password);
+                            var i = x * size + y;
+                            var fill = byteArr[i % 16] < 128;
 
-                            if (result.Succeeded && loginInfo != null)
+                            // We may "humanize" the icon look by sacrificing collisions durability.
+                            //if (false)
+                            //{
+                            //    if ((x == 0) && (y == 0))
+                            //        fill = false; // shoulders
+                            //    if ((x == size / 2) && (y == 0))
+                            //        fill = true; // head
+                            //    if ((x == size / 2) && (y == size / 2))
+                            //        fill = true; // body
+                            //    if ((x == size / 2) && (y == size - 1))
+                            //        fill = false; // split feet
+                            //}
+
+                            if (fill)
                             {
-                                result = await this.userManager.AddLoginAsync(user.Id, loginInfo.Login);
-                            }
-
-                            if (result.Succeeded)
-                            {
-                                // Second phase. dbo.appUsers and accounting. user.Id is auto-generated in dbo.aspnetUsers.
-                                await dbContext.Database.ExecuteSqlCommandAsync(
-                                    "execute dbo.appCreateUserAndAccounts @UserId = @p0, @DisplayName = @p1, @ExtId = @p2",
-                                    user.Id, displayName, extId);
-
-                                transaction.Commit();
-                            }
-                            else
-                            {
-                                transaction.Rollback();
-
-                                // A hack to report the error to the caller method. See InspectErrorAfterSignup().
-                                user.Id = 0;
-                                var dummyClaim = new CustomUserClaim
-                                {
-                                    ClaimType = ClaimTypes.UserData,
-                                    ClaimValue = result.PlainErrorMessage("Signup failed.")
-                                };
-                                user.Claims.Add(dummyClaim);
+                                Rectangle rect1 = new Rectangle(offset + x * blockSize, offset + y * blockSize, blockSize, blockSize);
+                                graphics.FillRectangle(brush, rect1);
+                                // make it horizontally symmetrical
+                                Rectangle rect2 = new Rectangle(offset + (size - x - 1) * blockSize, offset + y * blockSize, blockSize, blockSize);
+                                graphics.FillRectangle(brush, rect2);
                             }
                         }
                     }
-                });
+                }
 
-            AppDbConfiguration.SuspendExecutionStrategy = false;
-
-            return user;
-        }
-
-        /// <summary>
-        /// Uses a hack to transfer an error message from the Signup() method. Async methods do not allow out params.
-        /// </summary>
-        /// <param name="user">The user object returned by Signup() </param>
-        /// <returns></returns>
-        public string InspectErrorAfterSignup(ApplicationUser user)
-        {
-            string result = null;
-            if (user != null && user.Id == 0 && user.Claims.Count > 0)
-            {
-                result = user.Claims
-                    .Where(i => i.ClaimType == ClaimTypes.UserData)
-                    .Select(i => i.ClaimValue)
-                    .SingleOrDefault();
-            }
-            return result;
-        }
-
-        public async Task Sigin(ApplicationUser user, bool isPersistent)
-        {
-            // Clear any partial cookies from external sign ins
-            this.authManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-            var userIdentity = await user.GenerateUserIdentityAsync(this.userManager);
-            this.authManager.SignIn(new AuthenticationProperties { IsPersistent = isPersistent }, userIdentity);
-        }
-
-        /// <summary>
-        /// Send the confirmation link.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="currentRequestUri">Used to determine the server address where the link should point</param>
-        /// <returns></returns>
-        public async Task SendConfirmationEmailAsync(string email, int userId, string confirmationToken, Uri currentRequestUri)
-        {
-            // There is no approved solution for "fire-and-forget" in ASP.NET. The proper solution is to place a request into a reliable queue (such as Azure Queue). See +http://blog.stephencleary.com/2012/12/returning-early-from-aspnet-requests.html
-            if (string.IsNullOrEmpty(email))
-            {
-                var queryString = IdentityHelper.GetMailLinkQueryString(confirmationToken, userId);
-                var host = currentRequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
-                var link = "http://" + host + "/account/confirm-email?" + queryString;
-                await EmailUtils.SendConfirmationEmailAsync(email, link);
+                if (stream != null)
+                {
+                    bitmap.Save(stream, ImageFormat.Png);
+                }
             }
         }
 
-        public static string CoalesceDisplayName(string name)
+        /// <summary>
+        /// A fire-and-forget method because it is async void.
+        /// </summary>
+        /// <param name="extId">Seed</param>
+        /// <param name="blockSize">The size of blocks in pixels. Total 6 blocks.</param>
+        /// <param name="containerName"></param>
+        public static async Task CreateAndSaveIdenticonAsync(Guid extId, int blockSize, string containerName)
         {
-            return string.IsNullOrWhiteSpace(name) ? "Anonymous" : name.Trim();
+            var blobName = extId.ToString().ToUpper();
+
+            using (var stream = new MemoryStream())
+            {
+                CreateIdenticon(extId, stream, blockSize);
+                await AzureStorageUtils.UploadBlobAsync(stream, containerName, blobName, "image/png");
+            }
         }
+
+        #endregion
+
+
 
     }
 }

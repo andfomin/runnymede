@@ -4,7 +4,7 @@
     [PasswordHash]         NVARCHAR (MAX) NULL,
     [SecurityStamp]        NVARCHAR (MAX) NULL,
     [Email]                NVARCHAR (200) NULL,
-    [EmailConfirmed]       BIT            CONSTRAINT [DF_aspnetUsers_IsConfirmed] DEFAULT ((0)) NOT NULL,
+    [EmailConfirmed]       BIT            CONSTRAINT [DF_aspnetUsers_EmailConfirmed] DEFAULT ((0)) NOT NULL,
     [PhoneNumber]          NVARCHAR (100) NULL,
     [PhoneNumberConfirmed] BIT            CONSTRAINT [DF_aspnetUsers_PhoneNumberConfirmed] DEFAULT ((0)) NOT NULL,
     [TwoFactorEnabled]     BIT            CONSTRAINT [DF_aspnetUsers_TwoFactorEnabled] DEFAULT ((0)) NOT NULL,

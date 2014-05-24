@@ -125,7 +125,6 @@
     <Build Include="Stored Procedures\accTransferMoney.sql" />
     <Build Include="Stored Procedures\accMakePaymentToTeacher.sql" />
     <Build Include="Stored Procedures\accFinishReview.sql" />
-    <Build Include="Tables\relLearnersOnSkype.sql" />
     <Build Include="Functions\relGetTeachers.sql" />
     <Build Include="Functions\relGetTeacherLearners.sql" />
     <Build Include="Functions\relGetLearnersOnSkype.sql" />
@@ -134,23 +133,17 @@
     <Build Include="Functions\relGetSkypeDirectory.sql" />
     <Build Include="Stored Procedures\relJoinSkypeDirectory.sql" />
     <Build Include="Stored Procedures\sysAssignTeacherStatus.sql" />
-    <Build Include="Stored Procedures\relCreatePeriodOfAvailability.sql" />
     <Build Include="Stored Procedures\exeTryChangeExerciseAuthor.sql" />
     <Build Include="Stored Procedures\exeCreateUploadedReview.sql" />
     <Build Include="Tables\relScheduleEventTypes.sql" />
     <Build Include="Tables\relScheduleEvents.sql" />
-    <Build Include="Stored Procedures\relCreateSession.sql" />
-    <Build Include="Stored Procedures\relCreateSessionRequest.sql" />
-    <Build Include="Stored Procedures\relCancelSessionRequest.sql" />
     <Build Include="Tables\relMessageTypes.sql" />
     <Build Include="Tables\relMessages.sql" />
     <Build Include="Tables\relMessageAttributeTypes.sql" />
-    <Build Include="Stored Procedures\relCancelPeriodOfAvailability.sql" />
     <Build Include="Stored Procedures\relPostMessage.sql" />
     <Build Include="Stored Procedures\relRevokeSessionOffer.sql" />
     <Build Include="Stored Procedures\relOfferSession.sql" />
     <Build Include="Stored Procedures\relGetSessionDetails.sql" />
-    <Build Include="Stored Procedures\relDeclineSessionRequest.sql" />
     <Build Include="Stored Procedures\relConfirmSession.sql" />
     <Build Include="Stored Procedures\relCancelSession.sql" />
     <Build Include="Stored Procedures\relRequestSession.sql" />
@@ -160,6 +153,12 @@
     <Build Include="Stored Procedures\relDisputeSession.sql" />
     <Build Include="Stored Procedures\relGetSessionMessageCount.sql" />
     <Build Include="Functions\appExtIdToUrl.sql" />
+    <Build Include="Tables\resResourceTypes.sql" />
+    <Build Include="Tables\resResources.sql" />
+    <Build Include="Tables\appReferenceLevels.sql" />
+    <Build Include="Tables\resMediaTypes.sql" />
+    <Build Include="Tables\resCoreInventory.sql" />
+    <Build Include="Tables\resBrands.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />

@@ -11,6 +11,8 @@ module App.Utils {
         public static $log = '$log';
         public static $filter = '$filter';
         public static $rootScope = '$rootScope';
+        public static $timeout = '$timeout';
+        public static $interval = '$interval'; // Intervals created by this service must be explicitly destroyed. See the example in the docs.
         // ngRoute 
         public static $route = '$route';
         public static $routeParams = '$routeParams';
@@ -25,6 +27,71 @@ module App.Utils {
         pageTitle: string;
         isClockWrong: boolean;
     }
+
+    export class CustomModal {
+
+        executing: boolean = false;
+
+        internalOk: () => ng.IPromise<any> = null; // Override in descendand classes.
+
+        /* +http://www.typescriptlang.org/Content/TypeScript%20Language%20Specification.pdf  Section 8.2.3
+        *  Base class static property members can be overridden by derived class static property members of any kind as long as the types are compatible, as described above. */
+        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http, App.Utils.ngNames.$modalInstance, 'modalParams'];
+
+        constructor(
+            public $scope: App.Utils.IScopeWithViewModel,
+            public $http: ng.IHttpService,
+            public $modalInstance: ng.ui.bootstrap.IModalServiceInstance,
+            public modalParams: any
+            ) {
+            $scope.vm = this;
+        } // ctor
+
+        ok = () => {
+            if (this.internalOk) {
+                this.executing = true;
+                this.internalOk()
+                    .then<void>(
+                    () => { this.$modalInstance.close(); },
+                    App.Utils.logError
+                    )
+                    .finally(() => { this.executing = false; });
+            }
+            else {
+                this.$modalInstance.close();
+            }
+        }
+
+        cancel = () => {
+            this.$modalInstance.dismiss('cancel');
+        };
+
+        /**
+         * The successCallback parameter should be passed with the lambda syntax, otherwise the _this will be lost.
+         */
+        public static openModal(
+            $modal: ng.ui.bootstrap.IModalService,
+            templateUrl: string,
+            controller: any,
+            modalParams: any,
+            successCallback: () => void 
+            ) {
+            var modalInstance = $modal.open({
+                templateUrl: templateUrl,
+                controller: controller,
+                resolve: {
+                    modalParams: () => {
+                        return modalParams;
+                    }
+                }
+            });
+            modalInstance.result.then(
+                () => { successCallback(); },
+                null
+                );
+            return modalInstance;
+        }
+    }; // end of class CustomModal
 
     export function useRouteTitle(app: ng.IModule) {
         app.run([ngNames.$rootScope, function ($rootScope: IAppRootScopeService) {
@@ -70,7 +137,7 @@ module App.Utils {
     }
 
     export function ngHttpPost(http: ng.IHttpService, url: string, data: any, successCallback: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
-        http.post(url, data)
+        return http.post(url, data)
             .success(successCallback)
             .error(App.Utils.logError)
             .finally(finallyCallback);
@@ -101,65 +168,80 @@ module App.Utils {
     }
 
     // Source: book AngularJS of O'Reilly. +http://proquestcombo.safaribooksonline.com.ezproxy.torontopubliclibrary.ca/book/programming/javascript/9781449355852/8dot-cheatsheet-and-recipes/chapter_8_pagination_html
-    export function PaginatorFactory() {
-        // Despite being a factory, the user of the service gets a new
-        // Paginator every time he calls the service. This is because
-        // we return a function that provides an object when executed
-        // The fetchFunction function expects the following signature: fetchFunction(offset, limit, callback); When the data is available, the fetch function needs to call the callback function with it.
-        /* 
-        <a href="" ng-click="searchPaginator.previous()" ng-show="searchPaginator.hasPrevious()">&lt;&lt; Prev</a>
-        <a href="" ng-click="searchPaginator.next()" ng-show="searchPaginator.hasNext()">Next &gt;&gt;</a> 
-        */
+    ////export function PaginatorFactory() {
+    ////    // Despite being a factory, the user of the service gets a new
+    ////    // Paginator every time he calls the service. This is because
+    ////    // we return a function that provides an object when executed
+    ////    // The fetchFunction function expects the following signature: fetchFunction(offset, limit, callback); When the data is available, the fetch function needs to call the callback function with it.
+    ////    /* 
+    ////    <a href="" ng-click="searchPaginator.previous()" ng-show="searchPaginator.hasPrevious()">&lt;&lt; Prev</a>
+    ////    <a href="" ng-click="searchPaginator.next()" ng-show="searchPaginator.hasNext()">Next &gt;&gt;</a> 
+    ////    */
 
-        return function (fetchFunction, pageSize) {
-            var paginator = {
-                hasNextVar: false,
-                next: function () {
-                    if (this.hasNextVar) {
-                        this.currentOffset += pageSize;
-                        this._load();
-                    }
-                },
-                _load: function () {
-                    var self = this;
-                    fetchFunction(this.currentOffset, pageSize + 1, function (items) {
-                        self.currentPageItems = items.slice(0, pageSize);
-                        self.hasNextVar = items.length === pageSize + 1;
-                    });
-                },
-                hasNext: function () {
-                    return this.hasNextVar;
-                },
-                previous: function () {
-                    if (this.hasPrevious()) {
-                        this.currentOffset -= pageSize;
-                        this._load();
-                    }
-                },
-                hasPrevious: function () {
-                    return this.currentOffset !== 0;
-                },
-                currentPageItems: [],
-                currentOffset: 0
-            };
+    ////    return function (fetchFunction, pageSize) {
+    ////        var paginator = {
+    ////            hasNextVar: false,
+    ////            next: function () {
+    ////                if (this.hasNextVar) {
+    ////                    this.currentOffset += pageSize;
+    ////                    this._load();
+    ////                }
+    ////            },
+    ////            _load: function () {
+    ////                var self = this;
+    ////                fetchFunction(this.currentOffset, pageSize + 1, function (items) {
+    ////                    self.currentPageItems = items.slice(0, pageSize);
+    ////                    self.hasNextVar = items.length === pageSize + 1;
+    ////                });
+    ////            },
+    ////            hasNext: function () {
+    ////                return this.hasNextVar;
+    ////            },
+    ////            previous: function () {
+    ////                if (this.hasPrevious()) {
+    ////                    this.currentOffset -= pageSize;
+    ////                    this._load();
+    ////                }
+    ////            },
+    ////            hasPrevious: function () {
+    ////                return this.currentOffset !== 0;
+    ////            },
+    ////            currentPageItems: [],
+    ////            currentOffset: 0
+    ////        };
 
-            // Load the first page
-            paginator._load();
-            return paginator;
-        };
-    } // end of PaginatorFactory
+    ////        // Load the first page
+    ////        paginator._load();
+    ////        return paginator;
+    ////    };
+    ////} // end of PaginatorFactory
 
     // We inject the $filter service to be able to call the standard filter internally.
     export function AppDateFilterFactory($filter) {
-        return (date) => {
+        return (date: Date) => {
             var f = $filter('date'); // The standard filter.
-            return f(date, 'fullDate') + ' ' + f(date, 'shortTime');
+            return angular.isDefined(date) ? (f(date, 'fullDate') + ' ' + f(date, 'shortTime')) : null;
+        }
+    }
+
+    export function AppDateTimeFilterFactory($filter) {
+        return (date: Date) => {
+            return angular.isDefined(date) ? moment(date).format(App.Utils.dateTimeFormat) : null;
+        }
+    }
+
+    // Format exercise length from milliseconds to min:sec
+    export function AppMsecToMinSecFilterFactory() {
+        return (valMsec: number) => {
+            return App.Utils.formatMsec(valMsec);
         }
     }
 
 } // end of module App.Utils
 
 var appUtilsNg = angular.module('AppUtilsNg', []);
-appUtilsNg.factory('Paginator', App.Utils.PaginatorFactory);
+////appUtilsNg.factory('Paginator', App.Utils.PaginatorFactory);
 appUtilsNg.filter('appDate', [App.Utils.ngNames.$filter, App.Utils.AppDateFilterFactory]);
+appUtilsNg.filter('appDateTime', [App.Utils.ngNames.$filter, App.Utils.AppDateTimeFilterFactory]);
+appUtilsNg.filter('appMsecToMinSec', [App.Utils.AppMsecToMinSecFilterFactory]);
 

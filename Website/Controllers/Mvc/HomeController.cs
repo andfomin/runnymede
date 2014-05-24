@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using Runnymede.Website.Utils;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
     public class HomeController : Runnymede.Website.Utils.CustomController
     {
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            EnsureKeeperCookie();
+            await this.EnsureKeeperCookieAsync();
 
             return View();
 

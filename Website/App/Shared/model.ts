@@ -37,6 +37,16 @@ module App.Model {
         formattedLength: string;
     }
 
+    export interface IExercise2 {
+        id: number;
+        createTime: string;
+        typeId: string;
+        artefactId: string;
+        title: string;
+        length: number;
+        reviews: IReview2[];
+    }
+
     export interface IReview {
         id: number;
         exerciseId: number;
@@ -48,6 +58,17 @@ module App.Model {
         //reward: number;
         // Non-persisted
         formattedReward: string;
+    }
+
+    export interface IReview2 {
+        id: number;
+        exerciseId: number;
+        requestTime: Date;
+        cancelTime: Date;
+        startTime: Date;
+        finishTime: Date;
+        authorName: string;
+        reward: number;
     }
 
     export interface IRemark {

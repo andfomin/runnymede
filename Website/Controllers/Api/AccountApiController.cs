@@ -28,11 +28,7 @@ namespace Runnymede.Website.Controllers.Api
         {
             get
             {
-                if (owinUserManager == null)
-                {
-                    owinUserManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
-                }
-                return owinUserManager;
+                return owinUserManager ?? (owinUserManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>());
             }
         }
 
@@ -41,11 +37,7 @@ namespace Runnymede.Website.Controllers.Api
         {
             get
             {
-                if (owinAuthenticationManager == null)
-                {
-                    owinAuthenticationManager = Request.GetOwinContext().Authentication;
-                }
-                return owinAuthenticationManager;
+                return owinAuthenticationManager ?? (owinAuthenticationManager = Request.GetOwinContext().Authentication);
             }
         }
 
@@ -91,6 +83,23 @@ namespace Runnymede.Website.Controllers.Api
             await new LoginHelper(OwinUserManager, OwinAuthenticationManager).Sigin(user, persistent);
 
             return StatusCode(HttpStatusCode.NoContent);
+
+            /*
+            Just in case. In the opposite case of token/bearer authentication. How to pass custom values to the OWIN middleware.             
+            data: {
+                grant_type: 'password',
+                userName: userName,
+                password: password,
+                scope: persistent ? 'persistent_cookie' : 'session_cookie', // Pass our custom value. Scope may be a list of values separated by spaces.
+            },               
+            public override void GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
+            {
+                // AF. A hack to enable the option of session or persistent cookies. We piggy-back the request and pass our custom value. Scope may be sent as a list of values separated by spaces.
+                var isPersistent = context.Scope.Any(i => i == "persistent_cookie");             
+            }               
+            */
+
+
         }
 
         // GET api/AccountApi/PersonalProfile
@@ -309,7 +318,7 @@ where U.Id = @Id;
             if (result.Succeeded)
             {
                 var confirmationToken = await OwinUserManager.GenerateEmailConfirmationTokenAsync(userId);
-                var queryString = IdentityHelper.GetMailLinkQueryString(confirmationToken, userId);
+                var queryString = AccountUtils.GetMailLinkQueryString(confirmationToken, userId);
                 var host = Request.RequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
                 var link = "http://" + host + "/account/confirm-email?" + queryString;
                 await EmailUtils.SendVerificationEmailAsync(email, link);
@@ -336,7 +345,7 @@ where U.Id = @Id;
                     {
                         // Send the link.
                         var token = await OwinUserManager.GeneratePasswordResetTokenAsync(user.Id);
-                        var queryString = IdentityHelper.GetMailLinkQueryString(token, user.Id);
+                        var queryString = AccountUtils.GetMailLinkQueryString(token, user.Id);
                         var host = Request.RequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
                         var link = "https://" + host + "/account/reset-password?" + queryString;
                         await this.SendPasswordResetEmailAsync(email, link);
@@ -353,7 +362,7 @@ where U.Id = @Id;
         public async Task<IHttpActionResult> PostReset([FromUri] string code, [FromUri] string time, [FromBody] JObject value)
         {
             //string code = IdentityHelper.GetCodeFromRequest(Request);
-            int userId = IdentityHelper.GetUserIdFromQueryStringValue(time);
+            int userId = AccountUtils.GetUserIdFromQueryStringValue(time);
             if (string.IsNullOrEmpty(code) || userId == 0)
             {
                 return BadRequest();
