@@ -2359,8 +2359,8 @@ input[type="button"].btn-block {
 }
 @font-face {
   font-family: 'Glyphicons Halflings';
-  src: url('../bower_installer/bootstrap/glyphicons-halflings-regular.eot');
-  src: url('../bower_installer/bootstrap/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../bower_installer/bootstrap/glyphicons-halflings-regular.woff') format('woff'), url('../bower_installer/bootstrap/glyphicons-halflings-regular.ttf') format('truetype'), url('../bower_installer/bootstrap/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+  src: url('../bower_installer/bootstrapglyphicons-halflings-regular.eot');
+  src: url('../bower_installer/bootstrapglyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../bower_installer/bootstrapglyphicons-halflings-regular.woff') format('woff'), url('../bower_installer/bootstrapglyphicons-halflings-regular.ttf') format('truetype'), url('../bower_installer/bootstrapglyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
 }
 .glyphicon {
   position: relative;
