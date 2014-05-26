@@ -18,7 +18,7 @@ namespace Runnymede.Website
         public void ConfigureAuth(IAppBuilder app)
         {
             // Configure the db context, user manager and role manager to use a single instance per request
-            app.CreatePerOwinContext<ApplicationDbContext>(ApplicationDbContext.Create);
+            app.CreatePerOwinContext<ApplicationDbContext>(ApplicationDbContext.Create); // The bad thing is that it is called on EVERY request.
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
             //app.CreatePerOwinContext<ApplicationRoleManager>(ApplicationRoleManager.Create); // We don't use user roles. We use exclusively custom claims.
 
@@ -46,10 +46,10 @@ namespace Runnymede.Website
                 {
                     // Enables the application to validate the security stamp when the user logs in.
                     // This is a security feature which is used when you change a password or add an external login to your account.  
-                    OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser, int>(
-                        validateInterval: TimeSpan.FromMinutes(30),
-                        regenerateIdentityCallback: (manager, user) => user.GenerateUserIdentityAsync(manager),
-                        getUserIdCallback: (identity) => Convert.ToInt32(identity.GetUserId())),
+                    //OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser, int>(
+                    //    validateInterval: TimeSpan.FromMinutes(30),
+                    //    regenerateIdentityCallback: (manager, user) => user.GenerateUserIdentityAsync(manager),
+                    //    getUserIdCallback: (identity) => Convert.ToInt32(identity.GetUserId())),
                 },
                 CookieSecure = CookieSecureOption.Never,
             });

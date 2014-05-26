@@ -11,6 +11,7 @@ module App.Exercises_Index {
         limit: number = 10; // items per page
         currentPage: number = 1;
         totalCount: number = 0;
+        loaded: boolean; 
 
         static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http, App.Utils.ngNames.$modal, App.Utils.ngNames.$interval, App.Utils.ngNames.$timeout];
 
@@ -36,12 +37,17 @@ module App.Exercises_Index {
                 (data) => {
                     this.exercises = data.items;
                     this.totalCount = data.totalCount;
+                    this.loaded = true;
                 }
                 );
         }
 
         isEmpty() {
-            return !this.exercises || this.exercises.length == 0;
+            return this.loaded && this.exercises && this.exercises.length == 0;
+        }
+
+        getViewUrl(e: App.Model.IExercise2) {
+            return App.Utils.reviewsUrl('view/' + e.id);
         }
 
         getReviewStatusText(r: App.Model.IReview2) {

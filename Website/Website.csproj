@@ -288,7 +288,6 @@
     <Content Include="bower_components\bootstrap\less\utilities.less" />
     <Content Include="bower_components\bootstrap\less\variables.less" />
     <Content Include="bower_components\bootstrap\less\wells.less" />
-    <Content Include="bower_components\Readme.txt" />
     <Content Include="bower_installer\angular-bootstrap-datetimepicker\datetimepicker.css" />
     <Content Include="bower_installer\angular-bootstrap-datetimepicker\datetimepicker.js" />
     <Content Include="bower_installer\angular-bootstrap\ui-bootstrap-tpls.min.js" />
@@ -344,6 +343,7 @@
     <Content Include="Content\bootstrap-custom.less" />
     <Content Include="Content\site.less" />
     <Content Include="Content\site-variables.less" />
+    <Content Include="Readme.txt" />
     <Content Include="Scripts\xcopy\knockout.activity.js" />
     <Content Include="~App_Offline.htm" />
     <Content Include="bower.json" />
@@ -494,6 +494,8 @@
     <Content Include="Views\Resources\Index.cshtml" />
     <Content Include="Views\Resources\Youtube.cshtml" />
     <Content Include="Views\Search\Index.cshtml" />
+    <Content Include="Views\Reviews\_BottomScriptsPartial2.cshtml" />
+    <Content Include="Views\Reviews\Edit2.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -522,9 +524,11 @@
     <TypeScriptCompile Include="App\Resources\index-search.ts" />
     <TypeScriptCompile Include="App\Resources\youtube-add.ts" />
     <TypeScriptCompile Include="App\Resources\youtube-app.ts" />
+    <TypeScriptCompile Include="App\Reviews\edit-app.ts" />
     <TypeScriptCompile Include="App\Reviews\edit-vm.ts" />
     <TypeScriptCompile Include="App\Reviews\index-app.ts" />
     <TypeScriptCompile Include="App\Reviews\requests-ctrl.ts" />
+    <TypeScriptCompile Include="App\Reviews\shared-ctrlBase.ts" />
     <TypeScriptCompile Include="App\Reviews\view-vm.ts" />
     <TypeScriptCompile Include="App\Reviews\vm-base.ts" />
     <TypeScriptCompile Include="App\Sessions\learner-app.ts" />
