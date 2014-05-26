@@ -85,6 +85,16 @@ module App.Model {
         formatFinish: KnockoutComputed<string>;
     }
 
+    export interface IRemark2 {
+        id: string;
+        reviewId: number;
+        start: number;
+        finish: number;
+        tags: string;
+        text: string;
+        starred: boolean;
+    }
+
     export class Exercise implements IExercise {
 
         id: number;

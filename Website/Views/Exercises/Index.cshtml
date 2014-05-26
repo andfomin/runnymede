@@ -39,7 +39,7 @@
                 <tbody ng-repeat="e in vm.exercises">
                     <tr>
                         <td>
-                            <a ng-href="{{App.Utils.reviewsUrl('view/' + e.id)}}">{{e.title}}</a>
+                            <a ng-href="{{vm.getViewUrl(e)}}">{{e.title}}</a>
                         </td>
                         <td style="text-align: right;">
                             {{e.length | appMsecToMinSec}}
