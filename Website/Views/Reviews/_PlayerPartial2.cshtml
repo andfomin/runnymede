@@ -1,0 +1,25 @@
+﻿<div id="navigation" class="row">
+    <div class="col-md-12">
+        @* Slider is positioned exactly at the edges, so half of the thumb is outside of the slider. *@
+        <div style="margin: 0px 20px 10px;">
+            <div id="slider"></div>
+            <div id="spot-marks" ng-repeat="r in vm.remarks">
+                <a class="spot-mark" href="javascript:;" ng-click="vm.selectRemark(r)" ng-class="vm.getSpotMarkClass(r)" ng-style="{ left: vm.getSpotMarkStyleLeft(r) + '%' }"></a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-offset-2 col-sm-2" id="soundPosition">
+        {{vm.soundPosition | appMsecToMinSec}}&nbsp;/&nbsp;{{vm.exercise.length | appMsecToMinSec}}
+    </div>
+    <div class="col-sm-2">
+        <button class="btn btn-block" ng-click="vm.rewind()"><i class="fa fa-step-backward"></i>&nbsp;&nbsp;Rewind</button>
+    </div>
+    <div class="col-sm-2">
+        <button id="playButton" type="button" class="btn btn-block" ng-click="vm.playerClick()"><i class="fa fa-play"></i>&nbsp;&nbsp;<span>Play</span></button>
+    </div>
+    <div class="col-sm-4">
+    </div>
+</div>
+

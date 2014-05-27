@@ -92,7 +92,7 @@ module App.Model {
         finish: number;
         tags: string;
         text: string;
-        starred: boolean;
+        dirty: boolean;
     }
 
     export class Exercise implements IExercise {
