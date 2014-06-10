@@ -7,7 +7,8 @@
     <div ng-controller="Ctrl">
         <div ng-show="vm.isEmpty()">
             <p class="text-center">
-                You haven't done any reviews yet. Please go to the @Html.ActionLink("Requests", "Requests", "Reviews") page to pick up an exercise for reviewing.            </p>
+                You haven't done any reviews yet. Please go to the @Html.ActionLink("Requests", "Requests", "Reviews") page to pick up an exercise for reviewing.
+            </p>
             <br />&nbsp;
         </div>
 
@@ -16,31 +17,39 @@
             <table id="reviewstable" class="table table-condensed">
                 <thead>
                     <tr>
+                        <th>Learner</th>
+                        <th class="text-right">Length</th>
+                        <th class="text-right">Reward</th>
                         <th>Started</th>
                         <th>Finished</th>
-                        <th style="text-align: right;">Reward</th>
-                        <th>Exercise author</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody ng-repeat="r in vm.reviews">
                     <tr>
                         <td>
-                            <a ng-href="{{App.Utils.reviewsUrl('edit/' + e.id)}}">{{r.startTime | appDateTime}}</a>                            
+                            {{r.authorName}}
+                        </td>
+                        <td class="text-right">
+                            {{r.exerciseLength | appMsecToMinSec}}
+                        </td>
+                        <td class="text-right" style="padding-right: 10px;">
+                            {{r.reward | number:2}}
+                        </td>
+                        <td>
+                            {{r.startTime | appDateTime}}
                         </td>
                         <td>
                             {{r.finishTime | appDateTime}}
                         </td>
-                        <td style="text-align: right;">
-                            {{r.reward | number:2}}
-                        </td>
                         <td>
-                            {{r.authorName}}
+                            <a class="btn btn-default btn-xs" ng-href="{{vm.getEditReviewUrl(r)}}">Open&nbsp;<i class="fa fa-angle-double-right app-fa-btn-xs" ></i></a>
                         </td>
                     </tr>
                 </tbody>
             </table>
 
-            <pagination class="pagination-sm" total-items="vm.totalCount" items-per-page="vm.limit" ng-model="vm.currentPage" ng-change="vm.getReviews()" max-size="10" boundary-links="true" rotate="false"></pagination>
+            <div pagination class="pagination-sm" total-items="vm.totalCount" items-per-page="vm.limit" ng-model="vm.currentPage" ng-change="vm.getReviews()" max-size="10" boundary-links="true" rotate="false"></div>
         </div>
     </div>
 </div>

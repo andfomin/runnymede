@@ -37,86 +37,119 @@ select Id from dbo.exeReviews where UserId = @UserId and FinishTime is null;
         }
 
         // GET: /reviews/edit/12345
-        public async Task<ActionResult> Edit(int id = 0) // by Review Id
+        public async Task<ActionResult> Edit(int id)
         {
-            var dto = await GetDtoForEdit(id);
-            return IntenalGet(dto, "Edit");
+            var exercise = await GetExerciseForEdit(id); // for ReviewId
+            return IntenalGet(exercise, "Edit");
         }
 
         // GET: /reviews/view/12345 
         [ActionName("View")]
-        public async Task<ActionResult> ViewAll(int id) // by Exercise Id
+        public async Task<ActionResult> ViewAll(int id)
         {
-            var dto = await GetDtoForView(id);
-            return IntenalGet(dto, "View");
+            var exercise = await GetExerciseForViewAll(id); // for ExerciseId
+            return IntenalGet(exercise, "View");
         }
 
-        private async Task<ExerciseDto> GetDtoForEdit(int reviewid)
+        private async Task<ExerciseDto> GetExerciseForEdit(int reviewid)
         {
-            const string sql = @"
-select E.Id, E.[Length], E.TypeId, E.ArtefactId, R.ExerciseId, R.Id, R.StartTime, R.FinishTime
+            const string sqlExercise = @"
+select E.Id, E.[Length], E.TypeId, E.ArtefactId, R.ExerciseId, R.Id, R.StartTime, R.FinishTime, R.Comment
 from dbo.exeExercises E 	
 	inner join dbo.exeReviews as R on E.Id = R.ExerciseId
-where R.Id = @Id and R.UserId = @UserId;
+where R.Id = @Id 
+    and R.UserId = @UserId;
 ";
 
-            using (var connection = DapperHelper.GetOpenConnection())
+            const string sqlSuggestions = @"
+select S.ReviewId, S.CreationTime, S.[Text]
+from dbo.exeSuggestions S
+	inner join dbo.exeReviews R on S.ReviewId = R.Id
+where R.Id = @ReviewId
+	and R.UserId = @UserId ;
+";
+
+            ExerciseDto exercise;
+            IEnumerable<SuggestionDto> suggestions;
+            using (var connection = await DapperHelper.GetOpenConnectionAsync())
             {
-                return (await connection.QueryAsync<ExerciseDto, ReviewDto, ExerciseDto>(
-                                sql,
+                exercise = (await connection.QueryAsync<ExerciseDto, ReviewDto, ExerciseDto>(
+                                sqlExercise,
                                 (e, r) => { e.Reviews = new[] { r }; return e; },
                                 new { Id = reviewid, UserId = this.GetUserId() },
                                 splitOn: "ExerciseId"
                             ))
-                        .SingleOrDefault();
+                        .Single();
+
+                suggestions = (await connection.QueryAsync<SuggestionDto>(sqlSuggestions, new { ReviewId = reviewid, UserId = this.GetUserId() })).ToList();
             }
+
+            exercise.Reviews.Single().Suggestions = suggestions;
+            return exercise;
         }
 
-        private async Task<ExerciseDto> GetDtoForView(int exerciseid)
+        private async Task<ExerciseDto> GetExerciseForViewAll(int exerciseId)
         {
-            const string sql = @"
-select E.Id, E.[Length], E.TypeId, E.ArtefactId, E.CreateTime, E.Title, R.ExerciseId, R.Id, R.StartTime, R.FinishTime
+            const string sqlExercise = @"
+select E.Id, E.[Length], E.TypeId, E.ArtefactId, E.CreateTime, E.Title, R.ExerciseId, R.Id, R.StartTime, R.FinishTime, R.ReviewerName, R.Comment
 from dbo.exeExercises E 	
 	left join dbo.exeReviews as R on E.Id = R.ExerciseId
 where E.Id = @Id and E.UserId = @UserId;
 ";
-
-            IEnumerable<ExerciseDto> dtos;
+            const string sqlSuggestions = @"
+select S.ReviewId, S.CreationTime, S.[Text]
+from dbo.exeSuggestions S
+	inner join dbo.exeReviews RV on S.ReviewId = RV.Id
+	inner join dbo.exeExercises E on RV.ExerciseId = E.Id
+where E.Id = @ExerciseId
+	and E.UserId = @UserId;
+";
+            IEnumerable<ExerciseDto> exercises;
+            IEnumerable<SuggestionDto> suggestions;
             using (var connection = DapperHelper.GetOpenConnection())
             {
-                dtos = (await connection.QueryAsync<ExerciseDto, ReviewDto, ExerciseDto>(
-                                sql,
+                exercises = (await connection.QueryAsync<ExerciseDto, ReviewDto, ExerciseDto>(
+                                sqlExercise,
                                 (e, r) => { e.Reviews = new[] { r }; return e; },
-                                new { Id = exerciseid, UserId = this.GetUserId() },
+                                new { Id = exerciseId, UserId = this.GetUserId() },
                                 splitOn: "ExerciseId"
                             ));
+
+                suggestions = (await connection.QueryAsync<SuggestionDto>(sqlSuggestions, new { ExerciseId = exerciseId, UserId = this.GetUserId() })).ToList();
             }
 
-            // We got a set of the same Exercise, each with a single Review. Group them into a single Exercise.               
-            var reviews = dtos
+            // Use the first Exercise as a single instance. Make it the common parent of all Reviews.
+            var exercise = exercises.First();
+
+            // We got a few rows of the same Exercise, each with a single Review. Group them into a single Exercise.               
+            var reviews = exercises
                 .SelectMany(i => i.Reviews)
-                .Where(r => r is ReviewDto) // Absent review is deserialized by Dapper as null. i.e [null].
+                .Where(i => i is ReviewDto) // Otherwise an absent review is deserialized by Dapper as null. i.e [null].
+                .OrderBy(i => i.RequestTime)
                 .ToList(); // ToList() is needed. Otherwise a mistical StackOverflow occurs within IIS.
 
-            // Use the first Exercise as a single instance. Make it the common parent of all Reviews.
-            dtos.First().Reviews = reviews;
+            exercise.Reviews = reviews;
 
-            return dtos.First();
+            foreach (var review in reviews)
+            {
+                review.Suggestions = suggestions.Where(i => i.ReviewId == review.Id).ToList();
+            }
+
+            return exercise;
         }
 
-        private ActionResult IntenalGet(ExerciseDto dto, string viewName)
+        private ActionResult IntenalGet(ExerciseDto exercise, string viewName)
         {
-            if (dto == null)
+            if (exercise == null)
             {
                 return HttpNotFound();
             }
 
-            ViewBag.SoundUrlParam = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.Recordings) + dto.ArtefactId;
-            ViewBag.ExerciseParamJson = LoggingUtils.SerializeAsJson(dto);
+            ViewBag.ExerciseParamJson = LoggingUtils.SerializeAsJson(exercise);
+            ViewBag.SoundUrlParam = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.Recordings) + exercise.ArtefactId;
 
             return View(viewName);
         }
-
 
         /* Use HTTPS to avoid HTTP referer header on redirect to BCEG. +http://en.wikipedia.org/wiki/HTTP_referer#cite_note-10 */
         //[RequireHttps]

@@ -26,13 +26,17 @@ begin try
 
 	if (@Reward < 0) begin
 		declare @RewardText nvarchar(100) = cast(@Reward as nvarchar(100));
-		raiserror('%s,%d,%s:: The user has offered negative reward.', 16, 1, @ProcName, @AuthorUserId, @RewardText);
+		raiserror('%s,%d,%s:: The user has offered a negative reward.', 16, 1, @ProcName, @AuthorUserId, @RewardText);
 	end;
 
 	-- Only the owner of the exercise can request a review. TypeId is non-nullable.
-	select @TypeId = TypeId, @Length = [Length] from dbo.exeExercises where Id = @ExerciseId and UserId = @AuthorUserId
+	select @TypeId = TypeId, @Length = [Length] 
+	from dbo.exeExercises 
+	where Id = @ExerciseId 
+		and UserId = @AuthorUserId;
+
 	if (@TypeId is null)
-		raiserror('%s,%d,%d:: The user cannot request review for the exercise.', 16, 1, @ProcName, @AuthorUserId, @ExerciseId);
+		raiserror('%s,%d,%d:: The user cannot request a review for the exercise.', 16, 1, @ProcName, @AuthorUserId, @ExerciseId);
 
 	select @ReviewerCount = count(*) from @ReviewerUserIds;
 
@@ -54,8 +58,8 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
-		insert dbo.exeReviews (ExerciseId, Reward, AuthorName)
-			values (@ExerciseId, @Reward, @AuthorName);
+		insert dbo.exeReviews (ExerciseId, Reward, AuthorName, ExerciseLength)
+			values (@ExerciseId, @Reward, @AuthorName, @Length);
 
 		select @ReviewId = scope_identity() where @@rowcount != 0;
 

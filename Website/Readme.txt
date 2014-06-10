@@ -17,16 +17,20 @@ Add the website to C:\Users\Andrey\Documents\IISExpress\config\applicationhost.c
 </site>
 --------------
 netsh http show sslcert > c:\users\andrey\downloads\01.txt
-Find the thumbprint for the general localhost cert created by IIS Express
+Find the thumbprint for the general cert created by IIS Express for localhost / That cert was created at some moment while another empty project was run.
 netsh http add sslcert ipport=0.0.0.0:443 appid={214124cd-d05b-4309-9af9-9caa44b2b74a} certhash=YOURCERTHASHHERE
 --------------
-Run Visual Studio as Administrator. VS can start only localhost websites in IIS Express in the user mode.
---------------
+Run Visual Studio as Administrator. VS can start only localhost websites with IIS Express in the user mode.
 --------------
 -------------------------------- BOWER  ---------------------------------------
+Install node.js (nodejs.org), it will install npm as well.
+Install Git (git-scm.com). Read the note for Windows users on bower.io about the changing the PATH setting during Git installation. Restart cmd after installation.
+Install bower (bower.io).
+Install github.com/blittle/bower-installer
+--------------
 cd C:\Users\Andrey\Documents\Dignicom\Runnymede\Website
 bower list
-bower install <package>
+bower install -p -S <package>
 bower-installer
 rem +http://bower.io
 rem +http://joshbranchaud.com/blog/2014/02/19/Managing-Single-Files-With-Bower.html

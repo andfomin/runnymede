@@ -32,7 +32,7 @@
                     <li class="@NavClass("Teachers")">@Html.ActionLink("Teachers", "Index", "Teachers")</li>
                     <li class="@NavClass("Sessions")">@Html.ActionLink("Sessions", "Learner", "Sessions", null, null, "/schedule", null, new { tabindex = "-1" })</li>
                     <li class="@NavClass("Exercises")">@Html.ActionLink("Exercises", "Index", "Exercises")</li>
-                    <li class="@NavClass("Reports")">@Html.ActionLink("Reports", "Index", "Statistics")</li>
+                    @*<li class="@NavClass("Reports")">@Html.ActionLink("Reports", "Index", "Statistics")</li>*@
                 }
                 @*<li class="dropdown @NavClass("Search")">
                         <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Search<b class="caret"></b></a>

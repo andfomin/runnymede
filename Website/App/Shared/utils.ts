@@ -23,7 +23,7 @@ module App.Utils {
         var settings: JQueryAjaxSettings = {
             type: type,
             url: url,
-            data: ko.toJSON(data),
+            data: JSON.stringify(data), // ko.toJSON(data),
             dataType: 'json',
             contentType: 'application/json',
             cache: false,
@@ -151,19 +151,21 @@ module App.Utils {
         }
     }
 
-    // Find an array element satisfying the test. Pure JavaScript.
-    //export function find(arr, test, ctx?) {
-    //    var result = null;
-    //    arr.some(function (el, i) {
-    //        return test.call(ctx, el, i, arr) ? ((result = el), true) : false;
-    //    });
-    //    return result;
-    //}
-    export function find<T>(arr: T[], test: (el: T, i: number, arr: T[]) => boolean, ctx?: any) {
+    // Find an array element satisfying the test. Pure JavaScript. IE9+
+    export function arrFind<T>(array: T[], test: (value: T, index: number, array: T[]) => boolean, ctx?: any) {
         var result: T = null;
-        arr.some(function (el, i) {
-            return test.call(ctx, el, i, arr) ? ((result = el), true) : false;
+        array.some(function (value, index) {
+            return test.call(ctx, value, index, array) ? ((result = value), true) : false;
         });
+        return result;
+    }
+
+    export function arrRemove<T>(arr: T[], item: T): T {
+        var result: T = null;
+        var i = arr.indexOf(item); // IE9+
+        if (i >= 0) {
+           result = arr.splice(i, 1)[0];
+        }
         return result;
     }
 
@@ -179,7 +181,13 @@ module App.Utils {
     export function logError(data: any, defaultMessage?: any) {
         var m = defaultMessage;
         if (data) {
+            // On staus=500 "Internal Server Error" 
+            if (data.data) {
+                data = data.data;
+            }
+
             var em = data.exceptionMessage ? ('' + data.exceptionMessage) : '';
+
             // SQL stored procedures return custom formatted error messages with values at the beginning of the message.
             var i = em.indexOf('::');
             if (i > -1) {

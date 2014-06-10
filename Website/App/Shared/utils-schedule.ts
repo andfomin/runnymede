@@ -93,7 +93,7 @@ module App.Model {
             //event.url = moment(event.end).isAfter() ? 'javascript:;' : null; // At this point, event has just come from the server and event.end is a string.
             if (event.type === App.Model.ScheduleEvent.Types.Offered) {
                 event.title = 'Offer';
-                event.backgroundColor = '#5BC0DE'; // btn-info  '#0074AD' appBlue.
+                event.backgroundColor = '#5BC0DE'; // btn-info
                 event.borderColor = '#5BC0DE';
             }
             else

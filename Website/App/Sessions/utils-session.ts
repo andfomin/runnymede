@@ -65,7 +65,7 @@ module App.Sessions_Utils {
         }
 
         getSessionDetails = () => {
-            App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+            App.Utils.ngHttpGetNoCache(this.$http,
                 App.Utils.sessionsApiUrl('SessionDetails/' + this.eventId),
                 null,
                 (data) => {
@@ -76,7 +76,7 @@ module App.Sessions_Utils {
         }
 
         watchChanges = (callback: () => void) => {
-            App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+            App.Utils.ngHttpGetNoCache(this.$http,
                 App.Utils.sessionsApiUrl('SessionMessageCount/' + this.eventId),
                 null,
                 (data) => {

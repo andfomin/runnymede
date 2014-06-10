@@ -15,10 +15,10 @@ module App.Relationships_TeacherLearners {
         }
 
         private getLearners() {
-            var url = App.Utils.relationshipsApiUrl('TeacherLearners');
-            App.Utils.ngHttpGet(this.$http, url, (data) => {
-                this.learners = data;
-            });
+            App.Utils.ngHttpGetNoCache(this.$http,
+                App.Utils.relationshipsApiUrl('TeacherLearners'),
+                null,
+                (data) => { this.learners = data; });
         }
 
     } // end of class

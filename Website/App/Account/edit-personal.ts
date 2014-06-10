@@ -26,8 +26,9 @@ module App.Account_Edit {
         } // end of ctor
         
         private load() {
-            App.Utils.ngHttpGet(this.$http,
+            App.Utils.ngHttpGetNoCache(this.$http,
                 App.Utils.accountApiUrl('PersonalProfile'),
+                null,
                 (data) => {
                     this.profile = data;
                     this.refreshAvatarUrls();

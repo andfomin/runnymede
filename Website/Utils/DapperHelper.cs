@@ -21,6 +21,15 @@ namespace Runnymede.Website.Utils
             return connection;
         }
 
+        public static async Task<SqlConnection> GetOpenConnectionAsync()
+        {
+            var connString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            var connection = new SqlConnection(connString);
+            // Dapper uses ConfigureAwait(false) in their code. It is discussed at +https://code.google.com/p/dapper-dot-net/issues/detail?id=128
+            await connection.OpenAsync().ConfigureAwait(false);
+            return connection;
+        }
+
         // ??? Is there an obvious performance gain in resetting the connection asynchronously?
         ////public static async Task<SqlConnection> GetOpenConnectionAsync()
         ////{
@@ -68,7 +77,6 @@ namespace Runnymede.Website.Utils
             return (index > 0) ? new Exception(ex.Message.Substring(index + 3)/*, ex*/) : ex;
         }
 
-        // Support for Async commands. +https://code.google.com/p/dapper-dot-net/issues/detail?id=128
         public static int ExecuteResiliently(string sql, dynamic param = null, CommandType? commandType = null)
         {
             int rowsAffected = 0;
@@ -82,9 +90,41 @@ namespace Runnymede.Website.Utils
                     {
                         //  Outside-initiated user transactions are not supported. See Limitations with Retrying Execution Strategies (EF6 onwards) +http://msdn.microsoft.com/en-us/data/dn307226
                         // +http://entityframework.codeplex.com/wikipage?title=Connection+Resiliency+Spec
+                        // To find a workaround, search for SqlAzureExecutionStrategy in the project code.
                         rowsAffected = SqlMapper.Execute(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
                     }
                 });
+            }
+            catch (SqlException ex)
+            {
+                throw StripException(ex);
+            }
+
+            return rowsAffected;
+        }
+
+        public static async Task<int> ExecuteResilientlyAsync(string sql, dynamic param = null, CommandType? commandType = null)
+        {
+            int rowsAffected = 0;
+
+            try
+            {
+                var executionStrategy = new SqlAzureExecutionStrategy();
+                await executionStrategy.ExecuteAsync(
+                async () =>
+                {
+                    using (var connection = await GetOpenConnectionAsync())
+                    {
+                        //  Outside-initiated user transactions are not supported. See Limitations with Retrying Execution Strategies (EF6 onwards) +http://msdn.microsoft.com/en-us/data/dn307226
+                        // +http://entityframework.codeplex.com/wikipage?title=Connection+Resiliency+Spec
+                        // To find a workaround, search for SqlAzureExecutionStrategy in the project code.
+                        // Example of using ExecuteAsync(). +https://code.google.com/p/dapper-dot-net/source/browse/DapperTests%20NET45/Tests.cs
+                        rowsAffected = await SqlMapper.ExecuteAsync(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
+                    }
+                },
+                    // Apparently, CancellationToken is not used. See +https://github.com/Icehunter/entityframework/blob/master/src/EntityFramework.SqlServer/DefaultSqlExecutionStrategy.cs            
+                    new CancellationToken()
+                );
             }
             catch (SqlException ex)
             {

@@ -15,12 +15,12 @@
 
 @font-size-base: @appFontSize; // Originally 14px
 
-@icon-font-path: "../bower_installer/bootstrap"; // Glyphicons
+@icon-font-path: "../bower_installer/bootstrap/"; // Glyphicons
 
 @brand-primary: @appRed;
 
 // @link-color was @brand-primary
-@link-color: darken(@appBlue, 5%);
+@link-color: @appBlue;
 @link-hover-color: lighten(@link-color, 5%);
 
 @navbar-height: @appNavbarHeight; // Originally 50px;
@@ -45,7 +45,7 @@
 @jumbotron-bg: @appRed;
 @jumbotron-padding: 20px;
 
-@btn-primary-bg: lighten(@appBlue, 3%);
+@btn-primary-bg: lighten(@link-color, 8%);
 
 /* #endregion */
 

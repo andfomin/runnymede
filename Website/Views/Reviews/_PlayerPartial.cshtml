@@ -1,25 +1,32 @@
 ﻿<div id="navigation" class="row">
     <div class="col-md-12">
-        @* Slider is positioned exactly at the edges, so half of the thumb is outside of the slider. *@
-        <div style="margin: 0px 20px 10px;">
-            <div id="slider"></div>
-            <div id="spot-marks" data-bind="foreach: remarks">
-                <a class="spot-mark" data-bind="click: $parent.selectRemark, style: { left: $parent.getSpotMarkStyleLeft($data) + '%' }, css: $parent.getSpotMarkClass($data)" href="javascript:;"></a>
+        <div style="margin: 0px 0px 10px;">
+            @* Rejected alternative: Angular-wrapped JQuery-UI slider +http://jsfiddle.net/depy/ZXekc/ *@
+            <div id="slider-container">
+                <slider floor="0" ceiling="{{vm.exercise.length}}" ng-model="vm.soundPosition" ng-change="vm.onSliderChange()" translate-fn="vm.positionFormatting"></slider>
+            </div>
+            <div class="spot-mark-container">
+                <a class="spot-mark" href="javascript:;" ng-repeat="r in vm.remarks"
+                   ng-click="vm.selectRemark(r)" ng-class="{active: vm.isSelected(r)}" ng-style="{ left: vm.getSpotMarkPosition(r) + '%' }"></a>
             </div>
         </div>
     </div>
 </div>
 <div class="row">
-    <div class="col-sm-offset-2 col-sm-2" id="soundPosition">
-            <span data-bind="text: formattedPosition"></span>&nbsp;/&nbsp;<span data-bind="text: exercise().formattedLength"></span>
-        </div>
-    <div class="col-sm-2">
-            <button class="btn btn-block" data-bind="click: rewind"><i class="fa fa-step-backward" ></i>&nbsp;&nbsp;Rewind</button>
-        </div>
-        <div class="col-sm-2">
-            <button id="playButton" type="button" class="btn btn-block" data-bind="click: playerClick"><i class="fa fa-play"></i>&nbsp;&nbsp;<span>Play</span></button>
-        </div>
+    <div class="col-sm-offset-1 col-sm-2">
+        <button class="btn btn-block" ng-click="vm.rewind()" ng-disabled="vm.soundPosition == 0"><i class="fa fa-step-backward"></i>&nbsp;&nbsp;Rewind</button>
+    </div>
+    <div class="col-sm-1">
+        @* The &nbsp; separates buttons when the layout jumps on col-sm  *@
+        &nbsp;
+    </div>
     <div class="col-sm-4">
-        </div>
+        <button id="playButton" type="button" class="btn btn-block" ng-class="{active: vm.playing}" ng-click="vm.turnPlayer(!vm.playing)">
+            <i class="fa" ng-class="vm.playing ? 'fa-pause' : 'fa-play'"></i>&nbsp;&nbsp;
+            <span>{{vm.playing ? 'Pause' : 'Play'}}</span>
+        </button>
+    </div>
+    <div class="col-sm-4">
+    </div>
 </div>
 

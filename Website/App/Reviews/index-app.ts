@@ -2,7 +2,7 @@ module App.Reviews_Index {
 
     export class Ctrl {
 
-        reviews: App.Model.IReview2[] = [];
+        reviews: App.Model.IReview2[] = null;
         limit: number = 10; // items per page
         currentPage: number = 1;
         totalCount: number = 0;
@@ -20,7 +20,7 @@ module App.Reviews_Index {
         } // end of ctor
 
         getReviews() {
-            App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+            App.Utils.ngHttpGetNoCache(this.$http,
                 App.Utils.reviewsApiUrl(),
                 {
                     offset: (this.currentPage - 1) * this.limit,
@@ -34,10 +34,12 @@ module App.Reviews_Index {
         }
 
         isEmpty() {
-            return !this.reviews || this.reviews.length == 0;
+            return this.reviews && (this.reviews.length == 0);
         }
 
-
+        getEditReviewUrl(r: App.Model.IReview2) {
+            return App.Utils.reviewsUrl('edit/' + r.id);
+        }
 
     } // end of class
 } // end of module

@@ -1,5 +1,5 @@
 module App {
-    export var TagList = [
+    export var CoreInventory = [
         "Functions and Notions. Numbers",
         "Functions and Notions. Prices",
         "Functions and Notions. Telling the time",

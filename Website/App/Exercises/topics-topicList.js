@@ -1,7 +1,6 @@
 var App;
 (function (App) {
     (function (Exercises_Topics) {
-        // The topic list is quite static, so we wrap it in a JavaScript file to use the browser caching capability.
         var TopicList = (function () {
             function TopicList() {
             }

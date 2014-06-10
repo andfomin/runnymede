@@ -24,55 +24,60 @@
                 <a href="http://blob.englc.com/recorder/EnglishCosmosSkypeRecorder.exe" class="btn btn-primary btn-block">Record a Skype conversation &raquo;</a>
             </div>
         </div>
-        <div class="col-md-offset-1 col-md-10" ng-hide="vm.isEmpty()">
-            <hr class="app-separator" />
-            <table class="table table-condensed">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th style="text-align: right;">Length</th>
-                        <th>Created</th>
-                        <th>Review status</th>
-                        <th style="text-align: right;">Reward</th>
-                    </tr>
-                </thead>
-                <tbody ng-repeat="e in vm.exercises">
-                    <tr>
-                        <td>
-                            <a ng-href="{{vm.getViewUrl(e)}}">{{e.title}}</a>
-                        </td>
-                        <td style="text-align: right;">
-                            {{e.length | appMsecToMinSec}}
-                        </td>
-                        <td>
-                            {{e.createTime | appDate}}
-                        </td>
-                        <td>
-                            <button class="btn btn-default btn-xs" ng-click="vm.showCreateRequestModal(e)">Request&nbsp;review</button>
-                        </td>
-                        <td></td>
-                    </tr>
-                    <tr class="app-row-review" ng-repeat="r in e.reviews">
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <span ng-class="vm.getReviewStatusStyle(r)"><strong>{{vm.getReviewStatusText(r)}}</strong></span>&nbsp;&nbsp;{{vm.getReviewStatusTime(r) | appDate}}
-                            <button class="btn btn-default btn-xs" ng-show="!(r.cancelTime || r.startTime)" ng-click="vm.showCancelRequestModal(r)">Cancel</button>
-                        </td>
-                        <td style="text-align: right;">
-                            {{r.reward | number:2}}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="row">
+            <div class="col-lg-offset-1 col-lg-10" ng-hide="vm.isEmpty()">
+                <hr class="app-separator" />
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th class="text-right">Length</th>
+                            <th>Created</th>
+                            <th>Review status</th>
+                            <th class="text-right">Reward</th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="e in vm.exercises">
+                        <tr>
+                            <td>
+                                <a ng-href="{{vm.getViewUrl(e)}}">{{e.title}}</a>
+                            </td>
+                            <td class="text-right" style="padding-right: 10px;">
+                                {{e.length | appMsecToMinSec}}
+                            </td>
+                            <td>
+                                {{e.createTime | appDate}}
+                            </td>
+                            <td>
+                                <button class="btn btn-default btn-xs" ng-click="vm.showCreateRequestModal(e)">Request&nbsp;review</button>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr class="app-row-review" ng-repeat="r in e.reviews">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <span ng-class="vm.getReviewStatusStyle(r)"><strong>{{vm.getReviewStatusText(r)}}</strong></span>
+                                &nbsp;&nbsp;{{vm.getReviewStatusTime(r) | appDate}}
+                                <span ng-show="r.startTime"> -&nbsp;{{r.reviewerName}}</span>
+                                <button class="btn btn-default btn-xs" ng-show="!(r.cancelTime || r.startTime)" ng-click="vm.showCancelRequestModal(r)">Cancel</button>
+                            </td>
+                            <td class="text-right">
+                                {{r.reward | number:2}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-            <pagination class="pagination-sm" total-items="vm.totalCount" items-per-page="vm.limit" ng-model="vm.currentPage" ng-change="vm.getExercises()" max-size="10" boundary-links="true" rotate="false"></pagination>
+                <div pagination class="pagination-sm" total-items="vm.totalCount" items-per-page="vm.limit" ng-model="vm.currentPage" ng-change="vm.getExercises()" max-size="10" boundary-links="true" rotate="false"></div>
+            </div>
         </div>
+
     </div><!-- /ng-controller="Ctrl" -->
     <!-- Modals -->
-    <!-- createRequestDialog.html -->
-    <script type="text/ng-template" id="createRequestDialog.html">
+    <!-- createRequestModal.html -->
+    <script type="text/ng-template" id="createRequestModal.html">
         <div class="modal-header">
             <h3>Request a review of the exercise</h3>
         </div>
@@ -125,14 +130,14 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" data-ng-click="vm.ok()" data-ng-disabled="vm.executing || vm.disabled()">OK</button>
-                <button class="btn btn-default" data-ng-click="vm.cancel()">Close</button>
+                <button class="btn btn-primary" ng-click="vm.ok()" ng-disabled="vm.executing || vm.disabled()">OK</button>
+                <button class="btn btn-default" ng-click="vm.cancel()">Close</button>
             </div>
         </form>
     </script>
-    <!-- /createRequestDialog.html -->
-    <!-- cancelRequestDialog.html -->
-    <script type="text/ng-template" id="cancelRequestDialog.html">
+    <!-- /createRequestModal.html -->
+    <!-- cancelRequestModal.html -->
+    <script type="text/ng-template" id="cancelRequestModal.html">
         <div class="modal-header">
             <h3>Cancel review request</h3>
         </div>
@@ -147,11 +152,11 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary" data-ng-click="vm.ok()" data-ng-disabled="vm.executing">OK</button>
-            <button class="btn btn-default" data-ng-click="vm.cancel()">Close</button>
+            <button class="btn btn-primary" ng-click="vm.ok()" ng-disabled="vm.executing">OK</button>
+            <button class="btn btn-default" ng-click="vm.cancel()">Close</button>
         </div>
     </script>
-    <!-- /cancelRequestDialog.html -->
+    <!-- /cancelRequestModal.html -->
     <!-- /Modals -->
 </div><!-- /ng-app="app" -->
 @using (Html.BeginInstructionsContainer())
