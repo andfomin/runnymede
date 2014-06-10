@@ -18,7 +18,7 @@ module App.Account_Balance {
         } // end of ctor
 
         getEntries() {
-            App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+            App.Utils.ngHttpGetNoCache(this.$http,
                 App.Utils.balanceApiUrl(),
                 {
                     offset: (this.currentPage - 1) * this.limit,

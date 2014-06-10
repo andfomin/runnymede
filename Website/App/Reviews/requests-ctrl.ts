@@ -27,8 +27,9 @@ module App.Reviews_Requests {
         } // end of ctor
 
         private refresh = () => {
-            App.Utils.ngHttpGet(this.$http,
+            App.Utils.ngHttpGetNoCache(this.$http,
                 App.Utils.reviewsApiUrl('Requests'),
+                null,
                 (data) => { this.requests = data; }
                 );
         }

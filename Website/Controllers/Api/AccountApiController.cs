@@ -125,8 +125,8 @@ where U.Id = @Id;
                     Skype = (string)i.Skype,
                     Email = (string)i.Email,
                     EmailConfirmed = (bool)i.EmailConfirmed,
-                    AvatarLargeUrl = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.AvatarsLarge) + i.ExtIdUpperCase,
-                    AvatarSmallUrl = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.AvatarsSmall) + i.ExtIdUpperCase,
+                    AvatarLargeUrl = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.AvatarsLarge, true) + i.ExtIdUpperCase,
+                    AvatarSmallUrl = AzureStorageUtils.GetContainerBaseUrl(AzureStorageUtils.ContainerNames.AvatarsSmall, true) + i.ExtIdUpperCase,
                 })
                 .Single();
 

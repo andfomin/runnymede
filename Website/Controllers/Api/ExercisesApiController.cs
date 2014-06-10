@@ -144,6 +144,5 @@ update dbo.exeExercises set Title = @Title where Id = @Id and UserId = @UserId;
             return Ok<object>(new { Id = id });
         }
 
-
     }
 }

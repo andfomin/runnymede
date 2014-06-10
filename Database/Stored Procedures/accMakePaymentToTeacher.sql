@@ -33,10 +33,13 @@ begin try
 	end;
 
 	if not exists (select * from dbo.appUsers where Id = @UserId and [IsTeacher] = 0) 
-		raiserror('%s,%d: The user is supposed to be not a teacher.', 16, 1, @ProcName, @UserId);
+		raiserror('%s,%d: The payer is supposed to be not a teacher.', 16, 1, @ProcName, @UserId);
 
 	if not exists (select * from dbo.appUsers where Id = @TeacherUserId and [IsTeacher] = 1) 
 		raiserror('%s,%d: The recepient is not a teacher.', 16, 1, @ProcName, @TeacherUserId);
+
+	if not exists (select * from dbo.relLearnersTeachers where LearnerUserId = @UserId and TeacherUserId = @TeacherUserId)
+		raiserror('%s,%d,%d: A learner can pay to a favorite teacher only.', 16, 1, @ProcName, @UserId, @TeacherUserId);
 
 	set @SenderAccountId = dbo.accGetPersonalAccount(@UserId);
 

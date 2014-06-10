@@ -48,8 +48,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="Dapper">
-      <HintPath>..\packages\Dapper.1.13\lib\net45\Dapper.dll</HintPath>
+    <Reference Include="Dapper, Version=1.25.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Dapper.1.25\lib\net45\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="Eleven41.Skip32">
       <HintPath>..\packages\Eleven41.Skip32.1.0.1\lib\net20\Eleven41.Skip32.dll</HintPath>
@@ -131,9 +132,6 @@
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Configuration, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.2.0.3\lib\net40\Microsoft.WindowsAzure.Configuration.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <Private>False</Private>
@@ -243,8 +241,6 @@
     <Content Include="App\Sessions\teacher-session.html" />
     <Content Include="App\Sessions\utils-sessionModal.html" />
     <Content Include="App\Shared\Html\SessionRequestModal.html" />
-    <Content Include="App\Shared\utils-tag-list0.js" />
-    <Content Include="App\Shared\utils-tag-list1.js" />
     <Content Include="App\Teachers\index-all.html" />
     <Content Include="App\Teachers\index-favorites.html" />
     <Content Include="App\Teachers\index-teacherSchedule.html" />
@@ -254,23 +250,19 @@
     <Content Include="bower_installer\angular-loading-bar\loading-bar.min.css" />
     <Content Include="bower_installer\angular-loading-bar\loading-bar.min.js" />
     <Content Include="bower_installer\angular-route\angular-route.min.js" />
+    <Content Include="bower_installer\angular-touch\angular-touch.min.js" />
     <Content Include="bower_installer\angular-ui-calendar\calendar.js" />
     <Content Include="bower_installer\angular\angular.min.js" />
+    <Content Include="bower_installer\animate.css\animate.min.css" />
     <Content Include="bower_installer\bootstrap3-typeahead\bootstrap3-typeahead.min.js" />
-    <Content Include="bower_installer\bootstrap\alerts.less" />
-    <Content Include="bower_installer\bootstrap\badges.less" />
-    <Content Include="bower_installer\bootstrap\bootstrap.less" />
     <Content Include="bower_installer\bootstrap\bootstrap.min.js" />
     <Content Include="bower_installer\bootstrap\glyphicons-halflings-regular.svg" />
     <Content Include="bower_installer\jquery\jquery.min.js" />
-    <Content Include="bower_installer\knockout.js\knockout.js" />
-    <Content Include="bower_installer\ko.datasource\ko.datasource.js" />
-    <Content Include="bower_installer\kolite\knockout.command.js" />
-    <Content Include="bower_installer\kolite\knockout.dirtyFlag.js" />
     <Content Include="bower_installer\moment\moment.min.js" />
     <Content Include="bower_installer\ngUpload\ng-upload.min.js" />
     <Content Include="bower_installer\toastr\toastr.min.css" />
     <Content Include="bower_installer\toastr\toastr.min.js" />
+    <Content Include="bower_installer\venturocket-angular-slider\angular-slider.min.js" />
     <Content Include="Content\Audior\Audior.swf" />
     <Content Include="Content\Audior\audior_settings.xml" />
     <Content Include="Content\Audior\en.xml" />
@@ -291,16 +283,6 @@
     <Content Include="Content\Images\skype-no-contact.png" />
     <Content Include="Content\Images\skype-together.jpg" />
     <Content Include="Content\Images\teacher.jpg" />
-    <Content Include="Content\jqueryui\images\ui-bg_flat_75_ffffff_40x100.png" />
-    <Content Include="Content\jqueryui\images\ui-bg_glass_65_ffffff_1x400.png" />
-    <Content Include="Content\jqueryui\images\ui-bg_glass_75_dadada_1x400.png" />
-    <Content Include="Content\jqueryui\images\ui-bg_glass_75_e6e6e6_1x400.png" />
-    <Content Include="Content\jqueryui\jquery.ui.core.css" />
-    <Content Include="Content\jqueryui\jquery.ui.core.min.css" />
-    <Content Include="Content\jqueryui\jquery.ui.slider.css" />
-    <Content Include="Content\jqueryui\jquery.ui.slider.min.css" />
-    <Content Include="Content\jqueryui\jquery.ui.theme.css" />
-    <Content Include="Content\jqueryui\jquery.ui.theme.min.css" />
     <Content Include="Content\site.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -309,14 +291,11 @@
     <Content Include="Content\site-variables.less" />
     <Content Include="Readme.txt" />
     <Content Include="Scripts\xcopy\knockout.activity.js" />
-    <Content Include="Views\Reviews\_PlayerPartial.cshtml">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="~App_Offline.htm" />
     <Content Include="bower.json" />
-    <Content Include="bower_installer\bootstrap\glyphicons-halflings-regular.woff" />
-    <Content Include="bower_installer\bootstrap\glyphicons-halflings-regular.eot" />
-    <Content Include="bower_installer\bootstrap\glyphicons-halflings-regular.ttf" />
+    <Content Include="bower_installer\bootstrap\alerts.less" />
+    <Content Include="bower_installer\bootstrap\badges.less" />
+    <Content Include="bower_installer\bootstrap\bootstrap.less" />
     <Content Include="bower_installer\bootstrap\breadcrumbs.less" />
     <Content Include="bower_installer\bootstrap\button-groups.less" />
     <Content Include="bower_installer\bootstrap\buttons.less" />
@@ -326,6 +305,9 @@
     <Content Include="bower_installer\bootstrap\component-animations.less" />
     <Content Include="bower_installer\bootstrap\dropdowns.less" />
     <Content Include="bower_installer\bootstrap\forms.less" />
+    <Content Include="bower_installer\bootstrap\glyphicons-halflings-regular.eot" />
+    <Content Include="bower_installer\bootstrap\glyphicons-halflings-regular.ttf" />
+    <Content Include="bower_installer\bootstrap\glyphicons-halflings-regular.woff" />
     <Content Include="bower_installer\bootstrap\glyphicons.less" />
     <Content Include="bower_installer\bootstrap\grid.less" />
     <Content Include="bower_installer\bootstrap\input-groups.less" />
@@ -357,8 +339,6 @@
     <None Include="Properties\PublishProfiles\englc__staging.pubxml" />
     <Content Include="Scripts\sm2\soundmanager2-nodebug-jsmin.js" />
     <Content Include="Scripts\sm2\soundmanager2_flash9.swf" />
-    <Content Include="Scripts\xcopy\jquery-ui-1.10.3.custom.js" />
-    <Content Include="Scripts\xcopy\jquery-ui-1.10.3.custom.min.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -401,13 +381,10 @@
     <Compile Include="Models\PageViewModel.cs" />
     <Compile Include="Models\DataSourceDto.cs" />
     <Compile Include="Models\ExerciseApiBindingModels.cs" />
-    <Compile Include="Models\ExerciseDto.cs" />
     <Compile Include="Models\ExerciseType.cs" />
     <Compile Include="Models\KeeperLogEntity.cs" />
     <Compile Include="Models\PayPalLogEntity.cs" />
-    <Compile Include="Models\RemarkDto.cs" />
-    <Compile Include="Models\RemarkEntity.cs" />
-    <Compile Include="Models\ReviewDto.cs" />
+    <Compile Include="Models\ExerciseModels.cs" />
     <Compile Include="Models\SearchModels.cs" />
     <Compile Include="Models\SessionsModels.cs" />
     <Compile Include="Models\StatisticsEntity.cs" />
@@ -450,15 +427,10 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Exercises\Topics.cshtml" />
     <Content Include="Views\Exercises\Record.cshtml" />
-    <Content Include="Views\Reviews\View.cshtml" />
     <Content Include="Views\Reviews\Index.cshtml" />
-    <Content Include="Views\Reviews\Edit.cshtml" />
-    <Content Include="Views\Reviews\TagSearch.cshtml" />
-    <Content Include="Views\Reviews\_BottomScriptsPartial.cshtml" />
     <Content Include="Views\Reviews\_EnglishGrammarPartial.cshtml" />
     <Content Include="Views\Reviews\_EnglishGrammarPartial0.cshtml" />
     <Content Include="Views\Reviews\_EnglishGrammarPartial1.cshtml" />
-    <Content Include="Views\Reviews\~_TitlePartial.cshtml" />
     <Content Include="Views\Exercises\Index.cshtml" />
     <Content Include="Views\Reviews\Requests.cshtml" />
     <Content Include="Views\Statistics\Index.cshtml" />
@@ -499,9 +471,11 @@
     <Content Include="Views\Resources\Index.cshtml" />
     <Content Include="Views\Resources\Youtube.cshtml" />
     <Content Include="Views\Search\Index.cshtml" />
-    <Content Include="Views\Reviews\_BottomScriptsPartial2.cshtml" />
-    <Content Include="Views\Reviews\Edit2.cshtml" />
-    <Content Include="Views\Reviews\_PlayerPartial2.cshtml" />
+    <Content Include="Views\Reviews\_BottomScriptsPartial.cshtml" />
+    <Content Include="Views\Reviews\Edit.cshtml" />
+    <Content Include="Views\Reviews\_PlayerPartial.cshtml" />
+    <Content Include="Views\Reviews\_HeadScriptsPartial.cshtml" />
+    <Content Include="Views\Reviews\View.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -531,12 +505,10 @@
     <TypeScriptCompile Include="App\Resources\youtube-add.ts" />
     <TypeScriptCompile Include="App\Resources\youtube-app.ts" />
     <TypeScriptCompile Include="App\Reviews\edit-app.ts" />
-    <TypeScriptCompile Include="App\Reviews\edit-vm.ts" />
     <TypeScriptCompile Include="App\Reviews\index-app.ts" />
     <TypeScriptCompile Include="App\Reviews\requests-ctrl.ts" />
     <TypeScriptCompile Include="App\Reviews\shared-ctrlBase.ts" />
-    <TypeScriptCompile Include="App\Reviews\view-vm.ts" />
-    <TypeScriptCompile Include="App\Reviews\vm-base.ts" />
+    <TypeScriptCompile Include="App\Reviews\view-app.ts" />
     <TypeScriptCompile Include="App\Sessions\learner-app.ts" />
     <TypeScriptCompile Include="App\Sessions\learner-schedule.ts" />
     <TypeScriptCompile Include="App\Sessions\learner-session.ts" />
@@ -546,7 +518,7 @@
     <TypeScriptCompile Include="App\Sessions\teacher-session.ts" />
     <TypeScriptCompile Include="App\Sessions\utils-session.ts" />
     <TypeScriptCompile Include="App\Shared\utils-schedule.ts" />
-    <TypeScriptCompile Include="App\Shared\utils-tag-list.ts" />
+    <TypeScriptCompile Include="App\Shared\utils-coreInventory.ts" />
     <TypeScriptCompile Include="App\Statistics\index-vm.ts" />
     <TypeScriptCompile Include="App\Shared\ctrl-template.ts" />
     <TypeScriptCompile Include="App\Shared\model.ts" />
@@ -567,10 +539,7 @@
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular-sanitize.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular-scenario.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\jqueryui\jqueryui.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\knockout\knockout.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\kolite\kolite.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\toastr\toastr.d.ts" />
   </ItemGroup>
@@ -580,6 +549,9 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptRemoveComments>True</TypeScriptRemoveComments>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />

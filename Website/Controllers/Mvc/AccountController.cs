@@ -251,12 +251,20 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
-        // GET: /account/pay-teacher/12345?teacher=qwerty
+        // GET: /account/pay-teacher/12345
         [RequireHttps]
-        public ActionResult PayTeacher(string id, string teacher)
+        public async Task<ActionResult> PayTeacher(int id)
         {
-            ViewBag.TeacherUserId = Convert.ToInt32(id);
-            ViewBag.TeacherDisplayName = teacher;
+            var sql = @"
+select DisplayName from dbo.appUsers where Id = @Id and IsTeacher = 1
+";
+            var displayName = (await DapperHelper.QueryResilientlyAsync<string>(sql, new
+            {
+                Id = id,
+            })).Single();
+
+            ViewBag.TeacherUserId = id;
+            ViewBag.TeacherDisplayName = displayName;
             return View();
         }
 

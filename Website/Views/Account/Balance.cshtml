@@ -52,8 +52,8 @@
                 <tr>
                     <th>Time</th>
                     <th>Description</th>
-                    <th style="text-align: right;">Amount, USD</th>
-                    <th style="text-align: right;">Balance, USD</th>
+                    <th class="text-right">Amount, USD</th>
+                    <th class="text-right">Balance, USD</th>
                 </tr>
             </thead>
             <tbody>
@@ -64,16 +64,16 @@
                     <td>
                         {{e.description}}
                     </td>
-                    <td style="text-align: right;">
-                        {{e.credit - e.debit}}
+                    <td class="text-right">
+                        {{e.credit - e.debit | number:2}}
                     </td>
-                    <td style="text-align: right;">
+                    <td class="text-right">
                         {{e.balance | number:2}}
                     </td>
                 </tr>
             </tbody>
         </table>
-        <pagination class="pagination-sm" total-items="vm.totalCount" items-per-page="vm.limit" ng-model="vm.currentPage" ng-change="vm.getEntries()" max-size="10" boundary-links="true" rotate="false"></pagination>
+        <div pagination class="pagination-sm" total-items="vm.totalCount" items-per-page="vm.limit" ng-model="vm.currentPage" ng-change="vm.getEntries()" max-size="10" boundary-links="true" rotate="false"></div>
     </div>
 </div>
 

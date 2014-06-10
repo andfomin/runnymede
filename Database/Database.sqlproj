@@ -159,6 +159,16 @@
     <Build Include="Tables\resMediaTypes.sql" />
     <Build Include="Tables\resCoreInventory.sql" />
     <Build Include="Tables\resBrands.sql" />
+    <Build Include="Tables\exeRemarks.sql" />
+    <Build Include="Stored Procedures\exeSaveRemarks.sql" />
+    <Build Include="User Defined Types\exeRemarksType.sql" />
+    <Build Include="Functions\exeGetRemarks.sql" />
+    <Build Include="Stored Procedures\exeDeleteRemark.sql" />
+    <Build Include="Stored Procedures\exeUpdateReviewComment.sql" />
+    <Build Include="Tables\exeSuggestions.sql" />
+    <Build Include="Stored Procedures\exeSaveSuggestions.sql" />
+    <Build Include="User Defined Types\exeSuggestionsType.sql" />
+    <Build Include="Stored Procedures\exeDeleteSuggestion.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />

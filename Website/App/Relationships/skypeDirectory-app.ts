@@ -15,11 +15,10 @@ module App.Relationships_SkypeDirectory {
         }
 
         private getDirectory = () => {
-            var url = App.Utils.relationshipsApiUrl('SkypeDirectory');
-            App.Utils.ngHttpGet(this.$http, url, (data) =>
-            {
-                this.learners = data;
-            });
+            App.Utils.ngHttpGetNoCache(this.$http,
+                App.Utils.relationshipsApiUrl('SkypeDirectory'),
+                null,
+                (data) => { this.learners = data; });
         }
 
         private showRemoveDialog = () => {
@@ -27,8 +26,7 @@ module App.Relationships_SkypeDirectory {
         }
 
         private remove = () => {
-            var url = App.Utils.relationshipsApiUrl('SkypeDirectory');
-            this.$http.delete(url)
+            this.$http.delete(App.Utils.relationshipsApiUrl('SkypeDirectory'))
                 .finally(() => window.location.assign(App.Utils.relationshipsUrl('skype-directory/join')));
         }
 

@@ -24,19 +24,6 @@ module App.Model {
         emailConfirmed: boolean;
     }
 
-    export interface IExercise {
-        id: number;
-        createTime: string;
-        typeId: string;
-        artefactId: string;
-        title: KnockoutObservable<string>;
-        length: number;
-        reviews: KnockoutObservableArray<IReview>;
-        // Non-persisted
-        isTitleDirty: any;
-        formattedLength: string;
-    }
-
     export interface IExercise2 {
         id: number;
         createTime: string;
@@ -47,19 +34,6 @@ module App.Model {
         reviews: IReview2[];
     }
 
-    export interface IReview {
-        id: number;
-        exerciseId: number;
-        requestTime: string;
-        cancelTime: KnockoutObservable<string>;
-        startTime: KnockoutObservable<string>;
-        finishTime: KnockoutObservable<string>;
-        authorName: string;
-        //reward: number;
-        // Non-persisted
-        formattedReward: string;
-    }
-
     export interface IReview2 {
         id: number;
         exerciseId: number;
@@ -68,166 +42,58 @@ module App.Model {
         startTime: Date;
         finishTime: Date;
         authorName: string;
+        reviewerName: string;
         reward: number;
-    }
-
-    export interface IRemark {
-        id: string;
-        reviewId: number;
-        start: KnockoutObservable<number>;
-        finish: KnockoutObservable<number>;
-        tags: KnockoutObservable<string>;
-        text: KnockoutObservable<string>;
-        starred: KnockoutObservable<boolean>;
-        // Non-persisted
-        dirtyFlag: any;
-        formatStart: KnockoutComputed<string>;
-        formatFinish: KnockoutComputed<string>;
+        exerciseLength: number;
+        comment: string;
+        suggestions: ISuggestion[];
     }
 
     export interface IRemark2 {
-        id: string;
         reviewId: number;
+        creationTime: number; // The difference in milliseconds between the remark creation time and the review start time.
         start: number;
         finish: number;
-        tags: string;
         text: string;
-        dirty: boolean;
+        keywords: string;
+        dirtyTime: Date;
     }
 
-    export class Exercise implements IExercise {
+    export interface ISuggestion {
+        reviewId: number;
+        creationTime: number; // The difference in milliseconds between the item creation time and the review start time.
+        text: string;
+        dirtyTime: Date;
+    }
 
-        id: number;
-        createTime: string;
-        typeId: string;
-        artefactId: string;
-        title: KnockoutObservable<string>;
-        length: number;
-        reviews: KnockoutObservableArray<Review>;
-        // Non-persisted
-        isTitleDirty: any;
-        formattedLength: string;
-
-        constructor(data: any) {
-            this.id = data.id;
-            this.typeId = data.typeId;
-            this.artefactId = data.artefactId;
-            this.length = data.length;
-            this.title = ko.observable(data.title);
-            this.createTime = App.Utils.formatDateLocal(data.createTime);
-            this.reviews = ko.observableArray(<Review[]>$.map(data.reviews || [], i => new Review(i)));
-            this.formattedLength = App.Utils.formatMsec(this.length);
-
-            //var titles = $.map(this.reviews(), (i) => { return i.note; });
-            //titles.push(this.title);
-            this.isTitleDirty = new ko.DirtyFlag([this.title], false);
-        } // end of ctor
-
-        viewUrl() {
-            return App.Utils.reviewsUrl('view/' + this.id);
-        }
-    } // end of class
-
-    export class Review implements IReview {
+    export class Review2 implements IReview2 {
         id: number;
         exerciseId: number;
-        requestTime: string;
-        cancelTime: KnockoutObservable<string>;
-        startTime: KnockoutObservable<string>;
-        finishTime: KnockoutObservable<string>;
+        requestTime: Date;
+        cancelTime: Date;
+        startTime: Date;
+        finishTime: Date;
         authorName: string;
-        // Non-persisted
-        formattedReward: string;
+        reviewerName: string;
+        reward: number;
+        exerciseLength: number;
+        comment: string;
+        suggestions: ISuggestion[];
 
         constructor(data: any) {
             this.id = data.id;
             this.exerciseId = data.exerciseId;
+            this.requestTime = new Date(data.requestTime);
+            this.cancelTime = data.cancelTime ? new Date(data.cancelTime) : null;
+            this.startTime = data.startTime ? new Date(data.startTime) : null;
+            this.finishTime = data.finishTime ? new Date(data.finishTime) : null;
             this.authorName = data.authorName;
-            this.formattedReward = App.Utils.formatMoney(data.reward);
-            this.requestTime = App.Utils.formatDateLocal(data.requestTime);
-            this.cancelTime = ko.observable(App.Utils.formatDateLocal(data.cancelTime));
-            this.startTime = ko.observable(App.Utils.formatDateLocal(data.startTime));
-            this.finishTime = ko.observable(App.Utils.formatDateLocal(data.finishTime));
+            this.reviewerName = data.reviewerName;
+            this.reward = data.reward;
+            this.exerciseLength = data.exerciseLength;
+            this.comment = data.comment;
+            this.suggestions = data.suggestions;
         } // end of ctor
-
-        viewUrl() {
-            return this.composeUrl('view');
-        }
-
-        editUrl() {
-            return this.composeUrl('edit');
-        }
-
-        private composeUrl(action) {
-            return App.Utils.reviewsUrl(action + '/' + this.id);
-        }
-
-        status() {
-            if (this.finishTime()) {
-                return 'Finished ' + this.finishTime();
-            }
-            else {
-                if (this.startTime()) {
-                    return 'Started ' + this.startTime();
-                }
-                else {
-                    if (this.cancelTime()) {
-                        return 'Canceled ' + this.cancelTime();
-                    }
-                    else {
-                        return 'Requested ' + this.requestTime;
-                    }
-                }
-            }
-        }
-
-    } // end of class
-
-    export class Remark implements IRemark {
-        id: string;
-        reviewId: number;
-        start: KnockoutObservable<number>;
-        finish: KnockoutObservable<number>;
-        tags: KnockoutObservable<string>;
-        text: KnockoutObservable<string>;
-        starred: KnockoutObservable<boolean>;
-        // Non-persisted
-        dirtyFlag: any;
-        formatStart: KnockoutComputed<string>;
-        formatFinish: KnockoutComputed<string>;
-
-        constructor(data: any) {
-            this.reviewId = data.reviewId;
-            this.id = data.id;
-            this.start = ko.observable(data.start);
-            this.finish = ko.observable(data.finish);
-            this.tags = ko.observable(data.tags);
-            this.text = ko.observable(data.text);
-            this.starred = ko.observable(data.starred);
-
-            var trackArr: any[] = [this.start, this.finish, this.tags, this.text, this.starred];
-            this.dirtyFlag = new ko.DirtyFlag(trackArr, true);
-
-            this.formatStart = ko.computed(() => {
-                return App.Utils.formatMsec(this.start());
-            });
-
-            this.formatFinish = ko.computed(() => {
-                return App.Utils.formatMsec(this.finish());
-            });
-        } // end of ctor
-
-        tagsUrl() {
-            //return 'https://' + window.location.host + App.Utils.reviewsUrl('tagsearch?q=' + encodeURIComponent(this.tags()));
-            return App.Utils.reviewsUrl('tag-search?q=' + encodeURIComponent(this.tags()));
-        }
-
-        tagAliases() {
-            var tags = $.map(this.tags().split(','), i => $.trim(i));
-            var aliases = $.map(tags, i => App['bcegLookup'][i] || i);
-            return aliases.join(', ');
-        }
-
-    } // end of class
+    }
 
 }

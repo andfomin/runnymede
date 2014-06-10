@@ -9,6 +9,7 @@ module App.Utils {
         public static $scope = '$scope';
         public static $http = '$http';
         public static $log = '$log';
+        public static $q = '$q';
         public static $filter = '$filter';
         public static $rootScope = '$rootScope';
         public static $timeout = '$timeout';
@@ -74,7 +75,7 @@ module App.Utils {
             templateUrl: string,
             controller: any,
             modalParams: any,
-            successCallback: () => void 
+            successCallback: () => void
             ) {
             var modalInstance = $modal.open({
                 templateUrl: templateUrl,
@@ -86,7 +87,11 @@ module App.Utils {
                 }
             });
             modalInstance.result.then(
-                () => { successCallback(); },
+                () => {
+                    if (successCallback) {
+                        successCallback();
+                    }
+                },
                 null
                 );
             return modalInstance;
@@ -107,7 +112,7 @@ module App.Utils {
             ngNames.$http,
             ngNames.$rootScope,
             function ($http: ng.IHttpService, $rootScope: IAppRootScopeService) {
-                ngHttpGetWithParamsNoCache($http,
+                ngHttpGetNoCache($http,
                     App.Utils.sessionsApiUrl('MillisSinceEpoch'),
                     null,
                     (data) => {
@@ -117,23 +122,13 @@ module App.Utils {
             }]);
     }
 
-    export function ngHttpGet(http: ng.IHttpService, url: string, successCallback: ng.IHttpPromiseCallback<any>) {
-        http.get(url)
-            .success(successCallback)
-            .error(App.Utils.logError);
-    }
-
     // $http does not send data in body in a GET request, only as params.
-    export function ngHttpGetWithParams(http: ng.IHttpService, url: string, params: any, successCallback: ng.IHttpPromiseCallback<any>) {
-        http.get(url, { params: params })
-            .success(successCallback)
-            .error(App.Utils.logError);
-    }
-
-    export function ngHttpGetWithParamsNoCache(http: ng.IHttpService, url: string, params: any, successCallback: ng.IHttpPromiseCallback<any>) {
+    export function ngHttpGetNoCache(http: ng.IHttpService, url: string, params: any, successCallback: ng.IHttpPromiseCallback<any>) {
         var ps = params || {};
         ps._ = safeDateNow();
-        ngHttpGetWithParams(http, url, ps, successCallback);
+        return http.get(url, { params: ps })
+            .success(successCallback)
+            .error(App.Utils.logError);
     }
 
     export function ngHttpPost(http: ng.IHttpService, url: string, data: any, successCallback: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
@@ -161,7 +156,7 @@ module App.Utils {
     //    })
 
     export function ngHttpPut(http: ng.IHttpService, url: string, data: any, successCallback: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
-        http.put(url, data)
+        return http.put(url, data)
             .success(successCallback)
             .error(App.Utils.logError)
             .finally(finallyCallback);
@@ -224,7 +219,7 @@ module App.Utils {
         }
     }
 
-    export function AppDateTimeFilterFactory($filter) {
+    export function AppDateTimeFilterFactory() {
         return (date: Date) => {
             return angular.isDefined(date) ? moment(date).format(App.Utils.dateTimeFormat) : null;
         }
@@ -242,6 +237,6 @@ module App.Utils {
 var appUtilsNg = angular.module('AppUtilsNg', []);
 ////appUtilsNg.factory('Paginator', App.Utils.PaginatorFactory);
 appUtilsNg.filter('appDate', [App.Utils.ngNames.$filter, App.Utils.AppDateFilterFactory]);
-appUtilsNg.filter('appDateTime', [App.Utils.ngNames.$filter, App.Utils.AppDateTimeFilterFactory]);
+appUtilsNg.filter('appDateTime', [App.Utils.AppDateTimeFilterFactory]);
 appUtilsNg.filter('appMsecToMinSec', [App.Utils.AppMsecToMinSecFilterFactory]);
 

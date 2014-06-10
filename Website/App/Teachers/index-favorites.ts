@@ -10,34 +10,34 @@ module App.Teachers_Index {
             private $scope: Utils.IScopeWithViewModel,
             private $http: ng.IHttpService
             ) {
-                $scope.vm = this;
-                this.getTeachers();
+            $scope.vm = this;
+            this.getTeachers();
         }
 
         noTeachers = () => {
             return (this.teachers != null) && (this.teachers.length === 0);
-        } 
+        }
 
         private getTeachers() {
-            var url = App.Utils.teachersApiUrl('Teachers');
-            App.Utils.ngHttpGet(this.$http, url, (data) => {
-                this.teachers = data;
-            });
+            App.Utils.ngHttpGetNoCache(this.$http,
+                App.Utils.teachersApiUrl('Teachers'),
+                null,
+                (data) => {
+                    this.teachers = data;
+                });
         }
 
         private removeTeacher(teacher: App.Model.IUser) {
-            var url = App.Utils.teachersApiUrl('Teachers/' + teacher.id.toString());
-            this.$http.delete(url)
+            this.$http.delete(App.Utils.teachersApiUrl('Teachers/' + teacher.id))
                 .success(() => {
-                    toastr.success('The teacher has been removed from your teacher list');
-                    var index = this.teachers.indexOf(teacher);
-                    this.teachers.splice(index, 1);
+                    toastr.success('The teacher has been removed from your favorite teacher list');
+                    App.Utils.arrRemove(this.teachers, teacher);
                 })
                 .error(App.Utils.logError);
         }
 
         private payTeacher(teacher: App.Model.IUser) {
-            window.location.assign(App.Utils.accountUrl('pay-teacher/' + teacher.id.toString() + '?teacher=' + teacher.displayName)); 
+            window.location.assign(App.Utils.accountUrl('pay-teacher/' + teacher.id));
         }
     }
 }

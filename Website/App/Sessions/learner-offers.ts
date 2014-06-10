@@ -65,7 +65,7 @@ module App.Sessions_Learner {
                 {
                     events: (start: Moment, end: Moment, timezone: string, callback: (data: any) => any) => {
                         if (this.selectedUser) {
-                            App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+                            App.Utils.ngHttpGetNoCache(this.$http,
                                 App.Utils.sessionsApiUrl('UserOffers/' + this.selectedUser.id),
                                 {
                                     date: this.date.toISOString(), // Otherwise Angular.$http.get wraps the date string in double-quotes.
@@ -163,7 +163,7 @@ module App.Sessions_Learner {
 
             var timeInfo = App.Utils.getLocalTimeInfo();
 
-            App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+            App.Utils.ngHttpGetNoCache(this.$http,
                 App.Utils.sessionsApiUrl('UsersWithOffers'),
                 {
                     date: this.date.toISOString(), // Otherwise Angular.$http.get wraps the date string in double-quotes.

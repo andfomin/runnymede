@@ -9,8 +9,14 @@ module App._ {
             private $http: ng.IHttpService
             )
         {
-            $scope.vm = this;
-        } // end of ctor
+            /* ----- Constructor  ----- */
+            $scope.vm = this
+            /* ----- End of constructor  ----- */
+        } 
+
+        f = () => {
+
+        }
 
     } // end of class
 } // end of module

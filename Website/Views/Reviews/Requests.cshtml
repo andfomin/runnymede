@@ -23,8 +23,8 @@
                 <thead>
                     <tr>
                         <th>Author</th>
-                        <th style="text-align: right;">Length</th>
-                        <th style="text-align: right;">Reward</th>
+                        <th class="text-right">Length</th>
+                        <th class="text-right">Reward</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -33,12 +33,12 @@
                         <td>
                             {{r.authorName}}
                         </td>
-                        <td style="text-align: right;">
+                        <td class="text-right">
                             {{vm.formatMsec(r.length)}}
                         </td>
                         @if (ViewBag.ReviewId == 0)
                         {
-                            <td style="text-align: right;">
+                            <td class="text-right">
                                 {{r.reward | currency:"$"}}
                             </td>
                             <td>

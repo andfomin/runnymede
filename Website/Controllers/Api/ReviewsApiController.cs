@@ -33,7 +33,7 @@ namespace Runnymede.Website.Controllers.Api
             const string sql = @"
 select count(*) from dbo.exeReviews where UserId = @UserId;
 
-select Id, ExerciseId, StartTime, FinishTime, AuthorName, Reward
+select Id, ExerciseId, StartTime, FinishTime, AuthorName, Reward, ExerciseLength
 from dbo.exeReviews
 where UserId = @UserId
 order by StartTime desc
@@ -86,14 +86,14 @@ fetch next @RowLimit rows only
                 var teachersRows = new DataTable();
                 teachersRows.Columns.Add("UserId", typeof(int));
 
-                teachersIds.OrderBy(i => i).ToList().ForEach(i =>
-                    {
-                        teachersRows.Rows.Add(i);
-                    });
+                foreach (var i in teachersIds)
+                {
+                    teachersRows.Rows.Add(i);
+                }
 
-                var teachersParam = command.Parameters.AddWithValue("@ReviewerUserIds", teachersRows);
-                teachersParam.SqlDbType = SqlDbType.Structured;
+                var teachersParam = command.Parameters.Add("@ReviewerUserIds", SqlDbType.Structured);
                 teachersParam.TypeName = "dbo.appUsersType";
+                teachersParam.Value = teachersRows;
 
                 var executionStrategy = new SqlAzureExecutionStrategy();
                 await executionStrategy.ExecuteAsync(
@@ -127,7 +127,7 @@ fetch next @RowLimit rows only
         }
 
         // DELETE /api/ReviewsApi/12345
-        public async Task<IHttpActionResult> DeleteReview(int id)
+        public async Task<IHttpActionResult> DeleteReviewRequest(int id)
         {
             var cancelTime = (await DapperHelper.QueryResilientlyAsync<DateTime>(
                   "dbo.exeCancelReviewRequest",
@@ -177,17 +177,21 @@ where ReviewerUserId is null
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST /api/ReviewsApi/12345/Finish
-        [Route("{id:int}/Finish")]
+        // POST /api/ReviewsApi/Finish/12345
+        [Route("Finish/{id:int}")]
         public async Task<IHttpActionResult> PostFinishReview(int id)
         {
             var userId = this.GetUserId();
 
-            await StatisticsUtils.WriteTagStatistics(id, userId); // It is idempotent. So no transaction is OK.
+            // await StatisticsUtils.WriteTagStatistics(id, userId); // It is idempotent. So no transaction is OK.
 
             var finishTime = (await DapperHelper.QueryResilientlyAsync<DateTime>(
                   "dbo.exeFinishReview",
-                  new { ReviewId = id, UserId = userId },
+                  new
+                  {
+                      ReviewId = id,
+                      UserId = userId
+                  },
                   CommandType.StoredProcedure
                   ))
                   .Single();
@@ -195,27 +199,81 @@ where ReviewerUserId is null
             return Ok<object>(new { FinishTime = finishTime });
         }
 
-        ////        // PUT /api/ReviewsApi/12345/Note
-        ////        [Route("{id:int}/Note")]
-        ////        public IHttpActionResult PutNote(int id, [FromBody]JObject value)
-        ////        {
-        ////            var sql = @"
-        ////update dbo.exeReviews set Note = @Note where Id = @Id and UserId = @UserId;
-        ////";
-        ////            var rowsAffected = DapperHelper.ExecuteResiliently(sql, new
-        ////              {
-        ////                  @Note = (string)value["note"],
-        ////                  Id = id,
-        ////                  UserId = this.GetUserId()
-        ////              });
-        ////            return StatusCode(rowsAffected > 0 ? HttpStatusCode.NoContent : HttpStatusCode.BadRequest);
-        ////        }
+        // PUT /api/ReviewsApi/Comment/12345
+        [Route("Comment/{id:int}")]
+        public IHttpActionResult PutComment(int id, [FromBody]JObject value)
+        {
+            DapperHelper.ExecuteResiliently("dbo.exeUpdateReviewComment",
+            new
+            {
+                ReviewId = id,
+                Comment = (string)value["comment"],
+                UserId = this.GetUserId()
+            },
+            CommandType.StoredProcedure);
+            return StatusCode(HttpStatusCode.NoContent);
+        }
 
+        // PUT /api/ReviewsApi/Suggestions
+        [Route("Suggestions")]
+        public async Task<IHttpActionResult> PutSuggestions([FromBody] IEnumerable<SuggestionDto> suggestions)
+        {
+            // We use plain ADO.NET to pass suggestions in a table-valued parameter.
+            using (var command = new SqlCommand())
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "dbo.exeSaveSuggestions";
 
+                command.Parameters.AddWithValue("@UserId", this.GetUserId());
 
+                var suggestionRows = new DataTable();
+                // The order of the columns must match the UDT.
+                suggestionRows.Columns.Add("ReviewId", typeof(int));
+                suggestionRows.Columns.Add("CreationTime", typeof(int)); // Comes from the client. Means milliseconds passed from the start of the review.
+                suggestionRows.Columns.Add("Text", typeof(string));
 
+                foreach (var i in suggestions.OrderBy(i => i.ReviewId).ThenBy(i => i.CreationTime))
+                {
+                    suggestionRows.Rows.Add(i.ReviewId, i.CreationTime, i.Text);
+                }
+                // Why performance is actually good is explained at +https://connect.microsoft.com/SQLServer/feedback/details/648637/using-table-valued-parameters-from-clients-cause-recompiles-with-each-use
+                var suggestionsParam = command.Parameters.Add("@Suggestions", SqlDbType.Structured);
+                suggestionsParam.Direction = ParameterDirection.Input;
+                suggestionsParam.TypeName = "dbo.exeSuggestionsType";
+                suggestionsParam.Value = suggestionRows;
 
+                var executionStrategy = new SqlAzureExecutionStrategy();
+                await executionStrategy.ExecuteAsync(
+                async () =>
+                {
+                    using (var connection = await DapperHelper.GetOpenConnectionAsync())
+                    {
+                        command.Connection = connection;
+                        await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    }
+                },
+                new CancellationToken()
+                );
+            }
 
+            return StatusCode(HttpStatusCode.NoContent); // Since we send no content back, 200 OK causes error on the client.
+        }
+
+        // DELETE /api/ReviewsApi/Suggestion/12345/12345
+        [Route("Suggestion/{reviewId:int}/{creationTime:int}")]
+        public async Task<IHttpActionResult> DeleteSuggestion(int reviewId, int creationTime)
+        {
+            await DapperHelper.ExecuteResilientlyAsync("dbo.exeDeleteSuggestion",
+                new
+                {
+                    ReviewId = reviewId,
+                    CreationTime = creationTime,
+                    UserId = this.GetUserId()
+                },
+                CommandType.StoredProcedure);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
 
     }
 }

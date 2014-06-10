@@ -28,7 +28,7 @@ module App.Exercises_Index {
         } // end of ctor
 
         getExercises() {
-            App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+            App.Utils.ngHttpGetNoCache(this.$http,
                 App.Utils.exercisesApiUrl('GetExercises'),
                 {
                     offset: (this.currentPage - 1) * this.limit,
@@ -65,7 +65,7 @@ module App.Exercises_Index {
         showCreateRequestModal = (exercise) => {
             App.Utils.CustomModal.openModal(
                 this.$modal,
-                'createRequestDialog.html',
+                'createRequestModal.html',
                 CreateRequestModal,
                 {
                     exercise: exercise
@@ -83,14 +83,14 @@ module App.Exercises_Index {
         showCancelRequestModal = (review: App.Model.IReview2) => {
             // Find the exercise for the given review.
             var exerciseId = review.exerciseId;
-            var exercise = App.Utils.find(
+            var exercise = App.Utils.arrFind(
                 this.exercises,
                 (el) => { return el.id === exerciseId; }
                 );
 
             App.Utils.CustomModal.openModal(
                 this.$modal,
-                'cancelRequestDialog.html',
+                'cancelRequestModal.html',
                 CancelRequestModal,
                 {
                     review: review,
@@ -125,7 +125,7 @@ module App.Exercises_Index {
 
         getConditions() {
             // Request review conditions from the server.
-            App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+            App.Utils.ngHttpGetNoCache(this.$http,
                 App.Utils.exercisesApiUrl(this.exercise.id.toString() + '/ReviewConditions'),
                 null,
                 (data) => {

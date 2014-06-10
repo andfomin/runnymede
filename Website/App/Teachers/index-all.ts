@@ -19,10 +19,10 @@ module App.Teachers_Index {
         }
 
         private getTeachers() {
-            var url = App.Utils.teachersApiUrl('RandomTeachers/' + this.viewSession + '/' + this.currentBacket);
-            App.Utils.ngHttpGet(this.$http, url, (data) => {
-                this.teachers = data;
-            });
+            App.Utils.ngHttpGetNoCache(this.$http,
+                App.Utils.teachersApiUrl('RandomTeachers/' + this.viewSession + '/' + this.currentBacket),
+                null,
+                (data) => { this.teachers = data; });
         }
 
         private addTeacher(teacher: App.Model.IUser) {
@@ -37,7 +37,7 @@ module App.Teachers_Index {
                         toastr.info(data.message);
                     }
                     else App.Utils.logError(data, status);
-            });
+                });
         }
     }
 }

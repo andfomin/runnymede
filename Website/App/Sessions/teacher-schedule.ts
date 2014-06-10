@@ -23,7 +23,7 @@ module App.Sessions_Teacher {
                            We send the client-side time and the local TimezoneOffset with the form to infer the client's actual time zone. */
                         var timeInfo = App.Utils.getLocalTimeInfo();
 
-                        App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+                        App.Utils.ngHttpGetNoCache(this.$http,
                             App.Utils.sessionsApiUrl('OwnSchedule'),
                             {
                                 start: start.toDate().toISOString(),

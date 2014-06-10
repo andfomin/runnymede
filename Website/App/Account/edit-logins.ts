@@ -37,7 +37,7 @@ module App.Account_Edit {
         } // end of ctor
 
         getLogins() {
-            App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+            App.Utils.ngHttpGetNoCache(this.$http,
                 Utils.accountApiUrl('Logins'),
                 null,
                 (data) => {

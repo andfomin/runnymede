@@ -34,7 +34,7 @@ module App.Teachers_Index {
                            We send the client-side time and the local TimezoneOffset to infer the client's actual time zone. */
                         var timeInfo = App.Utils.getLocalTimeInfo();
 
-                        App.Utils.ngHttpGetWithParamsNoCache(this.$http,
+                        App.Utils.ngHttpGetNoCache(this.$http,
                             App.Utils.sessionsApiUrl('UserSchedule/' + this.$routeParams.userId),
                             {
                                 start: start.toDate().toISOString(),
