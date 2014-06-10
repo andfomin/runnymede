@@ -243,8 +243,6 @@
     <Content Include="App\Sessions\teacher-session.html" />
     <Content Include="App\Sessions\utils-sessionModal.html" />
     <Content Include="App\Shared\Html\SessionRequestModal.html" />
-    <Content Include="App\Shared\utils-tag-list0.js" />
-    <Content Include="App\Shared\utils-tag-list1.js" />
     <Content Include="App\Teachers\index-all.html" />
     <Content Include="App\Teachers\index-favorites.html" />
     <Content Include="App\Teachers\index-teacherSchedule.html" />
