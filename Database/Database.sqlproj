@@ -162,7 +162,6 @@
     <Build Include="Tables\exeRemarks.sql" />
     <Build Include="Stored Procedures\exeSaveRemarks.sql" />
     <Build Include="User Defined Types\exeRemarksType.sql" />
-    <Build Include="Functions\exeGetRemarks.sql" />
     <Build Include="Stored Procedures\exeDeleteRemark.sql" />
     <Build Include="Stored Procedures\exeUpdateReviewComment.sql" />
     <Build Include="Tables\exeSuggestions.sql" />
