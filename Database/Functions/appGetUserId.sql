@@ -19,3 +19,8 @@ where UserName = @UserName
 return @UserId;
 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[dbo].[appGetUserId] TO [websiterole]
+    AS [dbo];
+

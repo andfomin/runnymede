@@ -14,48 +14,44 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @EscrowAmount decimal(18, 2), @Id int, @Attribute nvarchar(100);
+	declare @EscrowAmount decimal(18, 2), @Dummy int, @Attribute nvarchar(100);
 
 	-- Negative value passed to dbo.accChangeEscrow means return escrow.
-	select @EscrowAmount = 0 - R.Reward, @Id = R.Id
+	select @EscrowAmount = 0 - R.Price, @Dummy = R.Id
 		from dbo.exeReviews R
 			inner join dbo.exeExercises E on R.ExerciseId = E.Id
 		where R.Id = @ReviewId 
 			and E.UserId = @UserId
 			and R.StartTime is null
-			and R.CancelTime is null
+			and R.CancelationTime is null;
 
 	-- The review cannot be canceled
-	if @Id is null
+	if @Dummy is null
 		raiserror('%s,%d,%d:: The user cannot cancel the review request.', 16, 1, @ProcName, @UserId, @ReviewId);
-
-	declare @Now datetime2(0) = sysutcdatetime();
 
 	if @ExternalTran = 0
 		begin transaction;
 
 		update dbo.exeReviews 
-			set CancelTime = @Now
-			where Id = @ReviewId 
-				and StartTime is null 
-				and CancelTime is null;		
+		set CancelationTime = sysutcdatetime()
+		where Id = @ReviewId 
+			and StartTime is null 
+			and CancelationTime is null;		
 				
 		if @@rowcount = 0
 			raiserror('%s,%d,%d:: The user failed to cancel the review.', 16, 1, @ProcName, @UserId, @ReviewId);	
 				
-		delete dbo.exeRequests
-			output deleted.Id, deleted.ReviewId, deleted.ReviewerUserId
-			into dbo.exeRequestsArchive (RequestId, ReviewId, ReviewerUserId)
+		update dbo.exeRequests
+		set IsActive = 0
 		where ReviewId = @ReviewId;
 
 		set @Attribute = cast(@ReviewId as nvarchar(100));
 
-		exec dbo.accChangeEscrow @UserId, @EscrowAmount, 'EXRC', @Attribute, null;
+		if @EscrowAmount != 0
+			exec dbo.accChangeEscrow @UserId, @EscrowAmount, 'TRRVRC', @Attribute, null;
 
 	if @ExternalTran = 0
 		commit;
-
-	select @Now;
 
 end try
 begin catch

@@ -20,19 +20,19 @@ begin try
 	if @UserId is null
 		raiserror('%s,%s:: User not found.', 16, 1, @ProcName, @UserName);
 
+	declare @AccountId int = dbo.accGetPersonalAccount(@UserId);
+
 	if @ExternalTran = 0
 		begin transaction;
 
-		update dbo.appUsers set IsTeacher = 1 where Id = @UserId;
+		-- We postpone creation of a user account until it is really needed.
+		if (@AccountId is null) begin
+		
+			exec dbo.accCreateUserAccounts @UserId = @UserId;
 
-		--merge dbo.aspnetUserClaims as target
-		--	using (select @ClaimType, @UserId) as source (ClaimType, UserId)
-		--	on (target.ClaimType = source.ClaimType and target.UserId = source.UserId)
-		--	when matched then 
-		--		update set ClaimValue = '' -- the value does not matter, the mere presense of the claim does matter. A NULL value causes exception in ASP.NET Identity code.
-		--	when not matched then	
-		--		insert (ClaimType, ClaimValue, UserId)
-		--		values (source.ClaimType, '', source.UserId);
+		end
+
+		update dbo.appUsers set IsTeacher = 1 where Id = @UserId;
 
 	if @ExternalTran = 0
 		commit;

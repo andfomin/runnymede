@@ -17,7 +17,7 @@ begin try
 
 	declare @AmountText nvarchar(100), @Attribute nvarchar(100),
 		@SenderAccountId int, @RecepientAccountId int, @RevenueAccountId int, 
-		@ServiceFeeRate float, @Fee decimal(18,2), @InitialRecepientBalance decimal(18,2),
+		@Fee decimal(9,2), @InitialRecepientBalance decimal(18,2),
 		@TransferTransactionId int, @FeeTransactionId int;
 
 	set @AmountText = cast(@Amount as nvarchar(100));
@@ -27,19 +27,25 @@ begin try
 		raiserror('%s,%d,%s:: Amount is less then allowed minimum.', 16, 1, @ProcName, @UserId, @AmountText);
 	end;
 
-	if (@Amount > dbo.accGetBalance(@UserId))
+	if (@Amount > coalesce(dbo.accGetBalance(@UserId), -1))
 	begin
 		raiserror('%s,%d,%s:: Non-sufficient funds.', 16, 1, @ProcName, @UserId, @AmountText);
 	end;
 
 	if not exists (select * from dbo.appUsers where Id = @UserId and [IsTeacher] = 0) 
-		raiserror('%s,%d: The payer is supposed to be not a teacher.', 16, 1, @ProcName, @UserId);
+		raiserror('%s,%d: The payer is not supposed to be a teacher.', 16, 1, @ProcName, @UserId);
 
 	if not exists (select * from dbo.appUsers where Id = @TeacherUserId and [IsTeacher] = 1) 
 		raiserror('%s,%d: The recepient is not a teacher.', 16, 1, @ProcName, @TeacherUserId);
 
-	if not exists (select * from dbo.relLearnersTeachers where LearnerUserId = @UserId and TeacherUserId = @TeacherUserId)
-		raiserror('%s,%d,%d: A learner can pay to a favorite teacher only.', 16, 1, @ProcName, @UserId, @TeacherUserId);
+	if not exists (
+		select * 
+		from dbo.friFriends 
+		where UserId = @TeacherUserId 
+			and FriendUserId = @UserId 
+			and IsActive = 1
+	)
+		raiserror('%s,%d,%d: You can pay only to a teacher who has an active friendship with you.', 16, 1, @ProcName, @UserId, @TeacherUserId);
 
 	set @SenderAccountId = dbo.accGetPersonalAccount(@UserId);
 
@@ -52,25 +58,24 @@ begin try
 		raiserror('%s,%d,%d:: Account not found.', 16, 1, @ProcName, @UserId, @TeacherUserId);  
 	end;
 
-	set @ServiceFeeRate = cast(dbo.appGetConstant('Exercises.Reviews.ServiceFeeRate') as float);
-	set @Fee = cast((@Amount * @ServiceFeeRate) as decimal(18,2));
-
 	set @Attribute = cast(@UserId as nvarchar(100)) + ' ' + cast(@TeacherUserId as nvarchar(100));
 
 	declare @Now datetime2(0) = sysutcdatetime();
+
+	set @Fee = convert(decimal(9,2), @Amount * dbo.appGetFeeRate('TRIPFD', @Now, @Amount));
 
 	if @ExternalTran = 0
 		begin transaction;
 
 		-- Make transfer.
-		insert dbo.accTransactions (TransactionTypeId, ObservedTime, Attribute)
-			values ('IPLT', @Now, @Attribute);
+		insert dbo.accTransactions ([Type], ObservedTime, Attribute)
+			values ('TRIPLT', @Now, @Attribute);
 
 		select @TransferTransactionId = scope_identity() where @@rowcount != 0;
 
 		-- Deduct service fee.
-		insert dbo.accTransactions (TransactionTypeId, ObservedTime, Attribute)
-			values ('IPFD', @Now, @Attribute);
+		insert dbo.accTransactions ([Type], ObservedTime, Attribute)
+			values ('TRIPFD', @Now, @Attribute);
 
 		select @FeeTransactionId = scope_identity() where @@rowcount != 0;
 

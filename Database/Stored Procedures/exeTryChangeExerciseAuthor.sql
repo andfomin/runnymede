@@ -3,7 +3,7 @@
 CREATE PROCEDURE [dbo].[exeTryChangeExerciseAuthor]
 	@ExerciseId int,
 	@UserId int, -- Original owner
-	@Skype nvarchar(100) = null -- Skype name of the new owner
+	@SkypeName nvarchar(100) = null -- Skype name of the new owner
 AS
 BEGIN
 /*
@@ -25,7 +25,7 @@ begin try
 	);
 
 	insert @t
-		select Id from dbo.appUsers where Skype = @Skype;
+		select Id from dbo.appUsers where SkypeName = @SkypeName;
 
 	select @Count = count(*) from @t;
 	select @NewUserId = Id from @t where @Count = 1;

@@ -1,7 +1,8 @@
 ﻿
 
-CREATE PROCEDURE [dbo].exeGetExercises
-	@UserId int, 
+CREATE PROCEDURE [dbo].[exeGetExercises]
+	@UserId int,
+	@Type char(6),
 	@RowOffset int, 
 	@RowLimit int
 AS
@@ -14,15 +15,16 @@ declare @RowCount int;
 declare @t table (
 	Id int,
 	CreateTime datetime2(0),
-	TypeId nchar(4),
+	[Type] char(6),
 	Title nvarchar(100),
 	[Length] int
 );
 
-insert into @t (Id, CreateTime, TypeId, Title, [Length])
-	select Id, CreateTime, TypeId, Title, [Length]
+insert into @t (Id, CreateTime, [Type], Title, [Length])
+	select Id, CreateTime, [Type], Title, [Length]
 	from dbo.exeExercises
-	where UserId = @UserId;
+	where UserId = @UserId
+		and [Type] = @Type;
 
 select @RowCount = count(*) from @t;
 
@@ -40,15 +42,15 @@ set nocount off;
 
 -- The order of the recordsets does matter.
 
-select @RowCount;
-
-select Id, CreateTime, TypeId, Title, [Length]
+select Id, CreateTime, [Type], Title, [Length]
 from @t
 order by CreateTime desc;
 
-select R.ExerciseId, R.Id, R.Reward, R.RequestTime, R.StartTime, R.FinishTime, R.CancelTime, R.ReviewerName 
+select R.ExerciseId, R.Id, R.Price, R.RequestTime, R.StartTime, R.FinishTime, R.CancelationTime, R.ReviewerName 
 from dbo.exeReviews R 
 	inner join @t T on R.ExerciseId = T.Id;
+
+select @RowCount;
 
 END
 GO

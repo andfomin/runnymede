@@ -1,11 +1,9 @@
 ﻿CREATE TABLE [dbo].[exeRequests] (
-    [Id]             INT             IDENTITY (1, 1) NOT NULL,
-    [ReviewId]       INT             NOT NULL,
-    [ReviewerUserId] INT             NULL,
-    [Reward]         DECIMAL (18, 2) NULL,
-    [AuthorName]     NVARCHAR (100)  NOT NULL,
-    [TypeId]         NCHAR (4)       NULL,
-    [Length]         INT             NULL,
+    [Id]             INT            IDENTITY (1, 1) NOT NULL,
+    [ReviewerUserId] INT            NULL,
+    [IsActive]       BIT            NOT NULL,
+    [ReviewId]       INT            NOT NULL,
+    [Price]          DECIMAL (9, 2) NOT NULL,
     CONSTRAINT [PK_exeRequests] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_exeRequests_appUsers] FOREIGN KEY ([ReviewerUserId]) REFERENCES [dbo].[appUsers] ([Id]),
     CONSTRAINT [FK_exeRequests_exeReviews] FOREIGN KEY ([ReviewId]) REFERENCES [dbo].[exeReviews] ([Id])
@@ -18,13 +16,34 @@
 
 
 
-GO
-CREATE UNIQUE NONCLUSTERED INDEX [IX_ReviewerUserId_RewievId]
-    ON [dbo].[exeRequests]([ReviewerUserId] ASC, [ReviewId] ASC);
+
+
+
+
+
+
 
 
 GO
-GRANT SELECT
-    ON OBJECT::[dbo].[exeRequests] TO [websiterole]
-    AS [dbo];
+
+
+
+GO
+
+
+
+GO
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [IXFC_ReviewId_IsActive_ReviewerUserId]
+    ON [dbo].[exeRequests]([ReviewId] ASC)
+    INCLUDE([ReviewerUserId]) WHERE ([IsActive]=(1));
+
+
+GO
+CREATE NONCLUSTERED INDEX [IXFC_ReviewerUserId_IsActive_ReviewId_Price]
+    ON [dbo].[exeRequests]([ReviewerUserId] ASC)
+    INCLUDE([ReviewId], [Price]) WHERE ([IsActive]=(1));
 

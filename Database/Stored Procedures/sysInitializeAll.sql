@@ -17,9 +17,18 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
+		execute dbo.sysInitializeTypes;
 		execute dbo.sysInitializeConstants;
+
 		execute dbo.sysInitializeSpecialUsers;
 		--execute dbo.[InitializeTestUsers];
+
+		execute dbo.sysInitializeLibCategories;
+		execute dbo.sysRefreshCategoryPaths;
+		execute dbo.sysInitializeLibExponents;
+		execute dbo.sysInitializeLibTitles;
+		execute dbo.sysInitializeLibDescriptions;
+		execute dbo.sysInitializeLibResources;
 
 		--GRANT CONNECT TO websiteuser;
 

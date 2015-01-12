@@ -14,39 +14,6 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
-insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('PERS', 'Personal', 'LIABILITY', 0);
-insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('ESCR', 'Escrow', 'LIABILITY', 0);
-insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('SREV', 'Service Revenue', 'REVENUE', 0);
-insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('PPCA', 'PayPal Cash', 'ASSET', 1);
-insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('PPIF', 'Incoming PayPal Payment Fee', 'EXPENSE', 1);
-
-insert dbo.accTransactionAttributeTypes (Id, [Description]) values ('EXER', 'ExerciseId');
-insert dbo.accTransactionAttributeTypes (Id, [Description]) values ('REVW', 'ReviewId');
-insert dbo.accTransactionAttributeTypes (Id, [Description]) values ('PPRI', 'PayPal Receipt Id');
-insert dbo.accTransactionAttributeTypes (Id, [Description]) values ('LITI', 'LearnerUserId to TeacherUserId');
-insert dbo.accTransactionAttributeTypes (Id, [Description]) values ('SCEV', 'Id in dbo.relScheduleEvents. Session');
-
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('PPIP', 'Incoming PayPal payment', 'PPRI');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('PPIF', 'Incoming PayPal payment fee compensation', 'PPRI');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('PPOP', 'Outgoing PayPal payment', null);
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('NACC', 'New account', null);
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('EXRR', 'Request for review of exercise', 'REVW');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('EXRC', 'Request for review canceled', 'REVW');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('EXRF', 'Review finished', 'REVW');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('EXFD', 'Service fee deducted from reward', 'REVW');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('IPLT', 'Internal payment from learner to teacher', 'LITI');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('IPFD', 'Service fee deducted from internal payment', 'LITI');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('SNRQ', 'Session request', 'SCEV');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('SNCN', 'Session cancellation', 'SCEV');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('SNPY', 'Payment for session', 'SCEV');
-insert into dbo.accTransactionTypes (Id, [Description], AttributeId) values ('SNFD', 'Service fee deducted from session payment', 'SCEV');
-
-insert into dbo.appConstants (Name, Value, Comment) values ('Accounting.Transfer.MinimalAmount', '1.0', 'Minimal amount of internal transfer from learner to teacher.');
-insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.Reviews.ServiceFeeRate', '0.29', 'Service fee rate. 29% of earnings.');
-insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.Reviews.WorkDurationRatio', '4.0', 'Average ratio of work duration to exercise length.');
-insert into dbo.appConstants (Name, Value, Comment) values ('Relationships.Sessions.ServiceFeeRate', '0.29', 'Service fee rate. 29% of session price.');
-insert into dbo.appConstants (Name, Value, Comment) values ('Relationships.Teachers.BuketCount', '1', 'Used for fast paging');
-
 /* Inserted into dbo.appConstants whithin dbo.newInitializeSpecialUsers:
 'Account.$Service.PayPalIncomingPaymentFee', 
 'Account.$Service.PayPalCash', 
@@ -54,49 +21,73 @@ insert into dbo.appConstants (Name, Value, Comment) values ('Relationships.Teach
 'Account.$UnknownPayPalPayer.Personal'
 */
 
-insert into dbo.exeExerciseTypes (Id, [Description]) values ('AREC', 'Audio Recording');
+insert into dbo.appConstants (Name, Value, Comment) values ('Accounting.Transfer.MinimalAmount', '1.0', 'Minimal amount of internal transfer from learner to teacher.');
+--insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.Reviews.ServiceFeeRate', '0.29', 'Service fee rate. 29% of earnings.');
+--insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.ServiceFeeRate', '0.29', 'Service fee rate. 29% of session price.');
+insert into dbo.appConstants (Name, Value, Comment) values ('Relationships.Teachers.BuketCount', '1', 'Used for fast paging');
+insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.FinishDelay.Minutes', '60', 'A user has an opportunity to dispute a session until it is finished.');
+insert into dbo.appConstants (Name, Value, Comment) values ('AnyTeacher.ReviewRate.EXAREC', '2.5', 'Anonymous teacher recordings review rate');
+insert into dbo.appConstants (Name, Value, Comment) values ('AnyTeacher.ReviewRate.EXWRPH', '3.0', 'Anonymous teacher writings review rate');
 
-insert dbo.relScheduleEventTypes (Id, Name, [Description]) values ('OFFR', 'Offer', 'Offered period of availability for sessions');
-insert dbo.relScheduleEventTypes (Id, Name, [Description]) values ('ROFR', 'Revoked Offer', 'Revoked offer of availability for sessions');
-insert dbo.relScheduleEventTypes (Id, Name, [Description]) values ('RQSN', 'Requested Session', 'Session request');
-insert dbo.relScheduleEventTypes (Id, Name, [Description]) values ('CFSN', 'Confirmed Session', 'Confirmed session');
-insert dbo.relScheduleEventTypes (Id, Name, [Description]) values ('CSUS', 'Cancelled Session, by User', 'Session cancelled by User');
-insert dbo.relScheduleEventTypes (Id, Name, [Description]) values ('CSSU', 'Cancelled Session, by SecondUser', 'Session cancelled by SecondUser');
-insert dbo.relScheduleEventTypes (Id, Name, [Description]) values ('CLSN', 'Closed Session', 'Closed session');
-insert dbo.relScheduleEventTypes (Id, Name, [Description]) values ('DSSN', 'Disputed Session', 'Disputed session');
+--insert dbo.appAttributeTypes (Id, Name, [Description]) values ('SCEV', 'dbo.sesScheduleEvents', null);
+--insert dbo.appAttributeTypes (Id, Name, [Description]) values ('SSSN', 'dbo.sesSessions', null);--T
+--insert dbo.appAttributeTypes (Id, Name, [Description]) values ('REVW', 'dbo.exeReviews', 'ReviewId');--T
+--insert dbo.appAttributeTypes (Id, Name, [Description]) values ('PPRI', null, 'PayPal Receipt Id');--T
+--insert dbo.appAttributeTypes (Id, Name, [Description]) values ('LITI', null, 'LearnerUserId to TeacherUserId');--T
 
-insert dbo.relMessageAttributeTypes (Id, [Description]) values ('SCEV', 'Id in dbo.relScheduleEvents');
+--insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('PERS', 'Personal', 'LIABILITY', 0);--T
+--insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('ESCR', 'Escrow', 'LIABILITY', 0);--T
+--insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('SREV', 'Service Revenue', 'REVENUE', 0);--T
+--insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('PPCA', 'PayPal Cash', 'ASSET', 1);--T
+--insert into dbo.accAccountTypes (Id, [Description], Kind, IsDebit) values ('PPIF', 'Incoming PayPal Payment Fee', 'EXPENSE', 1);--T
 
-insert dbo.relMessageTypes (Id, [Description], AttributeType) values ('SSSN', 'Session', 'SCEV');
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('IPFD', 'Service fee deducted from internal payment', 'LITI');--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('IPLT', 'Internal payment from learner to teacher', 'LITI');--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('NACC', 'New account', null);--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('PPIF', 'Incoming PayPal payment fee compensation', 'PPRI');--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('PPIP', 'Incoming PayPal payment', 'PPRI');--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('PPOP', 'Outgoing PayPal payment', null);--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('RVRQ', 'Request for review of exercise', 'REVW');--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('RVRC', 'Request for review canceled', 'REVW');--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('RVFN', 'Review finished', 'REVW');--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('RVFD', 'Service fee deducted from review price', 'REVW');--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('SSRQ', 'Request for session', 'SSSN');--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('SSFN', 'Session finished', 'SSSN');--T
+--insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('SSFD', 'Service fee deducted from session payment', 'SSSN');--T
 
---Insert
-insert dbo.resResourceTypes (Id, Name) values ('CORE', 'Core Inventory');
---Insert
-insert dbo.resResourceTypes (Id, Name) values ('EXEX', 'Explanation and Exercise');
---Insert
-insert dbo.resResourceTypes (Id, Name) values ('EXPL', 'Explanation');
---Insert
-insert dbo.resResourceTypes (Id, Name) values ('EXRS', 'Exercise');
+--insert into dbo.exeExerciseTypes (Id, [Description]) values ('AREC', 'Audio Recording MP3');--T
+--insert into dbo.exeExerciseTypes (Id, [Description]) values ('WRPH', 'Writing Photo JPEG');--T
 
---Insert
-insert dbo.resMediaTypes (Id, Name) values ('AUDI', 'Audio');
---Insert
-insert dbo.resMediaTypes (Id, Name) values ('VIDE', 'Video');
---Insert
-insert dbo.resMediaTypes (Id, Name) values ('TEXT', 'Text');
+--insert dbo.sesScheduleEventTypes (Id, Name, [Description], AttributeType) values ('S_VT', 'Session._.VacantTime', 'Announced period of availability for sessions', null);--T
+--insert dbo.sesScheduleEventTypes (Id, Name, [Description], AttributeType) values ('SSRQ', 'Session.Skype.Requested', 'Skype session request', 'SSSN');--T
+--insert dbo.sesScheduleEventTypes (Id, Name, [Description], AttributeType) values ('SSCF', 'Session.Skype.Confirmed', 'Confirmed session', 'SSSN');--T
+--insert dbo.sesScheduleEventTypes (Id, Name, [Description], AttributeType) values ('SSCS', 'Session.Skype.Canceled.Self', 'Session canceled by the user themself', 'SSSN');--T
+--insert dbo.sesScheduleEventTypes (Id, Name, [Description], AttributeType) values ('SSCO', 'Session.Skype.Canceled.Other', 'Session canceled by the other user', 'SSSN');--T
 
---Insert
-insert dbo.appReferenceLevels (Id) values ('A1');
---Insert
-insert dbo.appReferenceLevels (Id) values ('A2');
---Insert
-insert dbo.appReferenceLevels (Id) values ('B1');
---Insert
-insert dbo.appReferenceLevels (Id) values ('B2');
---Insert
-insert dbo.appReferenceLevels (Id) values ('C1');
---Insert
-insert dbo.appReferenceLevels (Id) values ('C2');
+--insert dbo.appMessageTypes (Id, [Description], AttributeType) values ('SSRQ', 'Skype session request', 'SSSN');--T
+--insert dbo.appMessageTypes (Id, [Description], AttributeType) values ('SSCF', 'Session confirmed', 'SSSN');--T
+--insert dbo.appMessageTypes (Id, [Description], AttributeType) values ('SSCH', 'Session canceled by the host user', 'SSSN');--T
+--insert dbo.appMessageTypes (Id, [Description], AttributeType) values ('SSCG', 'Session canceled by the guest user', 'SSSN');--T
+--insert dbo.appMessageTypes (Id, [Description], AttributeType) values ('SSDH', 'Session disputed by the host user', 'SSSN');--T
+--insert dbo.appMessageTypes (Id, [Description], AttributeType) values ('SSDG', 'Session disputed by the guest user', 'SSSN');--T
+--insert dbo.appMessageTypes (Id, [Description], AttributeType) values ('SSMS', 'A custom message related to the session', 'SSSN');--T
+
+insert into dbo.libSources(Id, Name, HomePage, IconUrl) values ('BCEQ', 'British Council & EAQUALS', 'http://eaquals.org/cefr/', 'http://eaquals.org/favicon.ico');
+insert into dbo.libSources (Id, Name, HomePage, IconUrl) values ('BCEG', 'British Council, English Grammar', 'http://learnenglish.britishcouncil.org/en/english-grammar', '//s2.googleusercontent.com/s2/favicons?domain=learnenglish.britishcouncil.org');
+
+--insert into dbo.libFormats (Id, Name) values ('CIEX', 'Core Inventory exponents');--T
+--insert into dbo.libFormats (Id, Name) values ('YTVD', 'YouTube Video');--T
+
+--insert into dbo.friContactTypes (Id, Name) values ('AE', 'Added with email');--T
+--insert into dbo.friContactTypes (Id, Name) values ('RR', 'Exercise review requested');--T
+--insert into dbo.friContactTypes (Id, Name) values ('RS', 'Exercise review started');--T
+--insert into dbo.friContactTypes (Id, Name) values ('SU', 'Skype session requested by the user/guest is confirmed by the friend/host.');--T
+--insert into dbo.friContactTypes (Id, Name) values ('SF', 'Skype session requested by the friend/guest is confirmed by the user/host.');--T
+
+insert dbo.appFeeRates ([Type], Start, FeeRates) values ('EXAREC', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="9.99">0.29</FeeRate><FeeRate priceRateFrom="10.00" priceRateTo="999999.99">0.28</FeeRate></FeeRates>');
+insert dbo.appFeeRates ([Type], Start, FeeRates) values ('EXWRPH', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="9.99">0.3</FeeRate><FeeRate priceRateFrom="10.00" priceRateTo="999999.99">0.2</FeeRate></FeeRates>');
+insert dbo.appFeeRates ([Type], Start, FeeRates) values ('TRIPFD', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="999999.99">0.33</FeeRate></FeeRates>');
+insert dbo.appFeeRates ([Type], Start, FeeRates) values ('TRSSFD', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="999999.99">0.33</FeeRate></FeeRates>');
 
 	if @ExternalTran = 0
 		commit;

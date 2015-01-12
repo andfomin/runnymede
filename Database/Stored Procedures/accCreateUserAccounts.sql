@@ -9,6 +9,7 @@ Creates new money accounts for a user. Initializes zero balance on the accounts.
 
 20121114 AF. Initial release.
 20131001 AF. Reincarnation.
+20141229 AF. Refactoring
 */
 SET NOCOUNT ON;
 declare @ExternalTran int, @XState int, @ProcName sysname;
@@ -20,34 +21,23 @@ begin try
 
 	declare @PersonalAccountId int, @EscrowAccountId int, @TransactionId int;
 
-	--select @PersonalAccountTypeId = Max(case when AT.Name = N'Personal' then AT.Id else 0 end)
-	--	, @EscrowAccountTypeId = Max(case when AT.Name = N'Escrow' then AT.Id else 0 end)
-	--from dbo.accAccountTypes AT
-
-	--select @TransactionTypeId = Id from dbo.accTransactionTypes where Name = N'NEW_ACCOUNT';
-
-	--if (nullif(@PersonalAccountTypeId, 0) is null) or (nullif(@EscrowAccountTypeId, 0) is null) or (@TransactionTypeId is null) 
-	--begin
-	--	raiserror('%s: One or more accounting constants not found.', 16, 1, @ProcName);  
-	--end;
-
 	if @ExternalTran = 0
 		begin transaction;
 
-	insert dbo.accAccounts (AccountTypeId, UserId)
-		values ('PERS', @UserId);
+	insert dbo.accAccounts ([Type], UserId)
+		values ('ACPERS', @UserId);
 
-	select @PersonalAccountId = Id from dbo.accAccounts where Id = scope_identity() and @@rowcount != 0;
+	select @PersonalAccountId = scope_identity() where @@rowcount != 0;
 
-	insert dbo.accAccounts (AccountTypeId, UserId)
-		values ('ESCR', @UserId);
+	insert dbo.accAccounts ([Type], UserId)
+		values ('ACESCR', @UserId);
 
-	select @EscrowAccountId = Id from dbo.accAccounts where Id = scope_identity() and @@rowcount != 0;
+	select @EscrowAccountId = scope_identity() where @@rowcount != 0;
 
-	insert into dbo.accTransactions (TransactionTypeId, ObservedTime)
-		values ('NACC', sysutcdatetime());
+	insert into dbo.accTransactions ([Type], ObservedTime)
+		values ('TRNACC', sysutcdatetime());
 
-	select @TransactionId = Id from dbo.accTransactions where Id = scope_identity() and @@rowcount != 0;
+	select @TransactionId = scope_identity() where @@rowcount != 0;
 
 	insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
 		values (@TransactionId, @PersonalAccountId, null, 0.0, 0.0);

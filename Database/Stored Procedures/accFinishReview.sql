@@ -1,13 +1,14 @@
 ﻿
-
-
-
 CREATE PROCEDURE [dbo].[accFinishReview]
 	@ReviewId int
 AS
 BEGIN
 /*
 20121117 AF.
+20140912 AF.
+This procedure assumes that the Price of the review is non-zero.
+
+It is called internally by dbo.exeFinishReview, so do not set access permitions on it.
 */
 SET NOCOUNT ON;
 
@@ -19,15 +20,23 @@ begin try
 		save transaction ProcedureSave;
 
 	declare @ExerciseId int, @AuthorUserId int, @ReviewerUserId int,
-		@Reward decimal(18,2), @ServiceFeeRate float, @Fee decimal(18,2), @Attribute nvarchar(100),
+		@Price decimal(9,2), @PriceRate float, @Fee decimal(9,2), @Attribute nvarchar(100),
 		@AuthorAccountId int,  @ReviewerAccountId int, @RevenueAccountId int, 
-		@RewardTransactionId int, @FeeTransactionId int, @InitialReviewerBalance decimal(18,2);
+		@PriceTransactionId int, @FeeTransactionId int, @InitialReviewerBalance decimal(18,2),
+		@Now datetime2(2);
 
-	select @ExerciseId = ExerciseId, @Reward = Reward, @ReviewerUserId = UserId
+	select @ExerciseId = ExerciseId, @ReviewerUserId = UserId, @Price = Price,
+		@Fee = convert(decimal(9,2), Price * dbo.appGetFeeRate(ExerciseType, RequestTime, Price / ExerciseLength))
 	from dbo.exeReviews 
-	where Id = @ReviewId;
+	where Id = @ReviewId
+		and StartTime is not null
+		and FinishTime is null;
 
-	select @AuthorUserId = UserId 
+	-- Price is not nullable.
+	if coalesce(@Price, -1) < 0
+		raiserror('%s,%d:: The review cannot be finished.', 16, 1, @ProcName, @ReviewId);
+
+	select @AuthorUserId = UserId
 	from dbo.exeExercises 
 	where Id = @ExerciseId;
 
@@ -38,27 +47,33 @@ begin try
 	set @RevenueAccountId = dbo.appGetConstantAsInt('Account.$Service.ServiceRevenue');
 
 	if (@AuthorAccountId is null) or (@ReviewerAccountId is null) or (@RevenueAccountId is null)
-		raiserror('%s,%d,%d:: One or more accounts not found.', 16, 1, @ProcName, @AuthorUserId, @ReviewerUserId);
+		raiserror('%s,%d,%d:: Account not found.', 16, 1, @ProcName, @AuthorUserId, @ReviewerUserId);
 
-	set @ServiceFeeRate = dbo.appGetConstantAsFloat('Exercises.Reviews.ServiceFeeRate');
-	set @Fee = cast((@Reward * @ServiceFeeRate) as decimal(18,2));
+	set @Attribute = convert(nvarchar(100), @ReviewId);
 
-	set @Attribute = cast(@ReviewId as nvarchar(100));
-
-	declare @Now datetime2(0) = sysutcdatetime();
+	set @Now = sysutcdatetime();
 
 	if @ExternalTran = 0
 		begin transaction;
 
-		-- Transfer reward.
-		insert dbo.accTransactions (TransactionTypeId, ObservedTime, Attribute)
-			values ('EXRF', @Now, @Attribute);
+		update dbo.exeReviews
+			set FinishTime = @Now
+		where Id = @ReviewId 
+			and StartTime is not null
+			and FinishTime is null;
 
-		select @RewardTransactionId = scope_identity() where @@rowcount != 0;
+		if @@rowcount = 0
+			raiserror('%s,%d:: Failed to finish the review.', 16, 1, @ProcName, @ReviewId);
+
+		-- Transfer reward.
+		insert dbo.accTransactions ([Type], ObservedTime, Attribute)
+			values ('TRRVFN', @Now, @Attribute);
+
+		select @PriceTransactionId = scope_identity() where @@rowcount != 0;
 
 		-- Deduct service fee.
-		insert dbo.accTransactions (TransactionTypeId, ObservedTime, Attribute)
-			values ('EXFD', @Now, @Attribute);
+		insert dbo.accTransactions ([Type], ObservedTime, Attribute)
+			values ('TRRVFD', @Now, @Attribute);
 
 		select @FeeTransactionId = scope_identity() where @@rowcount != 0;
 
@@ -66,7 +81,7 @@ begin try
 
 		-- Debit the author account.
 		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select @RewardTransactionId, @AuthorAccountId, @Reward, null, Balance - @Reward
+			select @PriceTransactionId, @AuthorAccountId, @Price, null, Balance - @Price
 			from dbo.accEntries
 			where Id = (select max(Id) from dbo.accEntries where AccountId = @AuthorAccountId);
 
@@ -77,11 +92,11 @@ begin try
 
 		-- Temporary credit the reviewer account with the full reward amount.
 		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			values (@RewardTransactionId, @ReviewerAccountId, null, @Reward, @InitialReviewerBalance + @Reward)
+			values (@PriceTransactionId, @ReviewerAccountId, null, @Price, @InitialReviewerBalance + @Price)
 
 		-- Deduct service fee from the reviewer account.
 		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			values (@FeeTransactionId, @ReviewerAccountId, @Fee, null, @InitialReviewerBalance + @Reward - @Fee)
+			values (@FeeTransactionId, @ReviewerAccountId, @Fee, null, @InitialReviewerBalance + @Price - @Fee)
 
 		-- Credit the service.
 		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
@@ -92,7 +107,6 @@ begin try
 	if @ExternalTran = 0
 		commit;
 
-	select @Now;
 
 end try
 begin catch

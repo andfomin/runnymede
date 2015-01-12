@@ -23,36 +23,45 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
+	declare @PaymentTransactionId int, @FeeTransactionId int, @InitialUserBalance decimal(18,2), @InitialFeeBalance decimal(18,2);
+
 	declare @UserId int = dbo.appGetUserId(@UserName);
 	declare @UserAccountId int = dbo.accGetPersonalAccount(@UserId);
 	declare @CashAccountId int = dbo.appGetConstantAsInt('Account.$Service.PayPalCash');
 	declare @FeeAccountId int = dbo.appGetConstantAsInt('Account.$Service.IncomingPayPalPaymentFee');
 
-	declare @PaymentTransactionId int, @FeeTransactionId int, @InitialUserBalance decimal(18,2), @InitialFeeBalance decimal(18,2);
-
-	-- Do not rely on the FK check. Otherwise we can lose an autoinc PK value in dbo.accTransactions on a rollback.
-	if (@UserAccountId is null) or (@CashAccountId is null) or (@FeeAccountId is null)
-	begin
-		raiserror('%s,%s:: The account for the user not found.', 16, 1, @ProcName, @UserName);  
-	end;
-
-	declare @Now datetime2(7) = sysutcdatetime();
-
 	if @ExternalTran = 0
 		begin transaction;
+
+		-- We postpone creation of a user account until it is really needed.
+		if (@UserAccountId is null) begin
+		
+			exec dbo.accCreateUserAccounts @UserId = @UserId;
+
+			set @UserAccountId = dbo.accGetPersonalAccount(@UserId);
+
+		end
+
+		-- Do not rely on the FK check. Otherwise we can lose an autoinc PK value in dbo.accTransactions on a rollback.
+		if (@UserAccountId is null) or (@CashAccountId is null) or (@FeeAccountId is null)
+		begin
+			raiserror('%s,%s:: Account not found.', 16, 1, @ProcName, @UserName);  
+		end;
 
 		-- ExtId is a PK. We use it as a guardian to avoid duplicate payment posting.
 		insert dbo.accPostedPayPalPayments (ExtId)
 			values (@ExtId);
 
-		insert dbo.accTransactions (TransactionTypeId, ObservedTime, Attribute, Details)
-			values ('PPIP', @Now, @ReceiptId, @Details);
+		declare @Now datetime2(7) = sysutcdatetime();
+
+		insert dbo.accTransactions ([Type], ObservedTime, Attribute, Details)
+			values ('TRPPIP', @Now, @ReceiptId, @Details);
 
 		select @PaymentTransactionId = scope_identity() where @@rowcount != 0;
 
 		-- Make the user to compensate the fee.
-		insert dbo.accTransactions (TransactionTypeId, ObservedTime, Attribute)
-			values ('PPIF', @Now, @ReceiptId);
+		insert dbo.accTransactions ([Type], ObservedTime, Attribute)
+			values ('TRPPIF', @Now, @ReceiptId);
 
 		select @FeeTransactionId = scope_identity() where @@rowcount != 0;
 
