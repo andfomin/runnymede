@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.Title = "Review of writing";
+}
+<div ng-app="myApp" ng-controller="EditWriting" ng-cloak>
+
+    @Html.Partial("_TopSaveButtonPartial")
+
+    @Html.Partial("_CanvasPartial")
+
+    @Html.Partial("_BottomPartial")
+
+</div> <!-- /ng-app -->
+@section BottomScripts {
+    <script type="text/javascript">
+        var app = app || {};
+        app.exerciseParam = @JavaScriptConvert.Serialize(ViewBag.ExerciseParam);
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+
+"~/app/shared/library-data.js",
+"~/app/shared/exercises.js",
+"~/app/shared/exercises-writing.js",
+"~/app/reviews/utils-editCtrlBase.js",
+"~/app/reviews/editWriting.js"
+)
+}
+
+

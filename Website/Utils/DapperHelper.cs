@@ -13,31 +13,24 @@ namespace Runnymede.Website.Utils
 {
     public static class DapperHelper
     {
+        public static string GetConnectionString() {
+            return System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        }
+
         public static SqlConnection GetOpenConnection()
         {
-            var connString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-            var connection = new SqlConnection(connString);
+            var connection = new SqlConnection(GetConnectionString());
             connection.Open();
             return connection;
         }
 
         public static async Task<SqlConnection> GetOpenConnectionAsync()
         {
-            var connString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-            var connection = new SqlConnection(connString);
+            var connection = new SqlConnection(GetConnectionString());
             // Dapper uses ConfigureAwait(false) in their code. It is discussed at +https://code.google.com/p/dapper-dot-net/issues/detail?id=128
             await connection.OpenAsync().ConfigureAwait(false);
             return connection;
         }
-
-        // ??? Is there an obvious performance gain in resetting the connection asynchronously?
-        ////public static async Task<SqlConnection> GetOpenConnectionAsync()
-        ////{
-        ////    var connString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-        ////    var connection = new SqlConnection(connString);
-        ////    await connection.OpenAsync();
-        ////    return connection;
-        ////}
 
         public static IEnumerable<TFirst> Map<TFirst, TSecond, TKey>
                     (
@@ -67,20 +60,19 @@ namespace Runnymede.Website.Utils
         }
 
         /// <summary>
-        /// Strip the beginning of the exception message which contains the name of the stored procedure and variable values.
+        /// Strip the beginning of the exception message which contains the name of the stored procedure and the argument values. We do not disclose the values to the client.
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
         public static Exception StripException(SqlException ex)
         {
-            var index = ex.Message.IndexOf(":: "); // Magic separator.
-            return (index > 0) ? new Exception(ex.Message.Substring(index + 3)/*, ex*/) : ex;
+            var index = ex.Message.IndexOf("::"); // The magic separator used within stored procedures. 
+            return (index > 0) ? new Exception(ex.Message.Substring(index + 2).Trim()/*, ex*/) : ex;
         }
 
         public static int ExecuteResiliently(string sql, dynamic param = null, CommandType? commandType = null)
         {
             int rowsAffected = 0;
-
             try
             {
                 var executionStrategy = new SqlAzureExecutionStrategy();
@@ -99,7 +91,6 @@ namespace Runnymede.Website.Utils
             {
                 throw StripException(ex);
             }
-
             return rowsAffected;
         }
 
@@ -123,7 +114,7 @@ namespace Runnymede.Website.Utils
                     }
                 },
                     // Apparently, CancellationToken is not used. See +https://github.com/Icehunter/entityframework/blob/master/src/EntityFramework.SqlServer/DefaultSqlExecutionStrategy.cs            
-                    new CancellationToken()
+                    CancellationToken.None
                 );
             }
             catch (SqlException ex)
@@ -137,7 +128,6 @@ namespace Runnymede.Website.Utils
         public static IEnumerable<T> QueryResiliently<T>(string sql, dynamic param = null, CommandType? commandType = null)
         {
             IEnumerable<T> result = null;
-
             try
             {
                 var executionStrategy = new SqlAzureExecutionStrategy();
@@ -154,32 +144,7 @@ namespace Runnymede.Website.Utils
             {
                 throw StripException(ex);
             }
-
             return result;
-        }
-
-        public static void QueryMultipleResiliently(string sql, dynamic param = null, CommandType? commandType = null, Action<Dapper.SqlMapper.GridReader> action = null)
-        {
-            try
-            {
-                var executionStrategy = new SqlAzureExecutionStrategy();
-                executionStrategy.Execute(() =>
-                {
-                    using (var connection = GetOpenConnection())
-                    {
-                        var reader = SqlMapper.QueryMultiple(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
-
-                        if (action != null)
-                        {
-                            action(reader);
-                        }
-                    }
-                });
-            }
-            catch (SqlException ex)
-            {
-                throw StripException(ex);
-            }
         }
 
         public static async Task<IEnumerable<T>> QueryResilientlyAsync<T>(string sql, dynamic param = null, CommandType? commandType = null)
@@ -192,14 +157,14 @@ namespace Runnymede.Website.Utils
                 await executionStrategy.ExecuteAsync(
                     async () =>
                     {
-                        using (var connection = GetOpenConnection())
+                        using (var connection = await GetOpenConnectionAsync())
                         {
                             // QueryAsync is marked async in source code, but is not in metadata. +https://code.google.com/p/dapper-dot-net/source/browse/Dapper+NET45/SqlMapperAsync.cs
                             result = await SqlMapper.QueryAsync<T>(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
                         }
                     },
                     // Apparently, CancellationToken is not used. See +https://github.com/Icehunter/entityframework/blob/master/src/EntityFramework.SqlServer/DefaultSqlExecutionStrategy.cs            
-                    new CancellationToken()
+                    CancellationToken.None
                 );
             }
             catch (SqlException ex)
@@ -210,6 +175,75 @@ namespace Runnymede.Website.Utils
             return result;
         }
 
+        //public static void QueryMultipleResiliently(string sql, dynamic param = null, CommandType? commandType = null, Action<Dapper.SqlMapper.GridReader> action = null)
+        //{
+        //    try
+        //    {
+        //        var executionStrategy = new SqlAzureExecutionStrategy();
+        //        executionStrategy.Execute(() =>
+        //        {
+        //            using (var connection = GetOpenConnection())
+        //            {
+        //                var reader = SqlMapper.QueryMultiple(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
+
+        //                if (action != null)
+        //                {
+        //                    action(reader);
+        //                }
+        //            }
+        //        });
+        //    }
+        //    catch (SqlException ex)
+        //    {
+        //        throw StripException(ex);
+        //    }
+        //}
+
+        public static async Task QueryMultipleResilientlyAsync(string sql, dynamic param = null, CommandType? commandType = null, Action<Dapper.SqlMapper.GridReader> action = null)
+        {
+            try
+            {
+                var executionStrategy = new SqlAzureExecutionStrategy();
+                await executionStrategy.ExecuteAsync(
+                    async () =>
+                    {
+                        using (var connection = await GetOpenConnectionAsync())
+                        {
+                            var reader = await SqlMapper.QueryMultipleAsync(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
+
+                            if (action != null)
+                            {
+                                action(reader);
+                            }
+                        }
+                    },
+                    CancellationToken.None
+                );
+            }
+            catch (SqlException ex)
+            {
+                throw StripException(ex);
+            }
+        }
+
+        public class PageItems<T>
+        {
+            public IEnumerable<T> Items { get; set; }
+            public int TotalCount { get; set; }
+        }
+
+        public static async Task<PageItems<T>> QueryPageItems<T>(string sql, dynamic param = null, CommandType? commandType = CommandType.StoredProcedure)
+        {
+            var result = new PageItems<T>();
+            Action<Dapper.SqlMapper.GridReader> action = (reader) =>
+            {
+                // The order of recordsets returned from the stored procedure must correspond to this order.
+                result.Items = reader.Read<T>(); //.ToList(),
+                result.TotalCount = reader.Read<int>().Single();
+            };
+            await DapperHelper.QueryMultipleResilientlyAsync(sql, param, commandType, action);
+            return result;
+        }
 
         /* +http://stackoverflow.com/questions/5962117/is-there-a-way-to-call-a-stored-procedure-with-dapper
         In the simple case you can do:

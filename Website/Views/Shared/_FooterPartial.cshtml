@@ -1,11 +1,29 @@
-﻿<span class="text-muted">&copy;&nbsp;@DateTime.Now.Year</span>
-@Html.ActionLink("English Cosmos", "EnglishCosmos", "Info", null, new { @class = "credit" })
-<span class="pull-right">
-    @Html.ActionLink("IELTS", "PracticeSpeaking", "Ielts")
-    @Html.ActionLink("How it works", "HowItWorks", "Info")
-    @Html.ActionLink("FAQ", "Faq", "Info")
-    @Html.ActionLink("Support", "Support", "Info")
-    @Html.ActionLink("Terms", "TermsOfService", "Info")
-    @Html.ActionLink("Privacy", "PrivacyPolicy", "Info")
-</span>
-<br />&nbsp;
+﻿<div class="row">
+    <div class="col-md-offset-2 col-sm-9 col-md-7">
+        <table>
+            <tr>
+                <td>
+                    <p class="small text-muted"><strong>FEATURES</strong></p>
+                    <p>@Html.ActionLink("How it works", "HowItWorks", "Info")</p>
+                    <p>@Html.ActionLink("IELTS", "PracticeSpeaking", "Ielts")</p>
+                </td>
+                <td>
+                    <p class="small text-muted"><strong>HELP</strong></p>
+                    @*<p>@Html.ActionLink("Frequently asked questions", "Faq", "Info")</p>*@
+                    <p><a href="http://support.englisharium.com/support/solutions/folders/5000167553">Frequently Asked Questions</a></p>
+                    <p><a href="http://support.englisharium.com/support/home" >Support portal</a></p>
+                    <p>Email: <img src="~/content/images/email-support.png" width="160" height="15" /></p>
+                </td>
+                <td>
+                    <p class="small text-muted"><strong>POLICIES</strong></p>
+                    <p>@Html.ActionLink("Terms of Service", "TermsOfService", "Info")</p>
+                    <p>@Html.ActionLink("Privacy Policy", "PrivacyPolicy", "Info")</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-sm-3 app-margin-bottom">
+            <span class="text-muted app-margin-left">&copy;&nbsp;2015</span>
+            @Html.ActionLink("Dignicom" + ((char)160).ToString() + "Inc.", "Dignicom", "Info", null, new { @class = "credit" })
+    </div>
+</div>

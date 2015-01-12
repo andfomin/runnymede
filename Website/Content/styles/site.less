@@ -1,0 +1,458 @@
+﻿@import "bootstrap-custom.less";
+
+// The theme in site-variables.less is imported in bootstrap-custom.less
+
+/* #region Custom settings ----------- */
+
+small.app {
+    font-size: 11px;
+}
+
+.app-monospace {
+    font-family: @font-family-monospace;
+}
+
+.app-appred {
+    color: @appRed !important;
+}
+
+.app-appyellow {
+    color: @appYellow !important;
+}
+
+.app-appblue {
+    color: @appBlue !important;
+
+    .active > & {
+        color: @appWhite !important;
+    }
+
+    .active > a > i& {
+        color: @appWhite !important;
+    }
+}
+
+.app-background-appred {
+    background-color: @appRed !important;
+}
+
+.app-background-appblue {
+    background-color: @appBlue !important;
+}
+
+.app-2px-up {
+    position: relative !important;
+    top: -2px;
+}
+
+.app-1px-up {
+    position: relative !important;
+    top: -1px;
+}
+
+.app-1px-down {
+    position: relative !important;
+    top: 1px;
+}
+
+img.app-avatar {
+    margin: 0 4px 0 0;
+}
+
+/* Deprecated. Original color is already the same. 
+hr.app-separator {
+    border-top-color: @page-header-border-color;
+}*/
+
+footer.app-footer {
+    td {
+        padding: 0px 20px;
+        vertical-align: top;
+
+        p:last-of-type {
+            margin-bottom: @line-height-computed;
+        }
+    }
+
+    a.credit {
+        padding-left: 0;
+    }
+}
+
+a.app-close {
+    position: relative;
+    top: 2px;
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+button.btn.app-btn-disablable {
+    pointer-events: inherit;
+}
+
+p.app-pre-line, span.app-pre-line {
+    white-space: pre-line;
+}
+
+textarea.form-control.app {
+    width: 100%;
+    resize: vertical;
+}
+
+/* Open the dropdown menu on hover */
+@media (min-width: @screen-sm-min) {
+    .dropdown.app-dropdown-hover:hover .dropdown-menu {
+        display: block;
+    }
+}
+
+.app-margin-top-none {
+    margin-top: 0;
+}
+
+.app-margin-bottom-none {
+    margin-bottom: 0;
+}
+
+.app-margin-bottom {
+    margin-bottom: @line-height-computed;
+}
+
+.app-margin-top {
+    margin-top: @line-height-computed;
+}
+
+.app-margin-left {
+    margin-left: @line-height-computed;
+}
+
+.app-margin-left-half {
+    margin-left: (@line-height-computed / 2);
+}
+
+.alert-warning.app-warning {
+    margin: 0 20px;
+    padding: 8px;
+    position: relative;
+    top: 2px;
+}
+
+/* #endregion */
+
+/* #region Bootstrap tweaking using 'app-*' classes ----------- */
+
+// For navspy positioning
+h4.app-nav-anchor, h3.app-nav-anchor, p.app-nav-anchor {
+    padding-top: @navbar-height;
+    margin-top: 0 - @navbar-height;
+}
+
+a.list-group-item.app {
+    padding: 5px; // Originally 10px 15px
+}
+
+table.app-table-norowbordertop > tbody > tr > td {
+    border-top: none;
+}
+
+/*.table > tbody > tr.app-row-review > td {
+    border-top-color: transparent;
+}*/
+
+// Add a border line after the last row using ng-class="{'app-last-row':$last}"
+table.table > tbody > tr.app-last-row > td {
+    border-bottom: 1px solid @table-border-color;
+}
+
+ul.nav.nav-pills.app-nav-pills > li > a {
+    font-size: 15px;
+    padding: 5px 10px;
+    margin-left: 10px;
+}
+
+h3.page-header.app {
+    margin: 0 0 @line-height-computed; // Originally (@line-height-computed * 2) 0 @line-height-computed;
+    color: @appRed;
+}
+
+/* Control the avatar visibility depending on the screen width. Copied from hidden-xs */
+.app-collapsable-avatar {
+    @media (max-width: @appHeaderNoAvatar) {
+        .responsive-invisibility();
+    }
+}
+
+.navbar-header .navbar-brand.app {
+    font-size: 20px;
+    font-style: italic;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    margin-left: 0;
+    margin-right: 30px;
+}
+
+.navbar-nav.app > .active > a {
+    padding: 2px 7px;
+    margin: 8px;
+    border-radius: @border-radius-small;
+}
+
+.embed-responsive.app-embed-responsive-1by1 {
+    padding-bottom: 100%;
+}
+
+/* #endregion */
+
+/* #region Custom Font Awesome styles ----------- */
+
+i.fa {
+    /* @appFontSize is 13px. Font Awesome's pixel perfection is at 14px (which is default font size in Bootstrap 3.) */
+    font-size: 14px;
+    /* Copy-pasted from FA stylsheet. Otherwise font-size is overriden by our 14px */
+    &.fa-lg {
+        font-size: 18px; // 1.33333333em;
+    }
+
+    &.fa-2x {
+        font-size: 28px;
+        line-height: .6em;
+        vertical-align: -25%;
+    }
+    /* Default btn has font size 13px, btn-xs sets font size to 12px. */
+    button.btn > & {
+        font-size: 14px;
+    }
+    /*button.btn.btn-xs > & {
+        position: relative;
+        top: 1px;
+    }*/
+    .app-nav-pills & {
+        font-size: 21px;
+        position: relative;
+        top: 2px;
+    }
+    /* Needs @Styles.Render("~/bundles/animate-css") */
+    &.animated.flash.app-fa-pulse {
+        animation-iteration-count: infinite;
+        -webkit-animation-iteration-count: infinite;
+        -moz-animation-iteration-count: infinite;
+        -ms-animation-iteration-count: infinite;
+    }
+
+    &.fa-bookmark, &.fa-bookmark-o, &.fa-star, &.fa-star-o {
+        color: @appYellow;
+    }
+
+    &.fa-youtube-play {
+        color: #cd201f; /* www.youtube.com/yt/brand/color.html */
+    }
+
+    &.fa-file-text-o, &.fa-history, &.fa-quote-left {
+        color: @gray-light;
+    }
+
+    &.fa-external-link {
+        color: @link-hover-color;
+    }
+
+    &.fa-question-circle {
+        color: @appBlue;
+    }
+
+    &.fa-skype {
+        color: #009fe3;
+    }
+}
+
+/* #endregion */
+
+/* #region AngularJS ----------- */
+
+/* API Reference / ng / directive / ngCloak. The CSS rules like these are created dynamically in the main AngularJS script so it seems we don't have to define them by hand. But the angular.js is loaded at the bottom of the body, whereas the site.css is loaded in the head.*/
+.ng-cloak, [ng-cloak], [data-ng-cloak] {
+    display: none !important;
+}
+
+.ng-hide.app-hide-position {
+    /* This is just another form of hiding an element. +https://docs.angularjs.org/api/ng/directive/ngShow
+     * We use this style for Flash player parent elements, because if the container element is hidden at initialization in any way, IE does not wire Flash <-> JavaScript communication events. 
+     */
+    display: block !important;
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}
+
+/* #endregion */
+
+/* #region loading-bar-spinner  ----------- */
+
+div#loading-bar-spinner {
+    top: 50px; /* Change position. */
+}
+/* #endregion */
+
+/* #region toastr ----------- */
+
+#toast-container > div {
+    opacity: 1; /* Remove opacity */
+}
+/*#endregion*/
+
+/* #region Angular-Bootstrap ----------- */
+
+.modal-header > h3 {
+    color: @appRed;
+}
+
+.pagination-sm > li > a {
+    line-height: 1.428571429; // Same as the original @line-height-base
+    padding: 6px 10px 4px;
+}
+
+a div.tooltip-inner {
+    cursor: default;
+    text-align: left;
+    white-space: pre-wrap;
+    min-width: 200px;
+}
+
+/* #endregion */
+
+/* #region FullCalendar events ----------- */
+
+a.fc-event.app-event {
+    color: black;
+    background-color: @well-bg;
+    border-color: @well-bg;
+
+    &.app-event-vt {
+        background-color: @link-color;
+        border-color: @link-color;
+        cursor: pointer;
+    }
+
+    &.app-event-rq {
+        background-color: @appYellow;
+        border-color: @appYellow;
+        cursor: pointer;
+    }
+
+    &.app-event-cf {
+        background-color: @brand-success;
+        border-color: @brand-success;
+        cursor: pointer;
+    }
+
+    &.app-event-cs {
+        border-color: @brand-danger;
+        cursor: pointer;
+    }
+
+    &.app-event-co {
+        background-color: @brand-danger;
+        border-color: @brand-danger;
+        cursor: pointer;
+    }
+}
+
+
+/* #endregion */
+
+/* #region ngTagsInput ----------- */
+
+tags-input.ti-input-sm .tags .tag-item {
+    color: @btn-default-color;
+    background-color: @btn-default-bg;
+    border-color: @btn-default-border;
+
+    & .remove-button {
+        color: @state-danger-text;
+    }
+}
+
+/*#endregion*/
+
+/* #region columns of same height styles ----------- */
+/* +http://www.minimit.com/articles/solutions-tutorials/bootstrap-3-responsive-columns-of-same-height */
+
+.container-xs-height {
+    display: table;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.row-xs-height {
+    display: table-row;
+}
+
+.col-xs-height {
+    display: table-cell;
+    float: none;
+}
+
+@media (min-width: 768px) {
+    .container-sm-height {
+        display: table;
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    .row-sm-height {
+        display: table-row;
+    }
+
+    .col-sm-height {
+        display: table-cell;
+        float: none;
+    }
+}
+
+@media (min-width: 992px) {
+    .container-md-height {
+        display: table;
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    .row-md-height {
+        display: table-row;
+    }
+
+    .col-md-height {
+        display: table-cell;
+        float: none;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container-lg-height {
+        display: table;
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    .row-lg-height {
+        display: table-row;
+    }
+
+    .col-lg-height {
+        display: table-cell;
+        float: none;
+    }
+}
+
+/* vertical alignment styles */
+.col-top {
+    vertical-align: top;
+}
+
+.col-middle {
+    vertical-align: middle;
+}
+
+.col-bottom {
+    vertical-align: bottom;
+}
+
+/*#endregion*/
+

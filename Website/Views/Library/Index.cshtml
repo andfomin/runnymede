@@ -1,0 +1,176 @@
+﻿@{
+    //ViewBag.Title = "Library";
+    //ViewBag.SecondaryTitle = "of learning and practicing resources";
+    ViewBag.NavItem = "Library";
+}
+@section HeadScripts {
+    @Styles.Render(
+"~/bower_installer/ng-tags-input/ng-tags-input.min.css",
+"~/bower_installer/ng-tags-input/ng-tags-input.bootstrap.min.css"
+)
+    <style>
+        a.accordion-toggle:hover, a.accordion-toggle:focus {
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        #mySearch.my-radius {
+            border-bottom-left-radius: 4px;
+            border-top-left-radius: 4px;
+        }
+
+        div[data-accordion] > .panel-group {
+            margin-bottom: 0;
+        }
+
+        .panel-default > .panel-heading {
+            background-color: white;
+        }
+
+        .panel-default.my-group.active > .panel-heading {
+            background-color: #ac1f28; /* appRed */
+        }
+
+        .panel-default.my-group .panel-body {
+            padding: 10px;
+        }
+
+        .my-toolbar > span {
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+    </style>
+}
+@* Do not put "ng-cloak" on a tag wrapping "_ResourceListPartial". Do not hide the YouTube player! See the comments in _ResourceListPartial. *@
+<div ng-app="myApp">
+    <div class="row" ng-cloak>
+        <div class="col-md-8">
+            <h3 class="page-header app">Library <small>{{secondaryTitle}}</small></h3>
+        </div>
+        <div class="col-md-4 app-margin-bottom">
+            <ul class="nav nav-pills app-nav-pills">
+                <li data-ui-sref-active="active"><a href="" data-ui-sref="common"><i class="fa fa-book fa-fw app-appyellow"></i>&nbsp;Common&nbsp;</a></li>
+                <li data-ui-sref-active="active"><a href="" data-ui-sref="personal"><i class="fa fa-star fa-fw"></i>&nbsp;Personal</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div ng-controller="Index">
+        <div class="row app-margin-bottom" ng-cloak>
+            <div class="col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
+                <div class="input-group">
+                    <span class="input-group-btn" ng-show="vm.filter">
+                        <button type="button" class="btn btn-default" title="Remove filter" ng-click="vm.clear()">
+                            <span class="text-muted">Search in "</span>{{vm.getFilterText()}}<span class="text-muted">"</span> &nbsp;<i class="fa fa-times-circle text-danger"></i>
+                        </button>
+                    </span>
+                    <input type="text" id="mySearch" class="form-control" ng-class="{'my-radius': vm.filter === null}" ng-model="vm.query" ng-keyup="$event.keyCode == 13 && vm.pgLoad()" autocomplete="off">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary app-btn-disablable" ng-click="vm.pgLoad()" ng-disabled="!vm.canSearch()">
+                            <i class="fa fa-fw" ng-class="vm.busy ? 'fa-refresh fa-spin' : 'fa-search'"></i>&nbsp;Search
+                        </button>
+                    </span>
+                </div><!-- /input-group -->
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6" ng-cloak>
+                <div class="row">
+                    <p class="text-muted" ng-show="vm.isPersonal() && vm.isEmpty" ng-cloak>
+                        No resources found in your personal collection. You can add a resource to your personal collection while viewing it in the common collection.
+                        Alternatively you can click the link at the bottom of the page to add a new resource.
+                    </p>
+                    <div class="col-sm-5">
+                        <div data-accordion data-close-others="vm">
+                            <div class="my-group" data-accordion-group data-is-open="c1.active" ng-repeat="c1 in vm.categoriesL1" ng-class="{active: c1.active}">
+                                <div data-accordion-heading>
+                                    <div ng-class="{active: c1 === vm.selectedL1}">
+                                        <span class="app-appblue">{{c1.name}}</span>
+                                        <i class="pull-right fa app-appblue" ng-class="c1.active?'fa-chevron-down':'fa-chevron-right'"></i>
+                                    </div>
+                                </div>
+                                <div class="list-group" style="margin:0;">
+                                    <a class="list-group-item app" href="" ng-repeat="c2 in vm.getCategories(c1)" ng-class="{active: c2 === vm.selectedL2}" ng-click="vm.selectL2(c2)">
+                                        <span class="app-appblue">{{c2.name}}</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-7">
+                        <div class="list-group">
+                            <a class="list-group-item app" href="" ng-repeat="c3 in vm.getCategories(vm.selectedL2)" ng-class="{active: c3 === vm.selectedL3}" ng-click="vm.selectL3(c3)">
+                                <span class="app-appblue">{{c3.name}}</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-md-12 my-toolbar">
+                        <span><i class="fa fa-history fa-fw"></i>&nbsp;@Html.ActionLink("History", "History", "Library")</span>
+                        <span><i class="fa fa-skype fa-fw"></i>&nbsp;@Html.ActionLink("Viewed by friend", "Friend", "Library")</span>
+                        <span ng-show="vm.isPersonal()"><i class="fa fa-plus fa-fw text-success"></i>&nbsp;<a href="" ng-click="vm.showAddResourceModal()">Add new resource</a></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <!-- _ResourceListPartial begin -->
+                @* Do not hide the player! See the comments in the partial. *@
+                @Html.Partial("_ResourceListPartial")
+                <!-- _ResourceListPartial end -->
+                <div class="pagination-sm" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="5" data-boundary-links="true" data-rotate="false"
+                     ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.pgLoad()"></div>
+            </div>
+        </div>
+    </div><!-- /Ctrl -->
+    <!-- Modals -->
+    <!-- addNewResourceModal -->
+    <script type="text/ng-template" id="addNewResourceModal">
+        <div class="modal-header">
+            <h3>Add a new resource to your personal collection</h3>
+        </div>
+        <div class="modal-body">
+            <div ng-include="'/app/shared/html/addResource.html'"></div>
+        </div>
+        <div class="modal-footer">
+            @Html.Partial("_NotAuthenticatedSpanPartial")
+            <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="!vm.canOk()">Save</button>
+            <a href="" class="app-close" ng-click="vm.cancel()">Close</a>
+        </div>
+    </script>
+    <!-- /addNewResourceModal -->
+    <!-- /Modals -->
+</div><!-- /app -->
+<hr />
+<div class="row">
+    <div class="col-md-6 text-muted">
+        <p class="text-muted app-margin-bottom-none" style="font-size:11px;">
+            The organization of content in this library is partially based on the mapping and exponents from the
+            <a href="http://eaquals.org/pages/7400" target="_blank">Core Inventory for General English</a>
+            published by the <a href="http://www.britishcouncil.org" target="_blank">British Council</a> 
+            and the <a href="http://eaquals.org/" target="_blank">European Association for Quality Language Services</a>.
+            Englisharium has no relationship with those institutions.
+        </p>
+    </div>
+</div>
+
+@section BottomScripts {
+    <script type="text/javascript">
+        var app = app || {};
+        app.hostPageParam = 'HostPage_Library';
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+
+"~/bower_installer/ng-tags-input/ng-tags-input.min.js",
+"~/app/shared/library-data.js",
+"~/app/shared/library.js",
+"~/app/library/index.js"
+)
+}

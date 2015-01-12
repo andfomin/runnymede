@@ -1,7 +1,7 @@
 ﻿@{
     ViewBag.Title = "Pay teacher";
 }
-<div data-ng-app="app" data-ng-controller="Ctrl" data-ng-init="init(@ViewBag.TeacherUserId, '@ViewBag.TeacherDisplayName')">
+<div ng-app="myApp" ng-controller="PayTeacher" ng-init="vm.init(@ViewBag.TeacherUserId, '@ViewBag.TeacherDisplayName')">
     <form class="form-horizontal" name="mainForm" role="form" novalidate>
         <div class="row">
             <div class="col-sm-offset-4 col-sm-6">
@@ -56,7 +56,7 @@
 "~/bundles/angular-libs",
 "~/bundles/app-utils",
 "~/bundles/ext-libs",
-"~/App/Account/payTeacher-ctrl.js"
+"~/app/account/payTeacher.js"
 )
 }
 

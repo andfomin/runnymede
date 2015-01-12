@@ -1,0 +1,155 @@
+﻿@* Do not insert this HTML snippet dynamically using "ng-include"! Do not use "ng-cloak" on a parent element!
+    IE breaks Flash <-> JavaScript communication after DOM manipulations. Similarly, if the container element is hidden at initialization in any way, IE does not wire JS events.
+    To avoid hidding the player's DOM element, we use the hack with absolte positioning with the class ".ng-hide.app-hide-position"
+    +http://stackoverflow.com/questions/14147677/youtube-iframe-api-on-internet-explorer-and-firefox
+    +http://stackoverflow.com/questions/20927992/youtube-api-does-not-appear-to-load-in-firefox-iframe-gets-loaded-but-the-onp/22199021#22199021 *@
+@* Consider thumbnauls +https://i.ytimg.com/vi/7lCDEYXw3mM/default.jpg +https://developers.google.com/youtube/v3/getting-started *@
+@* +https://support.google.com/youtube/answer/132596 Embedded videos may show In-stream and InVideo overlay ads.
+    Requirements for ads on embedded videos: We require that the video player be large enough in order to promote a positive user experience, therefore we recommend a 560x315 pixel or larger player.
+    Also, videos should be embedded using the standard click-to-play embed and not a scripted play.
+    The site owner where the video is embedded will not earn a revenue share.*@
+<style>
+    #feedbackPanel {
+        border-top-style: none;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+
+    .my-title {
+        font-size: 14px;
+    }
+</style>
+
+<div ng-controller="ResourceList" class="ng-hide app-hide-position app-margin-bottom" ng-show="vm.resources">    
+
+    <div ng-repeat="r in vm.getUpperList()">
+        <a href="" ng-click="vm.select(r)">{{r.title}}</a>
+        <i class="fa fa-check fa-fw app-appyellow" ng-show="r.viewed" title="Viewed"></i>
+        <i class="fa fa-star fa-fw" ng-show="r.isPersonal" title="Personal"></i>
+        <i class="fa fa-fw" ng-class="vm.getIconName(r)" title="{{vm.getIconTitle(r)}}"></i>
+        <span class="small text-muted" ng-show="r.comment">Comment: {{r.comment}}</span>
+    </div>
+
+    <div class="app-margin-top" ng-show="vm.selection">
+        <span class="my-title">{{vm.selection.title}}</span>
+        <i class="fa fa-check fa-fw app-appyellow" ng-show="vm.selection.viewed" title="Viewed"></i>
+        <i class="fa fa-star fa-fw" ng-show="vm.selection.isPersonal" title="Personal"></i>
+        <i class="fa fa-fw" ng-class="vm.getIconName(vm.selection)" title="{{vm.getIconTitle(vm.selection)}}"></i>
+        <span class="small text-muted" ng-show="vm.selection.comment">Comment: {{vm.selection.comment}}</span>
+    </div>
+
+    @* Do not hide the player! See the comments above. *@
+    <div class="app-hide-position" ng-show=" vm.isPlayerVisible()">
+        <div class="embed-responsive app-embed-responsive-1by1">
+            <div id="toBeReplacedByYoutubeIframe"></div>
+        </div>
+    </div>
+
+    <div data-collapse="!vm.exponents">
+        <div ng-repeat="e in vm.exponents">
+            <ul>
+                <li ng-repeat="l in e.lines">{{l}}</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="feedbackPanel" class="panel panel-default" ng-show="vm.isFeedbackVisible()" ng-cloak>
+        <div class="panel-body">
+            How much did you understand?
+            <a href="javascript:;">
+                <i class="fa fa-question-circle fa-fw" data-tooltip-trigger="click"
+                   data-tooltip="Give us your feedback on how much you understood the language (not the idea) in this resource, so we will be able to select resources with the optimal language level for you."></i>
+            </a>
+            <br />
+            <form>
+                <label class="radio-inline" style="color:#a00000;" ng-class="{disabled: vm.isLevelRatingDisabled()}">
+                    <input type="radio" value="1" ng-model="vm.levelRating" ng-disabled="vm.isLevelRatingDisabled()">Almost nothing
+                </label>
+                <label class="radio-inline" style="color:#a0a000;" ng-class="{disabled: vm.isLevelRatingDisabled()}">
+                    <input type="radio" value="2" ng-model="vm.levelRating" ng-disabled="vm.isLevelRatingDisabled()">Almost everything
+                </label>
+                <label class="radio-inline" style="color:#00a000;" ng-class="{disabled: vm.isLevelRatingDisabled()}">
+                    <input type="radio" value="3" ng-model="vm.levelRating" ng-disabled="vm.isLevelRatingDisabled()">Everything
+                </label>
+            </form>
+            <hr style="margin: 14px 0;" />
+            <i class="fa fa-star fa-fw app-1px-down" title="Personal" ng-show="vm.isPersonal()"></i>
+            <button class="btn btn-default btn-xs" ng-style="{'margin-right':vm.isPersonal()?'10px':'49px'}" ng-click="vm.togglePersonal()">
+                <i class="fa fa-star-o fa-fw app-1px-down" ng-show="!vm.isPersonal()"></i>
+                {{vm.isPersonal() ? 'Remove from personal collection' : ' Add to personal collection'}}
+            </button>
+            <span class="app-1px-down">
+                <i class="fa fa-exclamation-triangle fa-fw app-appyellow"></i>&nbsp;<a href="" ng-click="vm.showReportProblemModal()">Report&nbsp;problem</a>
+            </span>
+        </div>
+    </div>
+
+    <div ng-repeat="r in vm.getLowerList()">
+        <a href="" ng-click="vm.select(r)">{{r.title}}</a>
+        <i class="fa fa-check fa-fw app-appyellow" ng-show="r.viewed" title="Viewed"></i>
+        <i class="fa fa-star fa-fw" ng-show="r.isPersonal" title="Personal"></i>
+        <i class="fa fa-fw" ng-class="vm.getIconName(r)" title="{{vm.getIconTitle(r)}}"></i>
+        <span class="small text-muted" ng-show="r.comment">Comment: {{r.comment}}</span>
+    </div>
+</div><!-- /ng-controller="ResourceList" -->
+<!-- Modals -->
+<!-- addCommonResourceModal.html -->
+<script type="text/ng-template" id="addCommonResourceModal.html">
+    <div class="modal-header">
+        <h3>Add the resource to your personal collection</h3>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-offset-2 col-md-8">
+                <p>
+                    You can edit the resource description if you wish. Please note, you will see the edited description only in your personal collection. You will still see the regular description in the common collection.
+                </p>
+            </div>
+        </div>
+        <div ng-include="'/app/shared/html/addResource.html'"></div>
+    </div>
+    <div class="modal-footer">
+        @Html.Partial("_NotAuthenticatedSpanPartial")
+        <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="!vm.canOk()">Save</button>
+        <a href="" class="app-close" ng-click="vm.cancel()">Close</a>
+    </div>
+</script>
+<!-- /addCommonResourceModal.html -->
+<!-- deletePersonalResourceModal.html -->
+<script type="text/ng-template" id="deletePersonalResourceModal.html">
+    <div class="modal-header">
+        <h3>Remove resource from your personal collection</h3>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10">
+                <p>Do you want to remove the resource named <strong>{{vm.resource.title}}</strong> from your personal collection?</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="vm.busy">OK</button>
+        <a href="" class="app-close" ng-click="vm.cancel()">Close</a>
+    </div>
+</script>
+<!-- /deletePersonalResourceModal.html -->
+<!-- reportProblemModal.html -->
+<script type="text/ng-template" id="reportProblemModal.html">
+    <div class="modal-header">
+        <h3>Report a problem with the resource</h3>
+    </div>
+    <div class="modal-body">
+        <h4>What specifically is wrong?</h4>
+        <div ng-include="'/app/shared/html/reportResourceProblem.html'"></div>
+        <hr />
+        <h4 class="app-margin-bottom">Suggest your version of description of the resource. <small>Edit fields as you wish.</small></h4>
+        <div ng-include="'/app/shared/html/addResource.html'"></div>
+    </div>
+    <div class="modal-footer">
+        @Html.Partial("_NotAuthenticatedSpanPartial")
+        <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="!vm.canOk()">Save</button>
+        <a href="" class="app-close" ng-click="vm.cancel()">Close</a>
+    </div>
+</script>
+<!-- /reportProblemModal.html -->
+<!-- /Modals -->

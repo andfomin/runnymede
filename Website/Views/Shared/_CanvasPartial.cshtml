@@ -1,0 +1,96 @@
+﻿<style>
+    #myCanvas {
+        /*height: auto; If this rule is present, height is wrong in IE10. */
+        border: none; /* If border, see +http://stackoverflow.com/a/27204937/2808337 */
+        z-index: 1;
+    }
+
+    #myPanel {
+        position: fixed;
+        top: 40%;
+        display: block;
+        right: 0px;
+        z-index: 2;
+        background-color: rgba(222,222,222,0.1);
+        border-color: transparent;
+    }
+
+        #myPanel p {
+            max-width: 400px;
+            background-color: white;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+    .my-translucent {
+        background-color: rgba(255,255,255,0.5);
+        border-radius: 3px;
+    }
+
+    #myDeleteBtn:hover, #myDeleteBtn:focus, #myDeleteBtn:active {
+        background-color: #e6e6e6;
+    }
+
+    .radio-inline input[type="radio"] {
+        margin-left: -14px;
+    }
+
+    .my-margin-top {
+        margin-top: 15px;
+    }
+</style>
+
+<div ng-controller="Canvas" ng-cloak>
+    <div class="row app-margin-top">
+        <div class="col-lg-12">
+
+            <div class="row app-margin-bottom">
+                <div class="col-xs-3">
+                    <span style="position:relative;top:5px;">Word count: <strong>{{vm.exercise.length}}</strong></span>
+                </div>
+                <div class="col-xs-5 col-sm-4" style="height:30px;">
+                    <strong style="position:relative;top:-10px;">Page</strong>
+                    <div class="pagination-sm app-margin-top-none app-margin-bottom-none app-margin-left-half" data-pagination data-total-items="vm.images.length" data-items-per-page="1" direction-links="false" data-boundary-links="false" data-rotate="false"
+                         ng-show="vm.images.length > 1" ng-model="vm.page" ng-change="vm.clear()"></div>
+                </div>
+                <div class="col-xs-4">
+                    <button class="btn btn-default btn-sm app-btn-disablable" ng-click="vm.zoomIn()" ng-disabled="vm.scaleIndex == vm.scales.length-1"><i class="fa fa-search-plus fa-fw"></i>&nbsp;Zoom&nbsp;in</button>
+                    <button class="btn btn-default btn-sm app-btn-disablable" ng-click="vm.zoomOut()" ng-disabled="vm.scaleIndex == 0"><i class="fa fa-search-minus fa-fw"></i>&nbsp;Zoom&nbsp;out</button>
+                </div>
+                @*<div class="col-xs-1">&nbsp;</div>*@
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <canvas id="myCanvas"></canvas>
+            </div>
+
+            <div id="myPanel" class="panel panel-default" ng-show="vm.remark" ng-cloak>
+                <div class="panel-body">
+                    <div>
+                        <strong class="my-translucent">&nbsp;Correction&nbsp;</strong><br />
+                        <textarea class="form-control app" rows="3" cols="40" ng-show="vm.isEditing(vm.remark)" ng-model="vm.remark.correction" ng-change="vm.makeDirty()"></textarea>
+                        <p ng-show="!vm.isEditing(vm.remark)">{{vm.remark.correction}}</p>
+                    </div>
+                    <div class="my-margin-top">
+                        <strong class="my-translucent">&nbsp;Comment&nbsp;</strong><br />
+                        <textarea class="form-control app" rows="3" cols="40" ng-show="vm.isEditing(vm.remark)" ng-model="vm.remark.comment" ng-change="vm.makeDirty()"></textarea>
+                        <p class="app-margin-bottom-none" ng-show="!vm.isEditing(vm.remark)">{{vm.remark.comment}}</p>
+                    </div>
+                    <div class="my-margin-top" ng-show="vm.isEditing(vm.remark)">
+                        <span class="my-translucent" style="padding-bottom:3px;">
+                            <label class="radio-inline">
+                                <input type="radio" ng-value="false" ng-model="vm.remark.like" ng-change="vm.makeDirty()" /><i class="fa fa-thumbs-down fa-fw text-danger"></i>Dislike
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" ng-value="true" ng-model="vm.remark.like" ng-change="vm.makeDirty()" /><i class="fa fa-thumbs-up fa-fw text-success"></i>Like&nbsp;
+                            </label>
+                        </span>
+                        <button class="btn btn-default btn-xs app-margin-left my-translucent" title="Delete the remark" ng-click="vm.showDeleteRemarkModal()"><i class="fa fa-times fa-fw text-danger"></i>Delete</button>
+                        <span class="pull-right app-1px-down my-translucent">&nbsp;<a href="" ng-click="vm.selectRemark(null)" title="Close the panel"><strong>Close</strong></a>&nbsp;</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

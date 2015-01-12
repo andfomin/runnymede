@@ -10,6 +10,7 @@ using System.Web;
 using System.Xml.Linq;
 using Dapper;
 using Runnymede.Website.Models;
+using Runnymede.Common.Utils;
 
 namespace Runnymede.Website.Utils
 {
@@ -24,12 +25,12 @@ namespace Runnymede.Website.Utils
 
         public string WriteLog(PayPalLogEntity.NotificationKind kind, string tx, string logData)
         {
-            if (string.IsNullOrEmpty(tx))
+            if (String.IsNullOrEmpty(tx))
             {
                 throw new ArgumentException();
             }
 
-            var rowKey = LoggingUtils.GetUniquifiedObservedTime();
+            var rowKey = KeyUtils.GetCurrentTimeKey();
 
             var entity = new PayPalLogEntity
             {
@@ -38,7 +39,7 @@ namespace Runnymede.Website.Utils
                 Kind = kind.ToString(),
                 LogData = logData,
             };
-            AzureStorageUtils.InsertEntry(AzureStorageUtils.TableNames.PaymentLog, entity);
+            AzureStorageUtils.InsertEntity(AzureStorageUtils.TableNames.PaymentLog, entity);
 
             return rowKey;
         }
@@ -127,7 +128,7 @@ namespace Runnymede.Website.Utils
                 decimal fee = 0;
                 post = post && decimal.TryParse(pairs["mc_fee"], out fee);
                 post = post && (pairs["mc_currency"] == "USD");
-                post = post && (pairs["receiver_email"] == "paypal%40englc.com");
+                post = post && (pairs["receiver_email"] == "paypal%40englisharium.com");
 
                 if (!post)
                 {
@@ -214,7 +215,7 @@ execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @Rece
             var textToHash = userName + timeText + PayPalUserNameHashSalt;
             var bytesToHash = System.Text.Encoding.UTF8.GetBytes(textToHash);
             var hash = System.Security.Cryptography.MD5.Create().ComputeHash(bytesToHash);
-            var hashText = new Guid(hash).ToString("N").ToUpper(); // 32 chars
+            var hashText = new Guid(hash).ToString("N"); // 32 chars lower-case
             var text = timeText + hashText;
             var chunkSize = 24;
             // 49 chars = 2 chunks * 24 chars + 1 separating space.

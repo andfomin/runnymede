@@ -14,7 +14,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Runnymede.Website</RootNamespace>
     <AssemblyName>Runnymede.Website</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort>443</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
@@ -41,90 +41,85 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Algolia.Search">
-      <HintPath>..\packages\Algolia.Search.1.11.0.0\lib\portable-win+net45\Algolia.Search.dll</HintPath>
-    </Reference>
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="Dapper, Version=1.25.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Dapper, Version=1.38.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Dapper.1.25\lib\net45\Dapper.dll</HintPath>
+      <HintPath>..\packages\Dapper.1.38\lib\net45\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="Eleven41.Skip32">
       <HintPath>..\packages\Eleven41.Skip32.1.0.1\lib\net20\Eleven41.Skip32.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="ImageResizer">
-      <HintPath>..\packages\ImageResizer.3.4.2\lib\ImageResizer.dll</HintPath>
+    <Reference Include="ImageResizer, Version=3.4.3.103, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ImageResizer.3.4.3\lib\ImageResizer.dll</HintPath>
     </Reference>
-    <Reference Include="LowercaseDashedRouting">
-      <HintPath>..\packages\LowercaseDashedRoute.1.0.14\lib\LowercaseDashedRouting.dll</HintPath>
+    <Reference Include="LowercaseDashedRouting, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\LowercaseDashedRouteExt.1.2\lib\net40\LowercaseDashedRouting.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.0.0\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.1.0\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.0.0\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.1.0\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Owin, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.0.0\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.1.0\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Data.Edm, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Data.Edm, Version=5.6.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Data.Edm.5.6.0\lib\net40\Microsoft.Data.Edm.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Data.Edm.5.6.3\lib\net40\Microsoft.Data.Edm.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Data.OData, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Data.OData, Version=5.6.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Data.OData.5.6.0\lib\net40\Microsoft.Data.OData.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Data.OData.5.6.3\lib\net40\Microsoft.Data.OData.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Data.Services.Client, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Data.Services.Client, Version=5.6.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Data.Services.Client.5.6.0\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Data.Services.Client.5.6.3\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Owin, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Owin.2.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Owin.3.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.2.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.3.0.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Owin.Security, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Owin.Security.2.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Owin.Security.3.0.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.Cookies, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Owin.Security.Cookies, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.2.1.0\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.3.0.0\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.Facebook">
-      <HintPath>..\packages\Microsoft.Owin.Security.Facebook.2.1.0\lib\net45\Microsoft.Owin.Security.Facebook.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Security.Google">
-      <HintPath>..\packages\Microsoft.Owin.Security.Google.2.1.0\lib\net45\Microsoft.Owin.Security.Google.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Security.OAuth, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Owin.Security.Facebook, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.2.1.0\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Owin.Security.Facebook.3.0.0\lib\net45\Microsoft.Owin.Security.Facebook.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Threading.Tasks">
-      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.165\lib\net45\Microsoft.Threading.Tasks.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.Google, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Owin.Security.Google.3.0.0\lib\net45\Microsoft.Owin.Security.Google.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Threading.Tasks.Extensions">
-      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.165\lib\net45\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.OAuth, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.3.0.0\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -136,34 +131,30 @@
     <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <Private>False</Private>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Storage, Version=3.0.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.WindowsAzure.Storage, Version=4.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\WindowsAzure.Storage.3.0.3.0\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
+      <HintPath>..\packages\WindowsAzure.Storage.4.3.0\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.7\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.Extensions">
-      <HintPath>..\packages\Microsoft.Net.Http.2.2.18\lib\net45\System.Net.Http.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http.Formatting, Version=5.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.1.1\lib\net45\System.Net.Http.Formatting.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http.Primitives">
-      <HintPath>..\packages\Microsoft.Net.Http.2.2.18\lib\net45\System.Net.Http.Primitives.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.2\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Spatial, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Spatial, Version=5.6.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Spatial.5.6.0\lib\net40\System.Spatial.dll</HintPath>
+      <HintPath>..\packages\System.Spatial.5.6.3\lib\net40\System.Spatial.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -174,48 +165,49 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.1.1\lib\net45\System.Web.Helpers.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.2\lib\net45\System.Web.Helpers.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Http, Version=5.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="System.Web.Http, Version=5.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.1.1\lib\net45\System.Web.Http.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.2\lib\net45\System.Web.Http.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Http.OData, Version=5.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="System.Web.Http.OData, Version=5.3.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.OData.5.1.1\lib\net45\System.Web.Http.OData.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.OData.5.3.1\lib\net45\System.Web.Http.OData.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Http.Owin, Version=5.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="System.Web.Http.Owin, Version=5.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Owin.5.1.1\lib\net45\System.Web.Http.Owin.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Owin.5.2.2\lib\net45\System.Web.Http.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Http.WebHost, Version=5.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.1.1\lib\net45\System.Web.Http.WebHost.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Mvc, Version=5.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.1.1\lib\net45\System.Web.Mvc.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Optimization">
-      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.2\lib\net40\System.Web.Optimization.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.2\lib\net45\System.Web.Http.WebHost.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=5.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.2\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.Razor.3.1.1\lib\net45\System.Web.Razor.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.2\lib\net45\System.Web.Razor.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.1.1\lib\net45\System.Web.WebPages.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.2\lib\net45\System.Web.WebPages.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.1.1\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.2\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.1.1\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.2\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
@@ -228,69 +220,81 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App\Account\edit-logins.html" />
-    <Content Include="App\Account\edit-teacher.html" />
-    <Content Include="App\Account\edit-personal.html" />
-    <Content Include="App\Resources\index-collection.html" />
-    <Content Include="App\Resources\index-search.html" />
-    <Content Include="App\Resources\youtube-add.html" />
-    <Content Include="App\Sessions\learner-offers.html" />
-    <Content Include="App\Sessions\learner-schedule.html" />
-    <Content Include="App\Sessions\learner-session.html" />
-    <Content Include="App\Sessions\teacher-schedule.html" />
-    <Content Include="App\Sessions\teacher-session.html" />
-    <Content Include="App\Sessions\utils-sessionModal.html" />
-    <Content Include="App\Shared\Html\SessionRequestModal.html" />
-    <Content Include="App\Teachers\index-all.html" />
-    <Content Include="App\Teachers\index-favorites.html" />
-    <Content Include="App\Teachers\index-teacherSchedule.html" />
+    <Content Include="app\account\edit-logins.html" />
+    <Content Include="app\account\edit-teacher.html" />
+    <Content Include="app\account\edit-personal.html" />
+    <Content Include="app\exercises\createReviewRequestModal.html" />
+    <Content Include="app\reviews\deleteRemarkModal.html" />
+    <Content Include="app\reviews\finishReviewModal.html" />
+    <Content Include="app\sessions\createSessionRequestModal.html" />
+    <Content Include="app\sessions\index-friendSchedules.html" />
+    <Content Include="app\sessions\index-session.html" />
+    <Content Include="app\sessions\vacantTimeModal.html" />
+    <Content Include="app\sessions\index-offers.html" />
+    <Content Include="app\sessions\index-ownSchedule.html" />
+    <Content Include="app\reviews\startReviewModal.html" />
+    <Content Include="app\shared\html\addResource.html" />
+    <Content Include="app\shared\html\reportResourceProblem.html" />
+    <Content Include="bower_installer\angular-animate\angular-animate.min.js" />
     <Content Include="bower_installer\angular-bootstrap-datetimepicker\datetimepicker.css" />
     <Content Include="bower_installer\angular-bootstrap-datetimepicker\datetimepicker.js" />
     <Content Include="bower_installer\angular-bootstrap\ui-bootstrap-tpls.min.js" />
     <Content Include="bower_installer\angular-loading-bar\loading-bar.min.css" />
     <Content Include="bower_installer\angular-loading-bar\loading-bar.min.js" />
-    <Content Include="bower_installer\angular-route\angular-route.min.js" />
     <Content Include="bower_installer\angular-touch\angular-touch.min.js" />
     <Content Include="bower_installer\angular-ui-calendar\calendar.js" />
+    <Content Include="bower_installer\angular-ui-router\angular-ui-router.min.js" />
     <Content Include="bower_installer\angular\angular.min.js" />
     <Content Include="bower_installer\animate.css\animate.min.css" />
-    <Content Include="bower_installer\bootstrap3-typeahead\bootstrap3-typeahead.min.js" />
     <Content Include="bower_installer\bootstrap\bootstrap.min.js" />
     <Content Include="bower_installer\bootstrap\glyphicons-halflings-regular.svg" />
+    <Content Include="bower_installer\fullcalendar\fullcalendar.css" />
+    <Content Include="bower_installer\fullcalendar\fullcalendar.min.js" />
     <Content Include="bower_installer\jquery\jquery.min.js" />
     <Content Include="bower_installer\moment\moment.min.js" />
+    <Content Include="bower_installer\ng-tags-input\ng-tags-input.bootstrap.min.css" />
+    <Content Include="bower_installer\ng-tags-input\ng-tags-input.min.css" />
+    <Content Include="bower_installer\ng-tags-input\ng-tags-input.min.js" />
     <Content Include="bower_installer\ngUpload\ng-upload.min.js" />
     <Content Include="bower_installer\toastr\toastr.min.css" />
     <Content Include="bower_installer\toastr\toastr.min.js" />
     <Content Include="bower_installer\venturocket-angular-slider\angular-slider.min.js" />
-    <Content Include="Content\Audior\Audior.swf" />
-    <Content Include="Content\Audior\audior_settings.xml" />
-    <Content Include="Content\Audior\en.xml" />
-    <Content Include="Content\Audior\swfobject.js" />
-    <Content Include="Content\fullcalendar\fullcalendar.css" />
-    <Content Include="Content\fullcalendar\fullcalendar.min.js" />
-    <Content Include="Content\Images\cooperation.jpg" />
-    <Content Include="Content\Images\do-you-speak-english.jpg" />
-    <Content Include="Content\Images\email-dignicom.png" />
-    <Content Include="Content\Images\happy-learner.jpg" />
-    <Content Include="Content\Images\icon-help.png" />
-    <Content Include="Content\Images\ielts-banner.jpg" />
-    <Content Include="Content\Images\learner-teddybear.jpg" />
-    <Content Include="Content\Images\payment-logos.png" />
-    <Content Include="Content\Images\shy-learner.jpg" />
-    <Content Include="Content\Images\skype-add-contact.png" />
-    <Content Include="Content\Images\ielts-test.jpg" />
-    <Content Include="Content\Images\skype-no-contact.png" />
-    <Content Include="Content\Images\skype-together.jpg" />
-    <Content Include="Content\Images\teacher.jpg" />
-    <Content Include="Content\site.css" />
+    <Content Include="content\audior0\Audior.swf" />
+    <Content Include="content\audior0\audior_settings.xml" />
+    <Content Include="content\audior0\en.xml" />
+    <Content Include="content\audior0\swfobject.js" />
+    <Content Include="content\audior\Audior.swf" />
+    <Content Include="content\audior\audior_settings.xml" />
+    <Content Include="content\audior\en.xml" />
+    <Content Include="content\audior\swfobject.js" />
+    <Content Include="content\images\0000000003.bmp" />
+    <Content Include="content\images\0000000003.jpg" />
+    <Content Include="content\images\button-help.png" />
+    <Content Include="content\images\conversation-three.jpg" />
+    <Content Include="content\images\cooperation.jpg" />
+    <Content Include="content\images\do-you-speak-english.jpg" />
+    <Content Include="content\images\email-dignicom.png" />
+    <Content Include="content\images\email-support.png" />
+    <Content Include="content\images\happy-learner.jpg" />
+    <Content Include="content\images\ielts-banner.jpg" />
+    <Content Include="content\images\learner-teddybear.jpg" />
+    <Content Include="content\images\logo.png" />
+    <Content Include="content\images\payment-logos.png" />
+    <Content Include="content\images\shy-learner.jpg" />
+    <Content Include="content\images\skype-add-contact.png" />
+    <Content Include="content\images\ielts-test.jpg" />
+    <Content Include="content\images\skype-no-contact.png" />
+    <Content Include="content\images\skype-together.jpg" />
+    <Content Include="content\images\teacher.jpg" />
+    <Content Include="content\styles\site.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <Content Include="Content\bootstrap-custom.less" />
-    <Content Include="Content\site.less" />
-    <Content Include="Content\site-variables.less" />
+    <Content Include="Testing plan.txt" />
     <Content Include="Readme.txt" />
-    <Content Include="Scripts\xcopy\knockout.activity.js" />
+    <Content Include="scripts\sm2\soundmanager2-nodebug-jsmin.js" />
+    <Content Include="scripts\sm2\soundmanager2.js" />
+    <Content Include="scripts\sm2\soundmanager2_flash9.swf" />
+    <Content Include="scripts\sm2\soundmanager2_flash9_debug.swf" />
     <Content Include="~App_Offline.htm" />
     <Content Include="bower.json" />
     <Content Include="bower_installer\bootstrap\alerts.less" />
@@ -336,9 +340,40 @@
     <Content Include="bower_installer\bootstrap\utilities.less" />
     <Content Include="bower_installer\bootstrap\variables.less" />
     <Content Include="bower_installer\bootstrap\wells.less" />
+    <Content Include="bower_installer\bootstrap\mixins\alerts.less" />
+    <Content Include="bower_installer\bootstrap\mixins\background-variant.less" />
+    <Content Include="bower_installer\bootstrap\mixins\border-radius.less" />
+    <Content Include="bower_installer\bootstrap\mixins\buttons.less" />
+    <Content Include="bower_installer\bootstrap\mixins\center-block.less" />
+    <Content Include="bower_installer\bootstrap\mixins\clearfix.less" />
+    <Content Include="bower_installer\bootstrap\mixins\forms.less" />
+    <Content Include="bower_installer\bootstrap\mixins\gradients.less" />
+    <Content Include="bower_installer\bootstrap\mixins\grid-framework.less" />
+    <Content Include="bower_installer\bootstrap\mixins\grid.less" />
+    <Content Include="bower_installer\bootstrap\mixins\hide-text.less" />
+    <Content Include="bower_installer\bootstrap\mixins\image.less" />
+    <Content Include="bower_installer\bootstrap\mixins\labels.less" />
+    <Content Include="bower_installer\bootstrap\mixins\list-group.less" />
+    <Content Include="bower_installer\bootstrap\mixins\nav-divider.less" />
+    <Content Include="bower_installer\bootstrap\mixins\nav-vertical-align.less" />
+    <Content Include="bower_installer\bootstrap\mixins\opacity.less" />
+    <Content Include="bower_installer\bootstrap\mixins\pagination.less" />
+    <Content Include="bower_installer\bootstrap\mixins\panels.less" />
+    <Content Include="bower_installer\bootstrap\mixins\progress-bar.less" />
+    <Content Include="bower_installer\bootstrap\mixins\reset-filter.less" />
+    <Content Include="bower_installer\bootstrap\mixins\resize.less" />
+    <Content Include="bower_installer\bootstrap\mixins\responsive-visibility.less" />
+    <Content Include="bower_installer\bootstrap\mixins\size.less" />
+    <Content Include="bower_installer\bootstrap\mixins\tab-focus.less" />
+    <Content Include="bower_installer\bootstrap\mixins\table-row.less" />
+    <Content Include="bower_installer\bootstrap\mixins\text-emphasis.less" />
+    <Content Include="bower_installer\bootstrap\mixins\text-overflow.less" />
+    <Content Include="bower_installer\bootstrap\mixins\vendor-prefixes.less" />
+    <Content Include="bower_installer\bootstrap\responsive-embed.less" />
+    <Content Include="content\styles\bootstrap-custom.less" />
+    <Content Include="content\styles\site-variables.less" />
+    <Content Include="content\styles\site.less" />
     <None Include="Properties\PublishProfiles\englc__staging.pubxml" />
-    <Content Include="Scripts\sm2\soundmanager2-nodebug-jsmin.js" />
-    <Content Include="Scripts\sm2\soundmanager2_flash9.swf" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -349,49 +384,40 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\Api\AccountApiController.cs" />
-    <Compile Include="Controllers\Api\ResourcesApiController.cs" />
-    <Compile Include="Controllers\Api\TeachersApiController.cs" />
+    <Compile Include="Controllers\Api\AccountsApiController.cs" />
+    <Compile Include="Controllers\Api\FriendsApiController.cs" />
+    <Compile Include="Controllers\Api\PickapicApiController.cs" />
+    <Compile Include="Controllers\Api\LibraryApiController.cs" />
+    <Compile Include="Controllers\Api\CopycatApiController.cs" />
     <Compile Include="Controllers\Mvc\AccountController.cs" />
-    <Compile Include="Controllers\Api\BalanceApiController.cs" />
     <Compile Include="Controllers\Api\ExercisesApiController.cs" />
-    <Compile Include="Controllers\Api\RelationshipsApiController.cs" />
-    <Compile Include="Controllers\Api\RemarksApiController.cs" />
     <Compile Include="Controllers\Api\ReviewsApiController.cs" />
     <Compile Include="Controllers\Api\SessionsApiController.cs" />
-    <Compile Include="Controllers\Api\StatisticsApiController.cs" />
     <Compile Include="Controllers\Mvc\ExercisesController.cs" />
+    <Compile Include="Controllers\Mvc\FriendsController.cs" />
     <Compile Include="Controllers\Mvc\HomeController.cs" />
     <Compile Include="Controllers\Mvc\IeltsController.cs" />
     <Compile Include="Controllers\Mvc\InfoController.cs" />
-    <Compile Include="Controllers\Mvc\RelationshipsController.cs" />
-    <Compile Include="Controllers\Mvc\ResourcesController.cs" />
+    <Compile Include="Controllers\Mvc\LibraryController.cs" />
+    <Compile Include="Controllers\Mvc\GamesController.cs" />
     <Compile Include="Controllers\Mvc\ReviewsController.cs" />
-    <Compile Include="Controllers\Mvc\SearchController.cs" />
+    <Compile Include="Controllers\Mvc\~SearchController.cs" />
     <Compile Include="Controllers\Mvc\SessionsController.cs" />
     <Compile Include="Controllers\Mvc\SkypeRecorderController.cs" />
-    <Compile Include="Controllers\Mvc\StatisticsController.cs" />
-    <Compile Include="Controllers\Mvc\TeachersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\AccountBindingModels.cs" />
-    <Compile Include="Models\BalanceEntryDto.cs" />
-    <Compile Include="Models\MessageDto.cs" />
+    <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Models\GameModels.cs" />
     <Compile Include="Models\PageViewModel.cs" />
-    <Compile Include="Models\DataSourceDto.cs" />
-    <Compile Include="Models\ExerciseApiBindingModels.cs" />
-    <Compile Include="Models\ExerciseType.cs" />
     <Compile Include="Models\KeeperLogEntity.cs" />
-    <Compile Include="Models\PayPalLogEntity.cs" />
+    <Compile Include="Models\PayPalModels.cs" />
     <Compile Include="Models\ExerciseModels.cs" />
-    <Compile Include="Models\SearchModels.cs" />
-    <Compile Include="Models\SessionsModels.cs" />
-    <Compile Include="Models\StatisticsEntity.cs" />
-    <Compile Include="Models\TopicEntity.cs" />
+    <Compile Include="Models\SessionModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Utils\AccountUtils.cs" />
+    <Compile Include="Utils\ApiControllerHelper.cs" />
     <Compile Include="Utils\BingSearchContainer.cs" />
     <Compile Include="Utils\LoginHelper.cs" />
     <Compile Include="Utils\AzureStorageUtils.cs" />
@@ -409,9 +435,8 @@
     <Compile Include="Utils\NAudio\MpegLayer.cs" />
     <Compile Include="Utils\NAudio\MpegVersion.cs" />
     <Compile Include="Utils\PayPalHelper.cs" />
-    <Compile Include="Utils\ResourcesUtils.cs" />
-    <Compile Include="Utils\StatisticsUtils.cs" />
     <Compile Include="Utils\UploadUtils.cs" />
+    <Compile Include="Utils\GeneralUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
@@ -420,20 +445,12 @@
     <Content Include="Views\Shared\_FooterPartial.cshtml" />
     <Content Include="Views\Shared\_GoogleAnalyticsPartial.cshtml" />
     <Content Include="Views\Shared\_HeaderPartial.cshtml" />
-    <Content Include="Views\Shared\_PagerPartial.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Account\Signup.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
-    <Content Include="Views\Exercises\Topics.cshtml" />
-    <Content Include="Views\Exercises\Record.cshtml" />
+    <Content Include="Views\Exercises\RecordSpeech.cshtml" />
     <Content Include="Views\Reviews\Index.cshtml" />
-    <Content Include="Views\Reviews\_EnglishGrammarPartial.cshtml" />
-    <Content Include="Views\Reviews\_EnglishGrammarPartial0.cshtml" />
-    <Content Include="Views\Reviews\_EnglishGrammarPartial1.cshtml" />
-    <Content Include="Views\Exercises\Index.cshtml" />
-    <Content Include="Views\Reviews\Requests.cshtml" />
-    <Content Include="Views\Statistics\Index.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Account\AddMoney.cshtml" />
     <Content Include="Views\Account\Balance.cshtml" />
@@ -443,9 +460,8 @@
     <Content Include="Views\Info\TermsOfService.cshtml" />
     <Content Include="Views\Info\_BottomScriptsPartial.cshtml" />
     <Content Include="Views\Info\_TopScriptsPartial.cshtml" />
-    <Content Include="Views\Info\Support.cshtml" />
     <Content Include="Views\Info\About.cshtml" />
-    <Content Include="Views\Info\EnglishCosmos.cshtml" />
+    <Content Include="Views\Info\Dignicom.cshtml" />
     <Content Include="Views\Info\HowItWorks.cshtml" />
     <Content Include="Views\Account\Edit.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
@@ -454,28 +470,38 @@
     <Content Include="Views\Account\PaypalCancel.cshtml" />
     <Content Include="Views\Exercises\Upload.cshtml" />
     <Content Include="Views\SkypeRecorder\Index.cshtml" />
-    <Content Include="Views\Relationships\TeacherLearners.cshtml" />
     <Content Include="Views\Account\PayTeacher.cshtml" />
-    <Content Include="Views\Relationships\SkypeDirectoryJoin.cshtml" />
-    <Content Include="Views\Relationships\SkypeDirectory.cshtml" />
     <Content Include="Views\Search\Ielts.cshtml" />
     <Content Include="Views\Info\SupportedBrowsers.cshtml" />
     <Content Include="Views\Info\UnsupportedBrowser.cshtml" />
     <Content Include="Views\Ielts\PracticeSpeaking.cshtml" />
-    <Content Include="Views\Sessions\Teacher.cshtml" />
-    <Content Include="Views\Sessions\Learner.cshtml" />
-    <Content Include="Views\Sessions\_ClockWarning.cshtml" />
-    <Content Include="Views\Teachers\Index.cshtml" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Shared\_TermsOfServicePartial.cshtml" />
-    <Content Include="Views\Resources\Index.cshtml" />
-    <Content Include="Views\Resources\Youtube.cshtml" />
-    <Content Include="Views\Search\Index.cshtml" />
-    <Content Include="Views\Reviews\_BottomScriptsPartial.cshtml" />
-    <Content Include="Views\Reviews\Edit.cshtml" />
-    <Content Include="Views\Reviews\_PlayerPartial.cshtml" />
-    <Content Include="Views\Reviews\_HeadScriptsPartial.cshtml" />
-    <Content Include="Views\Reviews\View.cshtml" />
+    <Content Include="Views\Reviews\EditRecording.cshtml" />
+    <Content Include="Views\Library\Index.cshtml" />
+    <Content Include="Views\Shared\_ResourceListPartial.cshtml" />
+    <Content Include="Views\Friends\Index.cshtml" />
+    <Content Include="Views\Sessions\Index.cshtml" />
+    <Content Include="Views\Games\Pickapic.cshtml" />
+    <Content Include="Properties\webjobs-list.json" />
+    <Content Include="Views\Shared\_NotAuthenticatedSpanPartial.cshtml" />
+    <Content Include="Views\Library\History.cshtml" />
+    <Content Include="Views\Library\Friend.cshtml" />
+    <Content Include="Views\Games\Copycat.cshtml" />
+    <Content Include="Views\Games\CopycatAdd.cshtml" />
+    <Content Include="Views\Exercises\Index.cshtml" />
+    <Content Include="Views\Exercises\PhotographWriting.cshtml" />
+    <Content Include="Views\Shared\_AudioPlayerControlsPartial.cshtml" />
+    <Content Include="Views\Exercises\ViewRecording.cshtml" />
+    <Content Include="Views\Exercises\ViewWriting.cshtml" />
+    <Content Include="Views\Reviews\EditWriting.cshtml" />
+    <Content Include="Views\Shared\_CanvasPartial.cshtml" />
+    <Content Include="Views\Reviews\_BottomPartial.cshtml" />
+    <Content Include="Views\Reviews\_TopSaveButtonPartial.cshtml" />
+    <Content Include="Views\Exercises\_TitlePartial.cshtml" />
+    <Content Include="Views\Exercises\_BottomPartial.cshtml" />
+    <Content Include="Views\Account\ThankYou.cshtml" />
+    <Content Include="Views\Shared\_NotAuthenticatedDivPartial.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -485,65 +511,73 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="App\Account\balance-app.ts" />
-    <TypeScriptCompile Include="App\Account\signup-app.ts" />
-    <TypeScriptCompile Include="App\Account\edit-app.ts" />
-    <TypeScriptCompile Include="App\Account\edit-logins.ts" />
-    <TypeScriptCompile Include="App\Account\edit-teacher.ts" />
-    <TypeScriptCompile Include="App\Account\edit-personal.ts" />
-    <TypeScriptCompile Include="App\Account\forgot-app.ts" />
-    <TypeScriptCompile Include="App\Account\payTeacher-ctrl.ts" />
-    <TypeScriptCompile Include="App\Account\reset-app.ts" />
-    <TypeScriptCompile Include="App\Account\login-app.ts" />
-    <TypeScriptCompile Include="App\Exercises\index-app.ts" />
-    <TypeScriptCompile Include="App\Relationships\skypeDirectory-app.ts" />
-    <TypeScriptCompile Include="App\Relationships\skypeDirectoryJoin-app.ts" />
-    <TypeScriptCompile Include="App\Relationships\teacherLearners-app.ts" />
-    <TypeScriptCompile Include="App\Resources\index-app.ts" />
-    <TypeScriptCompile Include="App\Resources\index-collection.ts" />
-    <TypeScriptCompile Include="App\Resources\index-search.ts" />
-    <TypeScriptCompile Include="App\Resources\youtube-add.ts" />
-    <TypeScriptCompile Include="App\Resources\youtube-app.ts" />
-    <TypeScriptCompile Include="App\Reviews\edit-app.ts" />
-    <TypeScriptCompile Include="App\Reviews\index-app.ts" />
-    <TypeScriptCompile Include="App\Reviews\requests-ctrl.ts" />
-    <TypeScriptCompile Include="App\Reviews\shared-ctrlBase.ts" />
-    <TypeScriptCompile Include="App\Reviews\view-app.ts" />
-    <TypeScriptCompile Include="App\Sessions\learner-app.ts" />
-    <TypeScriptCompile Include="App\Sessions\learner-schedule.ts" />
-    <TypeScriptCompile Include="App\Sessions\learner-session.ts" />
-    <TypeScriptCompile Include="App\Sessions\teacher-app.ts" />
-    <TypeScriptCompile Include="App\Sessions\learner-offers.ts" />
-    <TypeScriptCompile Include="App\Sessions\teacher-schedule.ts" />
-    <TypeScriptCompile Include="App\Sessions\teacher-session.ts" />
-    <TypeScriptCompile Include="App\Sessions\utils-session.ts" />
-    <TypeScriptCompile Include="App\Shared\utils-schedule.ts" />
-    <TypeScriptCompile Include="App\Shared\utils-coreInventory.ts" />
-    <TypeScriptCompile Include="App\Statistics\index-vm.ts" />
-    <TypeScriptCompile Include="App\Shared\ctrl-template.ts" />
-    <TypeScriptCompile Include="App\Shared\model.ts" />
-    <TypeScriptCompile Include="App\Exercises\topics-topicList.ts" />
-    <TypeScriptCompile Include="App\Exercises\topics-ctrl.ts" />
-    <TypeScriptCompile Include="App\Shared\utils-ng.ts" />
-    <TypeScriptCompile Include="App\Shared\utils.ts" />
-    <TypeScriptCompile Include="App\Teachers\index-all.ts" />
-    <TypeScriptCompile Include="App\Teachers\index-app.ts" />
-    <TypeScriptCompile Include="App\Teachers\index-favorites.ts" />
-    <TypeScriptCompile Include="App\Teachers\index-teacherSchedule.ts" />
-    <TypeScriptCompile Include="Scripts\typings\angular-ui-bootstrap\angular-ui-bootstrap.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\angularjs\angular-animate.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\angularjs\angular-cookies.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\angularjs\angular-mocks.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\angularjs\angular-resource.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\angularjs\angular-route.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\angularjs\angular-sanitize.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\angularjs\angular-scenario.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\angularjs\angular.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\toastr\toastr.d.ts" />
+    <TypeScriptCompile Include="app\account\balance.ts" />
+    <TypeScriptCompile Include="app\account\signup.ts" />
+    <TypeScriptCompile Include="app\account\edit-app.ts" />
+    <TypeScriptCompile Include="app\account\edit-logins.ts" />
+    <TypeScriptCompile Include="app\account\edit-teacher.ts" />
+    <TypeScriptCompile Include="app\account\edit-personal.ts" />
+    <TypeScriptCompile Include="app\account\forgotPassword.ts" />
+    <TypeScriptCompile Include="app\account\payTeacher.ts" />
+    <TypeScriptCompile Include="app\account\resetPassword.ts" />
+    <TypeScriptCompile Include="app\account\login.ts" />
+    <TypeScriptCompile Include="app\account\thankYou.ts" />
+    <TypeScriptCompile Include="app\exercises\createReviewRequest.ts" />
+    <TypeScriptCompile Include="app\exercises\index.ts" />
+    <TypeScriptCompile Include="app\exercises\photographWriting.ts" />
+    <TypeScriptCompile Include="app\exercises\utils.ts" />
+    <TypeScriptCompile Include="app\exercises\utils-viewCtrlBase.ts" />
+    <TypeScriptCompile Include="app\exercises\viewWriting.ts" />
+    <TypeScriptCompile Include="app\exercises\viewRecording.ts" />
+    <TypeScriptCompile Include="app\games\copycat.ts" />
+    <TypeScriptCompile Include="app\games\copycatAdd.ts" />
+    <TypeScriptCompile Include="app\games\pickapic.ts" />
+    <TypeScriptCompile Include="app\library\friend.ts" />
+    <TypeScriptCompile Include="app\library\history.ts" />
+    <TypeScriptCompile Include="app\library\index.ts" />
+    <TypeScriptCompile Include="app\reviews\editWriting.ts" />
+    <TypeScriptCompile Include="app\reviews\utils-editCtrlBase.ts" />
+    <TypeScriptCompile Include="app\sessions\index-app.ts" />
+    <TypeScriptCompile Include="app\sessions\index-offers.ts" />
+    <TypeScriptCompile Include="app\sessions\index-friendSchedules.ts" />
+    <TypeScriptCompile Include="app\sessions\index-ownSchedule.ts" />
+    <TypeScriptCompile Include="app\sessions\index-session.ts" />
+    <TypeScriptCompile Include="app\sessions\utils-sessions.ts" />
+    <TypeScriptCompile Include="app\friends\index.ts" />
+    <TypeScriptCompile Include="app\reviews\editRecording.ts" />
+    <TypeScriptCompile Include="app\reviews\index.ts" />
+    <TypeScriptCompile Include="app\shared\exercises-recording.ts" />
+    <TypeScriptCompile Include="app\shared\exercises-writing.ts" />
+    <TypeScriptCompile Include="app\shared\exercises.ts" />
+    <TypeScriptCompile Include="app\shared\library-data.ts" />
+    <TypeScriptCompile Include="app\shared\library.ts" />
+    <TypeScriptCompile Include="app\shared\ctrl-template.ts" />
+    <TypeScriptCompile Include="app\shared\model.ts" />
+    <TypeScriptCompile Include="app\exercises\recordSpeech-cardList.ts" />
+    <TypeScriptCompile Include="app\exercises\recordSpeech.ts" />
+    <TypeScriptCompile Include="app\shared\utils-ng.ts" />
+    <TypeScriptCompile Include="app\shared\utils.ts" />
+    <TypeScriptCompile Include="scripts\typings\angular-ui-bootstrap\angular-ui-bootstrap.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\angularjs\angular-animate.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\angularjs\angular-cookies.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\angularjs\angular-mocks.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\angularjs\angular-resource.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\angularjs\angular-route.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\angularjs\angular-sanitize.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\angularjs\angular.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\moment\moment.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\toastr\toastr.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\xcopy\angular-ui-router.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\youtube\youtube.d.ts" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{9e56d9fe-9c2f-4df7-b000-922fb95bbbcd}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -563,7 +597,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>2453</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://dev.englc.com/</IISUrl>
+          <IISUrl>http://deva.englisharium.com/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
@@ -573,11 +607,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
-  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
-    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
-    <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
-  </Target>
+  <Import Project="..\packages\Microsoft.Web.WebJobs.Publish.1.0.2\tools\webjobs.targets" Condition="Exists('..\packages\Microsoft.Web.WebJobs.Publish.1.0.2\tools\webjobs.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,0 +1,79 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Suggestions for Learning and Practicing</h3>
+            </div>
+            <div class="panel-body" style="padding:0;">
+                <table class="table app-margin-bottom-none">
+                    <thead>
+                        <tr>
+                            <th>Suggestion</th>
+                            <th>Keywords</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tr ng-repeat="s in vm.review.suggestions">
+                        <td>
+                            <textarea rows="2" class="form-control app" ng-show="vm.isNotFinished()" ng-model="s.suggestion" ng-change="vm.makePieceDirty(s)"></textarea>
+                            <span ng-show="!vm.isNotFinished()">{{s.suggestion}}</span>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control"
+                                   data-typeahead="c.name for c in vm.categories | filter:$viewValue | limitTo:20" data-typeahead-on-select="vm.makePieceDirty(s)"
+                                   ng-show="vm.isNotFinished()" ng-model="s.keywords" ng-change="vm.makePieceDirty(s)" />
+                            <span ng-show="!vm.isNotFinished()">{{s.keywords}}</span>
+                        </td>
+                        <td style="width:10%">
+                            <button class="btn btn-default btn-xs" ng-show="vm.isNotFinished()" title="Delete" ng-click="vm.deleteSuggestion(s)">
+                                <i class="fa fa-fw fa-times text-danger"></i>Delete
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button class="btn btn-default btn-sm app-margin-left" ng-show="vm.isNotFinished()" title="New" ng-click="vm.addSuggestion()" ng-disabled="!vm.canAddSuggestion()">
+                                <i class="fa fa-plus text-success"></i>&nbsp;New
+                            </button>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-offset-2 col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">General comments</h3>
+            </div>
+            <div class="panel-body">
+                <textarea rows="10" class="form-control app" ng-show="vm.isNotFinished()" ng-model="vm.review.comment.comment" ng-change="vm.makePieceDirty(vm.review.comment)"></textarea>
+                <span class="app-pre-line" ng-show="!vm.isNotFinished()">{{vm.review.comment.comment}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-offset-1 col-sm-2">
+        <button class="btn btn-primary btn-block" ng-show="vm.isNotFinished()" ng-class="{'app-unsaved-on-exit': vm.unsavedOnExit}" ng-click="vm.save()" ng-disabled="!vm.canSave()">Save changes</button>
+    </div>
+    <div class="col-sm-3">
+        @* The &nbsp; separates buttons when the layout jumps on col-sm  *@
+        <span ng-show="vm.autoSaved">Auto-saved</span>&nbsp;
+    </div>
+    <div class="col-sm-2">
+        <button class="btn btn-primary btn-block" ng-show="vm.isNotFinished()" ng-click="vm.showFinishReviewModal(r)">Finish review</button><br />
+    </div>
+    <div class="col-sm-4 text-right">
+        Started {{vm.review.startTime | appDateTime}}
+        <br />
+        <span ng-show="!vm.isNotFinished()">Finished {{vm.review.finishTime | appDateTime}}</span>
+        <span ng-show="vm.isNotFinished()">Not finished</span>
+    </div>
+</div>
+

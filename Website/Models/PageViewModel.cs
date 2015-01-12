@@ -11,9 +11,9 @@ namespace Runnymede.Website.Models
     public class PageViewModel
     {
         public string UserName { get; set; }
+        public int UserId { get; set; }
         public string DisplayName { get; set; }
         public bool IsTeacher { get; set; }
-        public int UserId { get; set; }
 
         public PageViewModel(WebPageRenderingBase page)
         {
@@ -22,12 +22,32 @@ namespace Runnymede.Website.Models
                 var identity = page.User.Identity as System.Security.Claims.ClaimsIdentity;
                 if (identity != null)
                 {
+                    if (page.Request.IsSecureConnection)
+                    {
+                        UserName = identity.GetUserName();
+                    }
                     UserId = Convert.ToInt32(identity.GetUserId());
-                    UserName = identity.GetUserName();
                     DisplayName = identity.FindFirstValue(AppClaimTypes.DisplayName) ?? UserName;
                     IsTeacher = identity.HasClaim(i => i.Type == AppClaimTypes.IsTeacher);
                 }
             }
         }
+
+        public string SelfUserParamJson
+        {
+            get
+            {
+                var selfUserParam = new
+                {
+                    UserName = UserName,
+                    Id = UserId,
+                    DisplayName = DisplayName,
+                    IsTeacher = IsTeacher,
+                };
+                return Runnymede.Website.Utils.JsonUtils.SerializeAsJson(selfUserParam);
+            }
+        }
+
+
     }
 }

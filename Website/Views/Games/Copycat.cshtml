@@ -1,0 +1,143 @@
+﻿@{
+    ViewBag.Title = "Game Copycat";
+    ViewBag.SecondaryTitle = "Listen and repeat";
+    ViewBag.NavItem = "Games";
+}
+<style>
+    .my-timepicker input {
+        height: 30px;
+        padding: 5px 10px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+
+    .my-timepicker .btn-link {
+        padding: 5px 10px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+</style>
+<div ng-app="myApp" ng-controller="Copycat">
+    @* Do not put "ng-cloak" on a tag wrapping "_ResourceListPartial". Do not hide the YouTube player! See the comments in _ResourceListPartial. *@
+    <div class="row  app-margin-bottom">
+        <div class="col-md-5">
+            <div ng-show="vm.isKindViewed()">
+                @Html.Partial("_NotAuthenticatedDivPartial")
+            </div>
+            <div class="row">
+                <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10 col-sm-offset-0 col-sm-6 col-xs-offset-3 col-xs-6">
+                    @* Do not hide the player! See the comments in Shared/_ResourceListPartial.shtml *@
+                    <div class="ng-hide app-hide-position" ng-show="vm.resource">
+                        <div class="embed-responsive app-embed-responsive-1by1">
+                            <div id="toBeReplacedByYoutubeIframe"></div>
+                        </div>
+                    </div>
+                    <div class="app-margin-bottom" ng-show="vm.resource" ng-cloak>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" ng-model="vm.loop" ng-change="vm.changeVolume=false"><i class="fa fa-refresh fa-fw"></i> Play in a loop
+                            </label>
+                        </div>
+                        @*<div class="checkbox">
+                                <label class="checkbox-inline" ng-class="{'disabled text-muted': !vm.loop}">
+                                    <input type="checkbox" ng-model="vm.changeVolume" ng-disabled="!vm.loop"><i class="fa fa-volume-up fa-fw"></i><i class="fa fa-refresh fa-fw"></i><i class="fa fa-volume-down fa-fw"></i> Alternate loud and quiet
+                                </label>
+                            </div>*@
+                        <div class="checkbox">
+                            <label class="checkbox-inline">
+                                <input type="checkbox" ng-model="vm.changeVolume" ng-show="vm.loop"><span ng-style="vm.loop ? {} : {color: 'white'}"><i class="fa fa-volume-up fa-fw"></i><i class="fa fa-refresh fa-fw"></i><i class="fa fa-volume-down fa-fw"></i> Alternate loud and quiet</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-sm-6 col-xs-12 app-margin-bottom" ng-cloak>
+                    <div ng-show="vm.resource">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Write your transcript version</div>
+                            <div class="panel-body">
+                                <textarea rows="3" class="form-control app" ng-model="vm.transcript"></textarea>
+                            </div>
+                        </div>
+                        <button class="btn btn-default btn-xs" ng-click="vm.showPublicTranscript()" ng-show="!vm.publicTranscript">Show the public transcript</button>
+                        <div ng-show="vm.publicTranscript">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Public transcript</div>
+                                <div class="panel-body">
+                                    {{vm.publicTranscript}}
+                                </div>
+                            </div>
+                            <button class="btn btn-default btn-xs app-btn-disablable" ng-click="vm.showSaveTranscriptModal()" ng-disabled="!vm.canSaveTranscript()">
+                                Replace the public transcript with your version
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7" ng-cloak>
+            <ul class="nav nav-pills app-nav-pills app-margin-bottom">
+                <li ng-class="{active: vm.isKindNotViewed()}"><a href="" ng-click="vm.selectKind(vm.KindNotViewed)">Not viewed</a></li>
+                <li ng-class="{active: vm.isKindViewed()}"><a href="" ng-click="vm.selectKind(vm.KindViewed)">Viewed</a></li>
+            </ul>
+            <div class="row" style="margin-bottom:10px;" ng-repeat="g in vm.getGroups()">
+                <div class="col-xs-2">
+                    <img class="img-responsive" ng-src="https://i1.ytimg.com/vi/{{g.naturalKey}}/default.jpg" />
+                </div>
+                <div class="col-xs-10">
+                    <i class="fa fa-lg fa-fw" ng-class="vm.getGroupIcon(g)"></i>&nbsp;{{g.title}}
+                    <div class="app-margin-left" ng-repeat="r in vm.getResources(g)">
+                        <i class="fa fa-fw app-appred" ng-class="{'fa-chevron-circle-right': r === vm.resource}"></i>
+                        <a href="" ng-click="vm.selectResource(r)">&nbsp;{{vm.formatSegment(r)}}</a>
+                        <span style="white-space:nowrap;margin-left:10px;" ng-show="r.priority != null">
+                            <span ng-repeat="p in vm.priorities.slice(0,4)">
+                                <i class="fa fa-lg app-appred" ng-class="p.icon" ng-show="p.value === r.priority" title="Current priority"></i>
+                                <a href="" ng-show="p.value !== r.priority" ng-click="vm.setPriority(r,p.value)"><i class="fa fa-lg" ng-class="p.icon" title="Change priority"></i></a>
+                            </span>
+                            <i class="fa fa-plus fa-lg app-appred" ng-show="r.priority === 5" title="Current priority"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="pagination-sm" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="5" data-boundary-links="true" data-rotate="false"
+                 ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.pgLoad()"></div>
+        </div>
+    </div>
+    <span><i class="fa fa-plus fa-fw text-success"></i>&nbsp;@Html.ActionLink("Add a piece", "CopycatAdd", "Games")</span>
+    <!-- Modals -->
+    <!-- saveTranscriptModal -->
+    <script type="text/ng-template" id="saveTranscriptModal">
+        <div class="modal-header">
+            <h3>Save transcript</h3>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-offset-1 col-md-10">
+                    <p>
+                        Do you want to replace the current version of the public transcript with your version?
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="vm.busy">OK</button>
+            <a href="" class="app-close" ng-click="vm.cancel()">Close</a>
+        </div>
+    </script>
+    <!-- /saveTranscriptModal -->
+    <!-- /Modals -->
+</div><!-- /app -->
+@section BottomScripts {
+    <script type="text/javascript">
+        var app = app || {};
+        app.hostPageParam = 'HostPage_Copycat';
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/shared/library.js",
+"~/app/games/copycat.js"
+)}

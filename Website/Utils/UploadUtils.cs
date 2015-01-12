@@ -12,13 +12,16 @@ using System.Data.Entity.SqlServer;
 using System.Data;
 using ImageResizer;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
+using System.Threading;
+using Runnymede.Common.Utils;
 
 namespace Runnymede.Website.Utils
 {
+
     public static class UploadUtils
     {
-        // Topics.cshtml. <input type="text" class="span8" data-ng-model="vm.ownTopic.title" maxlength="100" required placeholder="Write your topic here (maximum 100 characters.)" />
-        public const int MaxExerciseTitleLength = 100;
+        public const int MaxExerciseTitleLength = 100; // Corresponds to dbo.exeExercises.Title nvarchar(100)
 
         /// <summary>
         /// Saves audio recording.
@@ -26,40 +29,61 @@ namespace Runnymede.Website.Utils
         /// <param name="stream"></param>
         /// <param name="userId"></param>
         /// <param name="displayName"></param>
-        /// <param name="type"></param>
+        /// <param name="exerciseType"></param>
         /// <param name="durationMsec"></param>
-        /// <param name="topicId"></param>
-        /// <param name="exerciseTitle"></param>
+        /// <param name="recordingTitle">May come with Skype recording.</param>
+        /// <param name="recorderId">Comes from Audior. It is the recorderId and will be used to update Title with the real title after upload is done.</param>
         /// <returns>Exercise Id</returns>
-        public static int SaveRecording(Stream stream, int userId, string type, int durationMsec, string topicId = null, string exerciseTitle = null)
+        public static async Task<int> SaveRecording(Stream stream, int userId, string exerciseType, int durationMsec, string recordingTitle = null, string recorderId = null)
         {
-            var artefactId = LoggingUtils.GetTvelveDigitBase32Number();
-            var contentType = type == ExerciseType.AudioRecording ? "audio/mpeg" : "application/octet-stream";
-            // Save the recording
-            AzureStorageUtils.UploadBlob(stream, AzureStorageUtils.ContainerNames.Recordings, artefactId, contentType);
+            var contentType = exerciseType == ExerciseType.AudioRecording ? MediaType.Mp3 : MediaType.Octet;
+            var blobName = ConstractBlobName(recorderId, userId, contentType);
+            await AzureStorageUtils.UploadBlobAsync(stream, AzureStorageUtils.ContainerNames.Recordings, blobName, contentType);
+            var exerciseId = await CreateExercise(blobName, userId, exerciseType, durationMsec, recordingTitle);
+            return exerciseId;
+        }
 
-            string title = !string.IsNullOrEmpty(exerciseTitle)
-                            ? (exerciseTitle.Length <= MaxExerciseTitleLength ? exerciseTitle : exerciseTitle.Substring(0, MaxExerciseTitleLength))
-                            : "Untitled";
-
+        public static async Task<int> CreateExercise(string artifact, int userId, string exerciseType, int length, string title = null)
+        {
             const string sql = @"
-insert dbo.exeExercises (UserId, TypeId, ArtefactId, TopicId, [Length], Title)
+insert dbo.exeExercises (Id, UserId, [Type], Artifact, [Length], Title)
 output inserted.Id
-values (@UserId, @TypeId, @ArtefactId, @TopicId, @Length, @Title);
+values (dbo.exeGetNewExerciseId(), @UserId, @Type, @Artifact, @Length, @Title);
 ";
-            var exerciseId = DapperHelper.QueryResiliently<int>(sql,
+            var exerciseId = (await DapperHelper.QueryResilientlyAsync<int>(sql,
                 new
                 {
                     UserId = userId,
-                    TypeId = type,
-                    ArtefactId = artefactId,
-                    TopicId = topicId,
-                    Length = durationMsec,
-                    Title = title
-                })
+                    Type = exerciseType,
+                    Artifact = artifact,
+                    Length = length,
+                    Title = NormalizeExerciseTitle(title),
+                }))
                 .Single();
 
             return exerciseId;
+        }
+
+        public static string ConstractBlobName(string recorderId, int userId, string contentType = MediaType.Mp3)
+        {
+            // recorderId is 13 digits, milliseconds, current Date in the browser.
+            var name = !String.IsNullOrWhiteSpace(recorderId)
+                ? recorderId.Trim() + userId.ToString()
+                : KeyUtils.GetTwelveBase32Digits();
+            var extension = MediaType.GetExtension(contentType);
+            return Path.ChangeExtension(name, extension);
+        }
+
+        public static string NormalizeExerciseTitle(string title)
+        {
+            return !String.IsNullOrWhiteSpace(title)
+                ? (title.Length <= MaxExerciseTitleLength ? title : title.Substring(0, MaxExerciseTitleLength))
+                : "Untitled";
+        }
+
+        public static int DurationToLength(double duration)
+        {
+            return Convert.ToInt32(duration * 1000);
         }
 
         //----------------
@@ -127,11 +151,11 @@ values (@UserId, @TypeId, @ArtefactId, @TopicId, @Length, @Title);
                 };
 
                 var imageJob = new ImageJob(stream, destStream, instructions);
-                imageJob.DisposeSourceObject = false; // Otherwise the stream is empty on a consecutive read.
+                imageJob.DisposeSourceObject = false; // Otherwise the stream will be empty on a consecutive read.
                 imageJob.Build();
 
-               await AzureStorageUtils.UploadBlobAsync(destStream, containerName, blobName, "image/jpeg");
-            }     
+                await AzureStorageUtils.UploadBlobAsync(destStream, containerName, blobName, MediaType.Jpeg);
+            }
         }
 
     }

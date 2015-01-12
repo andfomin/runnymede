@@ -7,28 +7,12 @@ using Runnymede.Website.Utils;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
-    [Authorize]
-    public class SessionsController : Controller
+    public class SessionsController : Runnymede.Website.Utils.CustomController
     {
-        // GET: /sessions/teacher
-        public ActionResult Teacher()
+
+        // GET: sessions/
+        public ActionResult Index()
         {
-            if (!this.GetUserIsTeacher())
-            {
-                return RedirectToAction("Logout", "Account");
-            }
-
-            return View();
-        }
-
-        // GET: /sessions/learner
-        public ActionResult Learner()
-        {
-            if (this.GetUserIsTeacher())
-            {
-                return RedirectToAction("Logout", "Account");
-            }
-
             return View();
         }
 

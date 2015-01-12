@@ -3,20 +3,20 @@
     ViewBag.NavItem = "Account";
     var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
     // Protect userName from tampering with.
-    var englcCode = Runnymede.Website.Utils.PayPalHelper.GetTimestampedUserName(pageViewModel.UserName);
+    var englishariumCode = Runnymede.Website.Utils.PayPalHelper.GetTimestampedUserName(pageViewModel.UserName);
 }
 @if (ViewBag.IsConfirmed ?? false)
 {
     <div class="row">
         <div class="col-sm-offset-3 col-sm-6 alert alert - info">
             <p class="text-center">
-                Your email address @pageViewModel.UserName is not yet verified. 
+                Your email address @pageViewModel.UserName is not yet verified.
                 Send verification email again
             </p>
         </div>
     </div>
 }
-<img class="center-block" src="~/Content/Images/payment-logos.png" width="352" height="38" alt="Payment methods" />
+<img class="center-block" src="~/content/images/payment-logos.png" width="352" height="38" alt="Payment methods" />
 <img src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1" alt="" border="0">
 
 <form class="form-horizontal" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" role="form">
@@ -25,8 +25,8 @@
     <input type="hidden" name="on0" value="amount">
     <input type="hidden" name="on1" value="email">
     <input type="hidden" name="os1" value="@pageViewModel.UserName">
-    <input type="hidden" name="on2" value="englc-code">
-    <input type="hidden" name="os2" value="@englcCode">
+    <input type="hidden" name="on2" value="englisharium-code">
+    <input type="hidden" name="os2" value="@englishariumCode">
 
     <input type="hidden" name="currency_code" value="USD">
 
@@ -49,12 +49,14 @@
         </div>
     </div>
 </form>
-@using (Html.BeginInstructionsContainer())
+@*@using (Html.BeginInstructionsContainer())
 {
-    <li>We use <a href="https://www.paypal.com/" target="blank">PayPal</a> as a payment processor.</li>
-    <li>Select an appropriate amount of money in the drop-down box.</li>
-    <li>There are currently only five standard options for the amount. The minimum amount is $10, the maximum amount is $50 US dollars.</li>
-}
+    <ul>
+        <li>We use <a href="https://www.paypal.com/" target="blank">PayPal</a> as a payment processor.</li>
+        <li>Select an appropriate amount of money in the drop-down box.</li>
+        <li>There are currently only five standard options for the amount. The minimum amount is $10, the maximum amount is $50 US dollars.</li>
+    </ul>
+}*@
 
 @section BottomScripts {
     <script>

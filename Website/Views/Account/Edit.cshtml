@@ -2,9 +2,28 @@
     ViewBag.NavItem = "Account";
     var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
 }
-<div data-ng-app="app">
-    <div data-ng-view=""></div>
-</div>
+<div ng-app="myApp" ng-cloak>
+    <div class="row">
+        <div class="col-sm-6">
+            <h3 class="page-header app">{{pageTitle}} <small>{{secondaryTitle}}</small></h3>
+        </div>
+        <div class="col-sm-6">
+            <ul class="nav nav-pills app-margin-bottom app-nav-pills">
+                <li data-ui-sref-active="active"><a href="" data-ui-sref="personal">Personal</a></li>
+                <li data-ui-sref-active="active"><a href="" data-ui-sref="logins">Logins</a></li>
+                @if (pageViewModel.IsTeacher)
+                {
+                    <li data-ui-sref-active="active"><a href="" data-ui-sref="teacher">Teacher</a></li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-10 ">
+            <div data-ui-view></div>
+        </div>
+    </div>
+    </div><!-- /ng-app="myApp" -->
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/angular",
@@ -12,16 +31,10 @@
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
 "~/bower_installer/ngUpload/ng-upload.min.js",
-"~/App/Account/edit-personal.js",
-"~/App/Account/edit-teacher.js",
-"~/App/Account/edit-logins.js",
-"~/App/Account/edit-app.js"
+"~/app/account/edit-personal.js",
+"~/app/account/edit-logins.js",
+"~/app/account/edit-teacher.js",
+"~/app/account/edit-app.js"
 )
-@* Pass the user info from the server to the client. Some views need the value, but their controllers do not request the profile.*@
-<script type="text/javascript">
-    var App = App || {};
-    App.isTeacher = '@Html.Raw(pageViewModel.IsTeacher ? "y" : "" )';
-    App.userName = '@Html.Raw(pageViewModel.UserName)';
-</script>
 }
 

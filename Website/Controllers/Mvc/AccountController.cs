@@ -1,21 +1,18 @@
 ﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.Cookies;
+using Runnymede.Common.Utils;
+using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
-using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using Owin;
-using Runnymede.Website.Models;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Threading;
-using System.IO;
-using Microsoft.AspNet.Identity.Owin;
+using System.Web;
+using System.Web.Mvc;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
@@ -55,14 +52,21 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
-        // GET: account/confirm-email?code=qwertyuiop&time=123456
+        // GET: /account/thank-you
+        [AllowAnonymous]
+        public ActionResult ThankYou()
+        {
+            return View();
+        }
+
+        // GET: /account/confirm-email?code=qwertyuiop&time=123456
         [AllowAnonymous]
         public async Task<ActionResult> ConfirmEmail()
         {
             int userId = AccountUtils.GetUserIdFromRequest(Request);
             string code = AccountUtils.GetCodeFromRequest(Request);
             bool success = false;
-            if (userId != 0 && !string.IsNullOrEmpty(code))
+            if (userId != 0 && !String.IsNullOrEmpty(code))
             {
                 var result = await OwinUserManager.ConfirmEmailAsync(userId, code);
                 success = result.Succeeded;
@@ -116,10 +120,10 @@ namespace Runnymede.Website.Controllers.Mvc
         {
             // Clear any partial cookies from external sign ins
             OwinAuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-            var queryString = string.IsNullOrEmpty(error)
+            var queryString = String.IsNullOrEmpty(error)
                 ? ""
                 : "?error=" + Uri.EscapeUriString(error); // Uri.Encode replaces spaces with '+', not '%20'
-            return new RedirectResult(Url.Action("Edit", "Account", null, "https") + "#/logins" + queryString);
+            return Redirect(Url.Action("Edit", "Account", null, "https") + "#/logins" + queryString);
         }
 
         // GET: /account/external-login-callback
@@ -220,10 +224,10 @@ namespace Runnymede.Website.Controllers.Mvc
             var loginHelper = new LoginHelper(OwinUserManager, OwinAuthenticationManager);
 
             // Create the user account
-            var user = await loginHelper.Signup(signupModel, loginInfo, this.GetKeeper(), Request.Url);
+            var user = await loginHelper.Signup(signupModel, loginInfo, this.GetExtId(), Request.Url);
 
             var error = loginHelper.InspectErrorAfterSignup(user);
-            if (string.IsNullOrEmpty(error))
+            if (String.IsNullOrEmpty(error))
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -235,7 +239,7 @@ namespace Runnymede.Website.Controllers.Mvc
             }
         }
 
-        // GET: account/balance/
+        // GET: /account/balance/
         [RequireHttps]
         public ActionResult Balance(PayPalPaymentResult payPalPaymentResult = PayPalPaymentResult.None)
         {
@@ -251,31 +255,29 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
-        // GET: /account/pay-teacher/12345
+        // GET: /account/pay-teacher/2000000001
         [RequireHttps]
         public async Task<ActionResult> PayTeacher(int id)
         {
             var sql = @"
-select DisplayName from dbo.appUsers where Id = @Id and IsTeacher = 1
+select DisplayName from dbo.appGetUser(@Id) where IsTeacher = 1
 ";
-            var displayName = (await DapperHelper.QueryResilientlyAsync<string>(sql, new
-            {
-                Id = id,
-            })).Single();
+            // Single() will throw if the user is not found.
+            var displayName = (await DapperHelper.QueryResilientlyAsync<string>(sql, new { Id = id, })).Single();
 
             ViewBag.TeacherUserId = id;
             ViewBag.TeacherDisplayName = displayName;
             return View();
         }
 
-        // GET: account/edit/
+        // GET: /account/edit/
         [RequireHttps]
         public ActionResult Edit()
         {
             return View();
         }
 
-        // GET: account/forgot-password/
+        // GET: /account/forgot-password/
         [AllowAnonymous]
         [RequireHttps]
         public ActionResult ForgotPassword()
@@ -283,7 +285,7 @@ select DisplayName from dbo.appUsers where Id = @Id and IsTeacher = 1
             return View();
         }
 
-        // GET: account/reset-password?code=qwertyuiop
+        // GET: /account/reset-password?code=qwertyuiop
         [AllowAnonymous]
         [RequireHttps]
         public ActionResult ResetPassword()
@@ -306,7 +308,7 @@ select DisplayName from dbo.appUsers where Id = @Id and IsTeacher = 1
         {
             PayPalPaymentResult result = PayPalPaymentResult.Canceled;
 
-            if (!string.IsNullOrEmpty(tx))
+            if (!String.IsNullOrEmpty(tx))
             {
                 var helper = new PayPalHelper();
 
@@ -331,7 +333,7 @@ select DisplayName from dbo.appUsers where Id = @Id and IsTeacher = 1
             return RedirectToAction("Balance", new { PayPalPaymentResult = result });
         }
 
-        // GET: account/ipn/
+        // GET: /account/ipn/
         [AllowAnonymous]
         [RequireHttps]
         public ActionResult ipn()
@@ -343,7 +345,7 @@ select DisplayName from dbo.appUsers where Id = @Id and IsTeacher = 1
             var lines = helper.SplitIpnMessage(message);
             var pairs = helper.SplitKeyValuePairs(lines);
 
-            var tx = pairs.ContainsKey("txn_id") ? pairs["txn_id"] : "IPN " + LoggingUtils.GetUniqueObservedTime();
+            var tx = pairs.ContainsKey("txn_id") ? pairs["txn_id"] : "IPN " + KeyUtils.GetCurrentTimeKey();
 
             var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.IPN, tx, message);
 
@@ -362,21 +364,19 @@ select DisplayName from dbo.appUsers where Id = @Id and IsTeacher = 1
         // POST: /account/upload-avatar
         [RequireHttps] // Called from the Edit page which is loaded over HTTPS
         [HttpPost]
-        public async Task UploadAvatar(HttpPostedFileBase avatarFile)
+        public async Task<ActionResult> UploadAvatar(HttpPostedFileBase fileInput)
         {
-            if (avatarFile != null && avatarFile.ContentLength > 0)
+            if (fileInput != null && fileInput.ContentLength > 0)
             {
-                const string sql = @"
-select ExtIdUpperCase from dbo.appUsers where Id = @UserId
-";
-                var blobName = DapperHelper.QueryResiliently<string>(sql, new { UserId = this.GetUserId() })
-                    .Single();
-
-                var stream = avatarFile.InputStream;
-                // ResizeAndSaveAvatar() will rewind the stream to the beginning.
+                // ResizeAndSaveAvatar() will rewind the stream to the beginning. Do not parallelize the processing with Task.WhenAll().
+                var stream = fileInput.InputStream;
+                var blobName = KeyUtils.IntToKey(this.GetUserId());
                 await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarSmallSize, AzureStorageUtils.ContainerNames.AvatarsSmall, blobName);
                 await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarLargeSize, AzureStorageUtils.ContainerNames.AvatarsLarge, blobName);
             }
+            //return new HttpStatusCodeResult(HttpStatusCode.NoContent); // ngUpload misses the end event until it has received a content back.
+            // IE wants text/html not application/json. However ngUpload passes it to ng-upload as a parsed JSON, i.e. Object {}.
+            return Content("{}", "text/html");
         }
 
         // POST: /account/link-login
@@ -400,6 +400,23 @@ select ExtIdUpperCase from dbo.appUsers where Id = @UserId
                 error = result.PlainErrorMessage("Failed to link external login");
             }
             return new RedirectResult(Url.Action("Edit", "Account", null, "https") + "#/logins" + (error == null ? "" : "?error=" + Uri.EscapeUriString(error))); // Uri.Encode replaces spaces with '+', not '%20'
+        }
+
+        // GET: /account/support-sso/
+        [RequireHttps]
+        public ActionResult SupportSso()
+        {
+            const string pathTemplate = "http://support.englisharium.com/login/sso?name={0}&email={1}&timestamp={2}&hash={3}";
+            var key = ConfigurationManager.AppSettings["FreshdeskSsoKey"];
+
+            var name = this.GetUserDisplayName();
+            var email = this.GetUserName();
+
+            string timems = Convert.ToInt64((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString();
+            var hash = GetHash(key, name, email, timems);
+            var path = String.Format(pathTemplate, HttpUtility.UrlEncode(name), HttpUtility.UrlEncode(email), timems, hash);
+
+            return Redirect(path);
         }
 
 
@@ -444,6 +461,25 @@ select ExtIdUpperCase from dbo.appUsers where Id = @UserId
                 context.HttpContext.GetOwinContext().Authentication.Challenge(properties, LoginProvider);
             }
         }
+
+        private static string GetHash(string secret, string name, string email, string timems)
+        {
+            string input = name + email + timems;
+            var keybytes = Encoding.Default.GetBytes(secret);
+            var inputBytes = Encoding.Default.GetBytes(input);
+
+            var crypto = new HMACMD5(keybytes);
+            byte[] hash = crypto.ComputeHash(inputBytes);
+
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in hash)
+            {
+                string hexValue = b.ToString("X").ToLower(); // Lowercase for compatibility on case-sensitive systems
+                sb.Append((hexValue.Length == 1 ? "0" : "") + hexValue);
+            }
+            return sb.ToString();
+        }
+
         #endregion
 
     }

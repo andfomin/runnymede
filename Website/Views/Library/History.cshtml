@@ -1,0 +1,90 @@
+﻿@{
+    ViewBag.NavItem = "Library";
+}
+@section HeadScripts {
+    <style>
+        .my-date.well {
+            background-color: white;
+        }
+
+        .my-date .text-info {
+            color: #ac1f28; /* appRed */
+            font-weight: 800;
+        }
+
+        .my-date tbody .btn-default:not([disabled]) {
+            color: white;
+            background-color: #0077b3; /* appBlue btn-primary-bg */
+            border-color: #006699; /* appBlue */
+        }
+
+        .my-date .btn-default.btn-info.active {
+            background-color: #ac1f28; /* appRed */
+            border-color: #ac1f28;
+        }
+
+        .app-nav-pills .fa {
+            font-size: 21px;
+            position: relative;
+            top: 2px;
+        }
+    </style>
+}
+@* Do not put "ng-cloak" on a tag wrapping "_ResourceListPartial". Do not hide the YouTube player! See the comments in _ResourceListPartial. *@
+<div ng-app="myApp">
+    <div class="row">
+        <div class="col-md-8">
+            <h3 class="page-header app">Library <small>History</small></h3>
+        </div>
+        <div class="col-md-4 app-margin-bottom">
+            <ul class="nav nav-pills app-nav-pills">
+                <li><a href="/library#/common"><i class="fa fa-book fa-fw app-appyellow"></i>&nbsp;Common&nbsp;</a></li>
+                <li><a href="/library#/personal"><i class="fa fa-star fa-fw"></i>&nbsp;Personal</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6")
+    </div>
+    <div ng-controller="History">
+        <div class="row">
+            <div class="col-md-offset-1 col-md-4">
+                <div style="display:inline-block; min-height:290px;">
+                    <div data-datepicker class="well well-sm my-date" data-max-mode="day" data-show-weeks="false" data-min-date="vm.minDate" data-max-date="vm.maxDate" data-init-date="vm.maxDate"
+                         data-date-disabled="vm.dateDisabled(date,mode)" ng-model="vm.date" ng-change="vm.pgLoad()">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h4 ng-bind="vm.titleDate | date:'fullDate'"></h4>
+                @if (Request.IsAuthenticated)
+                {
+                <!-- _ResourceListPartial begin -->
+                    @* Do not hide the player! See the comments in the partial. *@
+                    @Html.Partial("_ResourceListPartial")
+                <!-- _ResourceListPartial end -->
+                    <div class="pagination-sm" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="5" data-boundary-links="true" data-rotate="false"
+                         ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.pgLoad()"></div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section BottomScripts {
+    <script type="text/javascript">
+        var app = app || {};
+        app.hostPageParam = 'HostPage_History';
+        app.daysParam = @Html.Raw(ViewBag.DaysParamJson);
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+
+"~/app/shared/library.js",
+"~/app/library/history.js"
+)
+}

@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "Friends";
+    ViewBag.NavItem = "Friends";
+}
+@section HeadScripts {
+    @Styles.Render("~/bundles/animate-css")
+    <style>
+        table.my-table td {
+            padding: 0 5px;
+        }
+    </style>
+}
+<div ng-app="myApp" ng-cloak>
+    <div ng-controller="Index">
+        <div class="row">
+            <div class="col-sm-3 text-center">
+                <button class="btn btn-primary btn-sm" ng-click="vm.showAddFriendModal()"><i class="fa fa-plus-circle fa-fw app-1px-down"></i> Add a friend</button>
+            </div>
+            <div class="visible-xs-block">&nbsp;</div>
+            @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-6 app-margin-bottom-none")
+        </div>
+        <div ng-repeat="f in vm.friendships">
+            <hr />
+            <div class="row">
+                <div class="col-md-2 text-center">
+                    <img ng-src="{{f.id | appAvatarLarge}}" width="96" height="96" />
+                </div>
+                <div class="col-md-5">
+                    @*<a href="#/teacher-schedule/{{t.id}}">Sessions schedule</a>*@
+                    <p><strong>{{f.displayName}}</strong></p>
+                    <p>
+                        {{f.announcement}}
+                        <a href="" class="app-margin-left-half" ng-click="f.showPresen = !f.showPresen; vm.loadPresentation(f);" ng-style="f.presentation === '' ? {color:'#bbb'} : {}">
+                            {{f.showPresen ? 'Less' : 'More'}}<i class="fa fa-fw" ng-class="f.showPresen ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+                        </a>
+                    </p>
+                    <p class="app-pre-line" ng-show="f.showPresen">{{f.presentation}}</p>
+
+                </div>
+                <div class="col-md-5">
+                    <table class="table table-condensed my-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th class="text-center">You&nbsp;to&nbsp;friend</th>
+                                <th class="text-center">Friend&nbsp;to&nbsp;you</th>
+                            </tr>
+                        </thead>
+                        <tr>
+                            <td>Friendship is alive</td>
+                            <td class="text-center"><input type="checkbox" ng-model="f.userIsActive" ng-change="vm.changeActive(f)"></td>
+                            <td class="text-center"><input type="checkbox" ng-model="f.friendIsActive" disabled></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Recording review rate, <strong>$/min</strong>
+                                <a href="">
+                                    <i class="fa fa-question-circle fa-fw" data-tooltip-trigger="click"
+                                       data-tooltip="The rate is US dollars per minute of reviewed audio recording. To allow the friend to request free reviews, set the rate to 0.">
+                                    </i>
+                                </a>
+                            </td>
+                            <td>
+                                <div class="input-group" style="max-width:120px;">
+                                    <input type="text" class="form-control input-sm" ng-model="f.userRecordingRate">
+                                    <span style="border-top-right-radius:3px;border-bottom-right-radius:3px;" ng-class="vm.isRecordingRateDirty(f) ? 'input-group-btn' : 'input-group-addon'">
+                                        <button type="button" class="btn btn-default btn-sm" ng-show="vm.isRecordingRateDirty(f)" ng-click="vm.saveRecordingRate(f)">
+                                            <i class="fa fa-check text-success animated flash app-fa-pulse"></i><span> Save</span>
+                                        </button>
+                                    </span>
+                                </div><!-- /input-group -->
+                            </td>
+                            <td>{{f.friendRecordingRate | number:2}}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Writing review rate, <strong>$/100&nbsp;words</strong>
+                                <a href="">
+                                    <i class="fa fa-question-circle fa-fw" data-tooltip-trigger="click"
+                                       data-tooltip="The rate is US dollars per 100 words of reviewed writing. To allow the friend to request free reviews, set the rate to 0.">
+                                    </i>
+                                </a>
+                            </td>
+                            <td>
+                                <div class="input-group" style="max-width:120px;">
+                                    <input type="text" class="form-control input-sm" ng-model="f.userWritingRate">
+                                    <span style="border-top-right-radius:3px;border-bottom-right-radius:3px;" ng-class="vm.isWritingRateDirty(f) ? 'input-group-btn' : 'input-group-addon'">
+                                        <button type="button" class="btn btn-default btn-sm" ng-show="vm.isWritingRateDirty(f)" ng-click="vm.saveWritingRate(f)">
+                                            <i class="fa fa-check text-success animated flash app-fa-pulse"></i><span> Save</span>
+                                        </button>
+                                    </span>
+                                </div><!-- /input-group -->
+                            </td>
+                            <td>{{f.friendWritingRate | number:2}}</td>
+                        </tr>
+                        <tr>
+                            <td>Last contact</td>
+                            <td>
+                                <i ng-class="vm.getContactIcon(f.userLastContactType)" title="{{vm.getContactTitle(f.userLastContactType)}}"></i>
+                                <small class="app">{{f.userLastContactDate | appDateHuman}}</small>
+                            </td>
+                            <td>
+                                <i ng-class="vm.getContactIcon(f.friendLastContactType)" title="{{vm.getContactTitle(f.friendLastContactType)}}"></i>
+                                <small class="app">{{f.friendLastContactDate | appDateHuman}}</small>
+                            </td>
+                        </tr>
+
+
+                    </table>
+                </div>
+            </div>
+        </div>
+        <hr />
+    </div><!-- /Ctrl -->
+    <!-- Modals -->
+    <!-- addFriendModal -->
+    <script type="text/ng-template" id="addFriendModal">
+        <div class="modal-header">
+            <h3>Add a friend to the list</h3>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-sm-offset-2 col-sm-8">
+                    <p>
+                        Other users are usually added to your friend list automatically after a conversation reservation or an exercise review.
+                    </p>
+                    <p>
+                        You can also add a person manually. Ask the person about the email address they use on this site and enter it in the form below.
+                    </p>
+                </div>
+            </div>
+            <form class="form-horizontal" role="form" ng-submit="vm.ok()">
+                <div class="form-group">
+                    <label class="col-sm-offset-1 col-sm-3 control-label">Email address</label>
+                    <div class="col-sm-6">
+                        <input type="email" class="form-control" ng-model="vm.email" placeholder="someone@example.com" required />
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            @Html.Partial("_NotAuthenticatedSpanPartial")
+            <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="!vm.canAdd()">Add</button>
+            <a href="" class="app-close" ng-click="vm.cancel()">Close</a>
+        </div>
+    </script>
+    <!-- /addFriendModal -->
+    <!-- /Modals -->
+</div><!-- /app -->
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/friends/index.js"
+)}

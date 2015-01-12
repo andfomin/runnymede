@@ -15,37 +15,53 @@ using Runnymede.Website.Models;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Security.Cryptography;
+using Runnymede.Common.Utils;
 
 namespace Runnymede.Website.Utils
 {
     public static class AccountUtils
     {
-        public const string KeeperCookieName = "keeper";
+        public const string ExtIdCookieName = "extid";
         private const string CodeKey = "code";
         private const string UserIdKey = "time"; // Originally "userId". Security through obscurity :(
-        private const string skip32Key = "yh5bvgCWew"; // Key must be 10 bytes long.
-        public const int AvatarLargeSize = 120;
-        public const int AvatarSmallSize = 36;
+        private const string skip32Key = "yh5bvgCWew"; // Key must be 10 chars long.
+        // Each icon consists of 8 x 8 blocks (5 blocks pattern + 2 x 1.5 margin). Notice, the block size should be an even number to produce equal margins.
+        public const int AvatarLargeSize = 96; // 8 * 12 = 96
+        public const int AvatarSmallSize = 32; // 8 * 4 = 32
+
+        //public const string NotAuthenticatedErrorMessage = "Please log in."; // With ApiController methods use Runnymede.Website.Utils.AppPoliteAuthorizeAttribute instead.
 
         #region Identity utils
 
-        public static int GetUserId(IIdentity identity)
+        // We might allow anonymous users to use features. And we may respect the authorized users' identity.
+        /// Use ASP.NET Identity to see if the user is logged in. If they are, we can then get their UserId.
+        public static bool IsAuthenticated(IIdentity identity)
         {
-            return Convert.ToInt32(identity.GetUserId()); // Extention method in Microsoft.AspNet.Identity
+            return identity.IsAuthenticated;
         }
 
-        public static string GetUserName(IIdentity identity)
+        private static int GetUserId(IIdentity identity)
+        {
+            var userIdStr = identity.GetUserId(); // Identity.GetUserId() is an extention method in Microsoft.AspNet.Identity
+            int result;
+            Int32.TryParse(userIdStr, out result); // Assigns zero if the conversion failed.
+            return result;
+        }
+
+        private static string GetUserName(IIdentity identity)
         {
             return identity.GetUserName();
         }
 
-        public static string GetUserDisplayName(IIdentity identity)
+        private static string GetStringClaim(IIdentity identity, string claimType)
         {
             var claimsIdentity = identity as System.Security.Claims.ClaimsIdentity;
-            return claimsIdentity != null ? claimsIdentity.FindFirstValue(AppClaimTypes.DisplayName) : null; // FindFirstValue() returns null if not found.
+            //return (claimsIdentity != null ? claimsIdentity.FindFirstValue(claimType) : null) ?? String.Empty; // FindFirstValue() returns null if not found.
+            return claimsIdentity != null ? claimsIdentity.FindFirstValue(claimType) : null; 
         }
 
-        public static bool GetUserIsTeacher(IIdentity identity)
+        private static bool GetUserIsTeacher(IIdentity identity)
         {
             var claimsIdentity = identity as System.Security.Claims.ClaimsIdentity;
             return (claimsIdentity != null) && claimsIdentity.HasClaim(i => i.Type == AppClaimTypes.IsTeacher);
@@ -62,14 +78,24 @@ namespace Runnymede.Website.Utils
 
         #region Controller extension methods
 
+        public static bool IsAuthenticated(this Controller controller)
+        {
+            return IsAuthenticated(controller.User.Identity);
+        }
+
         public static int GetUserId(this Controller controller)
         {
             return GetUserId(controller.User.Identity);
         }
 
+        public static string GetUserName(this Controller controller)
+        {
+            return GetUserName(controller.User.Identity);
+        }
+
         public static string GetUserDisplayName(this Controller controller)
         {
-            return GetUserDisplayName(controller.User.Identity);
+            return GetStringClaim(controller.User.Identity, AppClaimTypes.DisplayName);
         }
 
         public static bool GetUserIsTeacher(this Controller controller)
@@ -80,6 +106,11 @@ namespace Runnymede.Website.Utils
         #endregion
 
         #region ApiController extension methods
+
+        public static bool IsAuthenticated(this ApiController controller)
+        {
+            return IsAuthenticated(controller.RequestContext.Principal.Identity);
+        }
 
         public static int GetUserId(this ApiController controller)
         {
@@ -93,7 +124,7 @@ namespace Runnymede.Website.Utils
 
         public static string GetUserDisplayName(this ApiController controller)
         {
-            return GetUserDisplayName(controller.RequestContext.Principal.Identity);
+            return GetStringClaim(controller.RequestContext.Principal.Identity, AppClaimTypes.DisplayName);
         }
 
         public static bool GetUserIsTeacher(this ApiController controller)
@@ -147,18 +178,18 @@ namespace Runnymede.Website.Utils
 
         #region Keeper cookie utils
 
-        public static async Task EnsureKeeperCookieAsync(this Controller controller)
+        public static async Task EnsureExtIdCookieAsync(this Controller controller)
         {
             var request = controller.Request;
 
             if (request.Browser.Crawler)
                 return;
 
-            if (!request.Cookies.AllKeys.Contains(KeeperCookieName))
+            if (!request.Cookies.AllKeys.Contains(ExtIdCookieName))
             {
-                // Set the Keeper cookie
-                var value = Guid.NewGuid().ToString("N").ToUpper();
-                var cookie = new HttpCookie(KeeperCookieName, value);
+                // Set the ExtId cookie
+                var value = KeyUtils.GetTwelveBase32Digits();
+                var cookie = new HttpCookie(ExtIdCookieName, value);
                 cookie.Expires = DateTime.UtcNow.AddYears(1);
                 controller.Response.Cookies.Add(cookie);
 
@@ -170,7 +201,7 @@ namespace Runnymede.Website.Utils
                     new XElement("LogData",
                         new XElement("Kind", LoggingUtils.Kind.Referer),
                         new XElement("Time", DateTime.UtcNow),
-                        new XElement("Keeper", value),
+                        new XElement("ExtId", value),
                         new XElement("RefererUrl", referer),
                         new XElement("Host", request.UserHostAddress),
                         new XElement("UserAgent", request.UserAgent),
@@ -185,26 +216,25 @@ namespace Runnymede.Website.Utils
             }
         }
 
-        public static Guid GetKeeper(this Controller controller)
+        public static string GetExtId(this Controller controller)
         {
             var requestCookies = controller.Request.Cookies;
             var responseCookies = controller.Response.Cookies;
-            var cookies = requestCookies.AllKeys.Contains(KeeperCookieName)
+            var cookies = requestCookies.AllKeys.Contains(ExtIdCookieName)
                 ? requestCookies
                 : (
-                    responseCookies.AllKeys.Contains(KeeperCookieName)
+                    responseCookies.AllKeys.Contains(ExtIdCookieName)
                     ? responseCookies
                     : null
                 );
-            //Not Guid.TryParseExact(keeperCookieValue, "N", out keeper); If input is null, it does not throw an exception, but outputs Guid.Empty.
-            return cookies != null ? new Guid(cookies[KeeperCookieName].Value) : Guid.Empty;
+            return cookies != null ? cookies[ExtIdCookieName].Value : null;
         }
 
-        public static Guid GetKeeper(this ApiController controller)
+        public static string GetExtId(this ApiController controller)
         {
-            var cookies = controller.Request.Headers.GetCookies(KeeperCookieName).FirstOrDefault();
+            var cookies = controller.Request.Headers.GetCookies(ExtIdCookieName).FirstOrDefault();
             var cookie = cookies != null ? cookies.Cookies.FirstOrDefault() : null;
-            return cookie != null ? new Guid(cookie.Value) : Guid.Empty;
+            return cookie != null ? cookie.Value : null;
         }
 
         #endregion
@@ -290,42 +320,50 @@ namespace Runnymede.Website.Utils
         } // end of ColorFromAhsb()
 
         /// <summary>
-        /// Creates a square identicon.
+        /// Creates a square identicon as PNG.
         /// </summary>
-        /// <param name="seed">Seed</param>
+        /// <param name="userId">We expect a random value from 1073741823 to 2147483646</param>
         /// <param name="stream">Output</param>
-        /// <param name="blockSize">The size of blocks in pixels. Total 6 blocks.</param>
-        private static void CreateIdenticon(Guid seed, Stream stream, int blockSize) // Total 6 blocks. 20 x 6 = 120; 8 x 6 = 48
+        /// <param name="size">The size of the icon in pixels. Total 5 blocks pattern + 2 x 1.5 margin = 8 blocks of pixels. Notice, the block size should be an even number to produce equal margins.</param>
+        private static void CreateIdenticon(int userId, Stream stream, int size)
         {
-            int size = 5; // blocks
-            var bitmapSize = (size + 1) * blockSize; // pixels
-            var offset = blockSize / 2; // pixels
+            int avatarSize = 5; // blocks
+            var blockSize = size / (avatarSize + 3); // pixels
+            var offset = blockSize * 3 / 2; // pixels
+
+            // We need 5x3=15 random values. Seed/ExtId length is 12 chars.
+            // seed's distribution is not random. Its generation is based on time. Eight first characters are sequesial.
+            // Plain-vanila String.GetHashCode() has not-well-enough uniform distribution. We use MD5, but I do not know how good its distribution is for such a short string :(.
+            //var hashedSeed = MD5.Create().ComputeHash(Encoding.ASCII.GetBytes(seed));
+            // We use Guid as an intermediate data type to convert the byte array from MD5 which is 16 bytes long, to integer.
+            //var random = new Random(new Guid(hashedSeed).GetHashCode());
+
+            // We expect userId is a random value from 1073741823 to 2147483646.
+            var random = new Random(userId);
 
             byte grayValue = 0xf0;
             Color bgColor = Color.FromArgb(255, grayValue, grayValue, grayValue);
 
-            int hue = Math.Abs(seed.GetHashCode()) % 360;
+            var hue = random.Next(360);
             var color = ColorFromAhsb(255, hue, 1, 0.4f);
 
-            var byteArr = seed.ToByteArray();
-            var arrLength = byteArr.Length;
-
-            using (var bitmap = new System.Drawing.Bitmap(bitmapSize, bitmapSize))
+            using (var bitmap = new System.Drawing.Bitmap(size, size))
             using (var graphics = Graphics.FromImage(bitmap))
             {
                 using (var bgBrush = new SolidBrush(bgColor))
                 {
-                    graphics.FillRectangle(bgBrush, 0, 0, bitmapSize, bitmapSize);
+                    graphics.FillRectangle(bgBrush, 0, 0, size, size);
                 }
 
                 using (var brush = new SolidBrush(color))
                 {
-                    for (var x = 0; x < size / 2 + 1; x++)
+                    for (var x = 0; x < avatarSize / 2 + 1; x++)
                     {
-                        for (var y = 0; y < size; y++)
+                        for (var y = 0; y < avatarSize; y++)
                         {
-                            var i = x * size + y;
-                            var fill = byteArr[i % 16] < 128;
+                            var i = x * avatarSize + y;
+                            //var fill = byteArr[i % arrLength] < 128;
+                            var fill = random.Next(2) == 0;
 
                             // We may "humanize" the icon look by sacrificing collisions durability.
                             //if (false)
@@ -345,7 +383,7 @@ namespace Runnymede.Website.Utils
                                 Rectangle rect1 = new Rectangle(offset + x * blockSize, offset + y * blockSize, blockSize, blockSize);
                                 graphics.FillRectangle(brush, rect1);
                                 // make it horizontally symmetrical
-                                Rectangle rect2 = new Rectangle(offset + (size - x - 1) * blockSize, offset + y * blockSize, blockSize, blockSize);
+                                Rectangle rect2 = new Rectangle(offset + (avatarSize - x - 1) * blockSize, offset + y * blockSize, blockSize, blockSize);
                                 graphics.FillRectangle(brush, rect2);
                             }
                         }
@@ -360,18 +398,17 @@ namespace Runnymede.Website.Utils
         }
 
         /// <summary>
-        /// A fire-and-forget method because it is async void.
+        /// Creates the PNG identicon image corresponding to userId and saves it to a blob
         /// </summary>
-        /// <param name="extId">Seed</param>
-        /// <param name="blockSize">The size of blocks in pixels. Total 6 blocks.</param>
+        /// <param name="userId">We expect a random value from 1073741823 to 2147483646</param>
+        /// <param name="size">The size of icon in pixels. Total 5 blocks pattern + 2 x 1.5 margin = 8 blocks of pixels. Notice, the block size should be an even number to produce equal margins.</param>
         /// <param name="containerName"></param>
-        public static async Task CreateAndSaveIdenticonAsync(Guid extId, int blockSize, string containerName)
+        public static async Task CreateAndSaveIdenticonAsync(int userId, int size, string containerName)
         {
-            var blobName = extId.ToString().ToUpper();
-
             using (var stream = new MemoryStream())
             {
-                CreateIdenticon(extId, stream, blockSize);
+                CreateIdenticon(userId, stream, size);
+                var blobName = KeyUtils.IntToKey(userId);
                 await AzureStorageUtils.UploadBlobAsync(stream, containerName, blobName, "image/png");
             }
         }

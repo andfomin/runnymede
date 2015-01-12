@@ -24,72 +24,87 @@
             break;
     }
 }
-<div class="row" ng-app="app" ng-controller="Ctrl">
-    <div class="col-md-offset-1 col-md-10">
+<div ng-app="myApp" ng-controller="Balance">
+    <div class="row">
+        <div class="col-md-offset-1 col-md-10">
 
-        @if (!string.IsNullOrEmpty(alertText))
-        {
-            <div class="row">
-                <div class="col-sm-offset-4 col-sm-4 alert @alertStyle">
-                    <p class="text-center">
-                        @alertText
-                    </p>
+            @if (!String.IsNullOrEmpty(alertText))
+            {
+                <div class="row">
+                    <div class="col-sm-offset-4 col-sm-4 alert @alertStyle">
+                        <p class="text-center">
+                            @alertText
+                        </p>
+                    </div>
                 </div>
-            </div>
-        }
-        @if (!pageViewModel.IsTeacher)
-        {
+            }
+
             <div class="row">
-                <div class="col-sm-3">
-                    <a href="@Url.Action("AddMoney")" class="btn btn-primary">Add money to account</a>
+                <div class="col-sm-7">
+                    <div ng-show="vm.balance !== undefined" ng-cloak>
+                        <p ng-show="vm.balance !== null">
+                            Your account balance is currently <strong>{{vm.balance | number:2}}</strong> US dollars.
+                        </p>
+                        <p ng-show="vm.balance === null">
+                            You do not have balance on your account.
+                        </p>
+                    </div>
                 </div>
+                @if (!pageViewModel.IsTeacher)
+                {
+                    <div class="col-sm-1">&nbsp;</div>
+                    <div class="col-sm-4">
+                        <a href="@Url.Action("AddMoney")" class="btn btn-primary">Add money to account</a>
+                    </div>
+                }
             </div>
-            <br />
-        }
-        
-        <table class="table table-bordered table-condensed">
-            <thead class="theme-red">
-                <tr>
-                    <th>Time</th>
-                    <th>Description</th>
-                    <th class="text-right">Amount, USD</th>
-                    <th class="text-right">Balance, USD</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="e in vm.entries">
-                    <td>
-                        {{e.observedTime | appDate}}
-                    </td>
-                    <td>
-                        {{e.description}}
-                    </td>
-                    <td class="text-right">
-                        {{e.credit - e.debit | number:2}}
-                    </td>
-                    <td class="text-right">
-                        {{e.balance | number:2}}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <div pagination class="pagination-sm" total-items="vm.totalCount" items-per-page="vm.limit" ng-model="vm.currentPage" ng-change="vm.getEntries()" max-size="10" boundary-links="true" rotate="false"></div>
+            <hr />
+            <h4 class="text-center">Transaction history</h4>
+            <table class="table table-condensed table-bordered">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Description</th>
+                        <th class="text-right">Amount, USD</th>
+                        <th class="text-right">Balance, USD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="e in vm.entries">
+                        <td>
+                            {{e.observedTime | appDateTime}}
+                        </td>
+                        <td>
+                            {{e.description}}
+                        </td>
+                        <td class="text-right">
+                            {{e.credit - e.debit | number:2}}
+                        </td>
+                        <td class="text-right">
+                            {{e.balance | number:2}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination-sm" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="10" data-boundary-links="true" data-rotate="false"
+                 ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.pgLoad()"></div>
+        </div>
     </div>
 </div>
 
-@using (Html.BeginInstructionsContainer())
+@*@using (Html.BeginInstructionsContainer())
 {
-    <li>Amounts are US dollars.</li>
-}
+    <ul>
+        <li>Amounts are US dollars.</li>
+    </ul>
+}*@
 
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/angular",
-"~/bundles/angular-bootstrap",
 "~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
-
-"~/App/Account/balance-app.js"
+"~/app/account/balance.js"
     )
 }

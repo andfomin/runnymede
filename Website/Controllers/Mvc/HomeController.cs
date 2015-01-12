@@ -11,7 +11,7 @@ namespace Runnymede.Website.Controllers.Mvc
     {
         public async Task<ActionResult> Index()
         {
-            await this.EnsureKeeperCookieAsync();
+            await this.EnsureExtIdCookieAsync();
 
             return View();
 

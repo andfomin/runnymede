@@ -1,0 +1,114 @@
+module app.reviews {
+
+    //export class EditWriting extends app.reviews.EditCtrlBase {
+
+    //    static $inject = [app.ngNames.$appRemarks, app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$q,
+    //        app.ngNames.$rootScope, app.ngNames.$scope, app.ngNames.$window];
+
+    //    constructor(
+    //        $appRemarks: app.exercises.IRemarksService,
+    //        $http: ng.IHttpService,
+    //        $interval: ng.IIntervalService,
+    //        $modal: ng.ui.bootstrap.IModalService,
+    //        $q: ng.IQService,
+    //        $rootScope: ng.IRootScopeService,
+    //        $scope: app.IScopeWithViewModel,
+    //        $window: ng.IWindowService
+    //        )
+    //    /* ----- Constructor  ------------ */
+    //    {
+    //        super($appRemarks, $http, $interval, $modal, $q, $rootScope, $scope, $window);
+    //    }
+    //    /* ----- End of constructor  ----- */
+    //} // end of class EditWriting
+
+    export class CanvasEditor extends app.exercises.Canvas {
+
+        review: IReview;
+
+        static $inject = [app.ngNames.$appRemarks, app.ngNames.$document, app.ngNames.$modal, app.ngNames.$scope, app.ngNames.$window];
+
+        constructor(
+            $appRemarks: app.exercises.IRemarksService,
+            $document: ng.IDocumentService,
+            $modal: ng.ui.bootstrap.IModalService,
+            $scope: app.IScopeWithViewModel,
+            $window: ng.IWindowService
+            )
+        /* ----- Constructor  ------------ */
+        {
+            super($appRemarks, $document, $modal, $scope, $window);
+
+            this.review = this.exercise.reviews[0];
+        }
+        /* ----- End of constructor  ----- */
+
+        onCanvasClick = (event: MouseEvent) => {
+            var point = this.relativeCoordinates(event);
+            var remark = this.findRemark(point);
+            if (remark) {
+                this.selectRemark(remark);
+            }
+            else {
+                if (this.canAddRemark()) {
+                    remark = this.addRemark(point);
+                    this.selectRemark(remark);
+                }
+            }
+            this.$scope.$apply();
+        };
+
+        canAddRemark = () => {
+            return !this.review.finishTime;
+        };
+
+        private addRemark = (point: app.exercises.IPoint) => {
+            var remark = <IRemark>{
+                id: app.reviews.getPieceId(this.review),
+                reviewId: this.review.id,
+                type: app.exercises.PieceTypes.Remark,
+                page: this.page,
+                x: point.x,
+                y: point.y,
+                like: false,
+            };
+            this.$appRemarks.add(remark);
+            return remark;
+        };
+
+        makeDirty = () => {
+            if (this.remark) {
+                this.remark.dirtyTime = new Date();
+                this.repaint();
+            }
+        };
+
+        showDeleteRemarkModal = () => {
+            if (this.remark) {
+                app.Modal.openModal(this.$modal,
+                    '/app/reviews/deleteRemarkModal.html',
+                    DeleteRemarkModal,
+                    {
+                        partitionKey: getPiecePartitionKey(this.exercise),
+                        rowKey: getPieceRowKey(this.remark),
+                    },
+                    () => {
+                        this.$appRemarks.deleteRemark(this.remark);
+                        this.selectRemark(null);
+                        toastr.success('Remark was deleted.');
+                    }
+                    )
+                }
+        };
+
+    } // end of class CanvasEditor
+
+    angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar'])
+        .value(app.ngNames.$appRemarksComparer, app.exercises.WritingsComparer)
+        .service(app.ngNames.$appRemarks, app.exercises.RemarksService)
+        .controller('Canvas', app.reviews.CanvasEditor)
+        .controller('EditWriting', app.reviews.EditCtrlBase)
+    ;
+
+} // end of module app.reviews
+

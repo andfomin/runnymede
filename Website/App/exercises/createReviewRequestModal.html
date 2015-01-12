@@ -1,0 +1,64 @@
+﻿<div class="modal-header">
+    <h3>Request a review of exercise</h3>
+</div>
+    <!-- The form will not submit on Enter keypress until it contains a button. So the form tag wraps all the footer too, not the input section alone. --> 
+<form class="form-horizontal">
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-sm-offset-1 col-sm-10">
+                You are requesting a review of exercise &quot;<strong>{{vm.modalParams.exercise.title}}</strong>&quot;
+               which was created on <strong>{{vm.modalParams.exercise.createTime | appDateHuman}}</strong> and has length <strong>{{vm.getLength()}}</strong>.
+            </div>
+        </div>
+        <hr />
+        <h4 class="text-center">
+            Choose the candidates invited to review the exercise&nbsp;
+            <a href="javascript:;">
+                <i class="fa fa-question-circle fa-fw" tooltip-placement="bottom" tooltip-trigger="click"
+                   tooltip="&bull; This reviewer candidate list includes your friends who have indicated that they can review your exercises by setting a personal price rate for you (hint: a rate may be 0.) You usually establish a friendship by arranging a conversation.
+&bull; There is also an option to get your exercise reviewed by any qualified teacher.
+&bull; The list includes yourself too, so you can work with your exercise.
+
+The review price is calculated as the reviewer's rate multiplyed by the exercise length (minimum 1 minute of recording or 100 words of writing.)
+"></i>
+            </a>
+        </h4>
+        <div class="row">
+            <div class="col-sm-offset-3 col-sm-9">
+                <div class="checkbox" ng-repeat="r in vm.reviewers">
+                    <label>
+                        <input type="checkbox" ng-model="r.selected" ng-change="vm.onSelected(r, $index)" ng-disabled="$index > vm.cutOffIndex">
+                        <span ng-style="{opacity:($index > vm.cutOffIndex)?'0.5':'1.0'}">
+                            <img class="app-2px-up" style="margin:0 5px;" width="24" height="24" ng-src="{{r.id | appAvatarSmall}}" />
+                            <strong>{{r.displayName}}</strong> Price: {{vm.price(r) | number:2}}
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-sm-offset-1 col-sm-10">
+                <p ng-show="vm.maxPrice && (vm.minPrice === vm.maxPrice)">
+                    The review price is <strong>{{vm.maxPrice | number:2}}</strong>&nbsp;dollars.
+                </p>
+                <p ng-show="vm.minPrice !== vm.maxPrice">
+                    The review price will depend on who is the actual reviewer and may be <strong>from&nbsp;{{vm.minPrice | number:2}}&nbsp;to&nbsp;{{vm.maxPrice | number:2}}</strong>&nbsp;dollars.
+                    The initial deposit is <strong>{{vm.maxPrice | number:2}}</strong>&nbsp;dollars. You will be refunded based on the actual price.
+                </p>
+                <p>
+                    Your account balance is currently <strong>{{vm.balance | number:2}}</strong>&nbsp;dollars.
+                    <span ng-show="vm.maxPrice > vm.balance">
+                   <!--@Html.ActionLink("Add money to account", "AddMoney", "Account", "https", null, null, null, new { @class = "btn btn-primary btn-sm" })--> 
+                        <a class="btn btn-primary btn-sm" ng-href="/account/add-money">Add money to account</a>
+                    </span>
+                </p>
+            </div>
+        </div>
+        <br />
+        <div class="modal-footer">
+            <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="!vm.canOk()">OK</button>
+            <a href="" class="app-close" ng-click="vm.cancel()">Close</a>
+        </div>
+    </div>
+</form>

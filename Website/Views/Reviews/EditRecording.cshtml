@@ -1,0 +1,122 @@
+﻿@{
+    ViewBag.Title = "Review audio recording";
+}
+@section HeadScripts {
+    @* SoundManager must be loaded as early as possible. Otherwise browser security may block Flash <-> JS communication after certain JQuery DOM manipulations by a third-party code. *@
+    @Scripts.Render("~/bundles/soundmanager2")
+}
+<div ng-app="myApp" ng-cloak>
+    <div ng-controller="EditRecording">
+
+        @Html.Partial("_TopSaveButtonPartial")
+
+        <div ng-controller="AudioPlayer">
+
+            <div class="text-center" ng-show="vm.autoLoad && !vm.soundLoaded" ng-cloak>
+                <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>&nbsp;&nbsp;Loading recording...
+                <hr />
+            </div>
+            <div ng-show="!vm.autoLoad || vm.soundLoaded">
+                @Html.Partial("_AudioPlayerControlsPartial")
+                <br />
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button class="btn btn-large btn-block btn-primary" ng-show="vm.isNotFinished()" ng-disabled="!vm.canAddRemark()" ng-click="vm.addRemark()">
+                            While listening, click here to mark a spot
+                        </button>
+                    </div>
+                </div>
+                <br />
+            </div>
+
+            <div class="panel panel-default" ng-cloak>
+                <div class="panel-heading">
+                    <h4 class="panel-title">Remarks</h4>
+                </div>
+                <div class="panel-body" style="padding:0">
+                    <table class="table table-condensed table-hover app-margin-bottom-none">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Spot</th>
+                                <th>Correction</th>
+                                <th>Comment</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="r in vm.$appRemarks.remarks" ng-click="vm.selectRemark(r)" ng-class="{warning: vm.isHighlighted(c), 'app-last-row':$last}">
+                                <td>
+                                    <button class="btn btn-default btn-xs" ng-show="vm.isSelected(r)" ng-click="vm.playRemarkSpot(r)" title="Replay"><i class="fa fa-repeat"></i></button>
+                                </td>
+                                <td style="white-space: nowrap">
+                                    <div ng-show="vm.isEditing(r)">
+                                        @* A line break adds a space between the text and the button *@
+                                        from
+                                        <button class="btn btn-default btn-xs" ng-click="vm.shiftSpot(r, true, -1000)" title="Shift spot start"><i class="fa fa-angle-left"></i></button>
+                                        {{r.start | appMsecToMinSec}}
+                                        <button class="btn btn-default btn-xs" ng-click="vm.shiftSpot(r, true, 1000)" title="Shift spot start"><i class="fa fa-angle-right"></i></button>
+                                        <br />to
+                                        <button class="btn btn-default btn-xs" ng-click="vm.shiftSpot(r, false, -1000)" title="Shift spot end"><i class="fa fa-angle-left"></i></button>
+                                        {{r.finish | appMsecToMinSec}}
+                                        <button class="btn btn-default btn-xs" ng-click="vm.shiftSpot(r, false, 1000)" title="Shift spot end"><i class="fa fa-angle-right"></i></button>
+                                    </div>
+                                    <div ng-show="!vm.isEditing(r)">
+                                        from&nbsp;{{r.start | appMsecToMinSec}}
+                                        to&nbsp;{{r.finish | appMsecToMinSec}}
+                                    </div>
+                                </td>
+                                <td width="35%">
+                                    <textarea rows="3" style="box-sizing: border-box;width:100%;" ng-show="vm.isEditing(r)" ng-model="r.correction" ng-change="vm.makePieceDirty(r)"></textarea>
+                                    <span ng-show="!vm.isEditing(r)">{{r.correction}}</span>
+                                </td>
+                                <td width="35%">
+                                    <textarea rows="3" style="box-sizing: border-box;width:100%;" ng-show="vm.isEditing(r)" ng-model="r.comment" ng-change="vm.makePieceDirty(r)"></textarea>
+                                    <span ng-show="!vm.isEditing(r)">{{r.comment}}</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-default btn-xs" title="Delete remark" ng-show="vm.isEditing(r)" ng-click="vm.showDeleteRemarkModal(r)">
+                                        <i class="fa fa-times text-danger"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div><!-- ng-controller="AudioPlayer" -->
+
+        @Html.Partial("_BottomPartial")
+
+    </div><!-- /ng-controller="EditRecording" -->
+</div>
+
+@*@using (Html.BeginInstructionsContainer())
+{
+    <ul>
+        <li>As you are adding and editing your remarks, the changes are automatically saved every minute. You may be prompted to save changes manually on page exit.</li>
+    </ul>
+}*@
+@section BottomScripts {
+    <script type="text/javascript">
+        var app = app || {};
+        app.exerciseParam = @JavaScriptConvert.Serialize(ViewBag.ExerciseParam);
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+            //<script src="+//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-touch.min.js"></script>
+"~/bower_installer/angular-touch/angular-touch.min.js",
+"~/bower_installer/venturocket-angular-slider/angular-slider.min.js",
+
+"~/app/shared/library-data.js",
+"~/app/shared/exercises.js",
+"~/app/shared/exercises-recording.js",
+"~/app/reviews/utils-EditCtrlBase.js",
+"~/app/reviews/editRecording.js"
+)
+}

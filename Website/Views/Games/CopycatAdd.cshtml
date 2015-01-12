@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "Game Copycat";
+    ViewBag.SecondaryTitle = "Add a piece";
+    ViewBag.NavItem = "Games";
+}
+<div ng-app="myApp" ng-controller="CopycatAdd">
+    @* Do not put "ng-cloak" on a tag wrapping "_ResourceListPartial". Do not hide the YouTube player! See the comments in _ResourceListPartial. *@
+    <div class="row">
+        <div class="col-sm-offset-3 col-sm-6">
+            <form>
+                <div class="form-group">
+                    <label>Paste the address of the page for a YouTube video</label>
+                    <input type="text" class="form-control input-sm" ng-model="vm.url" ng-maxlength="200" ng-required placeholder="https://www.youtube.com/watch?v=VIDEO_ID" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row app-margin-bottom">
+        <div class="col-sm-offset-5 col-sm-2 col-xs-offset-4 col-xs-4">
+            <button class="btn btn-default btn-block btn-sm app-btn-disablable" ng-click="vm.validate()" ng-disabled="!vm.url">Show video</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-offset-4 col-md-4 col-xs-offset-3 col-xs-6">
+            <p ng-bind="vm.resource.title"></p>
+            @* Do not hide the player! See the comments in Shared/_ResourceListPartial.shtml *@
+            <div class="ng-hide app-hide-position app-margin-bottom" ng-show="vm.resource">
+                <div class="embed-responsive app-embed-responsive-1by1">
+                    <div id="toBeReplacedByYoutubeIframe"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-offset-2 col-md-8">
+            <form>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <label>&nbsp;</label>
+                        </div>
+                        <div class="col-xs-3">
+                            <label ng-show="vm.scene">From <span class="text-muted small" style="font-weight:normal;">minutes:seconds</span></label>
+                        </div>
+                        <div class="col-xs-3">
+                            <label ng-show="vm.scene">To <span class="text-muted small" style="font-weight:normal;">minutes:seconds</span></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <div class="radio">
+                                <label><input type="radio" name="scene" ng-model="vm.scene" ng-value="false">Entire video</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="scene" ng-model="vm.scene" ng-value="true">Scene or segment</label>
+                            </div>
+                        </div>
+                        <div class="col-xs-3" ng-show="vm.scene">
+                            <div class="my-timepicker" data-timepicker ng-model="vm.start" ng-change="vm.changed()" data-show-meridian="dummyfalse"></div>
+                        </div>
+                        <div class="col-xs-3" ng-show="vm.scene">
+                            <div class="my-timepicker" data-timepicker ng-model="vm.finish" ng-change="vm.changed()" data-show-meridian="dummyfalse"></div>
+                        </div>
+                        <div class="col-xs-2" ng-show="vm.scene && vm.resource">
+                            <button class="btn btn-default app-btn-disablable" style="position:relative;top:34px;" ng-click="vm.play()" ng-disabled="!vm.isFragmentValid()">Play</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-3 col-sm-6">
+            <form>
+                <div class="form-group">
+                    <label>Write transcript<span class="text-muted small" style="font-weight:normal;">&nbsp; optional</span></label>
+                    <textarea rows="5" class="form-control app" ng-model="vm.transcript"></textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="text-center">
+        @Html.Partial("_NotAuthenticatedSpanPartial")
+        <button class="btn btn-primary app-btn-disablable" ng-click="vm.save()" ng-disabled="!vm.canSave()">Save</button>
+    </div>
+</div>
+
+@*<p>https://www.youtube.com/watch?v=wBn4eGIBomA</p>*@
+
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/shared/library.js",
+"~/app/games/copycatAdd.js"
+)}

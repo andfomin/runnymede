@@ -7,6 +7,10 @@ using System.Data.Entity.SqlServer;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Linq;
+using Runnymede.Common.Utils;
+using System.Web.Hosting;
+using System.Data.SqlClient;
+using System.Data.Entity;
 
 namespace Runnymede.Website.Utils
 {
@@ -22,40 +26,42 @@ namespace Runnymede.Website.Utils
             this.authManager = authManager;
         }
 
-        public async Task<ApplicationUser> Signup(SignupBindingModel model, ExternalLoginInfo loginInfo, Guid keeper, Uri currentRequestUri)
+        /// <summary>
+        /// Creates a new user and writes it to the database. Creates avatars. Sends email.
+        /// </summary>
+        /// <param name="model">Comes from the manually filled form. May be null</param>
+        /// <param name="loginInfo">Comes from external provider, like Facebook or Google. May be null</param>
+        /// <param name="extId">Ideally extId is assigned from the ExtIdCookieName cookie value. It may be null</param>
+        /// <param name="currentRequestUri">It is used to determine the server address (production/development) where the confirmation link should point</param>
+        /// <returns></returns>
+        public async Task<ApplicationUser> Signup(SignupBindingModel model, ExternalLoginInfo loginInfo, string extId, Uri currentRequestUri)
         {
-            // Guid ExtId is used to avoid direct Id-to-icon realtionship and prevent a bad guy from downloading all user photos in bulk.
-            // Ideally extId is assigned the Keeper cookie value.
-            var extId = keeper != Guid.Empty ? keeper : Guid.NewGuid();
-
             var user = await InternalSignup(model, loginInfo, extId);
 
             var error = InspectErrorAfterSignup(user);
-            if (string.IsNullOrEmpty(error))
+            if (String.IsNullOrEmpty(error))
             {
                 // We await here. Otherwise error: A second operation started on this context before a previous asynchronous operation completed. Use 'await' to ensure that any asynchronous operations have completed before calling another method on this context.
                 var confirmationToken = await this.userManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                // Send the confirmation link.
-                var taskEmail = SendConfirmationEmailAsync(user.Email, user.Id, confirmationToken, currentRequestUri);
+                // Send the confirmation link in background. Return response early.
+                SendConfirmationEmailInBackground(user.Email, user.Id, model.Name, confirmationToken, currentRequestUri);
 
                 // Sign in the user.
                 var taskSignin = Sigin(user, false);
 
                 // Create a large and a small identicons and save them into the blob storage. 
-                // Each icon consists of 6 x 6 blocks (5 blocks pattern + 2 x 1/2 margin). So sizes below are 6 x 20 = 120 and 6 x 6 = 36 pixels.
-                var taskAvatarLarge = AccountUtils.CreateAndSaveIdenticonAsync(extId, AccountUtils.AvatarLargeSize / 6, AzureStorageUtils.ContainerNames.AvatarsLarge);
-                var taskAvatarSmall = AccountUtils.CreateAndSaveIdenticonAsync(extId, AccountUtils.AvatarSmallSize / 6, AzureStorageUtils.ContainerNames.AvatarsSmall);
+                var taskAvatarLarge = AccountUtils.CreateAndSaveIdenticonAsync(user.Id, AccountUtils.AvatarLargeSize, AzureStorageUtils.ContainerNames.AvatarsLarge);
+                var taskAvatarSmall = AccountUtils.CreateAndSaveIdenticonAsync(user.Id, AccountUtils.AvatarSmallSize, AzureStorageUtils.ContainerNames.AvatarsSmall);
 
-                // Perform the long-running tasks in parallel.    
-                await Task.WhenAll(taskEmail, taskSignin, taskAvatarLarge, taskAvatarSmall);
+                // Perform the tasks in parallel.    
+                await Task.WhenAll(taskSignin, taskAvatarLarge, taskAvatarSmall);
             }
 
             return user;
         }
 
-        private async Task<ApplicationUser> InternalSignup(SignupBindingModel model, ExternalLoginInfo loginInfo, Guid extId)
+        private async Task<ApplicationUser> InternalSignup(SignupBindingModel model, ExternalLoginInfo loginInfo, string extId)
         {
-            IdentityResult result;
             string email = null;
             string name = null;
             string password = null;
@@ -74,7 +80,7 @@ namespace Runnymede.Website.Utils
                 password = model.Password;
             }
 
-            if ((string.IsNullOrEmpty(password) && loginInfo == null) || (extId == Guid.Empty))
+            if ((String.IsNullOrEmpty(password) && loginInfo == null))
             {
                 throw new ArgumentNullException();
             }
@@ -96,32 +102,47 @@ namespace Runnymede.Website.Utils
             await executionStrategy.Execute(
                 async () =>
                 {
-                    // We do not use this.userManager within the Connection Resiliency block.
-                    // The DbContext should be constructed within the code block to be retried. This ensures that we are starting with a clean state for each retry.
-                    var dbContext = new ApplicationDbContext();
-                    using (var userManager = new ApplicationUserManager(new CustomUserStore(dbContext)))
+                    /* We do not use this.userManager within the Connection Resiliency block. 
+                     * The DbContext should be constructed within the code block to be retried. This ensures that we are starting with a clean state for each retry. 
+                     */
+                    using (var dbContext = new ApplicationDbContext())
+                    using (var userStore = new CustomUserStore(dbContext))
+                    using (var userManager = new ApplicationUserManager(userStore))
                     {
                         // Reuse the original validators.
                         userManager.UserValidator = this.userManager.UserValidator;
                         userManager.PasswordValidator = this.userManager.PasswordValidator;
 
+                        /* dbo.appGetNewUserId() generates random Ids and tests them against dbo.aspnetUsers until it finds a vacant one.
+                         * Yes, fragmentation in the table increases (it would be somewhat anyway due to editing), bad splits on insert ( but not every time after a page has initially been split in halves).
+                         * I believe that after the initial page split many next inserts and edits cause a next split not soon. 
+                         * So the only harm is about 1/4 extra space (not doubled, because we continue filling pages randomly up until the default fillfactor.)                         
+                         * But the space havily depends on what users put in nvarchars anyway, so to worry about the space is pointless.
+                         * Clustered index seeks shouldn't be affected. Splits affect only leaf B-tree pages, branch pages have default fillfactor less than 100% always.
+                         * The benefit is we get rid of ExtId nchar(12) in many denormalized tables.
+                         * Just to remind, the initial idea behind the original ExtId was to prevent a bad guy from guessing sequecial Ids and download all avatars (avatars are accessable directly as Blobs).
+                         * So we sent the true Id to the client plus a separate ExtId for avatar URL and we stored it denormalized in many places.
+                         * Now ExtId is just a pre-signup cookie value not used anywhere else.
+                         */
+                        user.Id = await dbContext.Database.SqlQuery<int>("select dbo.appGetNewUserId();").SingleAsync();
+
                         using (var transaction = dbContext.Database.BeginTransaction())
                         {
-                            // First phase. Create an ASP.NET Identity user.
-                            result = string.IsNullOrWhiteSpace(password)
-                                ? await this.userManager.CreateAsync(user)
-                                : await this.userManager.CreateAsync(user, password);
+                            // First phase. Create an ASP.NET Identity user in dbo.aspnetUsers
+                            var identityResult = String.IsNullOrWhiteSpace(password)
+                                 ? await userManager.CreateAsync(user)
+                                 : await userManager.CreateAsync(user, password);
 
-                            if (result.Succeeded && loginInfo != null)
+                            if (identityResult.Succeeded && loginInfo != null)
                             {
-                                result = await this.userManager.AddLoginAsync(user.Id, loginInfo.Login);
+                                identityResult = await userManager.AddLoginAsync(user.Id, loginInfo.Login);
                             }
 
-                            if (result.Succeeded)
+                            if (identityResult.Succeeded)
                             {
-                                // Second phase. dbo.appUsers and accounting. user.Id is auto-generated in dbo.aspnetUsers.
+                                // Second phase. dbo.appUsers. Postpone the creation of the money account until it is really used.
                                 await dbContext.Database.ExecuteSqlCommandAsync(
-                                    "execute dbo.appCreateUserAndAccounts @UserId = @p0, @DisplayName = @p1, @ExtId = @p2",
+                                    "insert dbo.appUsers (Id, DisplayName, ExtId) values (@p0, @p1, @p2);",
                                     user.Id, displayName, extId);
 
                                 transaction.Commit();
@@ -135,7 +156,7 @@ namespace Runnymede.Website.Utils
                                 var dummyClaim = new CustomUserClaim
                                 {
                                     ClaimType = ClaimTypes.UserData,
-                                    ClaimValue = result.PlainErrorMessage("Signup failed.")
+                                    ClaimValue = identityResult.PlainErrorMessage("Signup failed.")
                                 };
                                 user.Claims.Add(dummyClaim);
                             }
@@ -175,26 +196,27 @@ namespace Runnymede.Website.Utils
         }
 
         /// <summary>
-        /// Send the confirmation link.
+        /// Send the confirmation link in background
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="currentRequestUri">Used to determine the server address where the link should point</param>
-        /// <returns></returns>
-        public async Task SendConfirmationEmailAsync(string email, int userId, string confirmationToken, Uri currentRequestUri)
+        /// <param name="email"></param>
+        /// <param name="userId"></param>
+        /// <param name="confirmationToken"></param>
+        /// <param name="currentRequestUri">It is used to determine the server address (production/development) where the confirmation link should point</param>
+        public void SendConfirmationEmailInBackground(string email, int userId, string displayName, string confirmationToken, Uri currentRequestUri)
         {
-            // There is no approved solution for "fire-and-forget" in ASP.NET. The proper solution is to place a request into a reliable queue (such as Azure Queue). See +http://blog.stephencleary.com/2012/12/returning-early-from-aspnet-requests.html
-            if (string.IsNullOrEmpty(email))
+            if (String.IsNullOrEmpty(email))
             {
                 var queryString = AccountUtils.GetMailLinkQueryString(confirmationToken, userId);
                 var host = currentRequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
                 var link = "http://" + host + "/account/confirm-email?" + queryString;
-                await EmailUtils.SendConfirmationEmailAsync(email, link);
+                // TODO If the task fails, we will lose the message. The proper solution is to place the message into a reliable queue.
+                HostingEnvironment.QueueBackgroundWorkItem(ct => EmailUtils.SendConfirmationEmailAsync(email, displayName, link));
             }
         }
 
         public static string CoalesceDisplayName(string name)
         {
-            return string.IsNullOrWhiteSpace(name) ? "Anonymous" : name.Trim();
+            return String.IsNullOrWhiteSpace(name) ? "Anonymous" : name.Trim();
         }
 
     }

@@ -1,0 +1,36 @@
+﻿@{
+    ViewBag.Title = "Thank you";
+    // +http://deva.englisharium.com/account/thank-you?email=cbnvbnbn%40gxfgcg.dfd
+}
+
+<div ng-app="myApp" ng-controller="ThankYou">
+
+    <div class="row" ng-if="vm.email" ng-cloak>
+        <div class="col-sm-offset-2 col-sm-8 alert alert-success" style="padding-left:0;">
+            <div class="media">
+                <span class="media-left media-middle" style="padding:0 35px 0 40px;">
+                    <i class="fa fa-check-square-o" style="font-size:48px;"></i>
+                </span>
+                <div class="media-body">
+                    <h3 class="text-center">Thank you for signing up!</h3>
+                    <p>
+                        Please check your email and click the confirmation link in the message we just sent to <strong>{{vm.email}}</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/account/thankYou.js"
+)
+}
+
+

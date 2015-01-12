@@ -1,0 +1,19 @@
+﻿<div class="row" ng-cloak>
+    <div class="col-sm-9">
+        <div class="input-group">
+            <span class="input-group-addon"><strong>Title</strong></span>
+            <input type="text" class="form-control" ng-model="vm.exercise.title" maxlength="100">
+            <span ng-class="vm.isTitleDirty() ? 'input-group-btn' : 'input-group-addon'">
+                <button type="button" class="btn btn-default" ng-show="vm.isTitleDirty()" ng-click="vm.saveTitle()">
+                    <i class="fa fa-check fa-fw text-success animated flash app-fa-pulse"></i><span>Save</span>
+                </button>
+            </span>
+        </div><!-- /input-group -->
+        <div class="hidden-lg hidden-md hidden-sm">&nbsp;</div>
+    </div>
+    <div class="col-md-offset-1 col-sm-3 col-md-2 text-right">
+        @*Created&nbsp;{{vm.exercise.createTime | appDateTime}}*@
+        <button class="btn btn-primary btn-block" ng-click="vm.showCreateRequestModal()">Request&nbsp;review</button>
+    </div>
+</div>
+

@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
-    public class SkypeRecorderController : Controller
+    public class SkypeRecorderController : Runnymede.Website.Utils.CustomController
     {
         // GET: /skype-recorder/
         public ActionResult Index()

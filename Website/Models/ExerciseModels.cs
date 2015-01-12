@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Runnymede.Common.Utils;
+using Runnymede.Website.Utils;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,46 +9,52 @@ using System.Web;
 
 namespace Runnymede.Website.Models
 {
+
+    // Corresponds to dbo.appTypes ('EX....') and app.exercises.ExerciseType (in app/shared/exercises.ts) 
+    public static class ExerciseType
+    {
+        public const string AudioRecording = "EXAREC";
+        public const string WritingPhoto = "EXWRPH";
+    }
+
     public class ExerciseDto
     {
-        public ExerciseDto()
-        {
-            Reviews = new List<ReviewDto>();
-        }
 
         public int Id { get; set; }
         public int UserId { get; set; }
-        public DateTime CreateTime { get; set; }
-        public string TypeId { get; set; }
-        public string ArtefactId { get; set; }
+        public string Type { get; set; }
+        public string Artifact { get; set; }
         public string Title { get; set; }
         public int? Length { get; set; }
-
         public virtual IEnumerable<ReviewDto> Reviews { get; set; }
+
+        private DateTime? _createTime;
+        public DateTime? CreateTime
+        {
+            get
+            {
+                return _createTime;
+            }
+            set
+            {
+                _createTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
+            }
+        }
+
     } // end of class ExerciseDto
 
     public class ReviewDto
     {
-        public ReviewDto()
-        {
-            Suggestions = new List<SuggestionDto>();
-        }
-
-        private DateTime? _requestTime = null;
-        private DateTime? _cancelTime = null;
-        private DateTime? _startTime = null;
-        private DateTime? _finishTime = null;
-
         public int Id { get; set; }
         public int ExerciseId { get; set; }
         public int? UserId { get; set; }
-        public decimal? Reward { get; set; }
+        public decimal? Price { get; set; }
+        public string AuthorUserId { get; set; }
         public string AuthorName { get; set; }
         public string ReviewerName { get; set; }
         public int? ExerciseLength { get; set; }
-        public string Comment { get; set; }
-        public virtual IEnumerable<SuggestionDto> Suggestions { get; set; }
 
+        private DateTime? _requestTime;
         public DateTime? RequestTime
         {
             get
@@ -59,18 +67,20 @@ namespace Runnymede.Website.Models
             }
         }
 
-        public DateTime? CancelTime
+        private DateTime? _cancelationTime;
+        public DateTime? CancelationTime
         {
             get
             {
-                return _cancelTime;
+                return _cancelationTime;
             }
             set
             {
-                _cancelTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
+                _cancelationTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
             }
         }
 
+        private DateTime? _startTime;
         public DateTime? StartTime
         {
             get
@@ -83,6 +93,7 @@ namespace Runnymede.Website.Models
             }
         }
 
+        private DateTime? _finishTime;
         public DateTime? FinishTime
         {
             get
@@ -96,51 +107,66 @@ namespace Runnymede.Website.Models
         }
     } // end of class ReviewDto
 
-    public class RemarkDto
+
+    // Corresponds top app.reviews.IReviewPiece
+    public class ReviewPiece : Microsoft.WindowsAzure.Storage.Table.TableEntity
     {
-        public RemarkDto()
+        /* PartitionKey = Reversed ExerciseId, not padded. We reverse the number to distribute the load on the Azure Table randomly. 
+         * Values for pieces come from app.reviews.Editor.getPartitionKey(). Values for user access entries come from ReviewPiece.GetPartitionKey() 
+         */
+        /* RowKey = 
+         *   ReviewId pre-padded up to 10 digits 
+         * + item type ("R" remark, "S" suggestion, "C" comment, "E" editor user, "V" viewer user) 
+         * + (Piece.Id OR UserId) prepadded up to 10 digits
+         * For example: 0000000038V0000000006
+         * Values for pieces come from app.reviews.Editor.getRowKey(). Values for user access entries come from ReviewPiece.GetRowKey()
+         */
+        public string Json { get; set; } // JSON
+
+        public class PieceTypes
         {
+            // Remark = "R". Suggestion = "S". Comment = "C". Corresponds to app.reviews.PieceTypes .
+            public const string Editor = "E";
+            public const string Viewer = "V";
+            public const string Remark = "R";
         }
 
-        // Initially remarks were stored in Azure Table Storage. Then they migrated to SQL Database.
-        ////public int ReviewId { get; set; } // PartitionKey. Originally string. Use ToString("D10")        
-        ////public string Id { get; set; } // RowKey
-
-        public int ReviewId { get; set; }
-        public int CreationTime { get; set; } // Comes from the client. Means milliseconds passed from the start of the review.
-        public int Start { get; set; }
-        public int Finish { get; set; }
-        public string Text { get; set; }
-        public string Keywords { get; set; }
-    } // end of class RemarkDto
-
-    // Todo. Eliminate RemarkEntity.
-    public class RemarkEntity : Microsoft.WindowsAzure.Storage.Table.TableEntity
-    {
-        public RemarkEntity()
+        public static string GetPartitionKey(int exerciseId)
         {
+            // Corresponds to app.reviews.Editor.getPartitionKey()
+            return KeyUtils.IntToKey(exerciseId);
         }
 
-        // string PartitionKey = int ReviewId // Originally int formatted as ToString("D10") using AzureStorageUtils.IntToKey
-        // string RowKey = string Id // Six Base36 digits pre-padded with zeros.
-        public int Start { get; set; }
-        public int Finish { get; set; }
-        public string Tags { get; set; } // May hold many tags separated by comma.
-        public string Text { get; set; }
-        public bool Starred { get; set; }
+        public static string GetRowKey(int reviewId, string pieceType, int id)
+        {
+            // Corresponds to app.reviews.Editor.getRowKey()
+            return KeyUtils.IntToKey(reviewId) + pieceType + KeyUtils.IntToKey(id);
+        }
+
+        public static string GetType(string rowKey)
+        {
+            return rowKey.Substring(10, 1);
+        }
+
+        public static string GetReviewId(string rowKey)
+        {
+            return rowKey.Substring(0, 10);
+        }
+
+        public static string GetUserAccessCode(string rowKey)
+        {
+            return rowKey.Substring(10, 11);
+        }
+
     }
 
-    public class SuggestionDto
+    public class RemarkSpot
     {
-        public SuggestionDto()
-        {
-        }
-
         public int ReviewId { get; set; }
-        public int CreationTime { get; set; } // Comes from the client. Means milliseconds passed from the start of the review.
-        public string Text { get; set; }
-    } // end of class SuggestionDto
-
-
+        public string Type { get; set; }
+        public int Id { get; set; } 
+        public int Start { get; set; }
+        public int Finish { get; set; }
+    }
 
 } // end of namespace

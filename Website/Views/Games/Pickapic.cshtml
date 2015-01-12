@@ -1,0 +1,95 @@
+﻿@{
+    ViewBag.Title = "Game Pick a picture";
+    ViewBag.SecondaryTitle = "Describe and guess pictures with a partner over Skype";
+    ViewBag.NavItem = "Games";
+}
+<style>
+    .my-badge {
+        color: white !important;
+        margin-right: 10px;
+    }
+
+    .my-background {
+        background-color: #777;
+    }
+
+    my-label {
+        position: relative;
+        top: 5px;
+        margin-bottom: 0;
+    }
+</style>
+<div ng-app="myApp" ng-controller="Pickapic" ng-cloak>
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="badge app-background-appred my-badge">1</span> Choose a topic and get a picture collection</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-5">
+                    <form class="form-inline">
+                        <input type="text" class="form-control input-sm" style="min-width:200px;" placeholder="Enter some words" ng-model="vm.query">
+                        <div class="visible-xs-block">&nbsp;</div>
+                        &nbsp;<button class="btn btn-primary btn-sm app-btn-disablable" ng-click="vm.search()" ng-disabled="!vm.query">Search pictures</button>
+                    </form>
+                </div>
+                <div class="col-md-7">
+                    <span ng-show="vm.totalCount">Collection name: "<strong>{{vm.collectionName}}</strong>", control number: <strong>{{vm.controlNumber}}</strong>. Make sure the partner's control number is the same.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="badge app-background-appred my-badge">2</span> Choose a picture group</div>
+        <div class="panel-body">
+            <div class="row">
+                @* We use "display:block" and "clearfix". Otherwise the ".col--9" gets the height 36px instead of 30px. *@
+                <div class="col-md-9">
+                    <div class="pagination-sm app-margin-top-none app-margin-bottom-none" style="display:block;"
+                         data-pagination data-total-items="vm.totalCount" data-items-per-page="vm.groupSize" data-max-size="vm.totalCount ? null : 0" direction-links="false"
+                         ng-model="vm.group" ng-change="vm.shuffle()">
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-3">
+                    <div class="visible-sm-block">&nbsp;</div>
+                    <form class="form-inline">
+                        <label class="app-1px-down"><span>Group size &nbsp;</span></label>
+                        <select class="form-control input-sm" ng-options="o for o in vm.groupSizes" ng-model="vm.groupSize" ng-change="vm.newSpots()"></select>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="badge app-background-appred my-badge">3</span>Each of you should select your pictures in the same order by mutually coordinating your selection order</div>
+        <div class="panel-body">
+            <p class="bg-info text-center" style="padding: 10px;margin-bottom:15px;" ng-show="vm.result">
+                Your result number is
+                <span class="app-monospace" style="font-size:larger;"><strong>{{vm.result}}</strong>.</span>
+                Make sure the partner's result number is the same. The number depends on the selection order.
+            </p>
+            <div class="row">
+                <div class="col-md-4 col-sm-6" ng-repeat="s in vm.spots">
+                    <img class="img-thumbnail" ng-class="{'my-background':vm.getPosition(s) != null, 'app-background-appblue':vm.isLast(s)}" ng-style="vm.isClickable(s) ? {cursor:'pointer'} : {}"
+                         ng-src="{{vm.getUrl(s)}}" ng-click="vm.imgClick(s)" />
+                    <div class="text-center">
+                        <strong>
+                            <a href="" ng-show="vm.isLast(s)" ng-click="vm.imgClick(s)">&nbsp;{{vm.getPosition(s)}}&nbsp;</a>
+                            <span class="text-muted" ng-show="!vm.isLast(s)">&nbsp;{{vm.getPosition(s)}}&nbsp;</span>
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- /app -->
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/games/pickapic.js"
+)}
+
+

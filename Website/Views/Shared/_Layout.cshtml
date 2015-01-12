@@ -7,11 +7,10 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    @*<title>@(ViewBag.HeadTitle ?? ViewBag.Title) - English Cosmos</title>*@
-    <title>English Cosmos</title>
+    <title>Englisharium</title>
     <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-    @*<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    @*<link href='+http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
     @Styles.Render("~/bundles/app-css")
     @RenderSection("HeadScripts", required: false)
     @if (!Html.IsDebug())
@@ -31,28 +30,36 @@
     <header>
         @Html.Partial("_HeaderPartial", pageViewModel)
     </header>
-
-    <section id="main" class="container">
+    <section class="container">
         @if (ViewBag.Title != null)
         {
-            <h3 class="page-header">@ViewBag.Title</h3>
+            <h3 class="page-header app">
+                @ViewBag.Title
+                @if (ViewBag.SecondaryTitle != null)
+                {
+                    <small>@ViewBag.SecondaryTitle</small>
+                }
+            </h3>
         }
-
         @RenderBody()
     </section>
-
-    @*<!-- The footer separator is not in a container -->*@
-    <hr class="app-separator" />
-    <footer id="footerContents" class="container">
+    @*<!-- The footer separator is not in a container and goes full page width -->*@
+    <hr style="border-color:#ac1f28" />@* appRed *@
+    <footer class="container app-footer">
         @Html.Partial("_FooterPartial")
     </footer>
-    @* bootstrap.js is needed for the dropdown menu in the navbar and for scrollspy in the Info controller pages *@
+    @* bootstrap.js is needed for the dropdown menu in the top navbar and for scrollspy in the Info controller pages *@
     @Scripts.Render(
-        "~/bundles/jquery",
-        "~/bundles/bootstrap"
+"~/bundles/jquery",
+"~/bundles/bootstrap"
         )
+    @if (Request.IsAuthenticated)
+    {
+        <script type="text/javascript">
+            var app = app || {};
+            app.selfUserParam = @Html.Raw(pageViewModel.SelfUserParamJson);
+        </script>
+    }
     @RenderSection("BottomScripts", required: false)
 </body>
-
-
 </html>

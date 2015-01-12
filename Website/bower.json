@@ -1,73 +1,90 @@
 {
-    "name": "Scripts",
-    "version": "0.0.0",
-    "homepage": "https://github.com/andfomin/Runnymede",
-    "authors": [
-        "Andrey <afomin@dignicom.com>"
-    ],
-    "license": "MIT",
-    "private": true,
-    "ignore": [
-        "**/.*",
-        "node_modules",
-        "bower_components",
-        "test",
-        "tests",
-        "bower_installer"
-    ],
-    "dependencies": {
-        "angular": "~1.2.16",
-        "angular-bootstrap": "~0.11.0",
-        "angular-bootstrap-datetimepicker": "latest",
-        "angular-loading-bar": "~0.3.0",
-        "angular-route": "~1.2.0",
-        "angular-touch": "~1.2.16",
-        "angular-ui-calendar": "latest",
-        "animate.css": "~3.1.1",
-        "bootstrap": "3.1.0",
-        "bootstrap3-typeahead": "https://github.com/bassjobsen/Bootstrap-3-Typeahead.git#master",
-        "jquery": "2.1.0",
-        "moment": "latest",
-        "ngUpload": "~0.5.10",
-        "toastr": "~2.0.0",
-        "venturocket-angular-slider": "~0.3.2"
-    },
-    "resolutions": {
-        "angular": "1.2.16",
-        "jquery": "~2.1.0"
-    },
-    "install": {
-        "path": "bower_installer",
-        "sources": {
-            "angular": "bower_components/angular/angular.min.js",
-            "angular-bootstrap": "bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js",
-            "angular-loading-bar": [
-                "bower_components/angular-loading-bar/build/loading-bar.min.css",
-                "bower_components/angular-loading-bar/build/loading-bar.min.js"
-            ],
-            "angular-route": "bower_components/angular-route/angular-route.min.js",
-            "angular-touch": "bower_components/angular-touch/angular-touch.min.js",
-            "animate.css": "bower_components/animate.css/animate.min.css",
-            "bootstrap": [
-                "bower_components/bootstrap/less/*",
-                "bower_components/bootstrap/dist/js/bootstrap.min.js",
-                "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.eot",
-                "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.svg",
-                "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf",
-                "bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff",
-                "bower_components/bootstrap/less/*"
-            ],
-            "bootstrap3-typeahead": "bower_components/bootstrap3-typeahead/bootstrap3-typeahead.min.js",
-            "fullcalendar": "ver2-in-Content",
-            "jquery": "bower_components/jquery/dist/jquery.min.js",
-            "jquery-ui":  "angular-ui-calendar-declares-it/but-works-well-without/prevent-copying",
-            "moment": "bower_components/moment/min/moment.min.js",
-            "ngUpload": "bower_components/ngUpload/ng-upload.min.js",
-            "toastr": [
-                "bower_components/toastr/toastr.min.css",
-                "bower_components/toastr/toastr.min.js"
-            ],
-            "venturocket-angular-slider": "bower_components/venturocket-angular-slider/build/angular-slider.min.js"
-        }
+  "name": "Scripts",
+  "version": "0.0.0",
+  "homepage": "https://github.com/andfomin/Runnymede",
+  "authors": [
+    "Andrey <afomin@dignicom.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "bower_installer"
+  ],
+  "dependencies": {
+    "angular": "1.3.8",
+    "angular-animate": "1.3.8",
+    "angular-bootstrap": "0.12.0",
+    "angular-bootstrap-datetimepicker": "0.3.8",
+    "angular-loading-bar": "0.6.0",
+    "angular-touch": "1.3.8",
+    "angular-ui-calendar": "0.9.0-beta.1",
+    "angular-ui-router": "~0.2",
+    "animate.css": "~3.2.0",
+    "bootstrap": "3.3.1",
+    "fullcalendar": "2.2.5",
+    "jquery": "2.1.3",
+    "moment": "2.8.4",
+    "ng-tags-input": "2.1.1",
+    "ngUpload": "0.5.13",
+    "toastr": "2.1.0",
+    "venturocket-angular-slider": "~0.3.2"
+  },
+  "resolutions": {
+    "angular": "1.3.8",
+    "angular-touch": "1.3.8"
+  },
+  "install": {
+    "path": "bower_installer",
+    "sources": {
+      "angular": [
+        "bower_components/angular/angular.min.js",
+        "bower_components/angular/angular.min.js.map"
+      ],
+      "angular-animate": [
+        "bower_components/angular-animate/angular-animate.min.js",
+        "bower_components/angular-animate/angular-animate.min.js.map"
+      ],
+      "angular-bootstrap": "bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js",
+      "angular-loading-bar": [
+        "bower_components/angular-loading-bar/build/loading-bar.min.css",
+        "bower_components/angular-loading-bar/build/loading-bar.min.js"
+      ],
+      "angular-touch": [
+        "bower_components/angular-touch/angular-touch.min.js.map",
+        "bower_components/angular-touch/angular-touch.min.js"
+      ],
+      "angular-ui-router": "bower_components/angular-ui-router/release/angular-ui-router.min.js",
+      "animate.css": "bower_components/animate.css/animate.min.css",
+      "bootstrap": [
+        "bower_components/bootstrap/less/**",
+        "bower_components/bootstrap/dist/fonts/**",
+        "bower_components/bootstrap/dist/js/bootstrap.min.js"
+      ],
+      "fullcalendar": [
+        "bower_components/fullcalendar/dist/fullcalendar.css",
+        "bower_components/fullcalendar/dist/fullcalendar.min.js"
+      ],
+      "jquery": [
+        "bower_components/jquery/dist/jquery.min.js",
+        "bower_components/jquery/dist/jquery.min.map"
+      ],
+      "moment": "bower_components/moment/min/moment.min.js",
+      "ng-tags-input": [
+        "bower_components/ng-tags-input/ng-tags-input.min.css",
+        "bower_components/ng-tags-input/ng-tags-input.bootstrap.min.css",
+        "bower_components/ng-tags-input/ng-tags-input.min.js"
+      ],
+      "ngUpload": "bower_components/ngUpload/ng-upload.min.js",
+      "toastr": [
+        "bower_components/toastr/toastr.min.css",
+        "bower_components/toastr/toastr.min.js"
+      ],
+      "venturocket-angular-slider": "bower_components/venturocket-angular-slider/build/angular-slider.min.js"
     }
+  }
 }
