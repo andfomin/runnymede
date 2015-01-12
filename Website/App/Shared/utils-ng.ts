@@ -1,62 +1,135 @@
-module App.Utils {
+module app {
 
     export interface IScopeWithViewModel extends ng.IScope {
         vm: any;
-    }
-
-    export class ngNames {
-        // from module ng
-        public static $scope = '$scope';
-        public static $http = '$http';
-        public static $log = '$log';
-        public static $q = '$q';
-        public static $filter = '$filter';
-        public static $rootScope = '$rootScope';
-        public static $timeout = '$timeout';
-        public static $interval = '$interval'; // Intervals created by this service must be explicitly destroyed. See the example in the docs.
-        // ngRoute 
-        public static $route = '$route';
-        public static $routeParams = '$routeParams';
-        public static $location = '$location';
-        // ui-bootstrap
-        public static $modal = '$modal';
-        public static $modalInstance = '$modalInstance';
-    }
+    };
 
     export interface IAppRootScopeService extends ng.IRootScopeService {
         // Dynamically change the page title. ?Refactor as a service? See +http://stackoverflow.com/a/17751833/2808337
         pageTitle: string;
+        secondaryTitle: string;
         isClockWrong: boolean;
+    };
+
+    export class ngNames {
+        // from module ng
+        public static $compileProvider = '$compileProvider';
+        public static $document = '$document';
+        public static $filter = '$filter';
+        public static $http = '$http';
+        public static $interval = '$interval'; // Intervals created by this service must be explicitly destroyed. See the example in the docs.
+        public static $location = '$location';
+        public static $locationProvider = '$locationProvider';
+        public static $log = '$log';
+        public static $q = '$q';
+        public static $rootScope = '$rootScope';
+        public static $scope = '$scope';
+        public static $timeout = '$timeout';
+        public static $window = '$window';
+        // ui-bootstrap
+        public static datepickerConfig = 'datepickerConfig';
+        public static datepickerPopupConfig = 'datepickerPopupConfig';
+        public static $modal = '$modal';
+        public static $modalInstance = '$modalInstance';
+        // ui-router
+        public static $state = '$state';
+        public static $stateParams = '$stateParams';
+        public static $stateProvider = '$stateProvider';
+        public static $urlRouterProvider = '$urlRouterProvider';
+        // Custom
+        public static $appRemarks = '$appRemarks';
+        public static $appRemarksComparer = '$appRemarksComparer';
+    };
+
+    export var myAppName = 'myApp';
+    export var utilsNg = 'app.utilsNg';
+
+    export var pgLimit: number = 10; // Items per page
+    export var notAuthenticatedMessage = 'Please log in to enable this feature.';
+
+    export class CtrlBase {
+        busy: boolean = false;
+        // Although we have the first level of defence on the client, the server will often accept unauthenticated requests and may return an error message for unavailable features.
+        authenticated: boolean;
+        loginLink: string;
+        pgLimit: number = app.pgLimit; // Items per page
+        pgTotal: number = null;
+        pgCurrent: number = 1;
+
+        //static $inject = [app.ngNames.$scope];
+
+        constructor(
+            $scope: app.IScopeWithViewModel
+            ) {
+            /* ----- Constructor  ----- */
+            $scope.vm = this;
+            this.authenticated = app.isAuthenticated && app.isAuthenticated();
+            this.loginLink = app.getLoginLink();
+            /* ----- End of constructor  ----- */
+        }
+
+        pgOffset = (pgCurrent?: number, pgLimit?: number) => {
+            return ((pgCurrent || this.pgCurrent || 1) - 1) * (pgLimit || this.pgLimit || 0);
+        };
+
+        pgReset = () => {
+            this.pgCurrent = 1;
+            this.pgTotal = null;
+        }
+
+    } // end of class CtrlBase
+
+    export interface IModal {
+        canOk: () => any;
+        internalOk: () => ng.IPromise<any>;
     }
 
-    export class CustomModal {
+    export class Modal {
 
-        executing: boolean = false;
+        busy: boolean = false;
+        authenticated: boolean;// The server may accept unauthenticated requests for some features but returns a custom error message for the disabled features.
+        loginLink: string;
 
-        internalOk: () => ng.IPromise<any> = null; // Override in descendand classes.
+        canOk: () => any = () => { return true; }; // Replaced in descendand classes.
+        internalOk: () => ng.IPromise<any>; // Replaced in descendand classes.
+        dismissOnError: boolean = false;
 
         /* +http://www.typescriptlang.org/Content/TypeScript%20Language%20Specification.pdf  Section 8.2.3
         *  Base class static property members can be overridden by derived class static property members of any kind as long as the types are compatible, as described above. */
-        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http, App.Utils.ngNames.$modalInstance, 'modalParams'];
+        static $inject = [app.ngNames.$http, app.ngNames.$modalInstance, app.ngNames.$scope, 'modalParams'];
 
         constructor(
-            public $scope: App.Utils.IScopeWithViewModel,
             public $http: ng.IHttpService,
             public $modalInstance: ng.ui.bootstrap.IModalServiceInstance,
+            public $scope: app.IScopeWithViewModel,
             public modalParams: any
             ) {
             $scope.vm = this;
+            this.authenticated = app.isAuthenticated && app.isAuthenticated();
+            this.loginLink = app.getLoginLink(); // 'https://' + $window.document.location.hostname + '/account/login';
         } // ctor
 
         ok = () => {
-            if (this.internalOk) {
-                this.executing = true;
+            if (this.internalOk
+                && !this.busy
+                && this.canOk()
+                ) {
+                this.busy = true;
                 this.internalOk()
                     .then<void>(
-                    () => { this.$modalInstance.close(); },
-                    App.Utils.logError
+                    (data) => {
+                        //$http.post().success() returns ng.IHttpPromiseCallbackArg<any>
+                        var httpData = data && data.data;
+                        this.$modalInstance.close(httpData || data);
+                    },
+                    (reason) => {
+                        if (this.dismissOnError) {
+                            this.$modalInstance.dismiss(reason);
+                        }
+                        // app.logError. We usually use app.ngHttpPost in internalOk(), which has its own errorCallback. Avoid duplicate error processing and duplicate toastr baloons.
+                    }
                     )
-                    .finally(() => { this.executing = false; });
+                    .finally(() => { this.busy = false; });
             }
             else {
                 this.$modalInstance.close();
@@ -68,80 +141,107 @@ module App.Utils {
         };
 
         /**
-         * The successCallback parameter should be passed with the lambda syntax, otherwise the _this will be lost.
+         * The successCallback parameter should be passed using the lambda syntax, otherwise the _this will be lost.
          */
         public static openModal(
             $modal: ng.ui.bootstrap.IModalService,
             templateUrl: string,
-            controller: any,
-            modalParams: any,
-            successCallback: () => void
+            controller: new (...args: any[]) => IModal,
+            modalParams?: any,
+            successCallback?: (data: any) => void,
+            backdrop?: any, // true (default???), false (no backdrop), 'static'
+            size?: string // 'sm', 'lg'
             ) {
-            var modalInstance = $modal.open({
+            var options: ng.ui.bootstrap.IModalSettings = {
                 templateUrl: templateUrl,
                 controller: controller,
                 resolve: {
                     modalParams: () => {
-                        return modalParams;
+                        return modalParams || null;
                     }
-                }
-            });
+                },
+                backdrop: angular.isDefined(backdrop) ? backdrop : true,
+                size: size,
+            };
+            var modalInstance = $modal.open(options);
             modalInstance.result.then(
-                () => {
+                (data) => {
                     if (successCallback) {
-                        successCallback();
+                        successCallback(data);
                     }
                 },
                 null
                 );
             return modalInstance;
         }
-    }; // end of class CustomModal
+    }; // end of class Modal
 
-    export function useRouteTitle(app: ng.IModule) {
-        app.run([ngNames.$rootScope, function ($rootScope: IAppRootScopeService) {
-            $rootScope.$on('$routeChangeSuccess', (event, current, previous) => {
-                $rootScope.pageTitle = current.title;
-                //window.document.title = current.title + ' \u002d English Cosmos'; // &ndash;
+    //export function useRouteTitle(app: ng.IModule) {
+    //    app.run([ngNames.$rootScope, function ($rootScope: IAppRootScopeService) {
+    //        $rootScope.$on('$routeChangeSuccess', (event, current, previous) => {
+    //            $rootScope.pageTitle = current.title;
+    //        });
+    //    }]);
+    //};
+
+    export class StateTitleSyncer {
+        static $inject = [ngNames.$rootScope];
+        constructor($rootScope: IAppRootScopeService) {
+            $rootScope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) => {
+                $rootScope.pageTitle = toState.data && toState.data.title;
+                $rootScope.secondaryTitle = toState.data && toState.data.secondaryTitle;
+                //window.document.title = current.title + ' \u002d Bla bla bla'; // &ndash;
             });
-        }]);
+        }
+    };
+
+    export class WrongClockDetector {
+        static $inject = [ngNames.$http, ngNames.$rootScope];
+        constructor($http: ng.IHttpService, $rootScope: IAppRootScopeService) {
+            ngHttpGet($http,
+                app.sessionsApiUrl('millis_since_epoch'),
+                null,
+                (data) => {
+                    $rootScope.isClockWrong = (Math.abs(Date.now() - data) > 120000); // Calculate the difference between the client and the provided time
+                }
+                );
+        }
+    };
+
+    export class HrefWhitelistConfig {
+        static $inject = [app.ngNames.$compileProvider];
+        constructor($compileProvider: ng.ICompileProvider) {
+            $compileProvider.aHrefSanitizationWhitelist(/^skype:|https?:\/\/(?:dev\w\.)?englisharium\.com\/.*/);
+        }
     }
 
-    export function detectWrongClock(app: ng.IModule) {
-        app.run([
-            ngNames.$http,
-            ngNames.$rootScope,
-            function ($http: ng.IHttpService, $rootScope: IAppRootScopeService) {
-                ngHttpGetNoCache($http,
-                    App.Utils.sessionsApiUrl('MillisSinceEpoch'),
-                    null,
-                    (data) => {
-                        $rootScope.isClockWrong = (Math.abs(new Date().valueOf() - data) > 60000); // Calculate the difference between the client and the provided time
-                    }
-                    );
-            }]);
-    }
+    export function anticacher() {
+        // The actual string length is not that much important. If a proxy server sees a '?' in the url, it will not cache
+        // Date.now() gives repeatable values if called from a timer set by increments of ten seconds.
+        return app.formatFixedLength(Math.floor(Math.random() * 10000), 4);
+    };
 
-    // $http does not send data in body in a GET request, only as params.
-    export function ngHttpGetNoCache(http: ng.IHttpService, url: string, params: any, successCallback: ng.IHttpPromiseCallback<any>) {
+    // $http does not send data in body in a GET request, it sends only URL params.
+    export function ngHttpGet($http: ng.IHttpService, urlPath: string, params: any, successCallback: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
         var ps = params || {};
-        ps._ = safeDateNow();
-        return http.get(url, { params: ps })
-            .success(successCallback)
-            .error(App.Utils.logError);
-    }
+        ps._ = anticacher();
+        return $http.get(urlPath, { params: ps })
+            .success(successCallback || angular.noop)
+            .error(app.logError)
+            .finally(finallyCallback || angular.noop);
+    };
 
-    export function ngHttpPost(http: ng.IHttpService, url: string, data: any, successCallback: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
-        return http.post(url, data)
-            .success(successCallback)
-            .error(App.Utils.logError)
-            .finally(finallyCallback);
-    }
+    export function ngHttpPost($http: ng.IHttpService, url: string, data: any, successCallback?: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
+        return $http.post(url, data)
+            .success(successCallback || angular.noop)
+            .error(app.logError)
+            .finally(finallyCallback || angular.noop);
+    };
 
     /* How to post a form-encoded, not JSON-encoded, data */
     //    $http({
     //        method: 'POST',
-    //        url: Utils.loginUrl(),
+    //        url: app.loginUrl(),
     //        data: {
     //            userName: userName,
     //        },
@@ -155,88 +255,94 @@ module App.Utils {
     //        }
     //    })
 
-    export function ngHttpPut(http: ng.IHttpService, url: string, data: any, successCallback: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
-        return http.put(url, data)
-            .success(successCallback)
-            .error(App.Utils.logError)
-            .finally(finallyCallback);
+    export function ngHttpPut($http: ng.IHttpService, url: string, data: any, successCallback?: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
+        return $http.put(url, data)
+            .success(successCallback || angular.noop)
+            .error(app.logError)
+            .finally(finallyCallback || angular.noop);
+    };
+
+    export function getUserPresentation($http: ng.IHttpService, id: number, successCallback: (data: string) => void) {
+        var callback = (data: any) => { (successCallback || angular.noop)(data || ''); }; // The empty string means there has been a request and there is definitly no presentation text.
+        $http.get(
+            // Encourage caching.   
+            //app.accountsApiUrl('presentation/' + id), { cache: true }
+            app.getBlobUrl('user-presentations', intToKey(id)), { cache: true }
+            )
+            .success(callback)
+            .error(() => callback(null)); // Azure Blob can return 404 Not Found.
     }
 
-    // Source: book AngularJS of O'Reilly. +http://proquestcombo.safaribooksonline.com.ezproxy.torontopubliclibrary.ca/book/programming/javascript/9781449355852/8dot-cheatsheet-and-recipes/chapter_8_pagination_html
-    ////export function PaginatorFactory() {
-    ////    // Despite being a factory, the user of the service gets a new
-    ////    // Paginator every time he calls the service. This is because
-    ////    // we return a function that provides an object when executed
-    ////    // The fetchFunction function expects the following signature: fetchFunction(offset, limit, callback); When the data is available, the fetch function needs to call the callback function with it.
-    ////    /* 
-    ////    <a href="" ng-click="searchPaginator.previous()" ng-show="searchPaginator.hasPrevious()">&lt;&lt; Prev</a>
-    ////    <a href="" ng-click="searchPaginator.next()" ng-show="searchPaginator.hasNext()">Next &gt;&gt;</a> 
-    ////    */
-
-    ////    return function (fetchFunction, pageSize) {
-    ////        var paginator = {
-    ////            hasNextVar: false,
-    ////            next: function () {
-    ////                if (this.hasNextVar) {
-    ////                    this.currentOffset += pageSize;
-    ////                    this._load();
-    ////                }
-    ////            },
-    ////            _load: function () {
-    ////                var self = this;
-    ////                fetchFunction(this.currentOffset, pageSize + 1, function (items) {
-    ////                    self.currentPageItems = items.slice(0, pageSize);
-    ////                    self.hasNextVar = items.length === pageSize + 1;
-    ////                });
-    ////            },
-    ////            hasNext: function () {
-    ////                return this.hasNextVar;
-    ////            },
-    ////            previous: function () {
-    ////                if (this.hasPrevious()) {
-    ////                    this.currentOffset -= pageSize;
-    ////                    this._load();
-    ////                }
-    ////            },
-    ////            hasPrevious: function () {
-    ////                return this.currentOffset !== 0;
-    ////            },
-    ////            currentPageItems: [],
-    ////            currentOffset: 0
-    ////        };
-
-    ////        // Load the first page
-    ////        paginator._load();
-    ////        return paginator;
-    ////    };
-    ////} // end of PaginatorFactory
-
     // We inject the $filter service to be able to call the standard filter internally.
-    export function AppDateFilterFactory($filter) {
+    export function AppDateFilter($filter) {
         return (date: Date) => {
             var f = $filter('date'); // The standard filter.
             return angular.isDefined(date) ? (f(date, 'fullDate') + ' ' + f(date, 'shortTime')) : null;
         }
-    }
+    };
 
-    export function AppDateTimeFilterFactory() {
+    export function AppDateTimeFilter() {
         return (date: Date) => {
-            return angular.isDefined(date) ? moment(date).format(App.Utils.dateTimeFormat) : null;
+            return angular.isDefined(date) ? moment(date).format(app.DateTimeFormat) : null;
         }
-    }
+    };
 
     // Format exercise length from milliseconds to min:sec
-    export function AppMsecToMinSecFilterFactory() {
+    export function AppMsecToMinSecFilter() {
         return (valMsec: number) => {
-            return App.Utils.formatMsec(valMsec);
+            return app.formatMsec(valMsec);
         }
-    }
+    };
 
-} // end of module App.Utils
+    // Format exercise length depending on the exercise type
+    export function AppLengthFilter() {
+        return (length: number, type: string) => {
+            switch (type) {
+                case ExerciseType.AudioRecording:
+                    return app.formatMsec(length);
+                    break;
+                default:
+                    return '' + length;
+            };
+        }
+    };
 
-var appUtilsNg = angular.module('AppUtilsNg', []);
-////appUtilsNg.factory('Paginator', App.Utils.PaginatorFactory);
-appUtilsNg.filter('appDate', [App.Utils.ngNames.$filter, App.Utils.AppDateFilterFactory]);
-appUtilsNg.filter('appDateTime', [App.Utils.AppDateTimeFilterFactory]);
-appUtilsNg.filter('appMsecToMinSec', [App.Utils.AppMsecToMinSecFilterFactory]);
+    // Format date like 'today', 'yesterday', 'last monday'
+    export function AppDateHumanFilter() {
+        return (date: any) => {
+            return app.formatDateHuman(date);
+        }
+    };
+
+    // Format date like '45 minutes', '22 hours'
+    export function AppDateAgoFilter() {
+        return (date: any) => {
+            return app.formatDateAgo(date);
+        }
+    };
+
+    export function AvatarSmallFilter() {
+        return (id: number) => {
+            return app.getAvatarSmallUrl(id);
+        }
+    };
+
+    export function AvatarLargeFilter() {
+        return (id: number) => {
+            return app.getAvatarLargeUrl(id);
+        }
+    };
+
+    angular.module(app.utilsNg, [])
+        .filter('appDate', [app.ngNames.$filter, app.AppDateFilter])
+        .filter('appDateTime', [app.AppDateTimeFilter])
+        .filter('appMsecToMinSec', [app.AppMsecToMinSecFilter])
+        .filter('appLength', [app.AppLengthFilter])
+        .filter('appDateHuman', [app.AppDateHumanFilter])
+        .filter('appDateAgo', [app.AppDateAgoFilter])
+        .filter('appAvatarSmall', [app.AvatarSmallFilter])
+        .filter('appAvatarLarge', [app.AvatarLargeFilter]);
+
+} // end of module app
+
 

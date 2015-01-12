@@ -9,6 +9,7 @@ using Owin;
 using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
+using System.Web.Http;
 
 namespace Runnymede.Website
 {
@@ -18,7 +19,11 @@ namespace Runnymede.Website
         public void ConfigureAuth(IAppBuilder app)
         {
             // Configure the db context, user manager and role manager to use a single instance per request
-            app.CreatePerOwinContext<ApplicationDbContext>(ApplicationDbContext.Create); // The bad thing is that it is called on EVERY request.
+            // The bad thing is that it is called on EVERY request.
+            /* There is extension method Owin.MapWhenExtensions.MapWhen() which can separate requests like 
+             * app.MapWhen(context => context.Request.Uri.PathAndQuery.StartsWith("/api"), newApp => { var config = new System.Web.Http.HttpConfiguration(); app.UseWebApi(config); });
+             */
+            app.CreatePerOwinContext<ApplicationDbContext>(ApplicationDbContext.Create); 
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
             //app.CreatePerOwinContext<ApplicationRoleManager>(ApplicationRoleManager.Create); // We don't use user roles. We use exclusively custom claims.
 
@@ -66,8 +71,8 @@ namespace Runnymede.Website
             //   consumerSecret: "");
 
             /* +http://www.asp.net/mvc/tutorials/mvc-5/create-an-aspnet-mvc-5-app-with-facebook-and-google-oauth2-and-openid-sign-on
-             * Lookup "Creating a Google app for OAuth 2 and connecting the app to the project" +https://console.developers.google.com/
-             * Lookup "Creating the app in Facebook and connecting the app to the project" +https://developers.facebook.com/apps            
+             * Lookup for "Creating a Google app for OAuth 2 and connecting the app to the project" +https://console.developers.google.com/
+             * Lookup for "Creating the app in Facebook and connecting the app to the project" +https://developers.facebook.com/apps            
              */
             var facebookOptions = new FacebookAuthenticationOptions()
             {

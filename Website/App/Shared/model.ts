@@ -1,99 +1,146 @@
-interface App {
-    // Declared in bceg-lookup.js
-    bcegLookup: any;
-}
-
-module App.Model {
+module app {
 
     export interface IUser {
         id: number;
         displayName: string;
         userName: string;
-        skype: string;
+        skypeName: string;
         isTeacher: boolean;
-        isAssistant: boolean;
-        timezoneName: string;
-        reviewRate: number;
+        recordingRate: number;
+        writingRate: number;
         sessionRate: number;
         announcement: string;
-        avatarLargeUrl: string;
-        avatarSmallUrl: string;
+        presentation: string;
         phoneNumber: string;
         phoneNumberConfirmed: boolean;
         email: string;
         emailConfirmed: boolean;
-    }
+    };
 
-    export interface IExercise2 {
+    export interface IExercise {
         id: number;
         createTime: string;
-        typeId: string;
-        artefactId: string;
+        type: string;
+        artifact: string;
         title: string;
         length: number;
-        reviews: IReview2[];
-    }
+        reviews: IReview[];
+    };
 
-    export interface IReview2 {
+    export interface IReview {
         id: number;
         exerciseId: number;
-        requestTime: Date;
-        cancelTime: Date;
-        startTime: Date;
-        finishTime: Date;
+        requestTime: string; // Date;
+        cancelationTime: string; // Date;
+        startTime: string; // Date;
+        finishTime: string; // Date;
         authorName: string;
         reviewerName: string;
-        reward: number;
+        price: number;
         exerciseLength: number;
-        comment: string;
+        comment: IComment;
         suggestions: ISuggestion[];
-    }
+    };
 
-    export interface IRemark2 {
+    // Review piece, the base interface for IRemark, ISuggestion, IComment.
+    export interface IPiece {
         reviewId: number;
-        creationTime: number; // The difference in milliseconds between the remark creation time and the review start time.
+        type: string; // Constants are declared in CtrlBase
+        //creationTime: number; // The difference in milliseconds between the item creation time and the review start time.
+        id: number;
+        dirtyTime: Date; // Invalidate the item.
+    };
+
+    export interface IRemark extends IPiece {
         start: number;
         finish: number;
-        text: string;
-        keywords: string;
-        dirtyTime: Date;
-    }
-
-    export interface ISuggestion {
-        reviewId: number;
-        creationTime: number; // The difference in milliseconds between the item creation time and the review start time.
-        text: string;
-        dirtyTime: Date;
-    }
-
-    export class Review2 implements IReview2 {
-        id: number;
-        exerciseId: number;
-        requestTime: Date;
-        cancelTime: Date;
-        startTime: Date;
-        finishTime: Date;
-        authorName: string;
-        reviewerName: string;
-        reward: number;
-        exerciseLength: number;
+        correction: string;
         comment: string;
-        suggestions: ISuggestion[];
+        // Writing photo
+        page: number; // first page is 1
+        x: number;
+        y: number;
+        like: boolean;
+    };
 
-        constructor(data: any) {
-            this.id = data.id;
-            this.exerciseId = data.exerciseId;
-            this.requestTime = new Date(data.requestTime);
-            this.cancelTime = data.cancelTime ? new Date(data.cancelTime) : null;
-            this.startTime = data.startTime ? new Date(data.startTime) : null;
-            this.finishTime = data.finishTime ? new Date(data.finishTime) : null;
-            this.authorName = data.authorName;
-            this.reviewerName = data.reviewerName;
-            this.reward = data.reward;
-            this.exerciseLength = data.exerciseLength;
-            this.comment = data.comment;
-            this.suggestions = data.suggestions;
-        } // end of ctor
+    export interface ISuggestion extends IPiece {
+        suggestion: string;
+        keywords: string;
+        categoryId: string;
+    };
+
+    export interface IComment extends IPiece {
+        comment: string;
+    };
+
+    export interface IScheduleEvent {
+        id: number;
+        start: Moment;
+        end: Moment;
+        type: string;
+        userId: number;
+        // These properties are supported by FullCalendar
+        title: string;
+        url: string; // Chrome weiredly tries to silently send a request to this URL as if it was a real URL. It gets an unrecoverable error for 'javascript:;' and the event fials to render. If  the value is malformed, Firefox uncoditionally goes to the URL on click and reports the unknown format to the user.
+        color: string;
+        backgroundColor: string;
+        borderColor: string;
+        className: string[];
+    };
+
+    export interface ISession {
+        id: number;
+        start: string;
+        end: string;
+        hostUserId: number;
+        guestUserId: number;
+        price: number;
+        requestTime: string;
+        confirmationTime: string;
+        cancellationTime: string;
+        cancellationUserId: number;
+        disputedTime: string;
+        disputeUser: number;
+        finishTime: string;
+    };
+
+    export interface IMessage {
+        id: number;
+        type: string;
+        postTime: string;
+        receiveTime: string;
+        senderUserId: number;
+        senderDisplayName: string;
+        recipientUserId: number;
+        recipientDisplayName: string;
+        extId: string;
+        text: string;
+    };
+
+    export interface IResource {
+        id: number;
+        url: string;
+        format: string;
+        naturalKey: string;
+        segment: string;
+        title: string;
+        categoryIds: string;
+        tags: string;
+        source: string;
+        hasExplanation: boolean;
+        hasExample: boolean;
+        hasExercise: boolean;
+        hasText: boolean;
+        hasPicture: boolean;
+        hasAudio: boolean;
+        hasVideo: boolean;
+        isPersonal: boolean;
+        languageLevelRating: number;
+        priority: number; // Copycat segment priority, affects display order. Values are from 0 to 4.
+        comment: string;
+        // Not persisted.
+        viewed: boolean;
+        localTime: string; // for History
     }
 
 }

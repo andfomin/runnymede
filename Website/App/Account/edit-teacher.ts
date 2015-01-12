@@ -1,24 +1,22 @@
-module App.Account_Edit {
+module app.account_edit {
 
     export class Teacher {
 
-        profile: App.Model.IUser;
+        profile: app.IUser;
 
-        sending: boolean;
-        displayNameChanged: boolean;
-        skypeChanged: boolean;
-        reviewRateChanged: boolean;
+        recordingRateChanged: boolean;
+        writingRateChanged: boolean;
         sessionRateChanged: boolean;
-        anntChanged: boolean;
+        sending: boolean;
         codeSent: boolean = false;
         phoneCode: string;
         newPhone: string;
         phoneToVerify: string;
 
-        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
+        static $inject = [app.ngNames.$scope, app.ngNames.$http];
 
         constructor(
-            private $scope: App.Utils.IScopeWithViewModel,
+            private $scope: app.IScopeWithViewModel,
             private $http: ng.IHttpService
             ) {
             $scope.vm = this;
@@ -27,8 +25,8 @@ module App.Account_Edit {
         } // end of ctor
         
         private load = () => {
-            App.Utils.ngHttpGetNoCache(this.$http,
-                App.Utils.accountApiUrl('TeacherProfile'),
+            app.ngHttpGet(this.$http,
+                app.accountsApiUrl('teacher_profile'),
                 null,
                 (data) => {
                     this.profile = data;
@@ -37,31 +35,31 @@ module App.Account_Edit {
         }
 
         clearChanged() {
-            this.reviewRateChanged = false;
+            this.recordingRateChanged = false;
+            this.writingRateChanged = false;
             this.sessionRateChanged = false;
-            this.anntChanged = false;
         }
 
         saveTeacher(form: ng.IFormController) {
             if (form.$valid) {
                 this.sending = true;
                 this.clearChanged();
-                var reviewRateDirty = (<any>form).reviewRate.$dirty ? true : false;
-                var sessionRateDirty = (<any>form).sessionRate.$dirty ? true : false;
-                var anntDirty = (<any>form).announcement.$dirty ? true : false;
+                var recordingRateDirty = !!(<any>form).recordingRate.$dirty;
+                var writingRateDirty = !!(<any>form).writingsRate.$dirty;
+                var sessionRateDirty = !!(<any>form).sessionRate.$dirty;
 
-                App.Utils.ngHttpPut(this.$http,
-                    Utils.accountApiUrl('TeacherProfile'),
+                app.ngHttpPut(this.$http,
+                    app.accountsApiUrl('teacher_profile'),
                     {
-                        reviewRate: reviewRateDirty ? this.profile.reviewRate : null,
+                        recordingRate: recordingRateDirty ? this.profile.recordingRate : null,
+                        writingRate: writingRateDirty ? this.profile.writingRate : null,
                         sessionRate: sessionRateDirty ? this.profile.sessionRate : null,
-                        announcement: anntDirty ? this.profile.announcement : null,
                     },
                     () => {
                         form.$setPristine();
-                        this.reviewRateChanged = reviewRateDirty;
+                        this.recordingRateChanged = recordingRateDirty;
+                        this.writingRateChanged = writingRateDirty;
                         this.sessionRateChanged = sessionRateDirty;
-                        this.anntChanged = anntDirty;
                     },
                     () => {
                         this.sending = false;
@@ -76,8 +74,8 @@ module App.Account_Edit {
 
         sendPhoneCode() {
             this.sending = true;
-            App.Utils.ngHttpPost(this.$http,
-                Utils.accountApiUrl('PhoneNumber'),
+            app.ngHttpPost(this.$http,
+                app.accountsApiUrl('phone_number'),
                 {
                     phoneNumber: this.newPhone
                 },
@@ -91,8 +89,8 @@ module App.Account_Edit {
 
         submitPhoneCode() {
             this.sending = true;
-            App.Utils.ngHttpPost(this.$http,
-                Utils.accountApiUrl('PhoneVerification'),
+            app.ngHttpPost(this.$http,
+                app.accountsApiUrl('phone_verification'),
                 {
                     phoneNumber: this.newPhone,
                     phoneCode: this.phoneCode

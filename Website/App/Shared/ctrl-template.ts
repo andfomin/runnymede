@@ -1,25 +1,27 @@
-module App._ {
+module app._ {
 
     export class Ctrl {
 
-        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
+        static $inject = [app.ngNames.$scope, app.ngNames.$http];
 
         constructor(
-            private $scope: Utils.IScopeWithViewModel,
+            private $scope: app.IScopeWithViewModel,
             private $http: ng.IHttpService
-            )
-        {
+            ) {
             /* ----- Constructor  ----- */
-            $scope.vm = this
+            $scope.vm = this;
+
             /* ----- End of constructor  ----- */
-        } 
+        }
 
         f = () => {
 
         }
 
     } // end of class
+
+    angular.module(app.myAppName, [])
+        .controller('Ctrl', Ctrl);
+
 } // end of module
 
-var app = angular.module('app', []);
-app.controller('Ctrl', App._.Ctrl);
