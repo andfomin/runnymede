@@ -119,7 +119,6 @@
     <Build Include="Stored Procedures\exeTryChangeExerciseAuthor.sql" />
     <Build Include="Stored Procedures\exeCreateUploadedReview.sql" />
     <Build Include="Stored Procedures\relCloseSession.sql" />
-    <Build Include="Tables\sysCoreInventory.sql" />
     <Build Include="Tables\libResources.sql" />
     <Build Include="Tables\libExponents.sql" />
     <Build Include="Tables\libCategories.sql" />
@@ -164,7 +163,6 @@
     <Build Include="Stored Procedures\sesRequestSession.sql" />
     <Build Include="Tables\libSources.sql" />
     <Build Include="Functions\libGetCategoryPaths.sql" />
-    <Build Include="Tables\sysCountries.sql" />
     <Build Include="Tables\libUserResources.sql" />
     <Build Include="Views\sysRandomTenDigitPositiveInt.sql" />
     <Build Include="Functions\appGetNewUserId.sql" />
