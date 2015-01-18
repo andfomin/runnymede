@@ -19,39 +19,43 @@
             </p>
             <p>Current time: {{vm.now | appDate}}</p>
             <p ng-show="vm.kind === 'create'">Earliest possible start time: {{vm.minStart() | appDate}}</p>
+
             <div class="form-group">
                 <label>Start of the period</label>
-                <div class="dropdown" data-is-open="vm.startIsOpen">
-                    <a class="dropdown-toggle" href="">
+                <div class="dropdown" dropdown is-open="vm.startIsOpen">
+                    <a class="dropdown-toggle" href="" dropdown-toggle>
                         <div class="input-group">
                             <input type="text" class="form-control" style="cursor:pointer;" ng-model="vm.start">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </a>
                     <div class="dropdown-menu">
-                        <datetimepicker ng-model="vm.start" ng-required="true" datetimepicker-config="{minuteStep: 15}" on-set-time="vm.onSetStart" />
+                        <datetimepicker ng-model="vm.start" ng-required="true" datetimepicker-config="{minuteStep: 15}" on-set-time="vm.onSetStart()" />
                     </div>
                 </div>
             </div>
+
             <div class="form-group">
                 <label>End of the period</label>
-                <div class="dropdown" data-is-open="vm.endIsOpen">
-                    <a class="dropdown-toggle" href="">
+                <div class="dropdown" dropdown is-open="vm.endIsOpen">
+                    <a class="dropdown-toggle" href="" dropdown-toggle>
                         <div class="input-group">
                             <input type="text" class="form-control" style="cursor:pointer;" ng-model="vm.end">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </a>
                     <div class="dropdown-menu">
-                        <datetimepicker ng-model="vm.end" ng-required="true" datetimepicker-config="{minuteStep: 15}" on-set-time="vm.onSetEnd" />
+                        <datetimepicker ng-model="vm.end" ng-required="true" datetimepicker-config="{minuteStep: 15}" on-set-time="vm.onSetEnd()" />
                     </div>
                 </div>
             </div>
+
             <p>
                 <span ng-show="vm.duration()">The duration of the period is {{vm.duration()}}.</span>&nbsp;
             </p>
         </div>
     </div>
+
 </div>
 <div class="modal-footer">
     <span class="alert alert-warning app-warning" ng-show="!vm.authenticated">

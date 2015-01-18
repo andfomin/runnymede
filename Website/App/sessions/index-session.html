@@ -47,7 +47,7 @@
 <div class="row app-margin-top" ng-show="vm.canShowSkype()">
     <div class="col-md-6">
         <p>
-            <img src="http://www.skypeassets.com/i/scom/images/skype-buttons/Skypeicon_24px.png" width="24" height="24" />
+            <img class="app-2px-up" src="http://www.skypeassets.com/i/scom/images/skype-buttons/Skypeicon_24px.png" width="24" height="24" />
             The name of <strong>{{vm.otherUser.displayName}}</strong> on Skype is
             <!-- Skyp Button is a bloatware, it is essentially a wrapper around Skype URI anyway, and it does not support the 'add' method -->
             <a href="skype:{{vm.otherUser.skypeName}}?add"><strong>{{vm.otherUser.skypeName}}</strong></a>
@@ -56,19 +56,19 @@
             <span class="text-danger"><strong>Note:</strong></span> Because of the Skype security and privacy policy, you need first to send the person a contact request.
             Click <strong>Add to Contacts</strong> in the Skype client program and enter some text to introduce yourself. When you are done, click <strong>Send</strong>.
             Although the new contact is added to your contact list, you will only see a question mark
-            <img src="/content/images/skype-no-contact.png" width="14" height="14" />
-            instead of their status icon until they accept your request.
-            When your new contact accepts your request, you can see when they are online, and make free voice and video calls with them.
+            <img class="app-1px-up" src="/content/images/skype-no-contact.png" width="14" height="14" />
+            as their status icon until they accept your request.
+            When your new contact accepts your request, you will see when they are online and will be able to make free voice and video calls with them.
         </p>
     </div>
     <div class="col-md-6">
-        <img class="img-thumbnail" src="/content/images/skype-add-contact.png" width="340" height="230" />
+        <img class="img-thumbnail" src="/content/images/skype-add-contact.png" width="340" height="240" />
     </div>
 </div>
 <hr/>
-<h4>Conversation activity suggestions</h4>
+<h4>Activity suggestions for the conversation</h4>
 <ul>
-    <li><a href="/game">Game "Guess the picture"</a></li>
+    <li><a href="/games/pick-a-pic">Game "Pick a picture"</a></li>
     <li><a href="http://iteslj.org/questions/" target="_blank">Topic questions</a></li>
 </ul>
 

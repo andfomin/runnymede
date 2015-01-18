@@ -25,7 +25,7 @@ begin try
 		select *
 		from dbo.appUsers
 		where Id = @UserId
-			and SkypeName is null
+			and nullif(SkypeName, '') is null
 	)
 		raiserror('%s,%d:: Please enter your Skype name on the Profile page.', 16, 1, @ProcName, @UserId);
 
@@ -57,11 +57,11 @@ begin try
 				raiserror('%s,%d,%d:: Failed to change the event status.', 16, 1, @ProcName, @UserId, @SessionId);
 				
 			exec dbo.appPostMessage	
-				@SenderUserId = @UserId, @RecipientUserId = @GuestUserId, @Type = 'SESSCF', @Attribute = @Attribute, @ExtId = @MessageExtId;
-
-			exec dbo.friUpdateLastContact @UserId = @GuestUserId, @FriendUserId = @UserId, @ContactType = 'CN__SU';
+				@SenderUserId = @UserId, @RecipientUserId = @GuestUserId, @Type = 'MSSSCF', @Attribute = @Attribute, @ExtId = @MessageExtId;
 
 			exec dbo.friUpdateLastContact @UserId = @UserId, @FriendUserId = @GuestUserId, @ContactType = 'CN__SF';
+
+			exec dbo.friUpdateLastContact @UserId = @GuestUserId, @FriendUserId = @UserId, @ContactType = 'CN__SU';
 
 
 	if @ExternalTran = 0

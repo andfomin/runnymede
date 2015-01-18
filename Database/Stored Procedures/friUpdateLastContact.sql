@@ -4,7 +4,7 @@
 CREATE PROCEDURE [dbo].[friUpdateLastContact]
 	@UserId int,
 	@FriendUserId int,	
-	@ContactType nchar(2)
+	@ContactType char(6)
 AS
 BEGIN
 /* 

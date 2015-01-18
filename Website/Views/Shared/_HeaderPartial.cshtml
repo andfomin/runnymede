@@ -60,9 +60,9 @@
                     @*<li><img id="navAvatar" class="hidden-xs" style="margin:4px;" width="32" height="32" src="@avatarUrl" title="@Model.DisplayName" /></li>*@
                     <li>
                         @Html.Raw(
-                        @Html.ActionLinkWithProtocol("[replacetext]", "Edit", "Account", "https", new { tabindex = "-1", @class = "app-collapsable-avatar", @style = "padding:4px;" })
+                         @Html.ActionLinkWithProtocol("[replacetext]", "Edit", "Account", "https", new { tabindex = "-1", @class = "app-collapsable-avatar", @style = "padding:4px;" })
                         .ToHtmlString()
-                        .Replace("[replacetext]", "<img id=\"navAvatar\" width=\"32\" height=\"32\" src=\"" + @avatarUrl + "\" title=\"" + @Model.DisplayName + "\" />")
+                         .Replace("[replacetext]", "<img class=\"img-circle\" id=\"navAvatar\" width=\"32\" height=\"32\" src=\"" + @avatarUrl + "\" title=\"" + @Model.DisplayName + "\" />")
                     )
                     </li>
                     <li class="dropdown app-dropdown-hover @NavClass("Account")">

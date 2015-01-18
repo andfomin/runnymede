@@ -53,7 +53,7 @@ namespace Runnymede.Website.Utils
         public const string WebJobsConnectionStringName = "AzureWebJobsStorage";
 
         // Do not alias the Blob domain name. Custom domain mapping does not support HTTPS, which means HTTP blob links will trigger secutrity notifications on HTTPS pages.
-        public const string AzureBlobHostname = "englisharium.blob.core.windows.net";
+        public const string AzureBlobHostname = "englm.blob.core.windows.net";
 
         public const string DefaultDirectoryDelimiter = "/"; // in ctor CloudBlobClient(), this.DefaultDelimiter = NavigationHelper.Slash;
 

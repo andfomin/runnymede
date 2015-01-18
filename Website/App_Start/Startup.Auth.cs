@@ -9,6 +9,7 @@ using Owin;
 using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
+using System.Configuration;
 using System.Web.Http;
 
 namespace Runnymede.Website
@@ -70,21 +71,23 @@ namespace Runnymede.Website
             //   consumerKey: "",
             //   consumerSecret: "");
 
-            /* +http://www.asp.net/mvc/tutorials/mvc-5/create-an-aspnet-mvc-5-app-with-facebook-and-google-oauth2-and-openid-sign-on
+            /* +http://www.asp.net/mvc/overview/security/create-an-aspnet-mvc-5-app-with-facebook-and-google-oauth2-and-openid-sign-on
              * Lookup for "Creating a Google app for OAuth 2 and connecting the app to the project" +https://console.developers.google.com/
              * Lookup for "Creating the app in Facebook and connecting the app to the project" +https://developers.facebook.com/apps            
              */
             var facebookOptions = new FacebookAuthenticationOptions()
             {
-                AppId = "747054965334390",
-                AppSecret = "a34f4ee5071edd9a6bb3e90235f6790c"
+                AppId = ConfigurationManager.AppSettings["FacebookOAuthAppId"],
+                AppSecret = ConfigurationManager.AppSettings["FacebookOAuthAppSecret"],
             };
             facebookOptions.Scope.Add("email");
+            facebookOptions.Scope.Add("public_profile");
             app.UseFacebookAuthentication(facebookOptions);
 
             app.UseGoogleAuthentication(
-                clientId: "249308630710-ghobj6niicie0193ldqkkfffts58fs15.apps.googleusercontent.com",
-                clientSecret: "fzrQHJ5_KXK90wXdE-Uo_c0L");
+                clientId: ConfigurationManager.AppSettings["GoogleOAuthClientId"],
+                clientSecret: ConfigurationManager.AppSettings["GoogleOAuthClientSecret"]
+            );
         }
     }
 }

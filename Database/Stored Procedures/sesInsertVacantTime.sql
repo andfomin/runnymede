@@ -42,6 +42,15 @@ begin try
 	if  @Start >= @End
 		raiserror('%s:: The start must precede the end.', 16, 1, @ProcName);
 
+	-- The host must have the Skype name entered in the profile
+	if exists (
+		select *
+		from dbo.appUsers
+		where Id = @UserId
+			and nullif(SkypeName, '') is null
+	)
+		raiserror('%s,%d:: Please enter your Skype name on the Profile page.', 16, 1, @ProcName, @UserId);
+
 	-- Get all items adjucent to or overlapping with the new item.
 	insert @t (Id, Start, [End], [Type])
 		select Id, Start, [End], [Type]
@@ -51,7 +60,7 @@ begin try
 			and [End] >= @Start;
 
 	if exists (
-		-- Notice the difference in time comparition. We use non-equality comparition here to allow for an adjacent event.
+		-- Notice the difference in time comparition from the above statement. We use non-equality comparition here to allow for an adjacent event.
 		select * 
 		from @t 
 		where Start < @End
@@ -84,13 +93,10 @@ begin try
 
 		delete dbo.sesScheduleEvents
 		where Id in (
-			select Id from @t where Id != @OldId
+			select Id from @t 
+			where Id != @OldId
+				and [Type] = 'SES_VT'
 		);
-
-		delete S
-		from  dbo.sesScheduleEvents S
-			inner join @t T on S.Id = T.Id
-		where T.Id != @OldId;
 
 	if @ExternalTran = 0
 		commit;

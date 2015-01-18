@@ -76,7 +76,7 @@
     <script type="text/javascript">
         var app = app || {};
         app.hostPageParam = 'HostPage_History';
-        app.daysParam = @Html.Raw(ViewBag.DaysParamJson);
+        app.daysParam = @JavaScriptConvert.Serialize(ViewBag.DaysParam);
     </script>
     @Scripts.Render(
 "~/bundles/angular",

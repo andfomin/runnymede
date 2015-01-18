@@ -24,6 +24,7 @@ module app {
         public static $q = '$q';
         public static $rootScope = '$rootScope';
         public static $scope = '$scope';
+        public static $sceDelegateProvider = '$sceDelegateProvider';
         public static $timeout = '$timeout';
         public static $window = '$window';
         // ui-bootstrap
@@ -63,7 +64,7 @@ module app {
             ) {
             /* ----- Constructor  ----- */
             $scope.vm = this;
-            this.authenticated = app.isAuthenticated && app.isAuthenticated();
+            this.authenticated = app.isAuthenticated();
             this.loginLink = app.getLoginLink();
             /* ----- End of constructor  ----- */
         }
@@ -105,7 +106,7 @@ module app {
             public modalParams: any
             ) {
             $scope.vm = this;
-            this.authenticated = app.isAuthenticated && app.isAuthenticated();
+            this.authenticated = app.isAuthenticated();
             this.loginLink = app.getLoginLink(); // 'https://' + $window.document.location.hostname + '/account/login';
         } // ctor
 
@@ -176,6 +177,38 @@ module app {
         }
     }; // end of class Modal
 
+    export class Help {
+        isCollapsed: boolean;
+        include: string;
+
+        static $inject = [app.ngNames.$scope];
+
+        constructor(
+            $scope: app.IScopeWithViewModel
+            )
+        /* ----- Constructor  ----- */
+        {
+            $scope.vm = this;
+            this.isCollapsed = app.isAuthenticated();
+            this.setUrl();
+            /* ----- End of constructor  ----- */
+        }
+
+        onClick = () => {
+            this.isCollapsed = !this.isCollapsed;
+            this.setUrl();
+        };
+
+        setUrl = () => {
+            if (!this.isCollapsed) {
+                var host = app.isDevHost() ? '' : ('//' + app.BlobDomainName);
+                var file = app['helpFileParam'];
+                this.include = host + '/content/help/' + file;
+            }
+        };
+
+    } // end of class Help
+
     //export function useRouteTitle(app: ng.IModule) {
     //    app.run([ngNames.$rootScope, function ($rootScope: IAppRootScopeService) {
     //        $rootScope.$on('$routeChangeSuccess', (event, current, previous) => {
@@ -211,7 +244,15 @@ module app {
     export class HrefWhitelistConfig {
         static $inject = [app.ngNames.$compileProvider];
         constructor($compileProvider: ng.ICompileProvider) {
-            $compileProvider.aHrefSanitizationWhitelist(/^skype:|https?:\/\/(?:dev\w\.)?englisharium\.com\/.*/);
+            // /^(?:https?:)?\/\/englm\.blob\.core\.windows\.net\/|^https?:\/\/(?:dev\w\.)?englisharium\.com\/|^skype:/
+            $compileProvider.aHrefSanitizationWhitelist(/^skype:/);
+        }
+    }
+
+    export class SceWhitelistConfig {
+        static $inject = [app.ngNames.$sceDelegateProvider];
+        constructor($sceDelegateProvider: ng.ISCEDelegateProvider) {
+            $sceDelegateProvider.resourceUrlWhitelist(['self', 'http*://' + app.BlobDomainName + '/**']);
         }
     }
 
@@ -341,7 +382,10 @@ module app {
         .filter('appDateHuman', [app.AppDateHumanFilter])
         .filter('appDateAgo', [app.AppDateAgoFilter])
         .filter('appAvatarSmall', [app.AvatarSmallFilter])
-        .filter('appAvatarLarge', [app.AvatarLargeFilter]);
+        .filter('appAvatarLarge', [app.AvatarLargeFilter])
+        .config(app.SceWhitelistConfig)
+        .controller('Help', app.Help);
+    ;
 
 } // end of module app
 

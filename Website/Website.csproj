@@ -137,7 +137,7 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.7\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
@@ -267,10 +267,8 @@
     <Content Include="content\audior\audior_settings.xml" />
     <Content Include="content\audior\en.xml" />
     <Content Include="content\audior\swfobject.js" />
-    <Content Include="content\images\0000000003.bmp" />
-    <Content Include="content\images\0000000003.jpg" />
+    <Content Include="content\help\exercises-recordSpeech.html" />
     <Content Include="content\images\button-help.png" />
-    <Content Include="content\images\conversation-three.jpg" />
     <Content Include="content\images\cooperation.jpg" />
     <Content Include="content\images\do-you-speak-english.jpg" />
     <Content Include="content\images\email-dignicom.png" />
@@ -289,7 +287,6 @@
     <Content Include="content\styles\site.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <Content Include="Testing plan.txt" />
     <Content Include="Readme.txt" />
     <Content Include="scripts\sm2\soundmanager2-nodebug-jsmin.js" />
     <Content Include="scripts\sm2\soundmanager2.js" />
@@ -373,7 +370,6 @@
     <Content Include="content\styles\bootstrap-custom.less" />
     <Content Include="content\styles\site-variables.less" />
     <Content Include="content\styles\site.less" />
-    <None Include="Properties\PublishProfiles\englc__staging.pubxml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -483,7 +479,6 @@
     <Content Include="Views\Friends\Index.cshtml" />
     <Content Include="Views\Sessions\Index.cshtml" />
     <Content Include="Views\Games\Pickapic.cshtml" />
-    <Content Include="Properties\webjobs-list.json" />
     <Content Include="Views\Shared\_NotAuthenticatedSpanPartial.cshtml" />
     <Content Include="Views\Library\History.cshtml" />
     <Content Include="Views\Library\Friend.cshtml" />
@@ -502,6 +497,8 @@
     <Content Include="Views\Exercises\_BottomPartial.cshtml" />
     <Content Include="Views\Account\ThankYou.cshtml" />
     <Content Include="Views\Shared\_NotAuthenticatedDivPartial.cshtml" />
+    <None Include="Properties\PublishProfiles\englm.pubxml" />
+    <Content Include="Views\Shared\_HelpPartial.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

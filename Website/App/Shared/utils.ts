@@ -2,7 +2,7 @@
 module app {
 
     export var DateTimeFormat = 'DD MMM YYYY HH:mm';
-    export var BlobDomainName = 'englisharium.blob.core.windows.net'; // Custom domain mapping does not support HTTPS.
+    export var BlobDomainName = 'englm.blob.core.windows.net'; // Custom domain mapping does not support HTTPS.
     export var AnyTeacherId = 3; // Hardcoded in dbo.sysInitializeSpecialUsers
     export var AnyTeacherDisplayName = 'Any teacher'; // Corresponds to 'Any teacher' in dbo.exeCreateReviewRequest
 
@@ -210,22 +210,25 @@ module app {
             m = em ? em : (data.message ? data.message : (data.error_description ? data.error_description : ''));
         }
         toastr.error('Error. ' + m);
-    }
+    };
+
+    export function isDevHost() {
+        return document.location.hostname.indexOf('dev') === 0;
+    };
 
     export function getBlobUrl(containerName: string, blobName: string) {
         if (containerName && blobName) {
             var hostname = document.location.hostname;
-            var isLocal = hostname.indexOf('dev') === 0;
             //var protocol = isLocal ? 'http:' : document.location.protocol;
             var protocol = document.location.protocol;
             //var root = isLocal ? '127.0.0.1:10000/devstoreaccount1' : BlobDomainName;
-            return isLocal
+            return app.isDevHost()
                 ? protocol + '//' + hostname + '/api/exercises/artifact/' + containerName + '?blobName=' + blobName
                 : protocol + '//' + BlobDomainName + '/' + containerName + '/' + blobName;
         }
         else
             return null;
-    }
+    };
 
     export function getAvatarSmallUrl(id: number) {
         return getBlobUrl('user-avatars-small', app.intToKey(id));

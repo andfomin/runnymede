@@ -140,7 +140,7 @@ module app.sessions_index {
                 defaultView: 'agendaDay',
                 height: 'auto',
                 allDaySlot: false,
-                slotDuration: (startHour && endHour) ? '00:15' : '01:00',
+                slotDuration: app.isNumber(startHour) && app.isNumber(endHour) ? '00:15' : '01:00',
                 minTime: (startHour ? startHour.toString() : '0') + ':00:00',
                 maxTime: (endHour ? endHour.toString() : '24') + ':00:00',
                 timezone: 'local',

@@ -29,7 +29,7 @@ The review price is calculated as the reviewer's rate multiplyed by the exercise
                     <label>
                         <input type="checkbox" ng-model="r.selected" ng-change="vm.onSelected(r, $index)" ng-disabled="$index > vm.cutOffIndex">
                         <span ng-style="{opacity:($index > vm.cutOffIndex)?'0.5':'1.0'}">
-                            <img class="app-2px-up" style="margin:0 5px;" width="24" height="24" ng-src="{{r.id | appAvatarSmall}}" />
+                            <img class="img-circle app-2px-up" style="margin:0 5px;" width="24" height="24" ng-src="{{r.id | appAvatarSmall}}" />
                             <strong>{{r.displayName}}</strong> Price: {{vm.price(r) | number:2}}
                         </span>
                     </label>

@@ -17,7 +17,7 @@ declare @Attribute nvarchar(100) = cast(@SessionId as nvarchar(100));
 select @MessageCount = count(*)
 from dbo.appMessages 
 where Attribute = @Attribute
-	and substring([Type], 1, 2) = 'SS'
+	and substring([Type], 1, 4) = 'MSSS'
 	and (SenderUserId = @UserId or RecipientUserId = @UserId);
 
 return @MessageCount;

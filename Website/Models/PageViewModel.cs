@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.WebPages;
 using Microsoft.AspNet.Identity;
 using Runnymede.Website.Utils;
+using Newtonsoft.Json;
 
 namespace Runnymede.Website.Models
 {
@@ -33,21 +34,19 @@ namespace Runnymede.Website.Models
             }
         }
 
-        public string SelfUserParamJson
+        public object SelfUserParam
         {
             get
             {
-                var selfUserParam = new
+                return new
                 {
                     UserName = UserName,
                     Id = UserId,
                     DisplayName = DisplayName,
                     IsTeacher = IsTeacher,
                 };
-                return Runnymede.Website.Utils.JsonUtils.SerializeAsJson(selfUserParam);
             }
         }
-
 
     }
 }

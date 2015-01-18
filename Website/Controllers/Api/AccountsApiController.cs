@@ -159,6 +159,7 @@ select dbo.accGetBalance(@UserId);
         public async Task<IHttpActionResult> GetPresentation(int id)
         {
             // TODO. Enable CORS on the Azure blob and download presentation directly using AJAX. +http://odetocode.com/blogs/scott/archive/2014/03/31/http-clients-and-azure-blob-storage.aspx
+            // +http://blog.cynapta.com/2013/12/cynapta-azure-cors-helper-free-tool-to-manage-cors-rules-for-windows-azure-blob-storage/
             var blob = AzureStorageUtils.GetBlob(AzureStorageUtils.ContainerNames.Presentations, KeyUtils.IntToKey(id));
             var text = await blob.DownloadTextAsync();
             //var text = await AzureStorageUtils.GetBlobAsText(AzureStorageUtils.ContainerNames.Presentations, KeyUtils.IntToKey(id));

@@ -48,7 +48,7 @@
                     <!-- Your pen name will appear alongside anything you post to the site. -->
                 </div>
                 <div class="col-sm-6">
-                    <span data-ng-show="vm.displayNameChanged"><small class="text-success">Name changed. You will see the new name in the top bar after you sign out and sign in again.</small></span>
+                    <span data-ng-show="vm.displayNameChanged"><small class="text-success">Name changed. You will see the new name in the top bar after you log out and log in again.</small></span>
                 </div>
             </div>
         </div>
@@ -68,7 +68,10 @@
     </div>
     <div class="form-group">
         <div class="col-sm-offset-4 col-sm-6">
-            <button type="submit" class="btn btn-default btn-sm app-btn-disablable" ng-click="vm.saveMain(mainForm)" ng-disabled="mainForm.$pristine || vm.sending">Save changes</button>
+            <button type="submit" class="btn btn-default btn-sm app-btn-disablable" ng-click="vm.saveMain(mainForm)" ng-disabled="mainForm.$pristine || vm.sending">
+                <!--<i class="fa-fw text-success" ng-class="mainForm.$dirty ? 'fa fa-check animated flash app-fa-pulse' : ''"></i><span>&nbsp;Save changes</span>-->
+                Save changes
+            </button>
         </div>
     </div>
 </form>
@@ -77,8 +80,8 @@
     <div class="col-xs-4">
         <div class="text-center">
             <p><strong>Avatar picture</strong></p>
-            <img ng-src="{{vm.avatarLargeUrl}}" width="96" height="96" />
-            <img style="margin-left:10px;margin-top:10px;" ng-src="{{vm.avatarSmallUrl}}" width="32" height="32" />
+            <img class="img-circle" ng-src="{{vm.avatarLargeUrl}}" width="96" height="96" />
+            <img class="img-circle" style="margin-left:10px;margin-top:10px;" ng-src="{{vm.avatarSmallUrl}}" width="32" height="32" />
         </div>
     </div>
     <div class="col-xs-8">

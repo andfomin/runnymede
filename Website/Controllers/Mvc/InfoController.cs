@@ -28,6 +28,7 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
+        [RequireHttps]
         public ActionResult Dignicom()
         {
             return View();

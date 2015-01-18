@@ -30,6 +30,7 @@
 }
 @* Do not use ng-cloak on the root div. We have two Flash players below *@
 <div ng-app="myApp" ng-controller="RecordSpeech">
+
     <!-- Mobile recorder -->
     <form class="form-horizontal" role="form"
           method='post' name="recordingForm" action="save-recording-mobile" enctype="multipart/form-data" ng-submit="vm.onSubmit()">
@@ -120,7 +121,7 @@
         <div class="col-md-6">
             <!-- _ResourceListPartial begin -->
             @* Do not hide the player! See the comments in the partial. *@
-            @Html.Partial("_ResourceListPartial")
+           @* @Html.Partial("_ResourceListPartial")*@
             <!-- _ResourceListPartial end -->
             <div class="pagination-sm" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="5" data-boundary-links="true" data-rotate="false"
                  ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.load()"></div>
@@ -140,31 +141,31 @@
 
 </div>
 @*@using (Html.BeginInstructionsContainer())
-{
-    <ul>
-        <li>Choose the topic for your speech.</li>
-        <li>If there is more than one microphone available, you will see an option at the top of the recorder panel to select the appropriate one.</li>
-        <li>Press the big round button to start recording.</li>
-        <li>If you record for the first time, you will be present with a <em>Settings</em> dialog. Select <em>Allow</em> and <em>Remember</em>, then press the <em>Close</em> button. The dialog will no more appear after that.</li>
-        <li>Imagine you are speaking to your English teacher.</li>
-        <li>Don't start talking right away. Take a moment to collect yourself. Take a deep breath and begin speaking.</li>
-        <li>Speak clearly and loudly.</li>
-        <li>The current record duration is indicated in minutes and seconds at the bottom of the recorder panel, before the slash. The time limit is indicated after the slash, it is 5 minutes.</li>
-        <li>You may pause recording by pressing the small round button.</li>
-        <li>Press the big round button to stop recording.</li>
-        <li>After you have finished recording, wait while the record is being processed and uploaded to the website. It may take a couple of minutes.</li>
-        <li>
-            Here is the template that you can use to retell a story
-            <ul>
-                <li>Who were the main characters?</li>
-                <li>What problem did the main characters experience?</li>
-                <li>What happened first, next, and last?</li>
-                <li>How did the story end?</li>
-                @*<li>How was the problem solved?</li>*@
-            </ul>
-        </li>
-    </ul>
-}*@
+    {
+        <ul>
+            <li>Choose the topic for your speech.</li>
+            <li>If there is more than one microphone available, you will see an option at the top of the recorder panel to select the appropriate one.</li>
+            <li>Press the big round button to start recording.</li>
+            <li>If you record for the first time, you will be present with a <em>Settings</em> dialog. Select <em>Allow</em> and <em>Remember</em>, then press the <em>Close</em> button. The dialog will no more appear after that.</li>
+            <li>Imagine you are speaking to your English teacher.</li>
+            <li>Speak clearly and loudly.</li>
+            <li>Don't start talking right away. Take a moment to collect yourself. Take a deep breath and begin speaking.</li>
+            <li>The current record duration is indicated in minutes and seconds at the bottom of the recorder panel, before the slash. The time limit is indicated after the slash, it is 5 minutes.</li>
+            <li>You may pause recording by pressing the small round button.</li>
+            <li>Press the big round button to stop recording.</li>
+            <li>After you have finished recording, wait while the record is being processed and uploaded to the website. It may take a couple of minutes.</li>
+            <li>
+                Here is the template that you can use to retell a story
+                <ul>
+                    <li>Who were the main characters?</li>
+                    <li>What problem did the main characters experience?</li>
+                    <li>What happened first, next, and last?</li>
+                    <li>How did the story end?</li>
+                    <!--<li>How was the problem solved?</li>-->
+                </ul>
+            </li>
+        </ul>
+    }*@
 @section BottomScripts {
     <script type="text/javascript">
         var app = app || {};
@@ -175,7 +176,6 @@
 "~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
-//"~/bower_installer/ng-tags-input/ng-tags-input.min.js",
 "~/app/shared/library-data.js",
 "~/app/shared/library.js",
 "~/app/exercises/recordSpeech-cardList.js",

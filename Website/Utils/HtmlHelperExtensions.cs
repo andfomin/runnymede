@@ -26,6 +26,8 @@ namespace Runnymede.Website.Utils
                 ));
         }
 
+        #region InstructionsContainer
+
         // We can use BeginInstructionsContainer like Html.BeginForm and when the @using(){} block has ended, the end of the widget's content is output.
         public static IDisposable BeginInstructionsContainer(this HtmlHelper helper)
         {
@@ -88,6 +90,8 @@ namespace Runnymede.Website.Utils
                 }
             }
         }
+
+        #endregion
 
         private static bool IsDebug()
         {

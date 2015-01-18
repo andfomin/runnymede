@@ -11,6 +11,7 @@ using Runnymede.Common.Utils;
 using System.Web.Hosting;
 using System.Data.SqlClient;
 using System.Data.Entity;
+using System.Data;
 
 namespace Runnymede.Website.Utils
 {
@@ -43,18 +44,15 @@ namespace Runnymede.Website.Utils
             {
                 // We await here. Otherwise error: A second operation started on this context before a previous asynchronous operation completed. Use 'await' to ensure that any asynchronous operations have completed before calling another method on this context.
                 var confirmationToken = await this.userManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                // Send the confirmation link in background. Return response early.
-                SendConfirmationEmailInBackground(user.Email, user.Id, model.Name, confirmationToken, currentRequestUri);
-
+                // Send confirmation. Do not send in the background to avoid showing the confirmation page if the email actually failed.
+                var taskEmail = SendConfirmationEmail(user.Email, user.Id, model.Name, confirmationToken, currentRequestUri);
                 // Sign in the user.
                 var taskSignin = Sigin(user, false);
-
                 // Create a large and a small identicons and save them into the blob storage. 
                 var taskAvatarLarge = AccountUtils.CreateAndSaveIdenticonAsync(user.Id, AccountUtils.AvatarLargeSize, AzureStorageUtils.ContainerNames.AvatarsLarge);
                 var taskAvatarSmall = AccountUtils.CreateAndSaveIdenticonAsync(user.Id, AccountUtils.AvatarSmallSize, AzureStorageUtils.ContainerNames.AvatarsSmall);
-
                 // Perform the tasks in parallel.    
-                await Task.WhenAll(taskSignin, taskAvatarLarge, taskAvatarSmall);
+                await Task.WhenAll(taskEmail, taskSignin, taskAvatarLarge, taskAvatarSmall);
             }
 
             return user;
@@ -133,11 +131,6 @@ namespace Runnymede.Website.Utils
                                  ? await userManager.CreateAsync(user)
                                  : await userManager.CreateAsync(user, password);
 
-                            if (identityResult.Succeeded && loginInfo != null)
-                            {
-                                identityResult = await userManager.AddLoginAsync(user.Id, loginInfo.Login);
-                            }
-
                             if (identityResult.Succeeded)
                             {
                                 // Second phase. dbo.appUsers. Postpone the creation of the money account until it is really used.
@@ -145,12 +138,25 @@ namespace Runnymede.Website.Utils
                                     "insert dbo.appUsers (Id, DisplayName, ExtId) values (@p0, @p1, @p2);",
                                     user.Id, displayName, extId);
 
+                                /* The UserManager checks the existence of the username in another connection. 
+                                 * So in the case of an external authorisation (Google, Facebook) AddLoginAsync() does not see the username created by CreateAsync() in our transaction. 
+                                 * Using IsolationLevel.ReadUncommitted for our transaction would not help since the UserManager reads with ReadCommitted. 
+                                 * So we are forced to commit prematurely.
+                                 */
                                 transaction.Commit();
                             }
                             else
                             {
                                 transaction.Rollback();
+                            }
 
+                            if (identityResult.Succeeded && loginInfo != null)
+                            {
+                                identityResult = await userManager.AddLoginAsync(user.Id, loginInfo.Login);
+                            }
+
+                            if (!identityResult.Succeeded)
+                            {
                                 // A hack to report the error to the caller method. See InspectErrorAfterSignup().
                                 user.Id = 0;
                                 var dummyClaim = new CustomUserClaim
@@ -202,16 +208,15 @@ namespace Runnymede.Website.Utils
         /// <param name="userId"></param>
         /// <param name="confirmationToken"></param>
         /// <param name="currentRequestUri">It is used to determine the server address (production/development) where the confirmation link should point</param>
-        public void SendConfirmationEmailInBackground(string email, int userId, string displayName, string confirmationToken, Uri currentRequestUri)
+        public async Task SendConfirmationEmail(string email, int userId, string displayName, string confirmationToken, Uri currentRequestUri)
+        //public void SendConfirmationEmailInBackground(string email, int userId, string displayName, string confirmationToken, Uri currentRequestUri)
         {
-            if (String.IsNullOrEmpty(email))
-            {
-                var queryString = AccountUtils.GetMailLinkQueryString(confirmationToken, userId);
-                var host = currentRequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
-                var link = "http://" + host + "/account/confirm-email?" + queryString;
-                // TODO If the task fails, we will lose the message. The proper solution is to place the message into a reliable queue.
-                HostingEnvironment.QueueBackgroundWorkItem(ct => EmailUtils.SendConfirmationEmailAsync(email, displayName, link));
-            }
+            var queryString = AccountUtils.GetMailLinkQueryString(confirmationToken, userId);
+            var host = currentRequestUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
+            var link = "http://" + host + "/account/confirm-email?" + queryString;
+            // TODO If the task fails, we will lose the message. The proper solution is to place the message into a reliable queue.
+            //HostingEnvironment.QueueBackgroundWorkItem(ct => EmailUtils.SendConfirmationEmailAsync(email, displayName, link));
+            await EmailUtils.SendConfirmationEmailAsync(email, displayName, link);
         }
 
         public static string CoalesceDisplayName(string name)

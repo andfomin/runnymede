@@ -55,9 +55,9 @@
         )
     @if (Request.IsAuthenticated)
     {
-        <script type="text/javascript">
+        <script>
             var app = app || {};
-            app.selfUserParam = @Html.Raw(pageViewModel.SelfUserParamJson);
+            app.selfUserParam = @JavaScriptConvert.Serialize(pageViewModel.SelfUserParam);
         </script>
     }
     @RenderSection("BottomScripts", required: false)

@@ -39,16 +39,15 @@ module app.library {
             this.isEmpty = !this.authenticated;
 
             $rootScope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) => {
-                var app = app || {};
                 if (toState.name === Index.Personal) {
                     this.clear();
                     this.clearList();
                     this.loadPersonalCategoryIds(0);
-                    app.hostPageParam = HostPage.HostPage_LibraryPersonal;
+                    app['hostPageParam'] = HostPage.HostPage_LibraryPersonal;
                 }
                 else {
                     this.setCategoriesL1();
-                    app.hostPageParam = HostPage.HostPage_LibraryCommon;
+                    app['hostPageParam'] = HostPage.HostPage_LibraryCommon;
                 }
             });
 

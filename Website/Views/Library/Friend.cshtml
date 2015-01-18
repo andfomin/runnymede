@@ -61,7 +61,7 @@
     <!-- Templates -->
     <script type="text/ng-template" id="friendTemplate">
         <a>
-            <img width="24" height="24" ng-src="{{match.model.id | appAvatarSmall}}">
+            <img class="img-circle" width="24" height="24" ng-src="{{match.model.id | appAvatarSmall}}">
             <span data-bind-html-unsafe="match.label | typeaheadHighlight:query"></span>
         </a>
     </script>

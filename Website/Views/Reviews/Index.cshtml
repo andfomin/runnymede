@@ -29,7 +29,7 @@
                         <tbody>
                             <tr ng-repeat="r in vm.requests" ng-class="{'app-last-row':$last}">
                                 <td>
-                                    <img class="app-avatar" width="16" height="16" ng-src="{{r.authorUserId | appAvatarSmall}}" />{{r.authorName}}
+                                    <img class="img-circle app-avatar" width="16" height="16" ng-src="{{r.authorUserId | appAvatarSmall}}" />{{r.authorName}}
                                 </td>
                                 <td class="text-right">
                                     {{r.exerciseLength | appMsecToMinSec}}
@@ -77,7 +77,7 @@
                             <a ng-href="{{vm.getEditUrl(r)}}" ng-show="r.finishTime">{{r.finishTime | appDateTime}}</a>
                         </td>
                         <td>
-                            <img class="app-2px-up app-avatar" width="16" height="16" ng-src="{{r.authorUserId | appAvatarSmall}}" />{{r.authorName}}
+                            <img class="img-circle app-2px-up app-avatar" width="16" height="16" ng-src="{{r.authorUserId | appAvatarSmall}}" />{{r.authorName}}
                         </td>
                         <td class="text-right">
                             {{r.exerciseLength | appMsecToMinSec}}

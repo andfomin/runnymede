@@ -104,20 +104,25 @@ select dbo.exeGetAnyTeacherReviewRate(@ExerciseType);
         public HttpResponseMessage GetArtifact(string containerName, string blobName)
         {
             var blob = AzureStorageUtils.GetBlob(containerName, blobName);
-            blob.FetchAttributes();
-            var contentType = blob.Properties.ContentType;
-            var ms = new System.IO.MemoryStream();
-            blob.DownloadToStream(ms);
-            ms.Seek(0, SeekOrigin.Begin);
-            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-            result.Content = new StreamContent(ms);
-            // ctor MediaTypeHeaderValue() does not accept "text/plain; charset=utf-8" directly
-            MediaTypeHeaderValue value;
-            if (MediaTypeHeaderValue.TryParse(contentType, out value))
+            if (blob.Exists())
             {
-                result.Content.Headers.ContentType = value;
+                blob.FetchAttributes();
+                var contentType = blob.Properties.ContentType;
+                var ms = new System.IO.MemoryStream();
+                blob.DownloadToStream(ms);
+                ms.Seek(0, SeekOrigin.Begin);
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                result.Content = new StreamContent(ms);
+                // ctor MediaTypeHeaderValue() does not accept "text/plain; charset=utf-8" directly
+                MediaTypeHeaderValue value;
+                if (MediaTypeHeaderValue.TryParse(contentType, out value))
+                {
+                    result.Content.Headers.ContentType = value;
+                }
+                return result;
             }
-            return result;
+            else
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
         }
 
         // PUT /api/exercises/12345/title

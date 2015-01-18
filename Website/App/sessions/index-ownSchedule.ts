@@ -5,11 +5,12 @@ module app.sessions_index {
         eventSources: any[];
         calConfig: any;
 
-        static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$modal, app.ngNames.$state];
+        static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$state];
 
         constructor(
             private $scope: app.IScopeWithViewModel,
             private $http: ng.IHttpService,
+            $interval: ng.IIntervalService,
             private $modal: ng.ui.bootstrap.IModalService,
             private $state: ng.ui.IStateService
             ) {
@@ -76,6 +77,9 @@ module app.sessions_index {
                 dayClick: (date: Moment) => { dayClick(date); },
                 eventClick: (event: app.IScheduleEvent, jsEvent, view) => { eventClick(event, jsEvent, view); },
             };
+
+            var refresher = $interval(() => { this.callCalendar('refetchEvents'); }, 30000);
+            $scope.$on('$destroy', () => { $interval.cancel(refresher); });
 
         } // ctor
 

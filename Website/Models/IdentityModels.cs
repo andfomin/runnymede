@@ -30,8 +30,8 @@ namespace Runnymede.Website.Models
 
     public static class AppClaimTypes
     {
-        public const string DisplayName = "englisharium.com/DisplayName"; // We don't use System.Security.Claims.ClaimTypes.Name because of its length and to save on traffic costs.
-        public const string IsTeacher = "englisharium.com/IsTeacher";
+        public const string DisplayName = "englm.com/DisplayName"; // We don't use System.Security.Claims.ClaimTypes.Name because of its length and to save on traffic costs.
+        public const string IsTeacher = "englm.com/IsTeacher";
     }
 
     public class ApplicationUser : IdentityUser<int, CustomUserLogin, CustomUserRole, CustomUserClaim>

@@ -27,7 +27,7 @@ module app.sessions_utils {
 
     // Minimal time slot is 15 minutes. A session may be requested not less than 15 minutes in advance. So the end of the vacant time should be at least 30 minutes ahead.
     export function isVacantTime(event: app.IScheduleEvent) {
-        return ((event.type == app.sessions_utils.EventTypes.VacantTime) && moment(event.end).subtract('minutes', 30).isAfter());
+        return ((event.type == app.sessions_utils.EventTypes.VacantTime) && moment(event.end).subtract(30, 'minutes').isAfter());
     };
 
     export function isSessionEvent(event: app.IScheduleEvent) {

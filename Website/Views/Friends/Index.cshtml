@@ -23,7 +23,7 @@
             <hr />
             <div class="row">
                 <div class="col-md-2 text-center">
-                    <img ng-src="{{f.id | appAvatarLarge}}" width="96" height="96" />
+                    <img class="img-circle" ng-src="{{f.id | appAvatarLarge}}" width="96" height="96" />
                 </div>
                 <div class="col-md-5">
                     @*<a href="#/teacher-schedule/{{t.id}}">Sessions schedule</a>*@
@@ -53,7 +53,7 @@
                         </tr>
                         <tr>
                             <td>
-                                Recording review rate, <strong>$/min</strong>
+                                Review price for recordings, <strong>$/min</strong>
                                 <a href="">
                                     <i class="fa fa-question-circle fa-fw" data-tooltip-trigger="click"
                                        data-tooltip="The rate is US dollars per minute of reviewed audio recording. To allow the friend to request free reviews, set the rate to 0.">
@@ -74,7 +74,7 @@
                         </tr>
                         <tr>
                             <td>
-                                Writing review rate, <strong>$/100&nbsp;words</strong>
+                                Review price for writings, <strong>$/100&nbsp;words</strong>
                                 <a href="">
                                     <i class="fa fa-question-circle fa-fw" data-tooltip-trigger="click"
                                        data-tooltip="The rate is US dollars per 100 words of reviewed writing. To allow the friend to request free reviews, set the rate to 0.">
@@ -112,6 +112,9 @@
         </div>
         <hr />
     </div><!-- /Ctrl -->
+
+    @*@Html.Partial("_HelpPartial", "exercises-recordSpeech.html")*@
+
     <!-- Modals -->
     <!-- addFriendModal -->
     <script type="text/ng-template" id="addFriendModal">
@@ -154,4 +157,5 @@
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
 "~/app/friends/index.js"
-)}
+)
+}

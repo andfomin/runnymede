@@ -51,8 +51,10 @@ namespace Runnymede.Website.Controllers.Mvc
                 }
             }
 
-            var daysParam = days.Distinct();
-            ViewBag.DaysParamJson = JsonUtils.SerializeAsJson(daysParam);
+            //var daysParam = days.Distinct();
+            //ViewBag.DaysParamJson = JsonUtils.SerializeAsJson(daysParam);
+            ViewBag.DaysParam = days.Distinct();
+
             return View();
         }
 

@@ -57,12 +57,12 @@ begin try
 		raiserror('%s,%d:: The price is wrong.', 16, 1, @ProcName, @PriceText);
 	end
 
-	-- The guest must enter the Skype name in the profile
+	-- The guest must have the Skype name entered in the profile
 	if exists (
 		select *
 		from dbo.appUsers
 		where Id = @GuestUserId
-			and SkypeName is null
+			and nullif(SkypeName, '') is null
 	)
 		raiserror('%s,%d:: Please enter your Skype name on the Profile page.', 16, 1, @ProcName, @GuestUserId);
 

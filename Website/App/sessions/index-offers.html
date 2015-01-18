@@ -4,18 +4,14 @@
             <strong>Day:</strong>
             <div class="form-group">
                 <div class="input-group">
-                    <input type="text" class="form-control input-sm"
-                           data-datepicker-popup="d MMMM yyyy" data-is-open="vm.datepickerOpened" data-min="vm.minDate" data-max="vm.maxDate"
-                           ng-model="vm.date" ng-change="vm.resetCal()" />
-                    <span class="input-group-btn">
-                        <button class="btn btn-default btn-sm" ng-click="vm.openDatepicker($event)"><i class="fa fa-calendar fa-fw"></i></button>
-                    </span>
+                    <input type="text" class="form-control input-sm" data-datepicker-popup="d MMMM yyyy" data-is-open="vm.datepickerOpened" data-min="vm.minDate" data-max="vm.maxDate" ng-model="vm.date" />
+                    <span class="input-group-btn"><button class="btn btn-default btn-sm" ng-click="vm.openDatepicker($event)"><i class="fa fa-calendar fa-fw"></i></button></span>
                 </div>
             </div>
             <strong>&nbsp;From hour:</strong>
-            <select class="form-control input-sm app-monospace" ng-model="vm.startHour" ng-options="h.sh as h.t for h in vm.hoursStart" ng-change="vm.onStartHourChange()"></select>
+            <select class="form-control input-sm app-monospace" ng-model="vm.startHour" ng-options="h.sh as h.t for h in vm.hoursStart.slice(0,24)" ng-change="vm.onStartHourChange()"></select>
             <strong>&nbsp;To hour:</strong>
-            <select class="form-control input-sm app-monospace" ng-model="vm.endHour" ng-options="h.sh as h.t for h in vm.hoursEnd" ng-disabled="!vm.startHour"></select>
+            <select class="form-control input-sm app-monospace" ng-model="vm.endHour" ng-options="h.sh as h.t for h in vm.hoursEnd" ng-disabled="vm.startHour === null"></select>
             <div class="visible-xs-block">&nbsp;</div>
             &nbsp;<button class="btn btn-primary btn-sm app-btn-disablable" ng-click="vm.search()" ng-disabled="!vm.canSearch()">Search offers</button>
         </form>
@@ -29,11 +25,11 @@
         </p>
     </div>
 </div>
-<div class="row">
+<div class="row app-margin-bottom">
     <div class="col-sm-3 col-lg-2" ng-repeat="user in vm.users" ng-controller="UserItem">
         <hr />
         <p class="text-center">
-            <img ng-src="{{user.id | appAvatarLarge}}" width="96" height="96" />
+            <img class="img-circle" ng-src="{{user.id | appAvatarLarge}}" width="96" height="96" />
         </p>
         <p class="text-center">
             <strong>{{user.displayName}}</strong>
@@ -42,7 +38,7 @@
             <small>{{user.announcement}}</small>
         </div>-->
         <p>
-            Price: {{user.sessionRate | number:2}} $/hour<br/>
+            Price: {{user.sessionRate | number:2}} $/hour<br />
             <a href="" ng-click="showDetails()">Presentation</a>
         </p>
         <div data-ui-calendar="calOptions" ng-model="user.scheduleEvents"></div>
@@ -58,7 +54,7 @@
     <div class="modal-body">
         <div class="row">
             <div class="col-sm-offset-1 col-sm-3">
-                <img ng-src="{{vm.user.id | appAvatarLarge}}" width="96" height="96" />
+                <img class="img-circle" ng-src="{{vm.user.id | appAvatarLarge}}" width="96" height="96" />
             </div>
             <div class="col-sm-8">
                 <p>
