@@ -57,7 +57,7 @@ namespace Runnymede.Website.Controllers.Mvc
         {
             const string sql = @"
 select E.Id, E.[Length], E.[Type], E.Artifact, E.CreateTime, E.Title, 
-    R.ExerciseId, R.Id, R.RequestTime, R.StartTime, R.FinishTime, R.UserId as ReviewerUserId, R.ReviewerName
+    R.ExerciseId, R.Id, R.RequestTime, R.StartTime, R.FinishTime, R.UserId, R.ReviewerName
 from dbo.exeExercises E 	
 	left join dbo.exeReviews as R on E.Id = R.ExerciseId and R.CancelationTime is null
 where E.Id = @Id 
@@ -375,7 +375,6 @@ where E.Id = @Id
 
             return View();
         } // end of Upload()
-
 
         // POST: /exercises/save-writing-photos
         [HttpPost]

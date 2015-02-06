@@ -80,6 +80,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.1.0\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Core">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Redis">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Redis.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.SystemWeb">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.2.0\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Data.Edm, Version=5.6.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -128,9 +137,6 @@
     <Reference Include="Microsoft.WindowsAzure.Configuration, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.2.0.3\lib\net40\Microsoft.WindowsAzure.Configuration.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Microsoft.WindowsAzure.Storage, Version=4.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\WindowsAzure.Storage.4.3.0\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
@@ -143,6 +149,9 @@
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="StackExchange.Redis.StrongName">
+      <HintPath>..\packages\StackExchange.Redis.StrongName.1.0.322\lib\net45\StackExchange.Redis.StrongName.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
@@ -224,6 +233,7 @@
     <Content Include="app\account\edit-teacher.html" />
     <Content Include="app\account\edit-personal.html" />
     <Content Include="app\exercises\createReviewRequestModal.html" />
+    <Content Include="app\exercises\reviewStatusChangedModal.html" />
     <Content Include="app\reviews\deleteRemarkModal.html" />
     <Content Include="app\reviews\finishReviewModal.html" />
     <Content Include="app\sessions\createSessionRequestModal.html" />
@@ -256,34 +266,33 @@
     <Content Include="bower_installer\ng-tags-input\ng-tags-input.min.css" />
     <Content Include="bower_installer\ng-tags-input\ng-tags-input.min.js" />
     <Content Include="bower_installer\ngUpload\ng-upload.min.js" />
+    <Content Include="bower_installer\signalr\jquery.signalR.min.js" />
     <Content Include="bower_installer\toastr\toastr.min.css" />
     <Content Include="bower_installer\toastr\toastr.min.js" />
     <Content Include="bower_installer\venturocket-angular-slider\angular-slider.min.js" />
-    <Content Include="content\audior0\Audior.swf" />
-    <Content Include="content\audior0\audior_settings.xml" />
-    <Content Include="content\audior0\en.xml" />
-    <Content Include="content\audior0\swfobject.js" />
     <Content Include="content\audior\Audior.swf" />
     <Content Include="content\audior\audior_settings.xml" />
     <Content Include="content\audior\en.xml" />
     <Content Include="content\audior\swfobject.js" />
     <Content Include="content\help\exercises-recordSpeech.html" />
     <Content Include="content\images\button-help.png" />
-    <Content Include="content\images\cooperation.jpg" />
+    <Content Include="content\images\conversation-three-240.jpg" />
+    <Content Include="content\images\cooperation-240.jpg" />
     <Content Include="content\images\do-you-speak-english.jpg" />
     <Content Include="content\images\email-dignicom.png" />
     <Content Include="content\images\email-support.png" />
     <Content Include="content\images\happy-learner.jpg" />
     <Content Include="content\images\ielts-banner.jpg" />
+    <Content Include="content\images\ielts-test-240.jpg" />
     <Content Include="content\images\learner-teddybear.jpg" />
-    <Content Include="content\images\logo.png" />
     <Content Include="content\images\payment-logos.png" />
     <Content Include="content\images\shy-learner.jpg" />
     <Content Include="content\images\skype-add-contact.png" />
-    <Content Include="content\images\ielts-test.jpg" />
+    <Content Include="content\images\ielts-test-450.jpg" />
     <Content Include="content\images\skype-no-contact.png" />
     <Content Include="content\images\skype-together.jpg" />
     <Content Include="content\images\teacher.jpg" />
+    <Content Include="content\images\youtube-voa.jpg" />
     <Content Include="content\styles\site.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -385,6 +394,7 @@
     <Compile Include="Controllers\Api\PickapicApiController.cs" />
     <Compile Include="Controllers\Api\LibraryApiController.cs" />
     <Compile Include="Controllers\Api\CopycatApiController.cs" />
+    <Compile Include="Controllers\Hubs\ReviewHub.cs" />
     <Compile Include="Controllers\Mvc\AccountController.cs" />
     <Compile Include="Controllers\Api\ExercisesApiController.cs" />
     <Compile Include="Controllers\Api\ReviewsApiController.cs" />
@@ -392,10 +402,10 @@
     <Compile Include="Controllers\Mvc\ExercisesController.cs" />
     <Compile Include="Controllers\Mvc\FriendsController.cs" />
     <Compile Include="Controllers\Mvc\HomeController.cs" />
-    <Compile Include="Controllers\Mvc\IeltsController.cs" />
     <Compile Include="Controllers\Mvc\InfoController.cs" />
     <Compile Include="Controllers\Mvc\LibraryController.cs" />
     <Compile Include="Controllers\Mvc\GamesController.cs" />
+    <Compile Include="Controllers\Mvc\RecorderForSkypeController.cs" />
     <Compile Include="Controllers\Mvc\ReviewsController.cs" />
     <Compile Include="Controllers\Mvc\~SearchController.cs" />
     <Compile Include="Controllers\Mvc\SessionsController.cs" />
@@ -470,7 +480,6 @@
     <Content Include="Views\Search\Ielts.cshtml" />
     <Content Include="Views\Info\SupportedBrowsers.cshtml" />
     <Content Include="Views\Info\UnsupportedBrowser.cshtml" />
-    <Content Include="Views\Ielts\PracticeSpeaking.cshtml" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
     <Content Include="Views\Shared\_TermsOfServicePartial.cshtml" />
     <Content Include="Views\Reviews\EditRecording.cshtml" />
@@ -499,6 +508,8 @@
     <Content Include="Views\Shared\_NotAuthenticatedDivPartial.cshtml" />
     <None Include="Properties\PublishProfiles\englm.pubxml" />
     <Content Include="Views\Shared\_HelpPartial.cshtml" />
+    <Content Include="Views\RecorderForSkype\Index.cshtml" />
+    <Content Include="Views\Info\Ielts.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -564,6 +575,7 @@
     <TypeScriptCompile Include="scripts\typings\angularjs\angular.d.ts" />
     <TypeScriptCompile Include="scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="scripts\typings\moment\moment.d.ts" />
+    <TypeScriptCompile Include="scripts\typings\signalr\signalr.d.ts" />
     <TypeScriptCompile Include="scripts\typings\toastr\toastr.d.ts" />
     <TypeScriptCompile Include="scripts\typings\xcopy\angular-ui-router.d.ts" />
     <TypeScriptCompile Include="scripts\typings\youtube\youtube.d.ts" />

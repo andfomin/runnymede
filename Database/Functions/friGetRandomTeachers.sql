@@ -12,8 +12,6 @@ RETURNS
 		RowNumber int identity primary key clustered,
 		Id int,
 		DisplayName nvarchar(100),
-		RecordingRate decimal(9, 2),
-		WritingRate decimal(9, 2),
 		SessionRate decimal(9, 2),
 		Announcement nvarchar(200)
 	)
@@ -39,8 +37,8 @@ The admin should periodically update 'Relationships.Teachers.BuketCount' accordi
  INSERT queries that use SELECT with ORDER BY to populate rows guarantees how identity values are computed but not the order in which the rows are inserted
  We do order by RowNumber in the calling query.
 */
-	insert @t (Id, DisplayName, RecordingRate, WritingRate, SessionRate, Announcement)
-		select Id, DisplayName, RecordingRate, WritingRate, SessionRate, Announcement
+	insert @t (Id, DisplayName, SessionRate, Announcement)
+		select Id, DisplayName, SessionRate, Announcement
 		from dbo.appUsers 
 		where IsTeacher = 1
 		and abs(checksum(cast((sin(Id) + sin(@ViewSession)) as nvarchar(100)))) % @BacketCount = @NormalizedBucket

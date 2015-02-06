@@ -49,5 +49,10 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
+        public ActionResult Ielts()
+        {
+            return View();
+        }
+
     }
 }

@@ -13,7 +13,7 @@ declare @TotalCount int;
 
 select @TotalCount = count(*) from dbo.accEntries where AccountId = @AccountId;
 
-select T.ObservedTime, TT.Name, E.Debit, E.Credit, E.Balance
+select T.ObservedTime, TT.Name as [Description], E.Debit, E.Credit, E.Balance
 from dbo.accEntries E
 	inner join dbo.accTransactions T on E.TransactionId = T.Id
 	inner join dbo.appTypes TT on T.[Type] = TT.Id

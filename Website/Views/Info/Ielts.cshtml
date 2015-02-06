@@ -1,16 +1,18 @@
 ﻿@{
     //Layout = null;
-    ViewBag.Title = "Prepare for IELTS Speaking Test";
+    ViewBag.Title = "Prepare for IELTS Speaking and Writing";
 }
 <div class="row">
     <div class="col-md-offset-1 col-md-7" style="font-size:larger;">
         <br />
         <p>
-            You can prepare for an IELTS speaking test in many ways at Englisharium:
+            You can prepare for an IELTS test in many ways at Englisharium:
             <ul>
                 <li>Practice speaking, simulate tests and record your exercises with other learners using Skype.</li>
                 <li>Simulate tests solo with a voice recorder.</li>
-                <li>Ask competent teachers to review recordings of your simulated tests, find your difficulties, and suggest ways to emprove your results.</li>
+                <li>Find learning partners to simulate tests over Skype.</li>
+                <li>Ask competent teachers to review recordings of your simulated tests and find your difficulties.</li>
+                <li>Ask teachers to review your handwritten texts and suggest ways to emprove your results.</li>
                 <li>And of course, you will find here a comprehensive set of information and tips on how to prepare for an IELTS speaking test.</li>
             </ul>
         </p>
@@ -20,16 +22,15 @@
 
         @if (!Request.IsAuthenticated)
         {
-            <hr class="app-separator" />
-            <div class="row">
-                <div class="col-sm-offset-4 col-sm-4">
-                    @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Create", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
+            <div class="row app-margin-top">
+                <div class="col-sm-offset-4 col-sm-4 text-center">
+                    @Html.ActionLinkWithProtocol("Join for free", "Signup", "Account", "https", new { @class = "btn btn-primary btn-lg" })
                 </div>
             </div>
         }
     </div>
     <div class="col-md-4">
         <br />&nbsp;
-        <img class="img-responsive img-thumbnail" src="~/content/images/ielts-test.jpg" />
+        <img class="img-responsive img-thumbnail" src="~/content/images/ielts-test-450.jpg" />
     </div>
 </div>

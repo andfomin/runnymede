@@ -17,8 +17,7 @@ module app.exercises {
             public $http: ng.IHttpService,
             public $scope: app.IScopeWithViewModel
             )
-        /* ----- Constructor  ------------ */
-        {
+        /* ----- Constructor  ------------ */ {
             $scope.vm = this;
 
             this.exercise = app['exerciseParam'];
@@ -42,38 +41,48 @@ module app.exercises {
         loadPieces = () => {
             if (this.reviews.length > 0) {
                 // We do not send exercise.createTime to the review editor. Use that fact to distinguish between the Review and Exercise pages.
-                var route = ('exercise/' + this.exercise.id) + (this.exercise.createTime ? '' : ('/review/' + this.reviews[0].id)) + '/pieces';
+                var singleReview = !this.exercise.createTime;
+                var route = ('exercise/' + this.exercise.id) + (singleReview ? ('/review/' + this.reviews[0].id) : '') + '/pieces';
 
                 app.ngHttpGet(this.$http,
                     app.reviewsApiUrl(route),
                     null,
-                    (data) => {
-                        if (angular.isArray(data)) {
-                            var pieces: app.IPiece[] = data.map((i) => { return angular.fromJson(i); });
-                            var remarks = [];
+                    (data) => { this.updatePieces(data); });
+            }
+        };
 
-                            pieces.forEach((i) => {
-                                i.dirtyTime = null;
-                                var review = app.arrFind(this.reviews, (r) => { return r.id === i.reviewId; });
-                                if (review) {
-                                    switch (i.type) {
-                                        case PieceTypes.Remark:
-                                            remarks.push(i);
-                                            break;
-                                        case PieceTypes.Suggestion:
-                                            review.suggestions.push(<any>i);
-                                            break;
-                                        case PieceTypes.Comment:
-                                            review.comment = <any>i;
-                                            break;
-                                    }
+        updatePieces = (data: any) => {
+            if (angular.isArray(data)) {
+                var pieces: app.IPiece[] = data.map((i) => { return angular.fromJson(i); });
+                var remarks = [];
+
+                pieces.forEach((i) => {
+                    i.dirtyTime = null;
+                    var reviewId = i.reviewId;
+                    var review = app.arrFind(this.reviews,(r) => { return r.id === reviewId; });
+                    if (review) {
+                        switch (i.type) {
+                            case PieceTypes.Remark:
+                                remarks.push(i);
+                                break;
+                            case PieceTypes.Suggestion:
+                                var ss = review.suggestions;
+                                var s = app.arrFind(ss,(j) => { return j.id === i.id; });
+                                if (s) {
+                                    ss[ss.indexOf(s)] = <any>i;
                                 }
-                            });
-
-                            this.$appRemarks.setRemarks(remarks);
+                                else {
+                                    ss.push(<any>i);
+                                }
+                                break;
+                            case PieceTypes.Comment:
+                                review.comment = <any>i;
+                                break;
                         }
                     }
-                    );
+                });
+
+                this.$appRemarks.upsertRemarks(remarks);
             }
         };
 
@@ -81,7 +90,7 @@ module app.exercises {
 
     export interface IRemarksService {
         remarks: IRemark[];
-        setRemarks: (remarks: IRemark[]) => void;
+        upsertRemarks: (remarks: IRemark[]) => void;
         add: (remark: IRemark) => void;
         deleteRemark: (remark: IRemark) => void;
         sort: () => void;
@@ -102,8 +111,17 @@ module app.exercises {
             ) { /* ----- Ctor  ----- */
         } // end of ctor
 
-        setRemarks = (remarks: IRemark[]) => {
-            this.remarks = remarks;
+        upsertRemarks = (remarks: IRemark[]) => {
+            remarks.forEach((i) => {
+                var r = app.arrFind(this.remarks,(j) => { return (j.id === i.id) && (j.reviewId === i.reviewId); });
+                if (r) {
+                    this.remarks[this.remarks.indexOf(r)] = i;
+                }
+                else {
+                    this.remarks.push(i);
+                }
+            });
+
             this.sort();
             this.notify();
         };
@@ -125,7 +143,7 @@ module app.exercises {
         };
 
         private notify = () => {
-            this.$rootScope.$broadcast(RemarksService.remarksChanged, null);
+            this.$rootScope.$broadcast(RemarksService.remarksChanged);
         };
 
     } // end of class RemarksService

@@ -25,7 +25,7 @@ module app.exercises {
             )
         /* ----- Constructor  ------------ */
         {
-            $scope.vm = this;
+            (<any>$scope).vma = this;
 
             this.exercise = app['exerciseParam'];
             this.loadImages();
@@ -33,7 +33,7 @@ module app.exercises {
             this.canvas = <HTMLCanvasElement>($window.document.getElementById('myCanvas'));            
             this.canvas.onclick = (event: MouseEvent) => { this.onCanvasClick(event); }; // onCanvasClick is overrided in the descendant, thus do not assign the function directly, wrap it in a call.
 
-            $scope.$on(app.exercises.RemarksService.remarksChanged, () => { this.clear(); });
+            $scope.$on(app.exercises.RemarksService.remarksChanged,() => { this.onRemarksChanged(); });
             $scope.$on(app.exercises.RemarksService.unselectRemark, () => { this.selectRemark(null); });
 
             $document.on('scroll', () => { this.scrollSpy(); });
@@ -219,6 +219,24 @@ module app.exercises {
                 if (canvasAbovePanel || remarkOutOfView) {
                     this.selectRemark(null);
                     this.$scope.$apply();
+                }
+            }
+        };
+
+        canEditLength = () => {
+            return this.exercise.reviews.every((i) => { return !!i.cancelationTime; });
+        }
+
+        onRemarksChanged = () => {
+            var old = this.remark;
+            this.clear();
+            if (old) {
+                // Old remark items are replaced with new ones in the list. Aarray.indexOf() will not find the old one.
+                var r = app.arrFind(this.$appRemarks.remarks,(i) => {
+                    return (i.id === old.id) && (i.reviewId === old.reviewId);
+                });
+                if (r) {
+                    this.selectRemark(r);
                 }
             }
         };

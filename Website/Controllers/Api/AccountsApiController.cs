@@ -83,7 +83,7 @@ from dbo.appGetUser(@Id) U
         public async Task<IHttpActionResult> GetTeacherProfile()
         {
             var sql = @"
-select U.Id, U.IsTeacher, U.RecordingRate, U.WritingRate, U.SessionRate, AU.PhoneNumber, AU.PhoneNumberConfirmed
+select U.Id, U.IsTeacher, U.SessionRate, AU.PhoneNumber, AU.PhoneNumberConfirmed
 from dbo.appGetUser(@Id) U
 	inner join dbo.aspnetGetUser(@Id) AU on U.Id = AU.Id;
 ";
@@ -380,8 +380,6 @@ select dbo.accGetBalance(@UserId);
                 new
                 {
                     UserId = this.GetUserId(),
-                    RecordingRate = (decimal?)value["recordingRate"],
-                    WritingRate = (decimal?)value["writingRate"],
                     SessionRate = (decimal?)value["sessionRate"],
                 },
                 CommandType.StoredProcedure);

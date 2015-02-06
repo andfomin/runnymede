@@ -25,12 +25,13 @@
     "angular-ui-calendar": "0.9.0-beta.1",
     "angular-ui-router": "~0.2",
     "animate.css": "~3.2.0",
-    "bootstrap": "3.3.1",
-    "fullcalendar": "2.2.5",
+    "bootstrap": "3.3.2",
+    "fullcalendar": "2.2.6",
     "jquery": "2.1.3",
     "moment": "2.8.4",
     "ng-tags-input": "2.1.1",
     "ngUpload": "0.5.13",
+    "signalr": "2.2.0",
     "toastr": "2.1.0",
     "venturocket-angular-slider": "~0.3.2"
   },
@@ -80,6 +81,7 @@
         "bower_components/ng-tags-input/ng-tags-input.min.js"
       ],
       "ngUpload": "bower_components/ngUpload/ng-upload.min.js",
+      "signalr": "bower_components/signalr/jquery.signalR.min.js",
       "toastr": [
         "bower_components/toastr/toastr.min.css",
         "bower_components/toastr/toastr.min.js"

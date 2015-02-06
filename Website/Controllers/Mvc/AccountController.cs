@@ -73,7 +73,7 @@ namespace Runnymede.Website.Controllers.Mvc
             }
             if (success && Request.IsAuthenticated)
             {
-                return new RedirectResult(Url.Action("Edit", "Account", null, "https") + "#/personal");
+                return Redirect(Url.Action("Edit", "Account", null, "https") + "#/logins");
             }
             else
             {
@@ -248,10 +248,9 @@ namespace Runnymede.Website.Controllers.Mvc
 
         // GET: /account/add-money
         [RequireHttps]
-        //public async Task<ActionResult> AddMoney()
-        public ActionResult AddMoney()
+        public async Task<ActionResult> AddMoney()
         {
-            //var confirmedEmail = await this.OwinUserManager.IsConfirmedAsync(this.GetUserId());
+            ViewBag.IsEmailConfirmed = await this.OwinUserManager.IsEmailConfirmedAsync(this.GetUserId());
             return View();
         }
 
@@ -304,6 +303,7 @@ select DisplayName from dbo.appGetUser(@Id) where IsTeacher = 1
         // GET: account/paypal-payment?tx=ExtId
         [AllowAnonymous]
         [RequireHttps]
+        // GET: /account/paypal-payment
         public ActionResult PaypalPayment(string tx = null)
         {
             PayPalPaymentResult result = PayPalPaymentResult.Canceled;
@@ -333,10 +333,10 @@ select DisplayName from dbo.appGetUser(@Id) where IsTeacher = 1
             return RedirectToAction("Balance", new { PayPalPaymentResult = result });
         }
 
-        // GET: /account/ipn/
+        // GET: /account/paypal-ipn
         [AllowAnonymous]
         [RequireHttps]
-        public ActionResult ipn()
+        public ActionResult PaypalIpn()
         {
             var content = Request.BinaryRead(Request.ContentLength);
             var message = Encoding.ASCII.GetString(content);
@@ -349,7 +349,7 @@ select DisplayName from dbo.appGetUser(@Id) where IsTeacher = 1
 
             var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.IPN, tx, message);
 
-            var response = helper.VerifyIPN(message);
+            var response = helper.VerifyIPN(message, tx);
 
             helper.WriteLog(PayPalLogEntity.NotificationKind.IPNResponse, tx, response);
 

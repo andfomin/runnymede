@@ -86,14 +86,9 @@
             remark.start = ns;
             remark.finish = nf;
 
-            this.makeDirty(remark);
             this.$appRemarks.sort();
 
             this.playRemarkSpot(remark);
-        };
-
-        makeDirty = (remark: IRemark) => {
-            this.remark.dirtyTime = new Date();
         };
 
         isHighlighted = (remark: app.IRemark) => {
@@ -109,28 +104,12 @@
             return (remark === this.remark) && unfinished;
         }
 
-        showDeleteRemarkModal = (remark: app.IRemark) => {
-            app.Modal.openModal(this.$modal,
-                'app/reviews/deleteRemarkModal.html',
-                DeleteRemarkModal,
-                {
-                    partitionKey: getPiecePartitionKey(this.exercise),
-                    rowKey: getPieceRowKey(this.remark),
-                },
-                () => {
-                    this.selectRemark(null);
-                    this.$appRemarks.deleteRemark(remark);
-                    toastr.success('Remark was deleted.');
-                }
-                )
-        };
-
     } // end of class AudioPlayerEditor
 
     angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar', 'vr.directives.slider'])
         .value(app.ngNames.$appRemarksComparer, app.exercises.RecordingsComparer)
         .service(app.ngNames.$appRemarks, app.exercises.RemarksService)
-        .controller('AudioPlayer', app.reviews.AudioPlayerEditor)
+        .controller('AudioPlayer', app.reviews.AudioPlayerEditor) // vma
         .controller('EditRecording', app.reviews.EditCtrlBase)
     ;
 

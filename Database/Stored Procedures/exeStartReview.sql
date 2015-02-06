@@ -14,7 +14,7 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @ExerciseId int, @AuthorUserId int, @ReviewerName nvarchar(100), @Attribute nvarchar(100),
+	declare @ExerciseId int, @AuthorUserId int, @ReviewerName nvarchar(100), @Attribute nvarchar(100), @Now datetime2(2),
 		@InitialPrice decimal(9,2), @ActualPrice decimal(9,2), @RefundAmount decimal(9,2);
 	
 	select @ExerciseId = R.ExerciseId, @InitialPrice = R.Price, @AuthorUserId = E.UserId
@@ -35,10 +35,6 @@ begin try
 	)
 		raiserror('%s,%d:: The user has another ongoing review.', 16, 1, @ProcName, @UserId);
 
-	select @ReviewerName = DisplayName 
-	from dbo.appUsers 
-	where Id = @UserId;
-
 	-- We store intially the maximal price in dbo.exeReviews. We store the personal prices in dbo.exeRequests.
 	-- We will adjust it and refund the user on the review start based on the actual price of the reviewer.
 	-- If here are both a personal and a common requests simultaneously, the personal price wins.
@@ -53,14 +49,21 @@ begin try
 		and IsActive = 1
 		and coalesce(ReviewerUserId, @UserId) = @UserId;
 
-	if @ActualPrice is null
+	select @ReviewerName = DisplayName 
+	from dbo.appUsers 
+	where Id = @UserId
+		and ((IsTeacher = 1) or (@ActualPrice = 0));
+
+	if (@ReviewerName is null or @ActualPrice is null)
 		raiserror('%s,%d,%d:: The user cannot start the review.', 16, 1, @ProcName, @UserId, @ReviewId);
+
+	set @Now = sysutcdatetime();
 
 	if @ExternalTran = 0
 		begin transaction;
 
 		update dbo.exeReviews 
-		set UserId = @UserId, Price = @ActualPrice, ReviewerName = @ReviewerName, StartTime = sysutcdatetime()
+		set UserId = @UserId, Price = @ActualPrice, ReviewerName = @ReviewerName, StartTime = @Now
 		where Id = @ReviewId 
 			and StartTime is null;
 
@@ -86,8 +89,8 @@ begin try
 	if @ExternalTran = 0
 		commit;
 
-	-- ExerciseId is as PartitionKey in the storage table.
-	select @ExerciseId;
+	-- ExerciseId is the PartitionKey in the storage table. We add access records for both the author and the reviewer. And we will notify the author.
+	select @ExerciseId as ExerciseId, @UserId as ReviewerUserId, @ReviewerName as ReviewerName, @AuthorUserId as AuthorUserId, @Now as StartTime;
 
 end try
 begin catch

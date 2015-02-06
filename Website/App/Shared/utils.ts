@@ -2,9 +2,7 @@
 module app {
 
     export var DateTimeFormat = 'DD MMM YYYY HH:mm';
-    export var BlobDomainName = 'englm.blob.core.windows.net'; // Custom domain mapping does not support HTTPS.
-    export var AnyTeacherId = 3; // Hardcoded in dbo.sysInitializeSpecialUsers
-    export var AnyTeacherDisplayName = 'Any teacher'; // Corresponds to 'Any teacher' in dbo.exeCreateReviewRequest
+    export var BlobDomainName = 'englmdata.blob.core.windows.net'; // Custom domain mapping does not support HTTPS.
 
     export function accountUrl(path?: string) { return '/account/' + (path || ''); };
     export function exercisesUrl(path?: string) { return '/exercises/' + path || ''; };
@@ -23,6 +21,19 @@ module app {
     export class ExerciseType {
         static AudioRecording = 'EXAREC';
         static WritingPhoto = 'EXWRPH';
+
+        public static formatLength = (length: number, type: string) => {
+            switch (type) {
+                case ExerciseType.AudioRecording:
+                    return app.formatMsec(length) + ' min:sec';
+                    break;
+                case ExerciseType.WritingPhoto:
+                    return '' + length + ' words';
+                    break;
+                default:
+                    return '' + length;
+            };
+        };
     }
 
     /** The following properties are passed always: id, displayName, isTeacher. userName is passed only over a secure connection. */
@@ -116,6 +127,10 @@ module app {
         return val && val.length > 0 && /^\d+(?:(?:\.|,)\d{1,2})?$/.test(val);
     };
 
+    export function isUndefinedOrNull(val) {
+        return (typeof val === 'undefined') || (val === null);
+    };
+
     export interface ILocalTimeInfo {
         time: string;
         timezoneOffset: number;
@@ -134,10 +149,6 @@ module app {
     // Corresponds to Runnymede.Common.Utils.KeyUtils.EncodeLocalTime()
     export function encodeLocalTime(d: Date) {
         return '' + d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getHours() + '/' + d.getMinutes() + '/' + d.getSeconds();
-    };
-
-    export function isUndefinedOrNull(val) {
-        return (typeof val === 'undefined') || (val === null);
     };
 
     // Find an array element satisfying the test. Pure JavaScript. IE9+

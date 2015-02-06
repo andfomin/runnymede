@@ -32,7 +32,7 @@
                                     <img class="img-circle app-avatar" width="16" height="16" ng-src="{{r.authorUserId | appAvatarSmall}}" />{{r.authorName}}
                                 </td>
                                 <td class="text-right">
-                                    {{r.exerciseLength | appMsecToMinSec}}
+                                    {{r.exerciseLength | appLength : r.exerciseType}}
                                 </td>
                                 <td class="text-right">
                                     {{r.price | currency:"$"}}
@@ -47,7 +47,7 @@
                         </tbody>
                     </table>
                     <p class="text-muted text-center" style="margin-top:19px;" ng-show="vm.requests.length === 0" ng-cloak>
-                        There is currently no request for reviewing exercise.
+                        There is no request for reviewing
                     </p>
                 </div>
             </div>
@@ -80,7 +80,7 @@
                             <img class="img-circle app-2px-up app-avatar" width="16" height="16" ng-src="{{r.authorUserId | appAvatarSmall}}" />{{r.authorName}}
                         </td>
                         <td class="text-right">
-                            {{r.exerciseLength | appMsecToMinSec}}
+                            {{r.exerciseLength | appLength : r.exerciseType}}
                         </td>
                         <td class="text-right" style="padding-right: 5px;">
                             {{r.price | currency:"$"}}

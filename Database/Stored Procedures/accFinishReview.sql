@@ -1,6 +1,8 @@
 ﻿
 CREATE PROCEDURE [dbo].[accFinishReview]
-	@ReviewId int
+	@ReviewId int,
+	@UserId int,
+	@FinishTime datetime2(2) output
 AS
 BEGIN
 /*
@@ -19,16 +21,16 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @ExerciseId int, @AuthorUserId int, @ReviewerUserId int,
+	declare @ExerciseId int, @AuthorUserId int,
 		@Price decimal(9,2), @PriceRate float, @Fee decimal(9,2), @Attribute nvarchar(100),
 		@AuthorAccountId int,  @ReviewerAccountId int, @RevenueAccountId int, 
-		@PriceTransactionId int, @FeeTransactionId int, @InitialReviewerBalance decimal(18,2),
-		@Now datetime2(2);
+		@PriceTransactionId int, @FeeTransactionId int, @InitialReviewerBalance decimal(18,2);
 
-	select @ExerciseId = ExerciseId, @ReviewerUserId = UserId, @Price = Price,
+	select @ExerciseId = ExerciseId, @Price = Price,
 		@Fee = convert(decimal(9,2), Price * dbo.appGetFeeRate(ExerciseType, RequestTime, Price / ExerciseLength))
 	from dbo.exeReviews 
 	where Id = @ReviewId
+		and UserId = @UserId 
 		and StartTime is not null
 		and FinishTime is null;
 
@@ -36,77 +38,74 @@ begin try
 	if coalesce(@Price, -1) < 0
 		raiserror('%s,%d:: The review cannot be finished.', 16, 1, @ProcName, @ReviewId);
 
-	select @AuthorUserId = UserId
-	from dbo.exeExercises 
-	where Id = @ExerciseId;
+	set @FinishTime = sysutcdatetime();
 
-	set @AuthorAccountId = dbo.accGetEcrowAccount(@AuthorUserId);
+	if (@Price > 0) begin
 
-	set @ReviewerAccountId = dbo.accGetPersonalAccount(@ReviewerUserId);
+		select @AuthorUserId = UserId
+		from dbo.exeExercises 
+		where Id = @ExerciseId;
 
-	set @RevenueAccountId = dbo.appGetConstantAsInt('Account.$Service.ServiceRevenue');
+		set @AuthorAccountId = dbo.accGetEcrowAccount(@AuthorUserId);
 
-	if (@AuthorAccountId is null) or (@ReviewerAccountId is null) or (@RevenueAccountId is null)
-		raiserror('%s,%d,%d:: Account not found.', 16, 1, @ProcName, @AuthorUserId, @ReviewerUserId);
+		set @ReviewerAccountId = dbo.accGetPersonalAccount(@UserId);
 
-	set @Attribute = convert(nvarchar(100), @ReviewId);
+		set @RevenueAccountId = dbo.appGetConstantAsInt('Account.$Service.ServiceRevenue');
 
-	set @Now = sysutcdatetime();
+		if (@AuthorAccountId is null) or (@ReviewerAccountId is null) or (@RevenueAccountId is null)
+			raiserror('%s,%d,%d:: Account not found.', 16, 1, @ProcName, @AuthorUserId, @UserId);
 
-	if @ExternalTran = 0
-		begin transaction;
+		set @Attribute = convert(nvarchar(100), @ReviewId);
 
-		update dbo.exeReviews
-			set FinishTime = @Now
-		where Id = @ReviewId 
-			and StartTime is not null
-			and FinishTime is null;
+		-- Refresh the value to adjust for the execution time of the statements above.
+		set @FinishTime = sysutcdatetime();
 
-		if @@rowcount = 0
-			raiserror('%s,%d:: Failed to finish the review.', 16, 1, @ProcName, @ReviewId);
+		if @ExternalTran = 0
+			begin transaction;
 
-		-- Transfer reward.
-		insert dbo.accTransactions ([Type], ObservedTime, Attribute)
-			values ('TRRVFN', @Now, @Attribute);
+			-- Transfer reward.
+			insert dbo.accTransactions ([Type], ObservedTime, Attribute)
+				values ('TRRVFN', @FinishTime, @Attribute);
 
-		select @PriceTransactionId = scope_identity() where @@rowcount != 0;
+			select @PriceTransactionId = scope_identity() where @@rowcount != 0;
 
-		-- Deduct service fee.
-		insert dbo.accTransactions ([Type], ObservedTime, Attribute)
-			values ('TRRVFD', @Now, @Attribute);
+			-- Deduct service fee.
+			insert dbo.accTransactions ([Type], ObservedTime, Attribute)
+				values ('TRRVFD', @FinishTime, @Attribute);
 
-		select @FeeTransactionId = scope_identity() where @@rowcount != 0;
+			select @FeeTransactionId = scope_identity() where @@rowcount != 0;
 
-		set transaction isolation level serializable;
+			set transaction isolation level serializable;
 
-		-- Debit the author account.
-		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select @PriceTransactionId, @AuthorAccountId, @Price, null, Balance - @Price
+			-- Debit the author's escrow account.
+			insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
+				select @PriceTransactionId, @AuthorAccountId, @Price, null, Balance - @Price
+				from dbo.accEntries
+				where Id = (select max(Id) from dbo.accEntries where AccountId = @AuthorAccountId);
+
+			-- We are going to post two entries. Reuse the balance.
+			select @InitialReviewerBalance = Balance
 			from dbo.accEntries
-			where Id = (select max(Id) from dbo.accEntries where AccountId = @AuthorAccountId);
+			where Id = (select max(Id) from dbo.accEntries where AccountId = @ReviewerAccountId);
 
-		-- We are going to post two entries. Reuse the balance.
-		select @InitialReviewerBalance = Balance
-		from dbo.accEntries
-		where Id = (select max(Id) from dbo.accEntries where AccountId = @ReviewerAccountId);
+			-- Temporary credit the reviewer account with the full price amount.
+			insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
+				values (@PriceTransactionId, @ReviewerAccountId, null, @Price, @InitialReviewerBalance + @Price)
 
-		-- Temporary credit the reviewer account with the full reward amount.
-		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			values (@PriceTransactionId, @ReviewerAccountId, null, @Price, @InitialReviewerBalance + @Price)
+			-- Deduct service fee from the reviewer account.
+			insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
+				values (@FeeTransactionId, @ReviewerAccountId, @Fee, null, @InitialReviewerBalance + @Price - @Fee)
 
-		-- Deduct service fee from the reviewer account.
-		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			values (@FeeTransactionId, @ReviewerAccountId, @Fee, null, @InitialReviewerBalance + @Price - @Fee)
+			-- Credit the service.
+			insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
+				select @FeeTransactionId, @RevenueAccountId, null, @Fee, Balance + @Fee
+				from dbo.accEntries
+				where Id = (select max(Id) from dbo.accEntries where AccountId = @RevenueAccountId);
 
-		-- Credit the service.
-		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select @FeeTransactionId, @RevenueAccountId, null, @Fee, Balance + @Fee
-			from dbo.accEntries
-			where Id = (select max(Id) from dbo.accEntries where AccountId = @RevenueAccountId);
+		if @ExternalTran = 0
+			commit;
 
-	if @ExternalTran = 0
-		commit;
-
+	end
 
 end try
 begin catch

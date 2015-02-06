@@ -1,36 +1,6 @@
 ﻿<div data-ng-if="vm.profile.isTeacher">
     <form class="form-horizontal" name="teacherForm" role="form" novalidate>
         <div class="form-group">
-            <label class="col-sm-5 control-label" for="recordingRate">Rate for reviewing audio recordings</label>
-            <div class="col-sm-7">
-                <div class="row">
-                    <div class="col-sm-3">
-                        <input type="text" id="recordingRate" name="recordingRate" class="form-control" data-ng-model="vm.profile.recordingRate" ng-pattern="/^\d+(?:(?:\.|,)\d{1,2})?$/" />
-                    </div>
-                    <div class="col-sm-9">
-                        <span ng-show="teacherForm.recordingRate.$error.pattern"><small class="text-danger">Dollars.cents, ex. 0.99</small></span>
-                        <span data-ng-show="vm.recordingRateChanged"><small class="text-success">Rate for reviewing recordings changed</small></span>
-                    </div>
-                </div>
-                <div class="help-block small app-margin-bottom-none">US&nbsp;dollars per minute of audio recording</div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-5 control-label" for="writingRate">Rate for reviewing writings</label>
-            <div class="col-sm-7">
-                <div class="row">
-                    <div class="col-sm-3">
-                        <input type="text" id="writingRate" name="writingRate" class="form-control" data-ng-model="vm.profile.writingRate" ng-pattern="/^\d+(?:(?:\.|,)\d{1,2})?$/" />
-                    </div>
-                    <div class="col-sm-9">
-                        <span ng-show="teacherForm.writingRate.$error.pattern"><small class="text-danger">Dollars.cents, ex. 0.99</small></span>
-                        <span data-ng-show="vm.writingRateChanged"><small class="text-success">Rate for reviewing writings changed</small></span>
-                    </div>
-                </div>
-                <div class="help-block small app-margin-bottom-none">US&nbsp;dollars per one hundred words</div>
-            </div>
-        </div>
-        <div class="form-group">
             <label class="col-sm-5 control-label" for="sessionRate">Rate for Skype sessions</label>
             <div class="col-sm-7">
                 <div class="row">
@@ -51,7 +21,7 @@
             </div>
         </div>
     </form>
-    <hr class="app-separator" />
+    <hr />
     <form class="form-horizontal" name="phoneForm" role="form" novalidate>
         <div class="form-group">
             <label class="col-sm-5 control-label" for="phoneNumber">Mobile phone number</label>

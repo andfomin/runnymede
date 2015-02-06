@@ -5,8 +5,6 @@ CREATE PROCEDURE [dbo].[appUpdateUser]
 	@UserId int,
 	@DisplayName nvarchar(100) = null,
 	@SkypeName nvarchar(100) = null,
-	@RecordingRate decimal(9,2) = null,
-	@WritingRate decimal(9,2) = null,
 	@SessionRate decimal(9,2) = null,
 	@Announcement nvarchar(1000) = null
 AS
@@ -25,8 +23,6 @@ begin try
 		(@DisplayName is null) and
 		(@SkypeName is null) and
 		(@Announcement is null)	and
-		(@RecordingRate is null) and	
-		(@WritingRate is null) and	
 		(@SessionRate is null)	
 	)
 			raiserror('%s,%d:: Cannot update the user profile.', 16, 1, @ProcName, @UserId);
@@ -37,19 +33,12 @@ begin try
 		update dbo.appUsers set 
 			DisplayName = coalesce(@DisplayName, DisplayName),
 			SkypeName = coalesce(@SkypeName, SkypeName),
-			RecordingRate = coalesce(RecordingRate, RecordingRate),
-			WritingRate = coalesce(@WritingRate, WritingRate),
 			SessionRate = coalesce(@SessionRate, SessionRate),
 			Announcement = coalesce(@Announcement, Announcement)
 		where Id = @UserId;
 
 		if @@rowcount = 0
 			raiserror('%s,%d:: The user profile update failed.', 16, 1, @ProcName, @UserId);
-
-		--if (@DisplayName is not null) begin
-		--	update dbo.relLearnersTeachers set LearnerDisplayName = @DisplayName where LearnerUserId = @UserId;
-		--	update dbo.relLearnersTeachers set TeacherDisplayName = @DisplayName where TeacherUserId = @UserId;
-		--end	
 
 	if @ExternalTran = 0
 		commit;

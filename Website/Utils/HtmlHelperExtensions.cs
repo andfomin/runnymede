@@ -20,7 +20,7 @@ namespace Runnymede.Website.Utils
                 throw new ArgumentNullException("gridClass");
             }
             return new MvcHtmlString(string.Format(
-                @"<div class=""row""><div class=""{0}""><hr class=""app-separator"" /></div></div>
+                @"<div class=""row""><div class=""{0}""><hr /></div></div>
 ",
                 gridClass
                 ));
@@ -93,24 +93,24 @@ namespace Runnymede.Website.Utils
 
         #endregion
 
-        private static bool IsDebug()
+        public static bool IsDebug(this HtmlHelper htmlHelper)
         {
 #if DEBUG
             return true;
 #else
       return false;
 #endif
-        }
-
-        public static bool IsDebug(this HtmlHelper htmlHelper)
-        {
-            return IsDebug();
             ////@if (HttpContext.Current.IsDebuggingEnabled) { // Debug mode is enabled in Web.config. }
         }
 
         public static MvcHtmlString ActionLinkWithProtocol(this HtmlHelper htmlHelper, string linkText, string actionName, string controllerName, string protocol, object htmlAttributes)
         {
             return htmlHelper.ActionLink(linkText, actionName, controllerName, protocol, null, null, null, htmlAttributes);
+        }
+
+        public static MvcHtmlString ActionLinkWithProtocol(this HtmlHelper htmlHelper, string linkText, string actionName, string controllerName, string protocol, string fragment, object routeValues, object htmlAttributes)
+        {
+            return htmlHelper.ActionLink(linkText, actionName, controllerName, protocol, null, fragment, routeValues, htmlAttributes);
         }
 
         public static string ActionWithProtocol(this UrlHelper urlHelper, string actionName, string controllerName, string protocol)

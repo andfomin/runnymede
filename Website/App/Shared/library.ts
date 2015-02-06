@@ -343,7 +343,7 @@ module app.library {
 
         canOk = () => {
             // We allow the user to post a resource without a category. Title may be ommited for YouTube videos, it will be populated during validation.
-            return !this.busy && this.authenticated && !!this.resource.url;
+            return !this.busy && this.authenticated && (!!this.resource.url || !this.showUrl);
         };
 
         internalOk = () => {

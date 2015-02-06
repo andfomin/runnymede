@@ -6,7 +6,7 @@
         <div class="col-sm-offset-2 col-sm-8">
             <p>
                 Exercise author: <strong>{{vm.request.authorName}}</strong>.<br />
-                Exercise length: <strong>{{vm.request.exerciseLength | appMsecToMinSec}}</strong>&nbsp;min:sec.<br />
+                Exercise length: <strong>{{vm.request.exerciseLength | appLength : vm.request.exerciseType}}</strong><br />
                 Review price: <strong>{{vm.request.price | currency:"$"}}</strong>.
             </p>
             <p>

@@ -9,31 +9,21 @@
 "~/bower_installer/ng-tags-input/ng-tags-input.min.css",
 "~/bower_installer/ng-tags-input/ng-tags-input.bootstrap.min.css"
 )
-    <style>
-        ul.my-review-items > li > span {
-            margin-right: 20px;
-            white-space: nowrap;
-        }
-    </style>
 }
 @* Do not hide the video player! See the comments in the partial. *@
 <div ng-app="myApp" ng-controller="ViewRecording">
-    <div id="soundmanager-debug"></div>
 
     @Html.Partial("_TitlePartial")
-
-    <div ng-controller="AudioPlayer">
-
-        <div class="text-center" ng-show="vm.autoLoad && !vm.soundLoaded" ng-cloak>
-            <hr />
-            <i class="fa fa-spinner fa-spin fa-2x"></i>&nbsp;&nbsp;Loading recording...
+    <div ng-controller="AudioPlayer" ng-cloak>
+        <hr />
+        <div class="text-center" ng-show="vma.autoLoad && !vma.soundLoaded">
+            <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>&nbsp;&nbsp;Loading recording...
             <hr />
         </div>
-        <div ng-show="!vm.autoLoad || vm.soundLoaded">
-            <hr />
+        <div class="app-margin-bottom" ng-show="!vma.autoLoad || vma.soundLoaded">
             @Html.Partial("_AudioPlayerControlsPartial")
         </div>
-        <br />
+        <div id="soundmanager-debug"></div>
 
         <div class="panel panel-default" ng-cloak>
             <div class="panel-heading">
@@ -52,9 +42,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="r in vm.$appRemarks.remarks" ng-click="vm.selectRemark(r)">
+                        <tr ng-repeat="r in vm.$appRemarks.remarks" ng-click="vma.selectRemark(r)">
                             <td>
-                                <button class="btn btn-default btn-xs" ng-show="vm.isSelected(r)" ng-click="vm.playRemarkSpot(r)" title="Replay"><i class="fa fa-repeat"></i></button>
+                                <button class="btn btn-default btn-xs" ng-show="vma.isSelected(r)" ng-click="vma.playRemarkSpot(r)" title="Replay"><i class="fa fa-repeat"></i></button>
                             </td>
                             <td style="white-space: nowrap">
                                 from&nbsp;{{r.start | appMsecToMinSec}}
@@ -77,20 +67,19 @@
         </div>
 
     </div><!-- /ng-controller="AudioPlayer" -->
-
     @Html.Partial("_BottomPartial")
 
 </div><!-- /ng-controller="Viewer" -->
 @*@using (Html.BeginInstructionsContainer())
-{
-    <ul>
-        <li>You can edit the title of the exercise.</li>
-        <li>You can listen to the record.</li>
-        <li>If a review for the exercise is available, you can see remarks made by the reviewer.</li>
-        <li>You can listen to the same remark spot many times by clicking the button with the circular arrow</li>
-        @*    <li>There may be a tag for a remark. By clicking on it you will be redirected to an external website which may help you to understand the remark.</li>*@
-    </ul>
-}*@
+    {
+        <ul>
+            <li>You can edit the title of the exercise.</li>
+            <li>You can listen to the record.</li>
+            <li>If a review for the exercise is available, you can see remarks made by the reviewer.</li>
+            <li>You can listen to the same remark spot many times by clicking the button with the circular arrow</li>
+            <li>There may be a tag for a remark. By clicking on it you will be redirected to an external website which may help you to understand the remark.</li>
+        </ul>
+    }*@
 @section BottomScripts {
     <script type="text/javascript">
         var app = app || {};
@@ -106,7 +95,7 @@
 "~/bower_installer/angular-touch/angular-touch.min.js",
 "~/bower_installer/venturocket-angular-slider/angular-slider.min.js",
 "~/bower_installer/ng-tags-input/ng-tags-input.min.js",
-
+"~/bower_installer/signalr/jquery.signalR.min.js",
 "~/app/shared/library-data.js",
 "~/app/shared/library.js",
 "~/app/shared/exercises.js",

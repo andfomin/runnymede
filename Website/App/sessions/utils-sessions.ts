@@ -121,7 +121,7 @@ module app.sessions_utils {
         };
 
         /* Shortcut to open createSessionRequestModal.html */
-        public static Open($modal: ng.ui.bootstrap.IModalService, user: app.IUser, start: Moment, successCallback: () => void) {
+        public static Open($modal: ng.ui.bootstrap.IModalService, user: app.IUser, start: moment.Moment, successCallback: () => void) {
             return app.Modal.openModal($modal,
                 '/app/sessions/createSessionRequestModal.html',
                 ModalCreateSessionRequest,

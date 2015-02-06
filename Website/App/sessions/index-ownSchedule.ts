@@ -18,7 +18,7 @@ module app.sessions_index {
 
             this.eventSources = [
                 {
-                    events: (start: Moment, end: Moment, timezone: string, callback: (data: any) => void) => {
+                    events: (start: moment.Moment, end: moment.Moment, timezone: string, callback: (data: any) => void) => {
                         if (this.authenticated) {
                             /* FullCalendar passes Start and End as midnights without a timezone. 
                                In other words, for clients in different time zones, it passes the same values indicating only the calendar date, but not the moment in time.
@@ -45,7 +45,7 @@ module app.sessions_index {
                 }
             ];
 
-            var dayClick = (date: Moment) => {
+            var dayClick = (date: moment.Moment) => {
                 // Allow for a last-moment real-time arrangement.                
                 var d = date.toDate();
                 if (Date.now() - d.getTime() < 16 * 60 * 1000) {
@@ -74,7 +74,7 @@ module app.sessions_index {
                 allDaySlot: false,
                 slotDuration: '00:15',
                 timezone: 'local',
-                dayClick: (date: Moment) => { dayClick(date); },
+                dayClick: (date: moment.Moment) => { dayClick(date); },
                 eventClick: (event: app.IScheduleEvent, jsEvent, view) => { eventClick(event, jsEvent, view); },
             };
 

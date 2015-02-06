@@ -1,4 +1,4 @@
-CREATE TABLE [dbo].[appUsers] (
+﻿CREATE TABLE [dbo].[appUsers] (
     [Id]                    INT            NOT NULL,
     [DisplayName]           NVARCHAR (100) NOT NULL,
     [IsTeacher]             BIT            CONSTRAINT [DF_appUsers_IsTeacher] DEFAULT ((0)) NOT NULL,
@@ -6,8 +6,6 @@ CREATE TABLE [dbo].[appUsers] (
     [ExtId]                 NCHAR (12)     NULL,
     [CreationTime]          SMALLDATETIME  CONSTRAINT [DF_appUsers_CreationTime] DEFAULT (getutcdate()) NOT NULL,
     [TimezoneOffsetMin]     SMALLINT       NULL,
-    [RecordingRate]         DECIMAL (9, 2) NULL,
-    [WritingRate]           DECIMAL (9, 2) NULL,
     [SessionRate]           DECIMAL (9, 2) NULL,
     [Announcement]          NVARCHAR (200) NULL,
     [LanguageLevel]         TINYINT        CONSTRAINT [DF_appUsers_LanguageLevel] DEFAULT ((112)) NULL,
@@ -15,6 +13,10 @@ CREATE TABLE [dbo].[appUsers] (
     CONSTRAINT [PK_appUsers] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_appUsers_aspnetUsers] FOREIGN KEY ([Id]) REFERENCES [dbo].[aspnetUsers] ([Id])
 );
+
+
+
+
 
 
 

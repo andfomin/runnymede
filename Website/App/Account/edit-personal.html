@@ -1,18 +1,11 @@
-﻿<p class="text-right">
+﻿<!--<p class="text-right">
     You are signed in as <strong>{{vm.userName}}</strong>. <a href="#/logins">Manage&nbsp;logins.</a>
-</p>
+</p>-->
 <p class="text-right" ng-if="vm.profile.isTeacher">
     You have got the <strong>Teacher</strong> status. <a href="#/teacher">Edit your teacher profile.</a>
 </p>
-<!--<div data-ng-if="vm.profile.isTeacher">
-    <hr class="app-separator" />
-    <p>
-        You have got the <strong>Teacher</strong> status.
-        <a href="#/teacher">Edit your teacher profile.</a>
-    </p>
-</div>-->
 <div class="alert alert-warning text-center" role="alert">
-    All personal information entered on this page will be publicly visible.
+    All personal information entered on this page will be publicly visible. The Skype name will be visible only to your speaking partners.
 </div>
 <hr />
 

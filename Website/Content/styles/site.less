@@ -59,14 +59,18 @@ img.app-avatar {
     margin: 0 4px 0 0;
 }
 
-/* Deprecated. Original color is already the same. 
-hr.app-separator {
-    border-top-color: @page-header-border-color;
-}*/
+hr.app-appred {
+    border-top-color: @appRed;
+}
 
 footer.app-footer {
     td {
-        padding: 0px 20px;
+        padding: 0px 5px;
+
+        @media (min-width: @screen-sm-min) {
+            padding: 0px 20px;
+        }
+
         vertical-align: top;
 
         p:last-of-type {
@@ -155,10 +159,6 @@ table.app-table-norowbordertop > tbody > tr > td {
     border-top: none;
 }
 
-/*.table > tbody > tr.app-row-review > td {
-    border-top-color: transparent;
-}*/
-
 // Add a border line after the last row using ng-class="{'app-last-row':$last}"
 table.table > tbody > tr.app-last-row > td {
     border-bottom: 1px solid @table-border-color;
@@ -173,6 +173,7 @@ ul.nav.nav-pills.app-nav-pills > li > a {
 h3.page-header.app {
     margin: 0 0 @line-height-computed; // Originally (@line-height-computed * 2) 0 @line-height-computed;
     color: @appRed;
+    border-bottom-color: @appRed;
 }
 
 /* Control the avatar visibility depending on the screen width. Copied from hidden-xs */

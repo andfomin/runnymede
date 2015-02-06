@@ -1,6 +1,6 @@
 module app.exercises {
 
-    export function showCreateRequestModal($modal: ng.ui.bootstrap.IModalService, exercise: app.IExercise) {
+    export function showCreateRequestModal($modal: ng.ui.bootstrap.IModalService, exercise: app.IExercise, successCallback?: () => void) {
         app.Modal.openModal($modal,
             '/app/exercises/createReviewRequestModal.html',
             CreateReviewRequestModal,
@@ -10,6 +10,7 @@ module app.exercises {
             (data: app.IReview) => {
                 if ((data && data.exerciseId) === exercise.id) {
                     exercise.reviews.push(data);
+                    (successCallback || angular.noop)();
                 }
             },
             'static',
@@ -18,7 +19,7 @@ module app.exercises {
         ////.opened.then(() => {
         ////    // Set input focus to the price field. But first wait for css animated transitions to complete.
         ////    this.$timeout(() => {
-        ////        $('#price1').focus(); // It needs the jQuery, jqLite does not support focus() (does it?)
+        ////        $('#price1').focus(); // It needs the jQuery, jqLite does not support focus() (does it?) There is document.getElementById(id).focus().
         ////    }, 200);
         ////});
     };
@@ -56,11 +57,13 @@ module app.exercises {
                 null,
                 (data) => {
                     this.reviewers = data.reviewers;
-                    this.balance = data.balance;
+                    this.balance = data.balance ? data.balance : 0;
                     // Arbitrary teacher
+                    //var anyTeacherId = null; // 3 is hardcoded in dbo.sysInitializeSpecialUsers. The value is used for downloading the avatar.
+                    //var anyTeacherDisplayName = 'Any teacher'; // Corresponds to 'Any teacher' in dbo.exeCreateReviewRequest
                     var anyTeacher = <IReviewer>{
-                        id: app.AnyTeacherId,
-                        displayName: app.AnyTeacherDisplayName,
+                        id: null,
+                        displayName: 'Any teacher',
                         rate: data.anyTeacherReviewRate,
                     };
                     this.reviewers.push(anyTeacher);
@@ -80,19 +83,6 @@ module app.exercises {
 
                     this.reviewers.forEach((i) => { i.selected = null; });
                 });
-        };
-
-        getLength = () => {
-            switch (this.exercise.type) {
-                case ExerciseType.AudioRecording:
-                    return app.formatMsec(this.exercise.length) + ' minutes:seconds';
-                    break;
-                case ExerciseType.WritingPhoto:
-                    return '' + this.exercise.length + ' words';
-                    break;
-                default:
-                    return '' + this.exercise.length;
-            };
         };
 
         // Mirrors dbo.CalculateReviewPrice(). Refactor in both places.
@@ -116,14 +106,6 @@ module app.exercises {
             //return [units, price, cents, result];
             return result;
         };
-        //private calcPrice = (rate) => {
-        //    var sec = Math.floor(this.exercise.length / 1000);
-        //    var price = Math.max(sec * rate / 60, rate);
-        //    var rnd = Math.round(price * 100) / 100;
-        //    var res = Number(rnd.toFixed(2));
-        //    //return { sec: sec, price: price, rnd: rnd, res: res };
-        //    return res;
-        //};
 
         price = (reviewer: IReviewer) => {
             return this.calcPrice(reviewer.rate);
@@ -162,6 +144,10 @@ module app.exercises {
         private getMaxPrice = () => {
             return this.minMaxPrice(Math.max, -1);
         };
+
+        getAddLink = () => {
+            return 'https://' + window.document.location.hostname + '/account/add-money';
+        }
 
         canOk = () => {
             return !this.busy

@@ -1,18 +1,19 @@
 ﻿
 
 CREATE PROCEDURE [dbo].[accPostIncomingPayPalPayment]
-	@UserName nvarchar(200), -- 'UnknownPayer' can be substituted by the app.
+	@UserName nvarchar(200) = null,
 	@Amount decimal(18, 2),
 	@Fee decimal(18, 2), 
-	@ExtId nvarchar(50), -- PayPal's Tx
+	@ExtId nvarchar(50), -- PayPal's Transaction ID a.k.a. Tx
 	@ReceiptId nvarchar(100) = null, -- This value is displayd to the sender in the confirmation email from PayPal as "Receipt No"
 	@Details xml = null
 AS
 BEGIN
 /*
-Adds entries on an incoming PayPal payment.
-
+Post accounting entries on an incoming PayPal payment.
 20121016 AF. Initial release.
+
+20150129 AF. Do not make the customer to compensate the fee. The service will absorb the fee.
 */
 SET NOCOUNT ON;
 
@@ -23,9 +24,14 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @PaymentTransactionId int, @FeeTransactionId int, @InitialUserBalance decimal(18,2), @InitialFeeBalance decimal(18,2);
+	declare @TransactionId int;
 
 	declare @UserId int = dbo.appGetUserId(@UserName);
+
+	-- The real user not found.
+	if (@UserId is null)
+		set @UserId = dbo.appGetUserId('$UnknownPayPalPayer');
+
 	declare @UserAccountId int = dbo.accGetPersonalAccount(@UserId);
 	declare @CashAccountId int = dbo.appGetConstantAsInt('Account.$Service.PayPalCash');
 	declare @FeeAccountId int = dbo.appGetConstantAsInt('Account.$Service.IncomingPayPalPaymentFee');
@@ -52,50 +58,29 @@ begin try
 		insert dbo.accPostedPayPalPayments (ExtId)
 			values (@ExtId);
 
-		declare @Now datetime2(7) = sysutcdatetime();
-
 		insert dbo.accTransactions ([Type], ObservedTime, Attribute, Details)
-			values ('TRPPIP', @Now, @ReceiptId, @Details);
+			values ('TRPPIP', sysutcdatetime(), @ReceiptId, @Details);
 
-		select @PaymentTransactionId = scope_identity() where @@rowcount != 0;
-
-		-- Make the user to compensate the fee.
-		insert dbo.accTransactions ([Type], ObservedTime, Attribute)
-			values ('TRPPIF', @Now, @ReceiptId);
-
-		select @FeeTransactionId = scope_identity() where @@rowcount != 0;
+		select @TransactionId = scope_identity() where @@rowcount != 0;
 
 		set transaction isolation level serializable;
 
-		-- We are going to post two entries. Reuse the balance.
-		select @InitialUserBalance = Balance
-		from dbo.accEntries
-		where Id = (select max(Id) from dbo.accEntries where AccountId = @UserAccountId);
-
-		select @InitialFeeBalance = Balance
-		from dbo.accEntries
-		where Id = (select max(Id) from dbo.accEntries where AccountId = @FeeAccountId);
-
 		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select @PaymentTransactionId, @CashAccountId, @Amount - @Fee, null, Balance + @Amount - @Fee
+			select @TransactionId, @CashAccountId, @Amount - @Fee, null, Balance + @Amount - @Fee
 			from dbo.accEntries
 			where Id = (select max(Id) from dbo.accEntries where AccountId = @CashAccountId);
 	
-		-- Post the fee initially
 		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			values (@FeeTransactionId, @FeeAccountId, @Fee, null, @InitialFeeBalance + @Fee);
+			select @TransactionId, @FeeAccountId, @Fee, null, Balance + @Fee
+			from dbo.accEntries
+			where Id = (select max(Id) from dbo.accEntries where AccountId = @FeeAccountId);
 
 		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			values (@PaymentTransactionId, @UserAccountId, null, @Amount, @InitialUserBalance + @Amount);
+			select @TransactionId, @UserAccountId, null, @Amount, Balance + @Amount
+			from dbo.accEntries
+			where Id = (select max(Id) from dbo.accEntries where AccountId = @UserAccountId);
 
-		-- Compensate
-		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			values (@FeeTransactionId, @FeeAccountId, null, @Fee, @InitialFeeBalance);
-
-		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			values (@FeeTransactionId, @UserAccountId, @Fee, null, @InitialUserBalance + @Amount - @Fee);
-
-/* Although to post two rows in a single insert seems more performant, we cannot guarantee the order of the rows in that case. 
+/* Remark. Although to post two rows in a single insert seems more performant, we cannot guarantee the order of the rows in that case. 
 We need to post entries in a particlar order to keep the running balance correct. */
 	
 	if @ExternalTran = 0

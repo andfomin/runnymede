@@ -3,7 +3,7 @@
     [ExerciseId]      INT            NOT NULL,
     [UserId]          INT            NULL,
     [Price]           DECIMAL (9, 2) NOT NULL,
-    [ExerciseType]    NCHAR (4)      NOT NULL,
+    [ExerciseType]    CHAR (6)       NOT NULL,
     [ExerciseLength]  INT            NULL,
     [RequestTime]     DATETIME2 (2)  CONSTRAINT [DF_exeReviews_RequestTime] DEFAULT (sysutcdatetime()) NOT NULL,
     [CancelationTime] DATETIME2 (2)  NULL,
@@ -14,6 +14,8 @@
     [ReviewerName]    NVARCHAR (999) NULL,
     CONSTRAINT [PK_exeReviews] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
+
+
 
 
 

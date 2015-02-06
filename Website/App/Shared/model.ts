@@ -35,6 +35,7 @@ module app {
         startTime: string; // Date;
         finishTime: string; // Date;
         authorName: string;
+        userId: number;
         reviewerName: string;
         price: number;
         exerciseLength: number;
@@ -75,8 +76,8 @@ module app {
 
     export interface IScheduleEvent {
         id: number;
-        start: Moment;
-        end: Moment;
+        start: moment.Moment;
+        end: moment.Moment;
         type: string;
         userId: number;
         // These properties are supported by FullCalendar

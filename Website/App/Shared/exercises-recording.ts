@@ -6,7 +6,7 @@ module app.exercises {
         remark: IRemark;
         sound: any = null;
         soundPosition: number = 0;
-        autoLoad: boolean = true;
+        autoLoad: boolean = false;
         soundLoaded: boolean = false;
         sliderTimer: ng.IPromise<any> = undefined;
         playing: boolean = false;
@@ -19,10 +19,10 @@ module app.exercises {
             )
         /* ----- Constructor  ------------ */
         {
-            $scope.vm = this;
+            (<any>$scope).vma = this; // Inner scope. The outer is vm.
 
             this.exercise = app['exerciseParam'];
-            //this.setupSoundManager(); // SoundManager2 does not work if initialized late during AngularJS bootstraping. It is initilized below as a regular JS script.
+            //this.setupSoundManager(); // SoundManager2 does not work if initialized late during the AngularJS bootstraping. It is initilized below as a regular JS script.
             //soundManagerReady.done(() => { this.createSound(); });
             soundManagerReady.promise.then(() => { this.createSound(); });
             $scope.$on('$destroy', () => { this.stopSliderWatcher(); });
@@ -34,6 +34,12 @@ module app.exercises {
             var versionFlash = sm && sm.version && (sm.version.indexOf('Flash') > 0);
             var usingFlash = versionFlash && sm.html5 && sm.html5.usingFlash;
             this.autoLoad = usingFlash || !app.isMobileDevice();
+            this.$scope.$apply();
+            //if (app.isDevHost()) {
+            //    alert(versionFlash + ';' + usingFlash + ';' + app.isMobileDevice() + ';' + this.autoLoad);
+            //};
+
+            var self = this;
 
             this.sound = sm.createSound({
                 id: 'mySound',
@@ -41,15 +47,18 @@ module app.exercises {
                 autoLoad: this.autoLoad, // Should be explicitly false for iOS. Mobile browsers permit downloading only on a user action.
                 multiShot: false,
 
-                onload: (success) => {
+                onload(success) {
                     if (success) {
-                        this.$scope.$evalAsync(() => {
-                            this.soundLoaded = true; // Show the editor controls.
-                            this.$scope.$broadcast('refreshSlider'); // The slider was initially hidden. The doc advises to refresh it on showing. It updates DOM in $timeout.
+                        self.$scope.$evalAsync(() => {
+                            self.soundLoaded = true; // Show the editor controls.
+                            self.$scope.$broadcast('refreshSlider'); // The slider was initially hidden. The doc advises to refresh it on showing. It updates DOM in $timeout.
                         });
                     }
                     else {
-                        toastr.error('Error loading the sound file.');
+                        // False value should seemingly only be for failure, but appears to be returned by Flash for load from cache as well.
+                        if (this.readyState != 3) {
+                            toastr.error('Error occured while loading the sound file.');
+                        }
                     }
                 },
 
@@ -101,6 +110,8 @@ module app.exercises {
                     this.sound.play();
                 }
                 this.selectRemark(null);
+                // If autoLoad is initially false and soundLoaded is false, show the spinner.
+                this.autoLoad = true;
             }
             else {
                 if (this.sound.playState === 1) {
@@ -174,8 +185,6 @@ module app.exercises {
         };
 
     } // end of class AudioPlayer
-    
-    //var soundManagerReady: JQueryDeferred<any> = $.Deferred();
 
     var injector = angular.injector(['ng']);
     var $q: ng.IQService = injector.get('$q');
@@ -187,10 +196,10 @@ module app.exercises {
             sm.setup({
                 url: '/scripts/sm2/',
                 flashVersion: 9, //default = 8
-                preferFlash: true, // HTML5 Audio play/pause/resume is fragile in Chrome.
+                preferFlash: true, // HTML5 Audio play/pause/resume is fragile in Chrome and in iOS Safari.
                 useFlashBlock: false,
                 debugMode: false, // Set it explicitly, it is needed for choosing the name of the script to load.
-                useConsole: true,
+                useConsole: false,
                 waitForWindowLoad: true,
                 onready: () => { soundManagerReady.resolve(); },
                 ontimeout: () => { toastr.error('Error. Audio player could not start.'); }

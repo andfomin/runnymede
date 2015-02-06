@@ -42,7 +42,7 @@
         }
 
             slider span.bubble.limit {
-                top: -1px;
+                top: -2px;
             }
 
     /* The slider directive uses the new HTML5 input[type=range] tag in modern browsers (IE10+). It is the top-most element, so it reacts to the user actions. But its opacity is set to 0, so it is invisible. */
@@ -95,29 +95,26 @@
         <div style="margin: 0px 0px 10px;">
             @* Rejected alternative: Angular-wrapped JQuery-UI slider +http://jsfiddle.net/depy/ZXekc/ *@
             <div class="app-slider-container">
-                <slider floor="0" ceiling="{{vm.exercise.length}}" ng-model="vm.soundPosition" ng-change="vm.onSliderChange()" translate-fn="vm.positionFormatting"></slider>
+                <slider floor="0" ceiling="{{vma.exercise.length}}" ng-model="vma.soundPosition" ng-change="vma.onSliderChange()" translate-fn="vma.positionFormatting"></slider>
             </div>
             <div class="app-spot-mark-container">
-                <a class="app-spot-mark" href="javascript:;" ng-repeat="r in vm.remarks"
-                   ng-click="vm.selectRemark(r)" ng-class="{active: vm.isSelected(r)}" ng-style="{ left: vm.getSpotMarkPosition(r) + '%' }"></a>
+                <a class="app-spot-mark" href="javascript:;" ng-repeat="r in vm.$appRemarks.remarks"
+                   ng-click="vma.selectRemark(r)" ng-class="{active: vma.isSelected(r)}" ng-style="{ left: vma.getSpotMarkPosition(r) + '%' }"></a>
             </div>
         </div>
     </div>
 </div>
 <div class="row">
     <div class="col-sm-offset-1 col-sm-2">
-        <button class="btn btn-default btn-block" ng-click="vm.rewind()" ng-disabled="vm.soundPosition == 0"><i class="fa fa-step-backward fa-fw"></i>&nbsp;Rewind</button>
+        <button class="btn btn-default btn-block" ng-click="vma.rewind()" ng-disabled="vma.soundPosition == 0"><i class="fa fa-step-backward fa-fw"></i>&nbsp;Rewind</button>
     </div>
-    <div class="col-sm-1">
-        @* The &nbsp; separates buttons when the layout jumps on col-sm  *@
-        &nbsp;
-    </div>
+    @* The &nbsp; separates buttons when the layout jumps on col-sm  *@
+    <div class="col-sm-1">&nbsp;</div>
     <div class="col-sm-4">
-        <button id="playButton" type="button" class="btn btn-default btn-block" ng-class="{active: vm.playing}" ng-click="vm.turnPlayer(!vm.playing)">
-            <i class="fa fa-fw" ng-class="vm.playing ? 'fa-pause' : 'fa-play'"></i>&nbsp;<span ng-bind="vm.playing ? 'Pause' : 'Play'"></span>
+        <button id="playButton" type="button" class="btn btn-default btn-block" ng-class="{active: vma.playing}" ng-click="vma.turnPlayer(!vma.playing)">
+            <i class="fa fa-fw" ng-class="vma.playing ? 'fa-pause' : 'fa-play'"></i>&nbsp;<span ng-bind="vma.playing ? 'Pause' : 'Play'"></span>
         </button>
     </div>
-    <div class="col-sm-4">
-    </div>
+    @*<div class="col-sm-4"></div>*@
 </div>
 

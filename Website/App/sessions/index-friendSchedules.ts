@@ -17,7 +17,7 @@ module app.sessions_index {
 
             this.eventSources = [
                 {
-                    events: (start: Moment, end: Moment, timezone: string, callback: (data: any) => void) => {
+                    events: (start: moment.Moment, end: moment.Moment, timezone: string, callback: (data: any) => void) => {
                         if (this.authenticated) {
                             /* FullCalendar passes Start and End as midnights without a timezone. 
                                In other words, for clients in different time zones, it passes the same values indicating only the calendar date, but not the moment in time.

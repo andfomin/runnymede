@@ -110,18 +110,17 @@
         }
     </div>
 </div>
-@Html.HrSeparator("col-md-offset-1 col-md-10")
 <div class="row">
-    <div class="col-md-offset-1 col-md-6">
-        <form class="form-horizontal">
-            <div class="form-group app-margin-bottom-none">
-                <div class="col-sm-offset-4 col-sm-8">
-                    Not a member yet? @Html.ActionLink(HttpUtility.HtmlDecode("Create an account"), "Signup", "Account")
-                    <br />
-                    Forgot your password? @Html.ActionLink(HttpUtility.HtmlDecode("Reset password"), "ForgotPassword", "Account")
-                </div>
-            </div>
-        </form>
+    <div class="col-md-offset-3 col-md-6 text-center">
+        <hr />
+        <div class="text-left" style="display:inline-block;">
+            <p>
+                Forgot your password? @Html.ActionLink(HttpUtility.HtmlDecode("Reset password"), "ForgotPassword", "Account")
+            </p>
+            <p>
+                Not a member yet? @Html.ActionLink(HttpUtility.HtmlDecode("Create an account"), "Signup", "Account")
+            </p>
+        </div>
     </div>
 </div>
 @section BottomScripts {

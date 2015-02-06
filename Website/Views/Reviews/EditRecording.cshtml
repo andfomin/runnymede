@@ -12,16 +12,16 @@
 
         <div ng-controller="AudioPlayer">
 
-            <div class="text-center" ng-show="vm.autoLoad && !vm.soundLoaded" ng-cloak>
+            <div class="text-center" ng-show="vma.autoLoad && !vma.soundLoaded" ng-cloak>
                 <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>&nbsp;&nbsp;Loading recording...
                 <hr />
             </div>
-            <div ng-show="!vm.autoLoad || vm.soundLoaded">
+            <div ng-show="!vma.autoLoad || vma.soundLoaded">
                 @Html.Partial("_AudioPlayerControlsPartial")
                 <br />
                 <div class="row">
                     <div class="col-sm-12">
-                        <button class="btn btn-large btn-block btn-primary" ng-show="vm.isNotFinished()" ng-disabled="!vm.canAddRemark()" ng-click="vm.addRemark()">
+                        <button class="btn btn-large btn-block btn-primary" ng-show="vma.isNotFinished()" ng-disabled="!vma.canAddRemark()" ng-click="vma.addRemark()">
                             While listening, click here to mark a spot
                         </button>
                     </div>
@@ -45,37 +45,37 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="r in vm.$appRemarks.remarks" ng-click="vm.selectRemark(r)" ng-class="{warning: vm.isHighlighted(c), 'app-last-row':$last}">
+                            <tr ng-repeat="r in vma.$appRemarks.remarks" ng-click="vma.selectRemark(r)" ng-class="{warning: vma.isHighlighted(c), 'app-last-row':$last}">
                                 <td>
-                                    <button class="btn btn-default btn-xs" ng-show="vm.isSelected(r)" ng-click="vm.playRemarkSpot(r)" title="Replay"><i class="fa fa-repeat"></i></button>
+                                    <button class="btn btn-default btn-xs" ng-show="vma.isSelected(r)" ng-click="vma.playRemarkSpot(r)" title="Replay"><i class="fa fa-repeat"></i></button>
                                 </td>
                                 <td style="white-space: nowrap">
-                                    <div ng-show="vm.isEditing(r)">
+                                    <div ng-show="vma.isEditing(r)">
                                         @* A line break adds a space between the text and the button *@
                                         from
-                                        <button class="btn btn-default btn-xs" ng-click="vm.shiftSpot(r, true, -1000)" title="Shift spot start"><i class="fa fa-angle-left"></i></button>
+                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, true, -1000);vm.makeDirty(r)" title="Shift spot start"><i class="fa fa-angle-left"></i></button>
                                         {{r.start | appMsecToMinSec}}
-                                        <button class="btn btn-default btn-xs" ng-click="vm.shiftSpot(r, true, 1000)" title="Shift spot start"><i class="fa fa-angle-right"></i></button>
+                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, true, 1000);vm.makeDirty(r)" title="Shift spot start"><i class="fa fa-angle-right"></i></button>
                                         <br />to
-                                        <button class="btn btn-default btn-xs" ng-click="vm.shiftSpot(r, false, -1000)" title="Shift spot end"><i class="fa fa-angle-left"></i></button>
+                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, false, -1000);vm.makeDirty(r)" title="Shift spot end"><i class="fa fa-angle-left"></i></button>
                                         {{r.finish | appMsecToMinSec}}
-                                        <button class="btn btn-default btn-xs" ng-click="vm.shiftSpot(r, false, 1000)" title="Shift spot end"><i class="fa fa-angle-right"></i></button>
+                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, false, 1000);vm.makeDirty(r)" title="Shift spot end"><i class="fa fa-angle-right"></i></button>
                                     </div>
-                                    <div ng-show="!vm.isEditing(r)">
+                                    <div ng-show="!vma.isEditing(r)">
                                         from&nbsp;{{r.start | appMsecToMinSec}}
                                         to&nbsp;{{r.finish | appMsecToMinSec}}
                                     </div>
                                 </td>
                                 <td width="35%">
-                                    <textarea rows="3" style="box-sizing: border-box;width:100%;" ng-show="vm.isEditing(r)" ng-model="r.correction" ng-change="vm.makePieceDirty(r)"></textarea>
-                                    <span ng-show="!vm.isEditing(r)">{{r.correction}}</span>
+                                    <textarea rows="3" style="box-sizing: border-box;width:100%;" ng-show="vma.isEditing(r)" ng-model="r.correction" ng-change="vm.makeDirty(r)"></textarea>
+                                    <span ng-show="!vma.isEditing(r)">{{r.correction}}</span>
                                 </td>
                                 <td width="35%">
-                                    <textarea rows="3" style="box-sizing: border-box;width:100%;" ng-show="vm.isEditing(r)" ng-model="r.comment" ng-change="vm.makePieceDirty(r)"></textarea>
-                                    <span ng-show="!vm.isEditing(r)">{{r.comment}}</span>
+                                    <textarea rows="3" style="box-sizing: border-box;width:100%;" ng-show="vma.isEditing(r)" ng-model="r.comment" ng-change="vm.makeDirty(r)"></textarea>
+                                    <span ng-show="!vma.isEditing(r)">{{r.comment}}</span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-default btn-xs" title="Delete remark" ng-show="vm.isEditing(r)" ng-click="vm.showDeleteRemarkModal(r)">
+                                    <button class="btn btn-default btn-xs" title="Delete remark" ng-show="vma.isEditing(r)" ng-click="vm.showDeleteRemarkModal(r)">
                                         <i class="fa fa-times text-danger"></i>
                                     </button>
                                 </td>

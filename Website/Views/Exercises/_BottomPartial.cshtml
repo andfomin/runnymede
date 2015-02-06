@@ -1,4 +1,10 @@
-﻿<div ng-cloak>
+﻿<style>
+    ul.my-review-items > li > span:not(:first-of-type) {
+        margin-left: 10px;
+        white-space: nowrap;
+    }
+</style>
+<div ng-cloak>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Suggestions for Learning and Practicing</h3>
@@ -6,7 +12,7 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-6">
-                    <div ng-repeat="r in vm.reviews">
+                    <div ng-repeat="r in vm.startedReviews()">
                         <h4 ng-show="vm.manyReviews()">{{r.reviewerName}}</h4>
                         <div class="list-group">
                             <a href="" class="list-group-item" ng-repeat="s in r.suggestions" ng-class="{active: s === vm.selectedSuggestion}" ng-click="vm.selectSuggestion(s)">
@@ -32,7 +38,7 @@
                     <h4 class="panel-title">General comments</h4>
                 </div>
                 <div class="panel-body">
-                    <div ng-repeat="r in vm.reviews">
+                    <div ng-repeat="r in vm.startedReviews()">
                         <h4 ng-show="vm.manyReviews()">{{r.reviewerName}}</h4>
                         <span class="app-pre-line">{{r.comment.comment}}</span>
                     </div>
@@ -49,7 +55,7 @@
             <h4 class="app-margin-top-none">Reviews</h4>
             <ul class="my-review-items">
                 <li ng-repeat="r in vm.reviews">
-                    <span>Reviewer <strong>{{r.reviewerName}}</strong></span>
+                    <span>Reviewer <img class="img-circle app-avatar" width="16" height="16" ng-src="{{r.userId | appAvatarSmall}}" /><strong>{{r.reviewerName}}</strong></span>
                     <span>Requested {{r.requestTime | appDateTime}}</span>
                     <span ng-show="r.startTime">Started {{r.startTime | appDateTime}}</span>
                     <span ng-show="!r.startTime">Not started</span>

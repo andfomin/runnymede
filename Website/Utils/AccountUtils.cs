@@ -41,7 +41,7 @@ namespace Runnymede.Website.Utils
             return identity.IsAuthenticated;
         }
 
-        private static int GetUserId(IIdentity identity)
+        public static int GetUserId(IIdentity identity)
         {
             var userIdStr = identity.GetUserId(); // Identity.GetUserId() is an extention method in Microsoft.AspNet.Identity
             int result;

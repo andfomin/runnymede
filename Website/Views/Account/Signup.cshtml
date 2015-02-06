@@ -2,10 +2,11 @@
     ViewBag.Title = "Create an account";
 }
 <style>
-    /* Custom validation */
-    input.form-control.app-no-right.app-invalid {
-        border-color: red;
+    #password2 {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
     }
+
     /* Compliment the border style of form-control */
     #pwd-addon {
         -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
@@ -41,9 +42,9 @@
             </div>
             <br />
             <div class="row">
-                <div class="col-sm-5"><hr class="app-separator" /></div>
+                <div class="col-sm-5"><hr /></div>
                 <div class="col-sm-2 text-center app-separator-or app-appred">or</div>
-                <div class="col-sm-5"><hr class="app-separator" /></div>
+                <div class="col-sm-5"><hr /></div>
             </div>
             <h4>Sign up using your Google account</h4>
             <div class="row">
@@ -54,19 +55,19 @@
         }
         <br />
         <div class="row">
-            <div class="col-sm-5"><hr class="app-separator" /></div>
+            <div class="col-sm-5"><hr /></div>
             <div class="col-sm-2 text-center app-separator-or app-appred">or</div>
-            <div class="col-sm-5"><hr class="app-separator" /></div>
+            <div class="col-sm-5"><hr /></div>
         </div>
+
         <h4>Sign up with password</h4>
-        <br />
-        <form class="form-horizontal" name="mainForm" role="form" novalidate>
+        <form class="form-horizontal app-margin-top" name="mainForm" role="form" novalidate>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="email">Your email address</label>
                 <div class="col-sm-8">
                     <div class="row">
                         <div class="col-sm-10">
-                            <input type="email" id="email" class="form-control" name="email" ng-model="vm.email" required autofocus />
+                            <input type="text" id="email" class="form-control" ng-class="{'app-invalid':!vm.isEmailValid()}" ng-model="vm.email" autofocus />
                         </div>
                     </div>
                     <p class="help-block"><small>This email address will be your login name. It&nbsp;will&nbsp;not be shown publicly.</small></p>
@@ -78,10 +79,11 @@
                     <div class="row">
                         <div class="col-sm-10">
                             <div class="input-group">
-                                <input type="password" class="form-control app-no-right" name="password1" id="password1"
-                                       ng-class="vm.password.length < 6 ? 'app-invalid' : ''" ng-model="vm.password" ng-show="!vm.showPwd" required autocomplete="off" />
-                                <input type="text" class="form-control app-no-right" name="password2" id="password2"
-                                       ng-class="vm.password.length < 6 ? 'app-invalid' : ''" ng-model="vm.password" ng-show="vm.showPwd" required autocomplete="off" />
+                                @* ng-minlength prevents setting ng-model if the input is invalid, so we lose the value when we switch between the two modes *@
+                                <input type="password" id="password1" class="form-control"
+                                       ng-class="{'app-invalid':!vm.isPwdValid()}" ng-model="vm.password" ng-show="!vm.showPwd" required autocomplete="off" />
+                                <input type="text" id="password2" class="form-control"
+                                       ng-class="{'app-invalid':!vm.isPwdValid()}" ng-model="vm.password" ng-show="vm.showPwd" required autocomplete="off" />
                                 <span id="pwd-addon" class="input-group-addon" style="background-color:inherit;">
                                     <input type="checkbox" style="vertical-align:middle;" ng-model="vm.showPwd" ng-click="vm.focusPwd()" tabindex="-1">&nbsp;<small style="position:relative; top:1px;">Show</small>
                                 </span>
@@ -102,30 +104,28 @@
                     <p class="help-block"><small>This name will be visible to other users. Please use Latin letters.</small></p>
                 </div>
             </div>
-            <div class="form-group app-margin-bottom-none">
+            <div class="form-group">
                 <div class="col-sm-offset-4 col-sm-3">
-                    <button type="submit" class="btn btn-primary btn-block app-btn-disablable" ng-click="vm.post(mainForm)" ng-disabled="mainForm.$invalid || vm.password.length < 6 || vm.sending">
+                    <button type="submit" class="btn btn-primary btn-block app-btn-disablable" ng-click="vm.post(mainForm)" ng-disabled="vm.sending">
                         Sign up
                     </button>
                 </div>
             </div>
         </form>
-        <br />
-        <hr class="app-separator" />
-        <div class="row">
+        <div class="row app-margin-bottom">
             <div class="col-sm-offset-4 col-sm-8">
-                @*By creating an account, you agree to our @Html.ActionLink(HttpUtility.HtmlDecode("Terms&nbsp;of&nbsp;Service"), "TermsOfService", "Info", null, new { @tabindex = "-1", target = "_blank" }).*@
                 By creating an account, you agree to our <a href="javascript:;" ng-click="isVisible = !isVisible">Terms&nbsp;of&nbsp;Service</a>.
             </div>
         </div>
     </div>
 
-    <div class="col-md-4" ng-if="!isVisible">
+    <div class="col-md-5" ng-if="!isVisible">
         <h4>Benefits of creating a free user account</h4>
         <ul>
-            <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu arcu lectus. Ut tincidunt tincidunt nulla id dapibus. Donec quis mi id ligula condimentum porta at a dui. Pellentesque venenatis vitae augue et egestas. Maecenas.</li>
-            <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu arcu lectus. Ut tincidunt tincidunt nulla id dapibus. Donec quis mi id ligula condimentum porta at a dui. Pellentesque venenatis vitae augue et egestas. Maecenas.</li>
-            <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu arcu lectus. Ut tincidunt tincidunt nulla id dapibus. Donec quis mi id ligula condimentum porta at a dui. Pellentesque venenatis vitae augue et egestas. Maecenas.</li>
+            <li>Record speaking exercises.</li>
+            <li>Find speaking partners.</li>
+            <li>Find learning resources with the optimal language level.</li>
+            <li>Manage your personal collection of learning resources.</li>
         </ul>
     </div>
     <div class="col-md-5" ng-if="isVisible">

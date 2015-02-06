@@ -76,37 +76,12 @@ module app.reviews {
             return remark;
         };
 
-        makeDirty = () => {
-            if (this.remark) {
-                this.remark.dirtyTime = new Date();
-                this.repaint();
-            }
-        };
-
-        showDeleteRemarkModal = () => {
-            if (this.remark) {
-                app.Modal.openModal(this.$modal,
-                    '/app/reviews/deleteRemarkModal.html',
-                    DeleteRemarkModal,
-                    {
-                        partitionKey: getPiecePartitionKey(this.exercise),
-                        rowKey: getPieceRowKey(this.remark),
-                    },
-                    () => {
-                        this.$appRemarks.deleteRemark(this.remark);
-                        this.selectRemark(null);
-                        toastr.success('Remark was deleted.');
-                    }
-                    )
-                }
-        };
-
     } // end of class CanvasEditor
 
     angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar'])
         .value(app.ngNames.$appRemarksComparer, app.exercises.WritingsComparer)
         .service(app.ngNames.$appRemarks, app.exercises.RemarksService)
-        .controller('Canvas', app.reviews.CanvasEditor)
+        .controller('Canvas', app.reviews.CanvasEditor) // vma
         .controller('EditWriting', app.reviews.EditCtrlBase)
     ;
 

@@ -1,12 +1,12 @@
 ﻿<style>
-    button.app-unsaved-on-exit {
+    button.my-unsaved-on-exit {
         border-color: red;
         border-width: 3px;
     }
 </style>
 <div class="row app-margin-bottom" ng-show="vm.unsavedOnExit">
     <div class="col-sm-2">
-        <button class="btn btn-primary btn-block app-unsaved-on-exit" ng-click="vm.save()" ng-disabled="!vm.canSave()">Save changes</button>
+        <button class="btn btn-primary btn-block app-btn-disablable my-unsaved-on-exit" ng-click="vm.save()" ng-disabled="!vm.canSave()">Save changes</button>
     </div>
     <div class="col-sm-10">
     </div>

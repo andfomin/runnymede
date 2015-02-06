@@ -15,13 +15,13 @@
                     </thead>
                     <tr ng-repeat="s in vm.review.suggestions">
                         <td>
-                            <textarea rows="2" class="form-control app" ng-show="vm.isNotFinished()" ng-model="s.suggestion" ng-change="vm.makePieceDirty(s)"></textarea>
+                            <textarea rows="2" class="form-control app" ng-show="vm.isNotFinished()" ng-model="s.suggestion" ng-change="vm.makeDirty(s)"></textarea>
                             <span ng-show="!vm.isNotFinished()">{{s.suggestion}}</span>
                         </td>
                         <td>
                             <input type="text" class="form-control"
-                                   data-typeahead="c.name for c in vm.categories | filter:$viewValue | limitTo:20" data-typeahead-on-select="vm.makePieceDirty(s)"
-                                   ng-show="vm.isNotFinished()" ng-model="s.keywords" ng-change="vm.makePieceDirty(s)" />
+                                   data-typeahead="c.name for c in vm.categories | filter:$viewValue | limitTo:20" data-typeahead-on-select="vm.makeDirty(s)"
+                                   ng-show="vm.isNotFinished()" ng-model="s.keywords" ng-change="vm.makeDirty(s)" />
                             <span ng-show="!vm.isNotFinished()">{{s.keywords}}</span>
                         </td>
                         <td style="width:10%">
@@ -51,7 +51,7 @@
                 <h3 class="panel-title">General comments</h3>
             </div>
             <div class="panel-body">
-                <textarea rows="10" class="form-control app" ng-show="vm.isNotFinished()" ng-model="vm.review.comment.comment" ng-change="vm.makePieceDirty(vm.review.comment)"></textarea>
+                <textarea rows="10" class="form-control app" ng-show="vm.isNotFinished()" ng-model="vm.review.comment.comment" ng-change="vm.makeDirty(vm.review.comment)"></textarea>
                 <span class="app-pre-line" ng-show="!vm.isNotFinished()">{{vm.review.comment.comment}}</span>
             </div>
         </div>
@@ -59,15 +59,12 @@
 </div>
 <br />
 <div class="row">
-    <div class="col-sm-offset-1 col-sm-2">
-        <button class="btn btn-primary btn-block" ng-show="vm.isNotFinished()" ng-class="{'app-unsaved-on-exit': vm.unsavedOnExit}" ng-click="vm.save()" ng-disabled="!vm.canSave()">Save changes</button>
-    </div>
-    <div class="col-sm-3">
-        @* The &nbsp; separates buttons when the layout jumps on col-sm  *@
-        <span ng-show="vm.autoSaved">Auto-saved</span>&nbsp;
+    <div class="col-sm-offset-1 col-sm-5 app-margin-bottom">
+        <button class="btn btn-primary" ng-show="vm.isNotFinished()" ng-class="{'app-unsaved-on-exit': vm.unsavedOnExit}" ng-click="vm.save()" ng-disabled="!vm.canSave()">Save changes</button>
+        <span class="app-margin-left" ng-show="vm.autoSaved">Auto-saved</span>&nbsp;
     </div>
     <div class="col-sm-2">
-        <button class="btn btn-primary btn-block" ng-show="vm.isNotFinished()" ng-click="vm.showFinishReviewModal(r)">Finish review</button><br />
+        <button class="btn btn-primary" ng-show="vm.isNotFinished()" ng-click="vm.showFinishReviewModal(r)">Finish review</button><br />
     </div>
     <div class="col-sm-4 text-right">
         Started {{vm.review.startTime | appDateTime}}

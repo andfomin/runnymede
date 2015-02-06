@@ -1,7 +1,9 @@
-﻿using Microsoft.WindowsAzure.Storage;
+﻿using Microsoft.AspNet.SignalR;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json.Linq;
 using Runnymede.Common.Utils;
+using Runnymede.Website.Controllers.Hubs;
 using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
@@ -16,13 +18,13 @@ using System.Xml.Linq;
 
 namespace Runnymede.Website.Controllers.Api
 {
-    [Authorize]
+    [System.Web.Http.Authorize]
     [RoutePrefix("api/reviews")]
     public class ReviewsApiController : ApiController
     {
 
         // DELETE /api/reviews/12345
-        [Route("")]
+        [Route("{id:int}")]
         public async Task<IHttpActionResult> DeleteReviewRequest(int id)
         {
             await DapperHelper.QueryResilientlyAsync<DateTime>(
@@ -41,7 +43,7 @@ namespace Runnymede.Website.Controllers.Api
         public async Task<IHttpActionResult> DeletePiece(string partitionKey, string rowKey)
         {
             // Check access rights.
-            var reviewId = Convert.ToInt32(ReviewPiece.GetReviewId(rowKey));
+            var reviewId = ReviewPiece.GetReviewId(rowKey);
             var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.ReviewPieces);
             var userIsEditor = await UserIsEditor(partitionKey, reviewId, table);
 
@@ -65,6 +67,11 @@ namespace Runnymede.Website.Controllers.Api
                     if (ex.RequestInformation.HttpStatusCode != (int)HttpStatusCode.NotFound)
                         throw;
                 }
+
+                // Notify the exercise author in real-time.
+                var pieceType = ReviewPiece.GetType(rowKey);
+                var pieceId = ReviewPiece.GetPieceId(rowKey);
+                this.GetAuthorConnections(partitionKey).PieceDeleted(reviewId, pieceType, pieceId);
             }
 
             return StatusCode(userIsEditor ? HttpStatusCode.NoContent : HttpStatusCode.BadRequest);
@@ -142,7 +149,11 @@ namespace Runnymede.Website.Controllers.Api
         {
             var items = await DapperHelper.QueryResilientlyAsync<dynamic>(
                 "dbo.exeGetRequests",
-                new { UserId = this.GetUserId() },
+                new
+                {
+                    UserId = this.GetUserId(),
+                    UserIsTeacher = this.GetUserIsTeacher(), // If the user is not a teacher, filter out requests to "Any teacher". Return only the direct ones.
+                },
                 CommandType.StoredProcedure);
             return Ok(new { Items = items });
         }
@@ -179,7 +190,7 @@ namespace Runnymede.Website.Controllers.Api
                     new XElement("Exercise", new XAttribute("Id", exerciseId)),
                     from r in reviewers
                     select new XElement("Reviewer",
-                        r.UserId.HasValue ? new XAttribute("UserId", r.UserId) : null, // Absense of the UserId attribute means UserId = null, i.e. 'Any teacher'.
+                        r.UserId.HasValue ? new XAttribute("UserId", r.UserId) : null, // Absense of the UserId attribute in T-SQL means UserId = null, i.e. 'Any teacher'.
                         new XAttribute("Price", r.Price)
                         )
                     )
@@ -201,7 +212,8 @@ namespace Runnymede.Website.Controllers.Api
         {
             var userId = this.GetUserId();
 
-            var exerciseId = (await DapperHelper.QueryResilientlyAsync<int>("dbo.exeStartReview",
+            // Get ExerciseId, AuthorUserId, StartTime back.
+            var output = (await DapperHelper.QueryResilientlyAsync<dynamic>("dbo.exeStartReview",
                   new
                   {
                       UserId = userId,
@@ -210,23 +222,39 @@ namespace Runnymede.Website.Controllers.Api
                   CommandType.StoredProcedure))
                   .Single();
 
-            // Write entities which will allow the reviewer to access remarks for reading and writing. We will simply check the presence of one of these records as we read or write the entities.
-            // The write entity will be deleted on review finish.
+            /* Write entities which will allow the reviewer to access for reading and writing and the author for reading.
+             * We will simply check the presence of one of these records as we read or write the entities.
+             * The write entity will be deleted on review finish.
+             */
+            var partitionKey = ReviewPiece.GetPartitionKey(output.ExerciseId);
             var viewerEntity = new ReviewPiece()
             {
-                PartitionKey = ReviewPiece.GetPartitionKey(exerciseId),
-                RowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Viewer, this.GetUserId()),
+                PartitionKey = partitionKey,
+                RowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Viewer, userId),
             };
             var editorEntity = new ReviewPiece()
             {
-                PartitionKey = ReviewPiece.GetPartitionKey(exerciseId),
-                RowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Editor, this.GetUserId()),
+                PartitionKey = partitionKey,
+                RowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Editor, userId),
             };
+            var authorEntity = new ReviewPiece()
+            {
+                PartitionKey = partitionKey,
+                RowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Viewer, output.AuthorUserId),
+            };
+
             var batchOperation = new TableBatchOperation();
             batchOperation.InsertOrReplace(viewerEntity);
             batchOperation.InsertOrReplace(editorEntity);
+            if (userId != output.AuthorUserId)
+            {
+                batchOperation.InsertOrReplace(authorEntity);
+            }
             var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.ReviewPieces);
             await table.ExecuteBatchAsync(batchOperation);
+
+            var startTime = DateTime.SpecifyKind(output.StartTime, DateTimeKind.Utc);
+            this.GetAuthorConnections(partitionKey).ReviewStarted(reviewId, startTime, output.ReviewerUserId, output.ReviewerName);
 
             return StatusCode(HttpStatusCode.NoContent);
         }
@@ -237,55 +265,41 @@ namespace Runnymede.Website.Controllers.Api
         {
             var userId = this.GetUserId();
 
-            await DapperHelper.QueryResilientlyAsync<DateTime>(
-                   "dbo.exeFinishReview",
-                   new
-                   {
-                       ReviewId = reviewId,
-                       UserId = userId,
-                   },
-                   CommandType.StoredProcedure);
+            // Get ExerciseId and FinishTime back.
+            var output = (await DapperHelper.QueryResilientlyAsync<dynamic>(
+                "dbo.exeFinishReview",
+                new
+                {
+                    ReviewId = reviewId,
+                    UserId = userId,
+                },
+                CommandType.StoredProcedure))
+                .Single();
 
-            // Make the remarks available to the exercise aurhor. 
-            // First get the ExerciseId and the exercise author from the database.
-            const string sql = @"
-select R.ExerciseId, R.FinishTime, E.UserId
-from dbo.exeReviews R
-	inner join dbo.exeExercises E on R.ExerciseId = E.Id
-where R.Id = @ReviewId
-	and R.FinishTime is not null;
-";
-            var data = (await DapperHelper.QueryResilientlyAsync<dynamic>(sql, new { ReviewId = reviewId, })).Single();
-
-            // Write an entity which will allow the exercise author to read remarks. We will simply check the presence of this record as we batch-read the partition.
-            var authorEntity = new ReviewPiece()
-            {
-                PartitionKey = ReviewPiece.GetPartitionKey(data.ExerciseId),
-                RowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Viewer, data.UserId),
-            };
-            // Remove write access from the reviewer.
+            var partitionKey = ReviewPiece.GetPartitionKey(output.ExerciseId);
+            // Revoke write access from the reviewer.
             var reviewerEntity = new ReviewPiece()
             {
-                PartitionKey = ReviewPiece.GetPartitionKey(data.ExerciseId),
+                PartitionKey = partitionKey,
                 RowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Editor, userId),
                 ETag = "*",
             };
+            var operation = TableOperation.Delete(reviewerEntity);
             var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.ReviewPieces);
-            var batchOperation = new TableBatchOperation();
-            batchOperation.InsertOrReplace(authorEntity);
-            batchOperation.Delete(reviewerEntity);
-            await table.ExecuteBatchAsync(batchOperation);
+            await table.ExecuteAsync(operation);
 
-            return Ok(new { FinishTime = data.FinishTime });
+            // Notify the watching exercise author
+            var finishTime = DateTime.SpecifyKind(output.FinishTime, DateTimeKind.Utc);
+            this.GetAuthorConnections(partitionKey).ReviewFinished(reviewId, finishTime);
+
+            return Ok(new { FinishTime = output.FinishTime });
         }
 
         // PUT /api/reviews/pieces
         [Route("pieces")]
         public async Task<IHttpActionResult> PutReviewPieces([FromBody] IEnumerable<ReviewPiece> pieces)
         {
-            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.ReviewPieces);
-
-            // Ensure that the user is the actual reviewer. Check the presense of the access entry for the user. All pieces must belong to the same exercise and review.
+            // All pieces must belong to the same exercise and review.
             var partitionKey = pieces
                 .Select(i => i.PartitionKey)
                 .GroupBy(i => i)
@@ -293,11 +307,13 @@ where R.Id = @ReviewId
                 .Single();
 
             var reviewId = pieces
-                .Select(i => Convert.ToInt32(ReviewPiece.GetReviewId(i.RowKey)))
+                .Select(i => ReviewPiece.GetReviewId(i.RowKey))
                 .GroupBy(i => i)
                 .Select(i => i.Key)
                 .Single();
 
+            // Ensure that the user is the actual reviewer. Check the presense of the access entry for the user. All pieces must belong to the same exercise and review.
+            var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.ReviewPieces);
             var userIsEditor = await UserIsEditor(partitionKey, reviewId, table);
 
             if (userIsEditor)
@@ -310,13 +326,17 @@ where R.Id = @ReviewId
                 await table.ExecuteBatchAsync(batchOperation);
             }
 
+            // Notify the exercise author in real-time.
+            var piecesArr = pieces.Select(i => i.Json).ToArray();
+            this.GetAuthorConnections(partitionKey).PiecesChanged(piecesArr);
+
             return StatusCode(userIsEditor ? HttpStatusCode.NoContent : HttpStatusCode.BadRequest);
         }
 
         private async Task<bool> UserIsEditor(string partitionKey, int reviewId, CloudTable table)
         {
-            var userRowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Editor, this.GetUserId());
-            var operation = TableOperation.Retrieve<ReviewPiece>(partitionKey, userRowKey);
+            var rowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Editor, this.GetUserId());
+            var operation = TableOperation.Retrieve<ReviewPiece>(partitionKey, rowKey);
             var result = await table.ExecuteAsync(operation);
             return result.Result != null;
         }
@@ -329,6 +349,17 @@ where R.Id = @ReviewId
                 var type = ReviewPiece.GetType(i.RowKey);
                 return (type == ReviewPiece.PieceTypes.Editor) || (type == ReviewPiece.PieceTypes.Viewer);
             });
+        }
+
+        /// <summary>
+        /// The SignalR connections from the exercise author are grouped by ExerciseId.
+        /// </summary>
+        /// <param name="partitionKey">KeyUtils.IntToKey(exerciseId)</param>
+        /// <returns>The dynamic object which can be used to call dynamic methods.</returns>
+        private dynamic GetAuthorConnections(string partitionKey)
+        {
+            var hub = GlobalHost.ConnectionManager.GetHubContext<ReviewHub>();
+            return hub.Clients.Group(partitionKey);
         }
 
     }

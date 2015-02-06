@@ -21,8 +21,7 @@ module app.reviews {
             $scope: app.IScopeWithViewModel,
             public $window: ng.IWindowService
             )
-        /* ----- Constructor  ------------ */
-        {
+        /* ----- Constructor  ------------ */ {
             super($appRemarks, $http, $scope);
 
             this.review = this.exercise.reviews[0];
@@ -33,14 +32,14 @@ module app.reviews {
                 () => { this.autoSave(); },
                 10000);
 
-            $scope.$on('$destroy', () => {
+            $scope.$on('$destroy',() => {
                 if (angular.isDefined(autoSaveInterval)) {
                     $interval.cancel(autoSaveInterval);
                 }
                 this.$window.onbeforeunload = undefined;
             });
 
-            $scope.$on(app.exercises.RemarksService.remarksChanged, () => { this.autoSaved = false; });
+            $scope.$on(app.exercises.RemarksService.remarksChanged,() => { this.autoSaved = false; });
 
             this.categories = app.library.Categories
                 .filter((i) => { return i.pathIds.indexOf(app.library.ID_OF_MEDIA_CATEGORY) === -1; }) // Filter out everything under "Media"
@@ -52,9 +51,8 @@ module app.reviews {
             this.$window.onbeforeunload = (event) => {
                 if (this.canSave()) {
                     // Highlight the Save button
-                    this.$scope.$apply(() => {
-                        this.unsavedOnExit = true;
-                    });
+                    this.unsavedOnExit = true;
+                    this.$scope.$apply();
                     var text = 'Your unsaved changes will be lost if you leave this page.';
                     if (typeof event == 'undefined') {
                         event = window.event;
@@ -87,17 +85,17 @@ module app.reviews {
             return this.$http.delete(
                 app.reviewsApiUrl('piece/' + partitionKey + '/' + rowKey))
                 .success(() => {
-                    // The operation is idempotent. An attempt to delete an unsaved item is no problem as well. In this case, just delete the item on the client.
-                    app.arrRemove(this.review.suggestions, suggestion);
-                    toastr.success('Suggestion was deleted.');
-                });
+                // The operation is idempotent. An attempt to delete an unsaved item is no problem as well. In this case, just delete the item on the client.
+                app.arrRemove(this.review.suggestions, suggestion);
+                toastr.success('Suggestion was deleted.');
+            });
         }
 
         isNotFinished = () => {
             return !this.review.finishTime;
         }
 
-        makePieceDirty = (piece: app.IPiece) => {
+        makeDirty = (piece: app.IPiece) => {
             piece.dirtyTime = new Date();
             this.autoSaved = false;
         };
@@ -135,7 +133,7 @@ module app.reviews {
             // Try to assign categoryId. Although we expect a category, ISuggestion.keywords may be any text. 
             suggestions.forEach((i: app.ISuggestion) => {
                 var keywords = (i.keywords || '').trim();
-                var category = app.arrFind(this.categories, (i) => { return i.name === keywords; });
+                var category = app.arrFind(this.categories,(i) => { return i.name === keywords; });
                 i.categoryId = category ? category.id : null;
             });
 
@@ -151,7 +149,7 @@ module app.reviews {
 
                 var reviewPieces = pieces.map((i) => {
                     var clone = angular.copy(i);
-                    // Remove redundand 40 chars per pice. Save on traffic.
+                    // Remove redundand 40 chars per piece. Save on traffic.
                     //clone.dirtyTime = undefined; 
                     delete clone.dirtyTime;
                     var reviewPiece = {
@@ -175,12 +173,12 @@ module app.reviews {
                     () => { this.isSaving = false; }
                     )
                     .catch((reason) => {
-                        toastr.warning('Changes cannot be saved. Please reload the page.');
-                        // .catch() does not propagate the original rejected promise (.then() doesn't either.) It returns a new resolved promise by default.
-                        var d1 = this.$q.defer();
-                        d1.reject(reason);
-                        return d1.promise;
-                    });
+                    toastr.warning('Changes cannot be saved. Please reload the page.');
+                    // .catch() does not propagate the original rejected promise (.then() doesn't either.) It returns a new resolved promise by default.
+                    var d1 = this.$q.defer();
+                    d1.reject(reason);
+                    return d1.promise;
+                });
             }
             else {
                 var d2 = this.$q.defer();
@@ -192,8 +190,28 @@ module app.reviews {
             return promise;
         };
 
-        showFinishReviewModal = () => {
+        private unselectRemark = () => {
             this.$rootScope.$broadcast(app.exercises.RemarksService.unselectRemark, null);
+        };
+
+        showDeleteRemarkModal = (remark: IRemark) => {
+            app.Modal.openModal(this.$modal,
+                '/app/reviews/deleteRemarkModal.html',
+                DeleteRemarkModal,
+                {
+                    partitionKey: getPiecePartitionKey(this.exercise),
+                    rowKey: getPieceRowKey(remark),
+                },
+                () => {
+                    this.unselectRemark();
+                    this.$appRemarks.deleteRemark(remark);
+                    toastr.success('Remark was deleted.');
+                }
+                )
+        };
+
+        showFinishReviewModal = () => {
+            this.unselectRemark();
 
             var openModal = () => {
                 app.Modal.openModal(this.$modal,
@@ -208,9 +226,9 @@ module app.reviews {
             if (this.canSave()) {
                 this.saveDirtyPieces()
                     .then(() => {
-                        this.autoSaved = true;
-                        openModal();
-                    });
+                    this.autoSaved = true;
+                    openModal();
+                });
             }
             else {
                 openModal();

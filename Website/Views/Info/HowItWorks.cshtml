@@ -3,13 +3,16 @@
 }
 
 <div class="row">
-    <div class="col-md-offset-1 col-md-6">
+    <div class="col-sm-4 col-sm-push-7 text-center">
+        <img src="/content/images/skype-together.jpg" class="img-responsive img-thumbnail app-margin-top app-margin-bottom" width="250" height="170" />
+    </div>
+    <div class="col-sm-offset-1 col-sm-6 col-sm-pull-4">
         <p>
-            Englisharium is a marketplace for specific types of tasks that are related to practicing speaking English.
+            Englisharium is a marketplace for the tasks that are related to practicing speaking English.
         </p>
         <p>
             As a first step, a learner can approach one of the teachers available at Englisharium and arrange a speaking session over Skype. The session may be payed instantly.
-            Englisharium provides learners with a special program for recording Skype conversations, so that the learner can record fragments of their dialogs.
+            Englisharium provides users with a special program for recording Skype conversations, so that they can record fragments of their dialogs.
             Alternatively, a learner can tell a story independently and record their monologue on a special web page.
         </p>
         <p>
@@ -24,25 +27,20 @@
             While listening to the exercise, the teacher can mark spots on the record where they want to make remarks. They can write comments and tag remarks with predefined grammar categories.
         </p>
         <p>
-            After the teacher has completed the review, the review becomes available to the learner. At that moment, the teacher receives the payment. Englisharium deducts 29% as its service fee from every payment.
+            After the teacher has completed the review, the review becomes available to the learner. At that moment, the teacher receives the payment and Englisharium deducts its service fee.
         </p>
         <p>
             The learner can listen to the recording again and see remarks related to certain spots on the recording.
             If the learner clicks on a grammar tag, they will be directed to related learning resources.
         </p>
         <p>
-            After a number of reviews, the learner can see the statistics of their mistakes and decide which areas of the language they need to learn and practice more.
+            After a number of exercises, the learner can see the frequencies of their mistakes and decide which areas of the language they need to learn and practice more.
         </p>
-        <hr class="app-separator" />
-        <div class="row">
-            <div class="col-sm-offset-4 col-sm-4">
-                @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Create", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
+        <div class="row app-margin-top">
+            <div class="col-sm-offset-4 col-sm-4 text-center">
+                @Html.ActionLinkWithProtocol("Join for free", "Signup", "Account", "https", new { @class = "btn btn-primary btn-lg" })
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <br/>&nbsp;
-        <img src="/content/images/learner-mic.jpg" class="img-responsive img-thumbnail" />
     </div>
 </div>
 

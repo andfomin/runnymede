@@ -37,9 +37,12 @@ module app {
         public static $stateParams = '$stateParams';
         public static $stateProvider = '$stateProvider';
         public static $urlRouterProvider = '$urlRouterProvider';
+        // third-party
+        public static jQuery = 'jQuery';
         // Custom
         public static $appRemarks = '$appRemarks';
         public static $appRemarksComparer = '$appRemarksComparer';
+        public static $signalRService = '$signalRService';
     };
 
     export var myAppName = 'myApp';
@@ -166,11 +169,7 @@ module app {
             };
             var modalInstance = $modal.open(options);
             modalInstance.result.then(
-                (data) => {
-                    if (successCallback) {
-                        successCallback(data);
-                    }
-                },
+                (data) => { (successCallback || angular.noop)(data); },
                 null
                 );
             return modalInstance;
@@ -186,8 +185,7 @@ module app {
         constructor(
             $scope: app.IScopeWithViewModel
             )
-        /* ----- Constructor  ----- */
-        {
+        /* ----- Constructor  ----- */ {
             $scope.vm = this;
             this.isCollapsed = app.isAuthenticated();
             this.setUrl();
@@ -209,6 +207,94 @@ module app {
 
     } // end of class Help
 
+    export interface ISignalREventHandler {
+        eventName: string;
+        handler: (args: any[]) => void;
+    }
+
+    export interface ISignalRService {
+        setEventHandlers: (hubName: string, eventHandlers: ISignalREventHandler[]) => void;
+        start: () => JQueryPromise<any>;
+        stop: () => void;
+        invoke: (hubName: string, methodName: string, ...args: any[]) => JQueryDeferred<any>;
+        isStarted: () => boolean;
+    }
+
+    // The main benefit of wrapping SignalR in this service is to have a singleton connection during the life cicle of the app.
+    export class SignalRService implements ISignalRService {
+
+        conn: HubConnection;
+        started: boolean = false;
+
+        static $inject = [app.ngNames.jQuery, app.ngNames.$rootScope];
+
+        constructor(
+            private $: JQueryStatic,
+            private $rootScope: ng.IRootScopeService
+            )
+        /* ----- Constructor  ----- */ {
+            // ConnectionId is keept the same on reconnects.
+            this.conn = this.$.hubConnection();
+            this.conn.logging = true;
+            this.conn.starting(() => { this.started = true; });
+            this.conn.disconnected(() => { this.started = false; });
+        }
+
+        isStarted = () => {
+            return this.started;
+        };
+
+        start = () => {
+            if (!this.started) {
+                // At least one event handler must be added before start() is called. Otherwise events assigned later will not fire;
+                return this.conn.start();
+            }
+            // else return undefined;
+        };
+
+        stop = () => {
+            this.conn.stop();
+        };
+
+        setEventHandlers = (hubName: string, eventHandlers: ISignalREventHandler[]) => {
+            /* The hubName is a camel-cased version of the Hub class name on the server (may be overriden by an HubName attribute).
+               We call an arbitrary method on the server and the method call is marshalled to the client where it is dispatched dinamically.
+               If there are many handlers for a single event, use $rootScope.broadcast().
+            */
+            var proxy = this.conn.createHubProxy(hubName);
+            eventHandlers.forEach((i) => {
+                proxy.on(i.eventName,
+                    /* hubConnection.received wraps arguments in an array: $(proxy).triggerHandler(makeEventName(eventName), [data.Args]);
+                       Here we declare "...args: any[]" and TypeScript wraps arguments in an array in the compiled JavaScript code.
+                       As a result, we apparently get an array of arguments in the handler. 
+                    */
+                    (...args: any[]) => {
+                        i.handler(args);
+                        this.$rootScope.$applyAsync();
+                    }
+                    );
+            });
+        };
+
+        // Be carefull with declaring "...args: any[]". It wraps arguments in an array in the compiled JavaScript code.
+        invoke = (hubName: string, methodName: string, ...args: any[]) => {
+            if (this.started) {
+                var proxy: HubProxy = this.conn.proxies[hubName] || this.conn.createHubProxy(hubName);
+                switch (args.length) {
+                    case 0:
+                        return proxy.invoke(methodName);
+                    case 1:
+                        return proxy.invoke(methodName, args[0]);
+                    case 2:
+                        return proxy.invoke(methodName, args[0], args[1]);
+                    case 0:
+                        return proxy.invoke(methodName, args[0], args[1], args[2]);
+                }
+            }
+        }
+
+    } // end of class SignalRService
+
     //export function useRouteTitle(app: ng.IModule) {
     //    app.run([ngNames.$rootScope, function ($rootScope: IAppRootScopeService) {
     //        $rootScope.$on('$routeChangeSuccess', (event, current, previous) => {
@@ -220,7 +306,7 @@ module app {
     export class StateTitleSyncer {
         static $inject = [ngNames.$rootScope];
         constructor($rootScope: IAppRootScopeService) {
-            $rootScope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) => {
+            $rootScope.$on('$stateChangeSuccess',(event, toState, toParams, fromState, fromParams) => {
                 $rootScope.pageTitle = toState.data && toState.data.title;
                 $rootScope.secondaryTitle = toState.data && toState.data.secondaryTitle;
                 //window.document.title = current.title + ' \u002d Bla bla bla'; // &ndash;
@@ -335,16 +421,10 @@ module app {
         }
     };
 
-    // Format exercise length depending on the exercise type
+    // Format exercise length depending on the exercise type. app.IReview has exerciseLength and exerciseType.
     export function AppLengthFilter() {
         return (length: number, type: string) => {
-            switch (type) {
-                case ExerciseType.AudioRecording:
-                    return app.formatMsec(length);
-                    break;
-                default:
-                    return '' + length;
-            };
+            return ExerciseType.formatLength(length, type);
         }
     };
 

@@ -197,6 +197,7 @@
     <Build Include="Stored Procedures\sysInitializeLibExponents.sql" />
     <Build Include="Stored Procedures\sysInitializeLibDescriptions.sql" />
     <Build Include="Stored Procedures\sysInitializeLibCategories.sql" />
+    <Build Include="Stored Procedures\exeUpdateLength.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />

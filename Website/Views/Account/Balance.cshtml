@@ -41,22 +41,18 @@
 
             <div class="row">
                 <div class="col-sm-7">
-                    <div ng-show="vm.balance !== undefined" ng-cloak>
-                        <p ng-show="vm.balance !== null">
+                    <p ng-show="vm.balance !== undefined" ng-cloak>
+                        <span ng-show="vm.balance !== null">
                             Your account balance is currently <strong>{{vm.balance | number:2}}</strong> US dollars.
-                        </p>
-                        <p ng-show="vm.balance === null">
+                        </span>
+                        <span ng-show="vm.balance === null">
                             You do not have balance on your account.
-                        </p>
-                    </div>
+                        </span>
+                    </p>
                 </div>
-                @if (!pageViewModel.IsTeacher)
-                {
-                    <div class="col-sm-1">&nbsp;</div>
-                    <div class="col-sm-4">
-                        <a href="@Url.Action("AddMoney")" class="btn btn-primary">Add money to account</a>
-                    </div>
-                }
+                <div class="col-sm-offset-1 col-sm-4">
+                    <a href="@Url.Action("AddMoney")" class="btn btn-primary">Add money to account</a>
+                </div>
             </div>
             <hr />
             <h4 class="text-center">Transaction history</h4>
@@ -93,11 +89,11 @@
 </div>
 
 @*@using (Html.BeginInstructionsContainer())
-{
-    <ul>
-        <li>Amounts are US dollars.</li>
-    </ul>
-}*@
+    {
+        <ul>
+            <li>Amounts are US dollars.</li>
+        </ul>
+    }*@
 
 @section BottomScripts {
     @Scripts.Render(

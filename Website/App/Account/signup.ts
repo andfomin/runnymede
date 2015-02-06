@@ -2,11 +2,15 @@ module app.account {
 
     export class Signup {
 
-        email: string;
-        password: string;
-        showPwd: boolean;
+        email: string = null;
+        password: string = null;
         name: string;
+        showPwd: boolean;
         sending: boolean;
+        submited: boolean = false;
+        minPwdLength = 6;
+        // +https://github.com/angular/angular.js/blob/master/src/ng/directive/input.js
+        EMAIL_REGEXP = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
 
         static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$timeout];
 
@@ -19,7 +23,8 @@ module app.account {
         } // end of ctor
 
         post(form) {
-            if (form.$valid) {
+            this.submited = true;
+            if (this.isEmailValid() && this.isPwdValid()) {
                 this.sending = true;
                 app.ngHttpPost(this.$http,
                     app.accountsApiUrl('signup'),
@@ -30,7 +35,7 @@ module app.account {
                     },
                     (data) => {
                         // The user is logged in during signup automatically.
-                        // Please check your email and click the link provided to confirm your registration.
+                        // Redirect to the greeting page.
                         window.location.assign(data);
                     },
                     () => {
@@ -38,7 +43,20 @@ module app.account {
                     }
                     );
             }
+            else {
+                toastr.warning('Please enter correct information.');
+            }
         }
+
+        isEmailValid = () => {
+            var ok = (this.email !== null) && this.EMAIL_REGEXP.test(this.email);
+            return !this.submited || ok;
+        };
+
+        isPwdValid = () => {
+            var ok = (this.password !== null) && (this.password.length >= this.minPwdLength);
+            return !this.submited || ok;
+        };
 
         focusPwd = () => {
             var id = 'password' + (this.showPwd ? '2' : '1');
@@ -48,7 +66,7 @@ module app.account {
             }, 100);
         };
 
-    } // end of class
+    } // end of class Signup
 
     angular.module(app.myAppName, ['angular-loading-bar'])
         .controller('Signup', Signup);

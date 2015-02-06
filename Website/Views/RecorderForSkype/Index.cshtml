@@ -1,0 +1,21 @@
+﻿@{
+    ViewBag.Title = "Recorder for Skype";
+    ViewBag.NavItem = "Exercises";
+
+    var br = Request.Browser.Browser;
+    var isIE = (br == "InternetExplorer") || (br == "IE");
+}
+
+<p>
+    @if (isIE)
+    {
+        <a href="http://recorder.englisharium.com/recorder-for-skype/Englisharium.SkypeRecorder.application">Run Recorder for Skype</a>
+    }
+    else
+    {
+        <a href="http://recorder.englisharium.com/recorder-for-skype/EnglishariumSkypeRecorder.exe">Download Recorder for Skype</a>
+    }
+</p>
+<p>
+    <a href="http://support.englisharium.com/support/solutions/articles/5000546743-recorder-for-skype">Help</a>
+</p>

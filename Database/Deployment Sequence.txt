@@ -1,5 +1,5 @@
 -- Create empty database test01
--- CREATE LOGIN websitelogin WITH PASSWORD = '123qweASD'
+-- CREATE LOGIN websitelogin WITH PASSWORD = '123qweASD' -- (In database master)
 -- Schema compare from the project. Update.
 -- Run dbo.InitializeAll
 -- GRANT CONNECT TO websiteuser;

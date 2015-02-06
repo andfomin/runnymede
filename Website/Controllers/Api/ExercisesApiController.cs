@@ -101,6 +101,7 @@ select dbo.exeGetAnyTeacherReviewRate(@ExerciseType);
         // No need for async. This method is called only on the development machine. The production code downloads from Blob directly.
         // GET api/exercises/artifact/writing-photos?blobName=0000000003/22273p29f8/2.jpg
         [Route("artifact/{containerName}")]
+        [AllowAnonymous]
         public HttpResponseMessage GetArtifact(string containerName, string blobName)
         {
             var blob = AzureStorageUtils.GetBlob(containerName, blobName);
@@ -141,6 +142,21 @@ where Id = @Id and UserId = @UserId;
                 UserId = this.GetUserId()
             });
             return StatusCode(rowsAffected > 0 ? HttpStatusCode.NoContent : HttpStatusCode.BadRequest);
+        }
+
+        // PUT /api/exercises/12345/length
+        [Route("{id:int}/length")]
+        public async Task<IHttpActionResult> PutLength(int id, [FromBody]JObject value)
+        {
+            await DapperHelper.ExecuteResilientlyAsync("dbo.exeUpdateLength",
+                new
+                {
+                    ExerciseId = id,
+                    UserId = this.GetUserId(),
+                    Length = (int)value["length"],
+                },
+            CommandType.StoredProcedure);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // PUT /api/exercises/recording_title

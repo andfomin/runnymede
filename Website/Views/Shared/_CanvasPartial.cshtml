@@ -23,7 +23,7 @@
         }
 
     .my-translucent {
-        background-color: rgba(255,255,255,0.5);
+        background-color: rgba(255,255,255,0.9);
         border-radius: 3px;
     }
 
@@ -40,53 +40,74 @@
     }
 </style>
 
-<div ng-controller="Canvas" ng-cloak>
-    <div class="row app-margin-top">
-        <div class="col-lg-12">
+<div class="row app-margin-top" ng-show="vm.canEditLength()" ng-cloak>
+    <div class="col-sm-5 col-md-4">
+        <div class="input-group">
+            <span class="input-group-addon"><strong>Word count</strong></span>
+            <input type="text" class="form-control" ng-model="vm.exercise.length" maxlength="4">
+            <span ng-class="vm.isLengthDirty() ? 'input-group-btn' : 'input-group-addon'">
+                <button type="button" class="btn btn-default" ng-show="vm.isLengthDirty()" ng-click="vm.saveLength()">
+                    <i class="fa fa-check fa-fw text-success animated flash app-fa-pulse"></i><span>Save</span>
+                </button>
+            </span>
+        </div><!-- /input-group -->
+    </div>
+</div>
 
-            <div class="row app-margin-bottom">
+<div ng-controller="Canvas" ng-cloak>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row app-margin-top app-margin-bottom">
                 <div class="col-xs-3">
-                    <span style="position:relative;top:5px;">Word count: <strong>{{vm.exercise.length}}</strong></span>
+                    <span style="position:relative;top:5px;" ng-show="!vma.canEditLength()">Word count: <strong>{{vma.exercise.length}}</strong></span>
                 </div>
-                <div class="col-xs-5 col-sm-4" style="height:30px;">
-                    <strong style="position:relative;top:-10px;">Page</strong>
-                    <div class="pagination-sm app-margin-top-none app-margin-bottom-none app-margin-left-half" data-pagination data-total-items="vm.images.length" data-items-per-page="1" direction-links="false" data-boundary-links="false" data-rotate="false"
-                         ng-show="vm.images.length > 1" ng-model="vm.page" ng-change="vm.clear()"></div>
+                <div class="col-xs-4" style="height:30px;">
+                    <div ng-show="vma.images.length > 1">
+                        <strong style="position:relative;top:-10px;">Page</strong>
+                        <div class="pagination-sm app-margin-top-none app-margin-bottom-none app-margin-left-half" data-pagination data-total-items="vma.images.length" data-items-per-page="1" direction-links="false" data-boundary-links="false" data-rotate="false" ng-model="vma.page" ng-change="vma.clear()"></div>
+                    </div>
                 </div>
-                <div class="col-xs-4">
-                    <button class="btn btn-default btn-sm app-btn-disablable" ng-click="vm.zoomIn()" ng-disabled="vm.scaleIndex == vm.scales.length-1"><i class="fa fa-search-plus fa-fw"></i>&nbsp;Zoom&nbsp;in</button>
-                    <button class="btn btn-default btn-sm app-btn-disablable" ng-click="vm.zoomOut()" ng-disabled="vm.scaleIndex == 0"><i class="fa fa-search-minus fa-fw"></i>&nbsp;Zoom&nbsp;out</button>
+                <div class="col-xs-5">
+                    <button class="btn btn-default btn-sm app-btn-disablable" ng-click="vma.zoomIn()" ng-disabled="vma.scaleIndex == vma.scales.length-1"><i class="fa fa-search-plus fa-fw"></i>&nbsp;Zoom&nbsp;in</button>
+                    <button class="btn btn-default btn-sm app-btn-disablable" ng-click="vma.zoomOut()" ng-disabled="vma.scaleIndex == 0"><i class="fa fa-search-minus fa-fw"></i>&nbsp;Zoom&nbsp;out</button>
                 </div>
-                @*<div class="col-xs-1">&nbsp;</div>*@
             </div>
 
             <div style="margin-bottom:14px;">
                 <canvas id="myCanvas"></canvas>
             </div>
 
-            <div id="myPanel" class="panel panel-default" ng-show="vm.remark" ng-cloak>
+            <div id="myPanel" class="panel panel-default" ng-show="vma.remark" ng-cloak>
                 <div class="panel-body">
                     <div>
-                        <strong class="my-translucent">&nbsp;Correction&nbsp;</strong><br />
-                        <textarea class="form-control app" rows="3" cols="40" ng-show="vm.isEditing(vm.remark)" ng-model="vm.remark.correction" ng-change="vm.makeDirty()"></textarea>
-                        <p ng-show="!vm.isEditing(vm.remark)">{{vm.remark.correction}}</p>
+                        <div class="text-right">
+                            <strong class="my-translucent">&nbsp;Correction&nbsp;</strong>
+                        </div>
+                        <textarea class="form-control app" rows="3" cols="40" ng-show="vma.isEditing(vma.remark)" ng-model="vma.remark.correction" ng-change="vm.makeDirty(vma.remark)"></textarea>
+                        <p ng-show="!vma.isEditing(vma.remark)">{{vma.remark.correction}}</p>
                     </div>
                     <div class="my-margin-top">
-                        <strong class="my-translucent">&nbsp;Comment&nbsp;</strong><br />
-                        <textarea class="form-control app" rows="3" cols="40" ng-show="vm.isEditing(vm.remark)" ng-model="vm.remark.comment" ng-change="vm.makeDirty()"></textarea>
-                        <p class="app-margin-bottom-none" ng-show="!vm.isEditing(vm.remark)">{{vm.remark.comment}}</p>
+                        <div class="text-right">
+                            <strong class="my-translucent">&nbsp;Comment&nbsp;</strong>
+                        </div>
+                        <textarea class="form-control app" rows="3" cols="40" ng-show="vma.isEditing(vma.remark)" ng-model="vma.remark.comment" ng-change="vm.makeDirty(vma.remark)"></textarea>
+                        <p class="app-margin-bottom-none" ng-show="!vma.isEditing(vma.remark)">{{vma.remark.comment}}</p>
                     </div>
-                    <div class="my-margin-top" ng-show="vm.isEditing(vm.remark)">
+                    <div class="my-margin-top" ng-show="vma.isEditing(vma.remark)">
                         <span class="my-translucent" style="padding-bottom:3px;">
                             <label class="radio-inline">
-                                <input type="radio" ng-value="false" ng-model="vm.remark.like" ng-change="vm.makeDirty()" /><i class="fa fa-thumbs-down fa-fw text-danger"></i>Dislike
+                                <input type="radio" ng-value="false" ng-model="vma.remark.like" ng-change="vm.makeDirty(vma.remark);vma.repaint()" />
+                                <i class="fa fa-thumbs-down fa-fw text-danger"></i>
+                                <strong>Dislike</strong>
                             </label>
                             <label class="radio-inline">
-                                <input type="radio" ng-value="true" ng-model="vm.remark.like" ng-change="vm.makeDirty()" /><i class="fa fa-thumbs-up fa-fw text-success"></i>Like&nbsp;
+                                <input type="radio" ng-value="true" ng-model="vma.remark.like" ng-change="vm.makeDirty(vma.remark);vma.repaint()" />
+                                <i class="fa fa-thumbs-up fa-fw text-success"></i>
+                                <strong>Like&nbsp;</strong>
                             </label>
                         </span>
-                        <button class="btn btn-default btn-xs app-margin-left my-translucent" title="Delete the remark" ng-click="vm.showDeleteRemarkModal()"><i class="fa fa-times fa-fw text-danger"></i>Delete</button>
-                        <span class="pull-right app-1px-down my-translucent">&nbsp;<a href="" ng-click="vm.selectRemark(null)" title="Close the panel"><strong>Close</strong></a>&nbsp;</span>
+                        <button class="btn btn-default btn-xs app-margin-left my-translucent" title="Delete the remark" ng-click="vm.showDeleteRemarkModal(vma.remark)"><i class="fa fa-times fa-fw text-danger"></i>Delete</button>
+                        <span class="pull-right app-1px-down my-translucent">&nbsp;<a href="" ng-click="vma.selectRemark(null)" title="Close the panel"><strong>Close</strong></a>&nbsp;</span>
                     </div>
                 </div>
             </div>

@@ -13,7 +13,8 @@ namespace Runnymede.Website.Models
             IPN,
             IPNResponse,
             Email,
-            DetailsRequest
+            DetailsRequest,
+            Error
         }
 
         public PayPalLogEntity()

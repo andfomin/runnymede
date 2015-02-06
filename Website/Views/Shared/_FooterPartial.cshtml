@@ -1,20 +1,20 @@
 ﻿<div class="row">
-    <div class="col-md-offset-2 col-sm-9 col-md-7">
+    <div class="col-lg-offset-1 col-md-9 col-lg-8">
         <table>
             <tr>
                 <td>
                     <p class="small text-muted"><strong>LEARNERS</strong></p>
                     <p>@Html.ActionLink("How it works", "HowItWorks", "Info")</p>
-                    <p>@Html.ActionLink("IELTS", "PracticeSpeaking", "Ielts")</p>
+                    <p>@Html.ActionLink("IELTS", "Ielts", "Info")</p>
                 </td>
                 <td>
                     <p class="small text-muted"><strong>TEACHERS</strong></p>
                     <p>@Html.ActionLink("How it works", "HowItWorks", "Info")</p>
-                    <p>@Html.ActionLink("IELTS", "PracticeSpeaking", "Ielts")</p>
                 </td>
                 <td>
                     <p class="small text-muted"><strong>SUPPORT</strong></p>
-                    <p>Email: <img src="~/content/images/email-support.png" width="160" height="15" /></p>
+                    <p class="hidden-xs">Email: <img src="~/content/images/email-support.png" width="160" height="15" /></p>
+                    <p class="visible-xs-inline-block"><a href="http://support.englisharium.com/support/tickets/new">Contact Us</a></p>
                     @*<p>@Html.ActionLink("Frequently asked questions", "Faq", "Info")</p>*@
                     <p><a href="http://support.englisharium.com/support/solutions">Frequently Asked Questions</a></p>
                     <p><a href="http://support.englisharium.com/support/discussions">Forums</a></p>
@@ -27,8 +27,8 @@
             </tr>
         </table>
     </div>
-    <div class="col-sm-3 app-margin-bottom">
-        <span class="text-muted app-margin-left">&copy;&nbsp;2015</span>
+    <div class="col-md-3 app-margin-bottom">
+        <span class="text-muted app-margin-left">&copy;&nbsp;</span>
         @Html.ActionLinkWithProtocol("Dignicom" + ((char)160).ToString() + "Inc.", "Dignicom", "Info", "https", new { @class = "credit" })
     </div>
 </div>

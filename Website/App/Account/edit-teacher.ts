@@ -4,8 +4,6 @@ module app.account_edit {
 
         profile: app.IUser;
 
-        recordingRateChanged: boolean;
-        writingRateChanged: boolean;
         sessionRateChanged: boolean;
         sending: boolean;
         codeSent: boolean = false;
@@ -35,8 +33,6 @@ module app.account_edit {
         }
 
         clearChanged() {
-            this.recordingRateChanged = false;
-            this.writingRateChanged = false;
             this.sessionRateChanged = false;
         }
 
@@ -44,21 +40,15 @@ module app.account_edit {
             if (form.$valid) {
                 this.sending = true;
                 this.clearChanged();
-                var recordingRateDirty = !!(<any>form).recordingRate.$dirty;
-                var writingRateDirty = !!(<any>form).writingsRate.$dirty;
                 var sessionRateDirty = !!(<any>form).sessionRate.$dirty;
 
                 app.ngHttpPut(this.$http,
                     app.accountsApiUrl('teacher_profile'),
                     {
-                        recordingRate: recordingRateDirty ? this.profile.recordingRate : null,
-                        writingRate: writingRateDirty ? this.profile.writingRate : null,
                         sessionRate: sessionRateDirty ? this.profile.sessionRate : null,
                     },
                     () => {
                         form.$setPristine();
-                        this.recordingRateChanged = recordingRateDirty;
-                        this.writingRateChanged = writingRateDirty;
                         this.sessionRateChanged = sessionRateDirty;
                     },
                     () => {

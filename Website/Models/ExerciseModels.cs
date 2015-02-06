@@ -47,6 +47,7 @@ namespace Runnymede.Website.Models
     {
         public int Id { get; set; }
         public int ExerciseId { get; set; }
+        public string ExerciseType { get; set; }
         public int? UserId { get; set; }
         public decimal? Price { get; set; }
         public string AuthorUserId { get; set; }
@@ -125,7 +126,7 @@ namespace Runnymede.Website.Models
 
         public class PieceTypes
         {
-            // Remark = "R". Suggestion = "S". Comment = "C". Corresponds to app.reviews.PieceTypes .
+            // Remark = "R". Suggestion = "S". Comment = "C". Corresponds to app.reviews.PieceTypes in app/shared/exercises.ts .
             public const string Editor = "E";
             public const string Viewer = "V";
             public const string Remark = "R";
@@ -143,14 +144,19 @@ namespace Runnymede.Website.Models
             return KeyUtils.IntToKey(reviewId) + pieceType + KeyUtils.IntToKey(id);
         }
 
+        public static int GetReviewId(string rowKey)
+        {
+            return Convert.ToInt32(rowKey.Substring(0, 10));
+        }
+
         public static string GetType(string rowKey)
         {
             return rowKey.Substring(10, 1);
         }
 
-        public static string GetReviewId(string rowKey)
+        public static int GetPieceId(string rowKey)
         {
-            return rowKey.Substring(0, 10);
+            return Convert.ToInt32(rowKey.Substring(11, 10));
         }
 
         public static string GetUserAccessCode(string rowKey)
