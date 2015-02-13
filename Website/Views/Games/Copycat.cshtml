@@ -90,7 +90,7 @@
                     <div class="app-margin-left" ng-repeat="r in vm.getResources(g)">
                         <i class="fa fa-fw app-appred" ng-class="{'fa-chevron-circle-right': r === vm.resource}"></i>
                         <a href="" ng-click="vm.selectResource(r)">&nbsp;{{vm.formatSegment(r)}}</a>
-                        <span style="white-space:nowrap;margin-left:10px;" ng-show="r.priority != null">
+                        <span class="text-nowrap app-margin-left-half" ng-show="r.priority != null">
                             <span ng-repeat="p in vm.priorities.slice(0,4)">
                                 <i class="fa fa-lg app-appred" ng-class="p.icon" ng-show="p.value === r.priority" title="Current priority"></i>
                                 <a href="" ng-show="p.value !== r.priority" ng-click="vm.setPriority(r,p.value)"><i class="fa fa-lg" ng-class="p.icon" title="Change priority"></i></a>

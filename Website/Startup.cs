@@ -20,14 +20,16 @@ namespace Runnymede.Website
 
         private void ConfigureSignalR(IAppBuilder app)
         {
-            // Scale out with Redis backplane
-            var redisServer = ConfigurationManager.AppSettings["RedisServer"];
-            var redisPort = ConfigurationManager.AppSettings["RedisPort"];
-            var redisPassword = String.Empty; // ConfigurationManager.AppSettings["RedisKey"];
-            GlobalHost.DependencyResolver.UseRedis(redisServer, Int32.Parse(redisPort), redisPassword, "englm");
+            // Scale out SignalR using Azure Service Bus backplane.
+#if DEBUG
+            //var topicPrefix = "test01"; // Use for development
+#else
+            var topicPrefix = "englm"; 
+            var connectionString = ConfigurationManager.AppSettings["Azure.ServiceBus.ConnectionString"];
+            GlobalHost.DependencyResolver.UseServiceBus(connectionString, topicPrefix);
+#endif
 
-            GlobalHost.Configuration.DefaultMessageBufferSize = 100; // Each signal has a buffer of messages in RAM. A signal is a broadcast direction, i.e. HubName plus a receiver (All, Group, User)
-            
+            GlobalHost.Configuration.DefaultMessageBufferSize = 100; // Each signal has a buffer of messages in RAM. A signal is a broadcast direction, i.e. HubName plus a receiver (All, Group, User)           
             app.MapSignalR();
         }
     }

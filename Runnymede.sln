@@ -15,6 +15,13 @@ Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "Roles", "Roles\Roles.ccproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helper", "Helper\Helper.csproj", "{6D995A70-145E-4A0E-B75E-54B13FA1E689}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme", "Readme", "{316C2FB0-B466-4705-B217-565D325762C0}"
+	ProjectSection(SolutionItems) = preProject
+		_Deployment Sequence.txt = _Deployment Sequence.txt
+		_Production Update Sequence.txt = _Production Update Sequence.txt
+		_Website Project Setup.txt = _Website Project Setup.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

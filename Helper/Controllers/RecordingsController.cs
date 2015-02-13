@@ -16,12 +16,16 @@ namespace Runnymede.Helper.Controllers
 {
     public class RecordingsController : ApiController
     {
-        private const string StorageConnectionStringName = "StorageConnection";
-        private const string RecordingsBlobContainerName = "RecordingsBlobContainer";
+        public const string StorageConnectionSetting = "StorageConnection";
+        private const string RecordingsBlobContainerSetting = "RecordingsBlobContainer";
 
         // GET api/recordings/transcoded/?inputBlobName=userIdKey/timeKey/originalFileName.ext
         public async Task<IHttpActionResult> Get(string inputBlobName)
         {
+            if (inputBlobName == "endpointMonitoring") {
+                return Ok("Endpoint monitoring");
+            }
+
             // 1. Produce file names and paths.
             // "inputBlobName" is expected to be a path like "userIdKey/timeKey/originalFileName.ext"   
             var parts = inputBlobName.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
@@ -88,9 +92,12 @@ namespace Runnymede.Helper.Controllers
 
         private CloudBlockBlob GetBlob(string blobName)
         {
-            // +http://blogs.msdn.com/b/windowsazure/archive/2013/07/17/windows-azure-web-sites-how-application-strings-and-connection-strings-work.aspx
-            var connectionString = ConfigurationManager.ConnectionStrings[StorageConnectionStringName].ConnectionString;
-            var containerName = ConfigurationManager.AppSettings[RecordingsBlobContainerName];
+            // +http://www.heikniemi.net/hardcoded/2013/06/encrypting-connection-strings-in-windows-azure-web-applications/
+            // RoleEnvironment.IsEmulated
+            //var connectionString = ConfigurationManager.ConnectionStrings[StorageConnectionStringName].ConnectionString;
+            //var containerName = ConfigurationManager.AppSettings[RecordingsBlobContainerName];
+            var connectionString = RoleEnvironment.GetConfigurationSettingValue(StorageConnectionSetting);
+            var containerName = RoleEnvironment.GetConfigurationSettingValue(RecordingsBlobContainerSetting);
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
             var blobContainer = blobClient.GetContainerReference(containerName);

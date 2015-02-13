@@ -7,10 +7,11 @@
 -- Run LibratyIndexer for common01 and personal01 (recreate = true, reindexAllResources = true)
 -- Delete Blob containers and Tables.
 -- Start the site. Storage objects are created on start.
--- Upload 0000000003.jpg to Blob user-avatars-small ($AnyTeacher)
 -- Add the Youtube API Key on the portal
 -- Add the Mandrill API Key on the portal
 -- Add the Azure Search's Service Name and Key on the portal
+-- ServiceBus key
+
 
 
 

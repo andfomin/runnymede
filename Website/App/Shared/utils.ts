@@ -224,7 +224,7 @@ module app {
     };
 
     export function isDevHost() {
-        return document.location.hostname.indexOf('dev') === 0;
+        return (document.location.hostname.indexOf('dev')) === 0 && (document.location.hostname[4] === '.');
     };
 
     export function getBlobUrl(containerName: string, blobName: string) {

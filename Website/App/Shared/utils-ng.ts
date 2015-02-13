@@ -235,7 +235,9 @@ module app {
         /* ----- Constructor  ----- */ {
             // ConnectionId is keept the same on reconnects.
             this.conn = this.$.hubConnection();
-            this.conn.logging = true;
+            if (app.isDevHost) {
+                this.conn.logging = true;
+            }
             this.conn.starting(() => { this.started = true; });
             this.conn.disconnected(() => { this.started = false; });
         }

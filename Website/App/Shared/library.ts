@@ -112,9 +112,13 @@ module app.library {
                     this.loadExponents();
                 }
                 else if (isExternal(resource)) {
+                    var url = resource.naturalKey;
+                    if (resource.format === Formats.BcGrammar.id) {
+                        url = Formats.BcGrammar.urlBase + resource.naturalKey;
+                    }
                     // To precisely control how the link will be opened is impossible. +http://stackoverflow.com/questions/4907843/open-a-url-in-a-new-tab-using-javascript
                     // Chrome blocks popups initiated by scripts. Thus we cannot open an external link automaticaly.
-                    this.$window.open(resource.url, '_blank');
+                    this.$window.open(url, '_blank');
                 }
             }
         };

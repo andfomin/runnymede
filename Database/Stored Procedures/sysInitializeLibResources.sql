@@ -259,9 +259,9 @@ insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, User
 insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000227, 'FRBCEG', 'clause-phrase-and-sentence/sentence-structure', 1, 227, 1);
 insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000228, 'FRBCEG', 'clause-phrase-and-sentence/verb-patterns', 1, 228, 1);
 insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000229, 'FRBCEG', 'clause-phrase-and-sentence/verb-patterns/clauses-short-forms', 1, 229, 1);
-insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000230, 'FRBCEG', 'double-object-verbs', 1, 230, 1);
+insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000230, 'FRBCEG', 'clause-phrase-and-sentence/verb-patterns/double-object-verbs', 1, 230, 1);
 insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000231, 'FRBCEG', 'clause-phrase-and-sentence/verb-patterns/intransitive-verbs', 1, 231, 1);
-insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000232, 'FRBCEG', 'link-verbs', 1, 232, 1);
+insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000232, 'FRBCEG', 'clause-phrase-and-sentence/verb-patterns/link-verbs', 1, 232, 1);
 insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000233, 'FRBCEG', 'clause-phrase-and-sentence/verb-patterns/relative-clauses', 1, 233, 1);
 insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000234, 'FRBCEG', 'clause-phrase-and-sentence/verb-patterns/reporting-reports-and-summaries', 1, 234, 1);
 insert dbo.libResources (Id, [Format], NaturalKey, IsCommon, DescriptionId, UserId) values (1000000235, 'FRBCEG', 'clause-phrase-and-sentence/verb-patterns/reporting-verbs-that-wh-and-if-clauses', 1, 235, 1);

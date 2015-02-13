@@ -42,7 +42,7 @@ module app.reviews {
             $scope.$on(app.exercises.RemarksService.remarksChanged,() => { this.autoSaved = false; });
 
             this.categories = app.library.Categories
-                .filter((i) => { return i.pathIds.indexOf(app.library.ID_OF_MEDIA_CATEGORY) === -1; }) // Filter out everything under "Media"
+                .filter((i) => { return i.pathIds.indexOf(app.library.ID_OF_PROGRAMS_CATEGORY) === -1; }) // Filter out everything under "Programs"
                 .map((i) => { return { id: i.id, name: i.name } });
         }
         /* ----- End of constructor  ----- */

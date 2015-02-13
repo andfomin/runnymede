@@ -1,5 +1,6 @@
 ﻿@{
     var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
+    var sendAnalytics = !Html.IsDebug() && !(new int[] { 1099489445, 1245020022 }).Contains(pageViewModel.UserId);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -13,9 +14,9 @@
     @*<link href='+http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
     @Styles.Render("~/bundles/app-css")
     @RenderSection("HeadScripts", required: false)
-    @if (!Html.IsDebug())
+    @if (sendAnalytics)
     {
-        @Html.Partial("_GoogleAnalyticsPartial")
+        @Html.Partial("_GoogleAnalyticsPartial", pageViewModel.UserId)
     }
 </head>
 <body>

@@ -273,7 +273,7 @@ where Id = @FriendUserId and UserIsActive = 1 and FriendIsActive = 1;
                 }
                 else
                 {
-                    // If a common resource is added, update the search index in background. Return response early. 
+                    // If a common resource is added to the personal collection, update the search index in background. Return response early. 
                     //// If this task fails, the WebJob will process everything.
                     //var queueTask = AzureStorageUtils.QueueMessage(
                     //    AzureStorageUtils.WebJobsConnectionStringName,

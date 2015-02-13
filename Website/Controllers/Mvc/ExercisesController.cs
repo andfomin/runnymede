@@ -24,6 +24,7 @@ using Runnymede.Common.Utils;
 using System.Windows.Media.Imaging;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Configuration;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
@@ -175,7 +176,8 @@ where E.Id = @Id
             }
 
             // 2. Call the transcoding service.
-            var url = GetTranscoderBaseUrl() + "?inputBlobName=" + blobName;
+            var host = ConfigurationManager.AppSettings["RecordingTranscoderHost"];
+            var url = String.Format("http://{0}/api/recordings/transcoded/?inputBlobName={1}", host, blobName);
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(url);
             if (!response.IsSuccessStatusCode)
@@ -201,7 +203,7 @@ where E.Id = @Id
             // 4. Create a database record.
             var exerciseId = await UploadUtils.CreateExercise(outputBlobName, userId, ExerciseType.AudioRecording, durationMsec, recordingTitle);
             // 5. Redirect to the exercise page.
-            return RedirectToAction("ViewExercise", "Reviews", new { id = exerciseId });
+            return RedirectToAction("View", new { Id = exerciseId });
         }
 
         // POST: /exercises/upload
@@ -457,16 +459,6 @@ where E.Id = @Id
 
             return RedirectToAction("View", new { Id = exerciseId });
         }
-
-        private string GetTranscoderBaseUrl()
-        {
-            return AzureStorageUtils.IsLocalEmulator()
-                ? "http://localhost:4064/api/recordings/transcoded/"
-                : "http://XXXXXXX.azure.net/api/recordings/transcoded/";
-        }
-
-
-
 
     }
 }

@@ -30,7 +30,7 @@ namespace Runnymede.Common.LibraryIndex
 
         private static HttpClient InitHttpClient()
         {
-            var apiKey = ConfigurationManager.AppSettings["SearchServiceApiKey"];
+            var apiKey = ConfigurationManager.AppSettings["Azure.Search.ApiKey"];
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("api-key", apiKey);
             return httpClient;
@@ -50,7 +50,7 @@ namespace Runnymede.Common.LibraryIndex
             {
                 if (serviceUriSingleton == null)
                 {
-                    var searchServiceName = ConfigurationManager.AppSettings["SearchServiceName"];
+                    var searchServiceName = ConfigurationManager.AppSettings["Azure.Search.ServiceName"];
                     serviceUriSingleton = new Uri("https://" + searchServiceName + ".search.windows.net");
                 }
                 return serviceUriSingleton;

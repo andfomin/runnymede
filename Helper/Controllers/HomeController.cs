@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure.ServiceRuntime;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -10,8 +11,8 @@ namespace Runnymede.Helper.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Title = "Home Page";
-
+            var connectionString = RoleEnvironment.GetConfigurationSettingValue(RecordingsController.StorageConnectionSetting);
+            ViewBag.Length = connectionString.Length;
             return View();
         }
     }

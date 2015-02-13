@@ -53,27 +53,28 @@
         </div>
         <div class="form-group" ng-repeat="i in vm.pages()">
             <div class="col-xs-4 col-md-3 col-md-offset-2">
-                <div class="app-margin-left">
-                    <p><strong>Page&nbsp;{{1+i}}</strong></p>
-                    <label class="my-file-label">
-                        @* The input name must be exactly "files[i]" to bind to "IEnumerable<HttpPostedFileBase> files". The first index must be 0. *@
-                        <input type="file" accept="image/*" capture="camera" onchange="app.exercises.PhotographWriting.onFileChange(event, id)" id="{{'file'+i}}" name="{{'files['+i+']'}}" />
-                        <span class="btn btn-primary btn-lg" ng-bind="vm.supported ? 'Take photo' : 'Choose file' "></span>
-                    </label>
-                </div>
+                <p><strong>Page&nbsp;{{1+i}}</strong></p>
+                <label class="my-file-label">
+                    @* The input name must be exactly "files[i]" to bind to "IEnumerable<HttpPostedFileBase> files". The first index must be 0. *@
+                    <input type="file" accept="image/jpeg" capture onchange="app.exercises.PhotographWriting.onFileChange(event, id)" id="{{'file'+i}}" name="{{'files['+i+']'}}" />
+                    <span class="btn btn-primary btn-lg" ng-bind="vm.supported ? 'Take photo' : 'Choose file'"></span>
+                </label>
             </div>
             <div class="col-xs-4 col-md-3" ng-show="vm.fileReady(i)">
                 <canvas class="app-margin-left-half" id="{{'canvasfile'+i}}" width="100" height="100" style="vertical-align:middle;"></canvas>
             </div>
             <div class="col-xs-4 col-md-3 my-radios" style="padding-top:6px;" ng-show="vm.fileReady(i)">
                 <label class="radio">
-                    <input type="radio" name="{{'rotations['+i+']'}}" value="-1" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" /><span class="text-nowrap">Rotate left<i class="fa fa-undo fa-fw"></i></span>
+                    <input type="radio" name="{{'rotations['+i+']'}}" value="-1" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" />
+                    <span class="text-nowrap">Rotate left<i class="fa fa-undo fa-fw"></i></span>
                 </label>
                 <label class="radio">
-                    <input type="radio" name="{{'rotations['+i+']'}}" value="0" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" />Do&nbsp;not&nbsp;rotate
+                    <input type="radio" name="{{'rotations['+i+']'}}" value="0" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" />
+                    <span class="text-nowrap">Do not rotate</span>
                 </label>
                 <label class="radio">
-                    <input type="radio" name="{{'rotations['+i+']'}}" value="1" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" /><span class="text-nowrap">Rotate right<i class="fa fa-repeat fa-fw"></i></span>
+                    <input type="radio" name="{{'rotations['+i+']'}}" value="1" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" />
+                    <span class="text-nowrap">Rotate right<i class="fa fa-repeat fa-fw"></i></span>
                 </label>
             </div>
         </div>

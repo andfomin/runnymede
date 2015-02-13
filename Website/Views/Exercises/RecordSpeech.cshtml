@@ -12,8 +12,8 @@
 @section HeadScripts {
     @Styles.Render(
 "~/bundles/animate-css"
-//"~/bower_installer/ng-tags-input/ng-tags-input.min.css",
-//"~/bower_installer/ng-tags-input/ng-tags-input.bootstrap.min.css"
+            //"~/bower_installer/ng-tags-input/ng-tags-input.min.css",
+            //"~/bower_installer/ng-tags-input/ng-tags-input.bootstrap.min.css"
 )
     @Scripts.Render("~/bundles/swfobject")
     <style>
@@ -32,7 +32,7 @@
 <div ng-app="myApp" ng-controller="RecordSpeech">
 
     <!-- Mobile recorder -->
-    <form class="form-horizontal" role="form"
+    <form class="form-horizontal app-margin-bottom" role="form"
           method='post' name="recordingForm" action="save-recording-mobile" enctype="multipart/form-data" ng-submit="vm.onSubmit()">
         <input type="hidden" name="recorderId" ng-value="vm.recorderId" />
         <div class="form-group">
@@ -44,8 +44,8 @@
         <div class="form-group" ng-show="vm.mobile" ng-cloak>
             <div class="col-sm-offset-3 col-sm-9">
                 <label class="my-file-label">
-                    <input type="file" name="fileInput" id="fileInput" accept="audio/*" capture="microphone"
-                           onchange="app.exercises_recordSpeech.Ctrl.onFileChange()" value="Start Recording" required ng-show="vm.mobile" />
+                    <input type="file" name="fileInput" id="fileInput" accept="audio/*" capture
+                           onchange="app.exercises.RecordSpeech.onFileChange()" value="Start Recording" required />
                     <span class="btn btn-primary btn-lg">Record speech</span>
                 </label>
             </div>
@@ -53,27 +53,28 @@
         <div class="form-group" ng-show="vm.mobile" ng-cloak>
             <div class="col-sm-offset-3 col-sm-9">
                 <button type="submit" class="btn btn-default btn-lg app-btn-disablable" ng-disabled="!vm.fileReady()">
-                    <i class="fa app-1px-up" 
+                    <i class="fa app-1px-up"
                        ng-class="{'fa-check fa-fw text-success animated flash app-fa-pulse':(vm.fileReady() && !vm.uploading), 'fa-spinner fa-fw fa-spin app-appblue':vm.uploading}"></i>
                     <span>Save recording</span>
                 </button>
             </div>
         </div>
     </form>
+
     <!-- Flash recorder -->
     <div class="text-center">
+        <div class="alert alert-danger" role="alert" ng-show="!vm.mobile && !vm.flashFound" ng-cloak>
+            <p>
+                To record speech you need to install Adobe Flash Player to your browser.
+                <a href="http://get.adobe.com/flashplayer" target="_blank">Get&nbsp;Adobe&nbsp;Flash&nbsp;Player</a>
+            </p>
+        </div>
         <div id="toBeReplacedByAudiorSwfObject"></div>
         <div style="margin-top:17px;" ng-show="!vm.mobile" ng-cloak>
             @Html.Partial("_NotAuthenticatedSpanPartial")
             <button class="btn btn-default app-btn-disablable" ng-disabled="!vm.canSave()" ng-click="vm.save()">
                 <i class="fa fa-check fa-fw text-success animated flash app-fa-pulse" ng-show="vm.canSave()"></i><span>Save recording</span>
             </button>
-        </div>
-        <div class="alert alert-danger" role="alert" ng-show="vm.flashNotFound" ng-cloak>
-            <p>
-                To record speech you need to install Adobe Flash Player to your browser.
-                <a href="http://get.adobe.com/flashplayer" target="_blank">Get&nbsp;Adobe&nbsp;Flash&nbsp;Player</a>
-            </p>
         </div>
     </div>
 
@@ -121,7 +122,7 @@
         <div class="col-md-6">
             <!-- _ResourceListPartial begin -->
             @* Do not hide the player! See the comments in the partial. *@
-           @* @Html.Partial("_ResourceListPartial")*@
+            @* @Html.Partial("_ResourceListPartial")*@
             <!-- _ResourceListPartial end -->
             <div class="pagination-sm" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="5" data-boundary-links="true" data-rotate="false"
                  ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.load()"></div>

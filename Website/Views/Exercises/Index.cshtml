@@ -24,17 +24,15 @@
                 </ul>
             </div>
         </div>
-        <div class="text-center">
-            <h4 class="app-margin-top-none app-margin-bottom-none">
-                <span ng-show="vm.isStateSpeaking()">
-                    <i class="fa fa-microphone fa-fw app-appblue"></i>&nbsp;@Html.ActionLink("Record speech", "RecordSpeech", "Exercises")
-                    <i class="fa fa-skype fa-fw app-margin-left"></i>&nbsp;@Html.ActionLink("Record Skype conversation", "Index", "RecorderForSkype")
-                </span>
-                <span ng-show="vm.isStateWriting()">
-                    <i class="fa fa-camera fa-fw app-margin-left app-appblue"></i>&nbsp;@Html.ActionLink("Photograph written text", "PhotographWriting", "Exercises")
-                </span>
-            </h4>
-        </div>
+        <h4 class="text-center app-margin-top-none app-margin-bottom-none">
+            <span ng-show="vm.isStateSpeaking()">
+                <span class="text-nowrap"><i class="fa fa-microphone fa-fw app-appblue"></i>&nbsp;@Html.ActionLink("Record speech", "RecordSpeech", "Exercises")</span>
+                <span class="text-nowrap"><i class="fa fa-skype fa-fw app-margin-left"></i>&nbsp;@Html.ActionLink("Record Skype conversation", "Index", "RecorderForSkype")</span>
+            </span>
+            <span ng-show="vm.isStateWriting()">
+                <span class="text-nowrap"><i class="fa fa-camera fa-fw app-margin-left app-appblue"></i>&nbsp;@Html.ActionLink("Photograph written text", "PhotographWriting", "Exercises")</span>
+            </span>
+        </h4>
         <hr />
         <div class="row">
             <div class="col-lg-offset-1 col-lg-10">
@@ -105,15 +103,15 @@
     <!-- /Modals -->
 </div><!-- /ng-app="myApp" -->
 @*@using (Html.BeginInstructionsContainer())
-{
-    <ul>
-        <li>Press the <em>Record a monologue</em> button to record a speech.</li>
-        <li>You can click an exercise title to edit its title, listen to it and view remarks when reviews are ready.</li>
-        <li>If an exercise has not been offered for reviewing, you can delete it by pressing the <em>Delete</em> button in the exercise row. </li>
-        <li>To offer an exercise for reviewing, press the <em>Offer for reviewing</em> button in the exercise row. </li>
-        <li>The list is refreshed every 2 minutes.</li>
-    </ul>
-}*@
+    {
+        <ul>
+            <li>Press the <em>Record a monologue</em> button to record a speech.</li>
+            <li>You can click an exercise title to edit its title, listen to it and view remarks when reviews are ready.</li>
+            <li>If an exercise has not been offered for reviewing, you can delete it by pressing the <em>Delete</em> button in the exercise row. </li>
+            <li>To offer an exercise for reviewing, press the <em>Offer for reviewing</em> button in the exercise row. </li>
+            <li>The list is refreshed every 2 minutes.</li>
+        </ul>
+    }*@
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/angular",

@@ -34,11 +34,6 @@
         .panel-default.my-group .panel-body {
             padding: 10px;
         }
-
-        .my-toolbar > span {
-            margin-right: 10px;
-            white-space: nowrap;
-        }
     </style>
 }
 @* Do not put "ng-cloak" on a tag wrapping "_ResourceListPartial". Do not hide the YouTube player! See the comments in _ResourceListPartial. *@
@@ -81,7 +76,7 @@
                         No resource found in your personal collection. You can add a resource to your personal collection while viewing it in the common collection.
                         Alternatively you can click the link at the bottom of the page to add a new resource.
                     </p>
-                    <div class="col-sm-5">
+                    <div class="col-sm-5 app-margin-bottom">
                         <div data-accordion data-close-others="vm">
                             <div class="my-group" data-accordion-group data-is-open="c1.active" ng-repeat="c1 in vm.categoriesL1" ng-class="{active: c1.active}">
                                 <div data-accordion-heading>
@@ -107,14 +102,6 @@
                         </div>
                     </div>
                 </div>
-                <hr />
-                <div class="row">
-                    <div class="col-md-12 my-toolbar">
-                        <span><i class="fa fa-history fa-fw"></i>&nbsp;@Html.ActionLink("History", "History", "Library")</span>
-                        <span><i class="fa fa-skype fa-fw"></i>&nbsp;@Html.ActionLink("Viewed by friend", "Friend", "Library")</span>
-                        <span ng-show="vm.isPersonal()"><i class="fa fa-plus fa-fw text-success"></i>&nbsp;<a href="" ng-click="vm.showAddResourceModal()">Add new resource</a></span>
-                    </div>
-                </div>
             </div>
             <div class="col-md-6">
                 <!-- _ResourceListPartial begin -->
@@ -123,6 +110,30 @@
                 <!-- _ResourceListPartial end -->
                 <div class="pagination-sm" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="5" data-boundary-links="true" data-rotate="false"
                      ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.pgLoad()"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 my-toolbar0">
+                <hr />
+                <span class="text-nowrap app-margin-left-half">
+                    <i class="fa fa-history fa-fw"></i>&nbsp;@Html.ActionLink("History", "History", "Library")
+                </span>
+                <span class="text-nowrap app-margin-left">
+                    <i class="fa fa-skype fa-fw"></i>&nbsp;@Html.ActionLink("Viewed by friend", "Friend", "Library")
+                </span>
+                <span class="text-nowrap app-margin-left" ng-show="vm.isPersonal()">
+                    <i class="fa fa-plus fa-fw text-success"></i>&nbsp;<a href="" ng-click="vm.showAddResourceModal()">Add new resource</a>
+                </span>
+                <span class="text-nowrap app-margin-left">
+                    <a class="app-margin-left-half" href="" ng-click="credits = !credits">Credits</a>
+                </span>
+                <div class="app-margin-top" collapse="!credits">
+                    The organization of content in this library is partially based on the mapping and exponents from the
+                    <a href="http://eaquals.org/pages/7400" target="_blank">Core Inventory for General English</a>
+                    published by the <a href="http://www.britishcouncil.org" target="_blank">British Council</a>
+                    and the <a href="http://eaquals.org/" target="_blank">European Association for Quality Language Services</a>.
+                    Englisharium has no relationship with those institutions.
+                </div>
             </div>
         </div>
     </div><!-- /Ctrl -->
@@ -144,19 +155,6 @@
     <!-- /addNewResourceModal -->
     <!-- /Modals -->
 </div><!-- /app -->
-<hr />
-<div class="row">
-    <div class="col-md-6 text-muted">
-        <p class="text-muted app-margin-bottom-none" style="font-size:11px;">
-            The organization of content in this library is partially based on the mapping and exponents from the
-            <a href="http://eaquals.org/pages/7400" target="_blank">Core Inventory for General English</a>
-            published by the <a href="http://www.britishcouncil.org" target="_blank">British Council</a> 
-            and the <a href="http://eaquals.org/" target="_blank">European Association for Quality Language Services</a>.
-            Englisharium has no relationship with those institutions.
-        </p>
-    </div>
-</div>
-
 @section BottomScripts {
     <script type="text/javascript">
         var app = app || {};

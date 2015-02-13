@@ -17,9 +17,11 @@ module app.exercises {
         selectedCard: ITopicCard;
         recorderId: string;
         mobile: boolean = false;
-        flashNotFound: boolean = false;
+        flashFound: boolean = true;
         encodingDone: boolean = false;
         uploading: boolean = false;
+
+        myTest: string;
 
         static $inject = [app.ngNames.$scope, app.ngNames.$rootScope, app.ngNames.$http, app.ngNames.$window, app.ngNames.$document, app.ngNames.$modal];
 
@@ -36,7 +38,7 @@ module app.exercises {
 
             this.recorderId = Date.now().toString();
 
-            this.mobile = app.isMobileDevice() && captureSupported('audio/*', 'microphone');
+            this.mobile = app.isMobileDevice() && captureSupported('audio/*');
             // ng-change does not support input["file"]. We attach a handler to the native event on the element.
             (<any>RecordSpeech).onFileChange = () => { $scope.$apply(); };
 
@@ -103,7 +105,7 @@ module app.exercises {
             return this.selectedActivity === this.ActivityTelling;
         };
 
-        private fileReady = () => {
+        fileReady = () => {
             var input = <any>angular.element(this.$document[0].querySelector('#fileInput'));
             var files = input && input[0].files;
             return files && (files.length == 1) && !this.uploading;
@@ -153,7 +155,7 @@ module app.exercises {
 
             var callbackFn = (event) => {
                 if (!event.success) {
-                    this.flashNotFound = true;
+                    this.flashFound = false;
                     toastr.error('Adobe Flash version 10.2.0 or above not found.');
                 }
             };

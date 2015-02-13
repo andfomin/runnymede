@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceDefinition name="Roles" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2014-06.2.4">
-  <WebRole name="Helper" vmsize="Small">
+  <WebRole name="Helper" vmsize="ExtraSmall">
     <Sites>
       <Site name="Web">
         <Bindings>
@@ -11,5 +11,16 @@
     <Endpoints>
       <InputEndpoint name="Endpoint1" protocol="http" port="80" />
     </Endpoints>
+    <Imports>
+      <Import moduleName="RemoteAccess" />
+      <Import moduleName="RemoteForwarder" />
+    </Imports>
+    <LocalResources>
+      <LocalStorage name="MyLocalStorage" cleanOnRoleRecycle="true" sizeInMB="1024" />
+    </LocalResources>
+    <ConfigurationSettings>
+      <Setting name="StorageConnection" />
+      <Setting name="RecordingsBlobContainer" />
+    </ConfigurationSettings>
   </WebRole>
 </ServiceDefinition>

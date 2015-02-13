@@ -201,9 +201,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />
-    <None Include="Code Snippets.txt" />
-    <None Include="Production Update Sequence.txt" />
-    <None Include="To Do.txt" />
-    <None Include="Deployment Sequence.txt" />
   </ItemGroup>
 </Project>

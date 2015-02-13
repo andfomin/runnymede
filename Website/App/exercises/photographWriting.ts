@@ -17,7 +17,7 @@ module app.exercises {
             /* ----- Constructor  ----- */
             $scope.vm = this;
 
-            this.supported = captureSupported('image/*', 'camera');
+            this.supported = app.isMobileDevice() && captureSupported('image/jpeg');
 
             // ng-change does not support input["file"]. We attach a handler to the native event on the element.
             (<any>PhotographWriting).onFileChange = this.onFileChange;

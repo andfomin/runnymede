@@ -36,7 +36,7 @@ namespace Runnymede.Website.Controllers.Api
             // If the data not found in our internal Table, query the YouTube API.
             if (json == null)
             {
-                // We do not use the Google API Client library to materialize result as a POCO. Anyway the API itself is RESTful, and JSON can parsed easily. Avoid overhead, overkill, bloatware etc.
+                // We do not use the Google API Client library to materialize result as a POCO. Anyway the API itself is RESTful, and JSON can be parsed easily. Avoid overhead, overkill, bloatware etc.
                 // +https://developers.google.com/apis-explorer/#p/youtube/v3/youtube.search.list
 
                 var youtubeParams = HttpUtility.ParseQueryString(String.Empty); // returns System.Web.HttpValueCollection: System.Collections.Specialized.NameValueCollection

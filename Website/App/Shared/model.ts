@@ -120,9 +120,9 @@ module app {
 
     export interface IResource {
         id: number;
-        url: string;
+        url: string; // Entered by the user while adding manually
+        naturalKey: string; // Stored in database and serach
         format: string;
-        naturalKey: string;
         segment: string;
         title: string;
         categoryIds: string;

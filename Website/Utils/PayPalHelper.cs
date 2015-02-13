@@ -13,6 +13,7 @@ using Runnymede.Website.Models;
 using Runnymede.Common.Utils;
 using System.Net.Http;
 using System.Text;
+using System.Configuration;
 
 namespace Runnymede.Website.Utils
 {
@@ -22,18 +23,11 @@ namespace Runnymede.Website.Utils
 
 #if DEBUG
         private const string PayPalAddress = "https://www.sandbox.paypal.com/cgi-bin/webscr";
-        // This is the seller's Payment Data Transfer authorization token found in "Selling Preferences" -> "Website Payment Preferences" under the account.
-        public const string PayPalAuthToken = "Zf4QKblv6PJNDdb_pY3ARMhy4FsS--CAOmQXzjxnmcgn10_vacVbPAlOw-C";
         private const string ReceiverEmail = "paypal-test-seller-usd%40englisharium.com";
 #else
         private const string PayPalAddress = "https://www.paypal.com/cgi-bin/webscr";
-        public const string PayPalAuthToken = "RaKmpVPpjxMbCfvh21wxGlDohA8hLIFJov7rSoWZLQ6ib7xcWKDs4Dvs3N8";
         private const string ReceiverEmail = "paypal%40englisharium.com";
 #endif
-
-        //public PayPalHelper()
-        //{
-        //}
 
         public string WriteLog(PayPalLogEntity.NotificationKind kind, string tx, string logData)
         {
@@ -111,7 +105,6 @@ namespace Runnymede.Website.Utils
         {
             string result = null;
             var content = new StringContent(urlEncodedContent, Encoding.ASCII, "application/x-www-form-urlencoded");
-
             using (var client = new HttpClient())
             {
                 var response = client.PostAsync(PayPalAddress, content).Result;
@@ -131,7 +124,9 @@ namespace Runnymede.Website.Utils
         // PDT +https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/paymentdatatransfer/
         public string RequestPaymentDetails(string tx)
         {
-            string urlEncodedContent = "cmd=_notify-synch&tx=" + tx + "&at=" + PayPalAuthToken;
+            // This is the seller's Payment Data Transfer authorization token found in "Selling Preferences" -> "Website Payment Preferences" under the account.
+            var authToken = ConfigurationManager.AppSettings["PayPal.AuthToken"];
+            var urlEncodedContent = "cmd=_notify-synch&tx=" + tx + "&at=" + authToken;
             return RequestPayPal(urlEncodedContent, tx);
         }
 
@@ -156,6 +151,7 @@ namespace Runnymede.Website.Utils
 
             if (post)
             {
+
                 post =
                         pairs.ContainsKey("txn_id")
                         && pairs.ContainsKey("option_selection2")
