@@ -3,8 +3,6 @@ module app.account_edit {
     export class Teacher {
 
         profile: app.IUser;
-
-        sessionRateChanged: boolean;
         sending: boolean;
         codeSent: boolean = false;
         phoneCode: string;
@@ -15,11 +13,10 @@ module app.account_edit {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService
+            private $http: angular.IHttpService
             ) {
             $scope.vm = this;
             this.load();
-
         } // end of ctor
         
         private load = () => {
@@ -30,32 +27,6 @@ module app.account_edit {
                     this.profile = data;
                     this.newPhone = this.profile.phoneNumber;
                 });
-        }
-
-        clearChanged() {
-            this.sessionRateChanged = false;
-        }
-
-        saveTeacher(form: ng.IFormController) {
-            if (form.$valid) {
-                this.sending = true;
-                this.clearChanged();
-                var sessionRateDirty = !!(<any>form).sessionRate.$dirty;
-
-                app.ngHttpPut(this.$http,
-                    app.accountsApiUrl('teacher_profile'),
-                    {
-                        sessionRate: sessionRateDirty ? this.profile.sessionRate : null,
-                    },
-                    () => {
-                        form.$setPristine();
-                        this.sessionRateChanged = sessionRateDirty;
-                    },
-                    () => {
-                        this.sending = false;
-                    }
-                    );
-            }
         }
 
         isPhoneVerified() {

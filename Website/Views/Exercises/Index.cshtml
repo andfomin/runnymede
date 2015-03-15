@@ -57,14 +57,13 @@
                                 {{e.createTime | appDateHuman}}
                             </td>
                             <td>
-                                <button class="btn btn-xs" ng-class="(e.reviews.length > 0)?'btn-default':'btn-primary'" ng-click="vm.showCreateRequestModal(e)">Request&nbsp;review</button>
-                                <ul>
+                                <ul class="app-margin-bottom-none">
                                     <li class="app-row-review" ng-repeat="r in e.reviews">
                                         <span ng-class="vm.getReviewStatusStyle(r)"><strong>{{vm.getReviewStatusText(r)}}</strong></span>
-                                        &nbsp;{{vm.getReviewStatusTime(r) | appDate}} -&nbsp;{{r.reviewerName}} &nbsp;Price:&nbsp;{{r.price | number:2}}
-                                        <button class="btn btn-default btn-xs" style="margin-left:5px;" ng-show="!(r.cancelationTime || r.startTime)" ng-click="vm.showCancelRequestModal(r)">Cancel</button>
+                                        &nbsp;{{vm.getReviewStatusTime(r) | appDate}}
                                     </li>
                                 </ul>
+                                <button class="btn btn-xs" ng-class="(e.reviews.length > 0)?'btn-default':'btn-primary'" ng-click="vm.showCreateRequestModal(e)">Request&nbsp;review</button>
                             </td>
                         </tr>
                     </tbody>
@@ -118,6 +117,6 @@
 "~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
-"~/app/exercises/createReviewRequest.js",
+"~/app/exercises/utils.js",
 "~/app/exercises/index.js"
 )}

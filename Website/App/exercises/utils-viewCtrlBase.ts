@@ -12,9 +12,9 @@ module app.exercises {
 
         constructor(
             $appRemarks: app.exercises.IRemarksService,
-            $http: ng.IHttpService,
-            private $modal: ng.ui.bootstrap.IModalService,
-            private $rootScope: ng.IRootScopeService,
+            $http: angular.IHttpService,
+            private $modal: angular.ui.bootstrap.IModalService,
+            private $rootScope: angular.IRootScopeService,
             public $scope: app.IScopeWithViewModel,
             public $signalRService: app.ISignalRService
             )
@@ -83,7 +83,7 @@ module app.exercises {
         }
 
         canEditLength = () => {
-            return this.reviews.every((i) => { return !!i.cancelationTime; });
+            return this.reviews.every((i) => { return !i.startTime; });
         }
 
         isLengthDirty = () => {

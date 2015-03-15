@@ -69,13 +69,17 @@
             </div>
         </div>
 
+        <div class="row" ng-show="vm.isPersonal() && vm.isEmpty" ng-cloak>
+            <div class="col-md-offset-3 col-md-6">
+                <p class="alert alert-warning">
+                    No resource found in your personal collection. You can add a resource to your personal collection while viewing it in the common collection.
+                    Alternatively you can click the link at the bottom of the page to add a new resource.
+                </p>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-6" ng-cloak>
                 <div class="row">
-                    <p class="text-muted" ng-show="vm.isPersonal() && vm.isEmpty" ng-cloak>
-                        No resource found in your personal collection. You can add a resource to your personal collection while viewing it in the common collection.
-                        Alternatively you can click the link at the bottom of the page to add a new resource.
-                    </p>
                     <div class="col-sm-5 app-margin-bottom">
                         <div data-accordion data-close-others="vm">
                             <div class="my-group" data-accordion-group data-is-open="c1.active" ng-repeat="c1 in vm.categoriesL1" ng-class="{active: c1.active}">
@@ -118,9 +122,9 @@
                 <span class="text-nowrap app-margin-left-half">
                     <i class="fa fa-history fa-fw"></i>&nbsp;@Html.ActionLink("History", "History", "Library")
                 </span>
-                <span class="text-nowrap app-margin-left">
-                    <i class="fa fa-skype fa-fw"></i>&nbsp;@Html.ActionLink("Viewed by friend", "Friend", "Library")
-                </span>
+                @*<span class="text-nowrap app-margin-left">
+                        <i class="fa fa-skype fa-fw"></i>&nbsp;@Html.ActionLink("Viewed by friend", "Friend", "Library")
+                    </span>*@
                 <span class="text-nowrap app-margin-left" ng-show="vm.isPersonal()">
                     <i class="fa fa-plus fa-fw text-success"></i>&nbsp;<a href="" ng-click="vm.showAddResourceModal()">Add new resource</a>
                 </span>

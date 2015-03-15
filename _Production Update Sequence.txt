@@ -14,7 +14,7 @@
 
 -- Publish the new website to the staging.
 
--- Change the database connection string in the staging slot to 'englmdb_test''
+-- Change the database connection string in the staging slot to 'englmdb_test'
 
 -- Test the staging site.
 
@@ -57,5 +57,5 @@ ALTER DATABASE [englmdb_backup] MODIFY NAME = [englmdb]
 
 -- Rename App_Offline.htm to ~App_Offline.htm on the old production.
 
-
-
+---------------------- NOTES ----------------------
+EXECUTE sp_rename N'dbo.appUsers.SessionRate', N'Tmp_SessionPrice', 'COLUMN' 

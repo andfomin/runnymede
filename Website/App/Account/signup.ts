@@ -16,8 +16,8 @@ module app.account {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService,
-            private $timeout: ng.ITimeoutService
+            private $http: angular.IHttpService,
+            private $timeout: angular.ITimeoutService
             ) {
             $scope.vm = this;
         } // end of ctor

@@ -114,6 +114,16 @@ textarea.form-control.app {
     margin-top: 0;
 }
 
+.app-margin-top {
+    margin-top: @line-height-computed;
+}
+
+.app-margin-top-xs {
+    @media (max-width: @screen-xs-max) {
+        margin-top: @line-height-computed;
+    }
+}
+
 .app-margin-bottom-none {
     margin-bottom: 0;
 }
@@ -122,8 +132,10 @@ textarea.form-control.app {
     margin-bottom: @line-height-computed;
 }
 
-.app-margin-top {
-    margin-top: @line-height-computed;
+.app-margin-bottom-xs {
+    @media (max-width: @screen-xs-max) {
+        margin-bottom: @line-height-computed;
+    }
 }
 
 .app-margin-left {
@@ -321,41 +333,29 @@ a div.tooltip-inner {
 
 /* #region FullCalendar events ----------- */
 
-a.fc-event.app-event {
-    color: black;
+a.fc-event.app-session {
     background-color: @well-bg;
     border-color: @well-bg;
+    color: black;
 
-    &.app-event-vt {
-        background-color: @link-color;
-        border-color: @link-color;
+    &.app-session-proposed {
+        background-color: @appBlue;
+        border-color: @appBlue;
+        color: @appWhite;
         cursor: pointer;
     }
 
-    &.app-event-rq {
-        background-color: @appYellow;
-        border-color: @appYellow;
-        cursor: pointer;
+    &.app-session-accepted {
+        background-color: @state-success-bg;
+        border-color: @state-success-bg;
     }
 
-    &.app-event-cf {
+    &.app-session-booked {
         background-color: @brand-success;
         border-color: @brand-success;
         cursor: pointer;
     }
-
-    &.app-event-cs {
-        border-color: @brand-danger;
-        cursor: pointer;
-    }
-
-    &.app-event-co {
-        background-color: @brand-danger;
-        border-color: @brand-danger;
-        cursor: pointer;
-    }
 }
-
 
 /* #endregion */
 

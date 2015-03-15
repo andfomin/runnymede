@@ -7,21 +7,21 @@ module app.exercises {
         static $inject = [app.ngNames.$filter, app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$rootScope, app.ngNames.$scope, app.ngNames.$state, app.ngNames.$timeout];
 
         constructor(
-            private $filter: ng.IFilterService,
-            private $http: ng.IHttpService,
-            $interval: ng.IIntervalService,
-            private $modal: ng.ui.bootstrap.IModalService,
-            private $rootScope: ng.IRootScopeService,
+            private $filter: angular.IFilterService,
+            private $http: angular.IHttpService,
+            $interval: angular.IIntervalService,
+            private $modal: angular.ui.bootstrap.IModalService,
+            private $rootScope: angular.IRootScopeService,
             private $scope: app.IScopeWithViewModel,
             private $state: ng.ui.IStateService,
-            private $timeout: ng.ITimeoutService
+            private $timeout: angular.ITimeoutService
             ) {
             super($scope);
 
             var refresher = $interval(() => { this.pgLoad(); }, 300000);
-            $scope.$on('$destroy', () => { $interval.cancel(refresher); });
+            $scope.$on('$destroy',() => { $interval.cancel(refresher); });
 
-            $rootScope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) => { this.pgLoad(); });
+            $rootScope.$on('$stateChangeSuccess',(event, toState, toParams, fromState, fromParams) => { this.pgLoad(); });
 
         } // end of ctor
 
@@ -51,15 +51,15 @@ module app.exercises {
         }
 
         getReviewStatusText(r: app.IReview) {
-            return r.finishTime ? 'Finished' : (r.startTime ? 'Started' : (r.cancelationTime ? 'Canceled' : 'Requested'));
+            return r.finishTime ? 'Finished' : (r.startTime ? 'Started' : 'Requested');
         }
 
         getReviewStatusTime(r: app.IReview) {
-            return r.finishTime ? r.finishTime : (r.startTime ? r.startTime : (r.cancelationTime ? r.cancelationTime : r.requestTime));
+            return r.finishTime ? r.finishTime : (r.startTime ? r.startTime : r.requestTime);
         }
 
         getReviewStatusStyle(r: app.IReview) {
-            return r.finishTime ? 'text-success' : (r.startTime ? 'text-warning' : (r.cancelationTime ? 'text-muted' : null));
+            return r.finishTime ? 'text-success' : (r.startTime ? 'text-warning' : null);
         }
 
         isStateSpeaking = () => {
@@ -73,39 +73,7 @@ module app.exercises {
         showCreateRequestModal = (exercise: app.IExercise) => {
             showCreateRequestModal(this.$modal, exercise);
         };
-
-        showCancelRequestModal = (review: app.IReview) => {
-            // Find the exercise for the given review.
-            var exerciseId = review.exerciseId;
-            var exercise = app.arrFind(
-                this.exercises,
-                (el) => { return el.id === exerciseId; }
-                );
-
-            app.Modal.openModal(this.$modal,
-                'cancelRequestModal',
-                CancelRequestModal,
-                {
-                    review: review,
-                    exercise: exercise,
-                },
-                () => { this.pgLoad(); }
-                )
-        };
-    } // end of class Ctrl      
-
-    export class CancelRequestModal extends app.Modal {
-
-        internalOk = () => {
-            return this.$http.delete(
-                app.reviewsApiUrl(this.modalParams.review.id.toString())
-                )
-                .success(() => {
-                    toastr.success('Review request canceled');
-                })
-                .error(app.logError);
-        };
-    }; // end of class CancelRequestModal
+    }
 
     class StateConfig {
         static $inject = [app.ngNames.$stateProvider, app.ngNames.$urlRouterProvider];

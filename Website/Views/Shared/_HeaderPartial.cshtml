@@ -29,22 +29,30 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="headerCollapse">
             <ul class="nav navbar-nav app">
-                <li class="dropdown app-dropdown-hover @NavClass("Exercises")">
-                    <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Exercises<b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        <li>@Html.ActionLink("Speaking", "Index", "Exercises", null, null, "/speaking", null, new { tabindex = "-1" })</li>
-                        <li>@Html.ActionLink("Writing", "Index", "Exercises", null, null, "/writing", null, new { tabindex = "-1" })</li>
-                        <li class="divider"></li>
-                        <li>@Html.ActionLink("Reviews of exercises", "Index", "Reviews", null, new { tabindex = "-1" })</li>
-                    </ul>
-                </li>
-                <li class="dropdown app-dropdown-hover @NavClass("Conversations")">
-                    <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Conversations<b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        <li>@Html.ActionLink("Sessions", "Index", "Sessions")</li>
-                        <li>@Html.ActionLink("Friends", "Index", "Friends")</li>
-                    </ul>
-                </li>
+                @if (Model.IsTeacher)
+                {
+                    <li class="dropdown app-dropdown-hover @NavClass("Teacher")">
+                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Teacher<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li>@Html.ActionLink("Live sessions", "Teacher", "Sessions")</li>
+                            <li class="divider"></li>
+                            <li>@Html.ActionLink("Reviews of exercises", "Index", "Reviews", null, new { tabindex = "-1" })</li>
+                        </ul>
+                    </li>
+                }
+                @if (!Model.IsTeacher)
+                {
+                    <li class="dropdown app-dropdown-hover @NavClass("Exercises")">
+                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Exercises<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li>@Html.ActionLink("Speaking", "Index", "Exercises", null, null, "/speaking", null, new { tabindex = "-1" })</li>
+                            <li>@Html.ActionLink("Writing", "Index", "Exercises", null, null, "/writing", null, new { tabindex = "-1" })</li>
+                            <li class="divider"></li>
+                            <li>@Html.ActionLink("Live sessions", "Index", "Sessions")</li>
+                        </ul>
+                    </li>
+                    <li>@Html.ActionLink("Conversations", "Index", "Conversations")</li>
+                }
                 <li class="dropdown app-dropdown-hover @NavClass("Games")">
                     <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Games<b class="caret"></b></a>
                     <ul class="dropdown-menu">
@@ -57,14 +65,13 @@
             <ul class="nav navbar-nav navbar-right app">
                 @if (Request.IsAuthenticated)
                 {
-                    @*<li><img id="navAvatar" class="hidden-xs" style="margin:4px;" width="32" height="32" src="@avatarUrl" title="@Model.DisplayName" /></li>*@
-                    <li>
-                        @Html.Raw(
-                         @Html.ActionLinkWithProtocol("[replacetext]", "Edit", "Account", "https", new { tabindex = "-1", @class = "app-collapsable-avatar", @style = "padding:4px;" })
-                        .ToHtmlString()
-                         .Replace("[replacetext]", "<img class=\"img-circle\" id=\"navAvatar\" width=\"32\" height=\"32\" src=\"" + @avatarUrl + "\" title=\"" + @Model.DisplayName + "\" />")
-                    )
-                    </li>
+                    @*<li>
+                            @Html.Raw(
+                             @Html.ActionLinkWithProtocol("[replacetext]", "Edit", "Account", "https", new { tabindex = "-1", @class = "app-collapsable-avatar", @style = "padding:4px;" })
+                            .ToHtmlString()
+                             .Replace("[replacetext]", "<img class=\"img-circle\" id=\"navAvatar\" width=\"32\" height=\"32\" src=\"" + @avatarUrl + "\" title=\"" + @Model.DisplayName + "\" />")
+                        )
+                        </li>*@
                     <li class="dropdown app-dropdown-hover @NavClass("Account")">
                         <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">@Model.DisplayName<b class="caret"></b></a>
                         <ul class="dropdown-menu">

@@ -1,10 +1,10 @@
 module app {
 
-    export interface IScopeWithViewModel extends ng.IScope {
+    export interface IScopeWithViewModel extends angular.IScope {
         vm: any;
     };
 
-    export interface IAppRootScopeService extends ng.IRootScopeService {
+    export interface IAppRootScopeService extends angular.IRootScopeService {
         // Dynamically change the page title. ?Refactor as a service? See +http://stackoverflow.com/a/17751833/2808337
         pageTitle: string;
         secondaryTitle: string;
@@ -49,7 +49,6 @@ module app {
     export var utilsNg = 'app.utilsNg';
 
     export var pgLimit: number = 10; // Items per page
-    export var notAuthenticatedMessage = 'Please log in to enable this feature.';
 
     export class CtrlBase {
         busy: boolean = false;
@@ -85,7 +84,7 @@ module app {
 
     export interface IModal {
         canOk: () => any;
-        internalOk: () => ng.IPromise<any>;
+        internalOk: () => angular.IPromise<any>;
     }
 
     export class Modal {
@@ -95,7 +94,7 @@ module app {
         loginLink: string;
 
         canOk: () => any = () => { return true; }; // Replaced in descendand classes.
-        internalOk: () => ng.IPromise<any>; // Replaced in descendand classes.
+        internalOk: () => angular.IPromise<any>; // Replaced in descendand classes.
         dismissOnError: boolean = false;
 
         /* +http://www.typescriptlang.org/Content/TypeScript%20Language%20Specification.pdf  Section 8.2.3
@@ -103,8 +102,8 @@ module app {
         static $inject = [app.ngNames.$http, app.ngNames.$modalInstance, app.ngNames.$scope, 'modalParams'];
 
         constructor(
-            public $http: ng.IHttpService,
-            public $modalInstance: ng.ui.bootstrap.IModalServiceInstance,
+            public $http: angular.IHttpService,
+            public $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             public $scope: app.IScopeWithViewModel,
             public modalParams: any
             ) {
@@ -148,7 +147,7 @@ module app {
          * The successCallback parameter should be passed using the lambda syntax, otherwise the _this will be lost.
          */
         public static openModal(
-            $modal: ng.ui.bootstrap.IModalService,
+            $modal: angular.ui.bootstrap.IModalService,
             templateUrl: string,
             controller: new (...args: any[]) => IModal,
             modalParams?: any,
@@ -156,7 +155,7 @@ module app {
             backdrop?: any, // true (default???), false (no backdrop), 'static'
             size?: string // 'sm', 'lg'
             ) {
-            var options: ng.ui.bootstrap.IModalSettings = {
+            var options: angular.ui.bootstrap.IModalSettings = {
                 templateUrl: templateUrl,
                 controller: controller,
                 resolve: {
@@ -230,7 +229,7 @@ module app {
 
         constructor(
             private $: JQueryStatic,
-            private $rootScope: ng.IRootScopeService
+            private $rootScope: angular.IRootScopeService
             )
         /* ----- Constructor  ----- */ {
             // ConnectionId is keept the same on reconnects.
@@ -318,7 +317,7 @@ module app {
 
     export class WrongClockDetector {
         static $inject = [ngNames.$http, ngNames.$rootScope];
-        constructor($http: ng.IHttpService, $rootScope: IAppRootScopeService) {
+        constructor($http: angular.IHttpService, $rootScope: IAppRootScopeService) {
             ngHttpGet($http,
                 app.sessionsApiUrl('millis_since_epoch'),
                 null,
@@ -331,7 +330,7 @@ module app {
 
     export class HrefWhitelistConfig {
         static $inject = [app.ngNames.$compileProvider];
-        constructor($compileProvider: ng.ICompileProvider) {
+        constructor($compileProvider: angular.ICompileProvider) {
             // /^(?:https?:)?\/\/englm\.blob\.core\.windows\.net\/|^https?:\/\/(?:dev\w\.)?englisharium\.com\/|^skype:/
             $compileProvider.aHrefSanitizationWhitelist(/^skype:/);
         }
@@ -339,7 +338,7 @@ module app {
 
     export class SceWhitelistConfig {
         static $inject = [app.ngNames.$sceDelegateProvider];
-        constructor($sceDelegateProvider: ng.ISCEDelegateProvider) {
+        constructor($sceDelegateProvider: angular.ISCEDelegateProvider) {
             $sceDelegateProvider.resourceUrlWhitelist(['self', 'http*://' + app.BlobDomainName + '/**']);
         }
     }
@@ -351,7 +350,7 @@ module app {
     };
 
     // $http does not send data in body in a GET request, it sends only URL params.
-    export function ngHttpGet($http: ng.IHttpService, urlPath: string, params: any, successCallback: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
+    export function ngHttpGet($http: angular.IHttpService, urlPath: string, params: any, successCallback: angular.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
         var ps = params || {};
         ps._ = anticacher();
         return $http.get(urlPath, { params: ps })
@@ -360,7 +359,7 @@ module app {
             .finally(finallyCallback || angular.noop);
     };
 
-    export function ngHttpPost($http: ng.IHttpService, url: string, data: any, successCallback?: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
+    export function ngHttpPost($http: angular.IHttpService, url: string, data: any, successCallback?: angular.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
         return $http.post(url, data)
             .success(successCallback || angular.noop)
             .error(app.logError)
@@ -384,14 +383,14 @@ module app {
     //        }
     //    })
 
-    export function ngHttpPut($http: ng.IHttpService, url: string, data: any, successCallback?: ng.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
+    export function ngHttpPut($http: angular.IHttpService, url: string, data: any, successCallback?: angular.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
         return $http.put(url, data)
             .success(successCallback || angular.noop)
             .error(app.logError)
             .finally(finallyCallback || angular.noop);
     };
 
-    export function getUserPresentation($http: ng.IHttpService, id: number, successCallback: (data: string) => void) {
+    export function getUserPresentation($http: angular.IHttpService, id: number, successCallback: (data: string) => void) {
         var callback = (data: any) => { (successCallback || angular.noop)(data || ''); }; // The empty string means there has been a request and there is definitly no presentation text.
         $http.get(
             // Encourage caching.   
@@ -423,7 +422,7 @@ module app {
         }
     };
 
-    // Format exercise length depending on the exercise type. app.IReview has exerciseLength and exerciseType.
+    // Format exercise length depending on the exercise type.
     export function AppLengthFilter() {
         return (length: number, type: string) => {
             return ExerciseType.formatLength(length, type);

@@ -21,13 +21,22 @@ begin try
 'Account.$UnknownPayPalPayer.Personal'
 */
 
-insert into dbo.appConstants (Name, Value, Comment) values ('Accounting.Transfer.MinimalAmount', '1.0', 'Minimal amount of internal transfer from learner to teacher.');
+-- 20150304
+insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.Length.Minutes', '25', 'The length of the session');
+insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.SlotLength.Minutes', '30', 'The length of the session slot');
+insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.BookingAdvance.Minutes', '5', 'Session must booked at least X minutes in advance');
+-- end 20150304
+-- 20150313
+--insert into dbo.appConstants (Name, Value, Comment) values ('Accounting.Transfer.MinimalAmount', '1.0', 'Minimal amount of internal transfer from learner to teacher.');
 --insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.Reviews.ServiceFeeRate', '0.29', 'Service fee rate. 29% of earnings.');
 --insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.ServiceFeeRate', '0.29', 'Service fee rate. 29% of session price.');
-insert into dbo.appConstants (Name, Value, Comment) values ('Relationships.Teachers.BuketCount', '1', 'Used for fast paging');
-insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.FinishDelay.Minutes', '60', 'A user has an opportunity to dispute a session until it is finished.');
-insert into dbo.appConstants (Name, Value, Comment) values ('AnyTeacher.ReviewRate.EXAREC', '2.5', 'Anonymous teacher recordings review rate');
-insert into dbo.appConstants (Name, Value, Comment) values ('AnyTeacher.ReviewRate.EXWRPH', '3.0', 'Anonymous teacher writings review rate');
+--insert into dbo.appConstants (Name, Value, Comment) values ('Relationships.Teachers.BuketCount', '1', 'Used for fast paging');
+--insert into dbo.appConstants (Name, Value, Comment) values ('AnyTeacher.ReviewRate.EXAREC', '2.5', 'Anonymous teacher recordings review rate');
+--insert into dbo.appConstants (Name, Value, Comment) values ('AnyTeacher.ReviewRate.EXWRPH', '3.0', 'Anonymous teacher writings review rate');
+insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.ClosingDelay.Minutes', '60', 'The learner has an opportunity to dispute a session until it is closed programmatically.');
+insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRate.EXAREC', '3.0', 'Review rate for recordings');
+insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRate.EXWRPH', '3.0', 'Review rate for writings');
+-- end 20150313
 
 --insert dbo.appAttributeTypes (Id, Name, [Description]) values ('SCEV', 'dbo.sesScheduleEvents', null);
 --insert dbo.appAttributeTypes (Id, Name, [Description]) values ('SSSN', 'dbo.sesSessions', null);--T

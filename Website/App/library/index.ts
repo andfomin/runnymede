@@ -27,10 +27,10 @@ module app.library {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $rootScope: ng.IRootScopeService,
-            private $http: ng.IHttpService,
-            private $modal: ng.ui.bootstrap.IModalService,
-            private $window: ng.IWindowService,
+            private $rootScope: angular.IRootScopeService,
+            private $http: angular.IHttpService,
+            private $modal: angular.ui.bootstrap.IModalService,
+            private $window: angular.IWindowService,
             private $state: ng.ui.IStateService
             ) {
             /* ----- Constructor  ----- */
@@ -38,7 +38,7 @@ module app.library {
 
             this.isEmpty = !this.authenticated;
 
-            $rootScope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) => {
+            $rootScope.$on('$stateChangeSuccess',(event, toState, toParams, fromState, fromParams) => {
                 if (toState.name === Index.Personal) {
                     this.clear();
                     this.clearList();
@@ -51,14 +51,14 @@ module app.library {
                 }
             });
 
-            $scope.$on(ResourceList.PersonalRemoved, (event, args) => { this.onPersonalRemoved(args.resources, args.resource); });
+            $scope.$on(ResourceList.PersonalRemoved,(event, args) => { this.onPersonalRemoved(args.resources, args.resource); });
 
             //Watch when an accordion section is toggled manually by the user.
             $scope.$watch(() => { return angular.toJson(this.categoriesL1); },
                 (newValue) => {
                     if (newValue !== this.categoriesL1KnownState) {
                         this.categoriesL1KnownState = newValue;
-                        this.selectL1(app.arrFind(this.categoriesL1, (i) => { return i.active; }));
+                        this.selectL1(app.arrFind(this.categoriesL1,(i) => { return i.active; }));
                     }
                 });
 
@@ -183,6 +183,11 @@ module app.library {
             }
             else {
                 // Show a faked category list.
+                Categories.forEach((i) => {
+                    if (!i.hasOwnProperty('categoryPathIds')) {
+                        i['categoryPathIds'] = i.pathIds.split(' ');
+                    }
+                });
                 adjustCategories(Categories);
             }
         };
@@ -243,7 +248,7 @@ module app.library {
                     name: s,
                     url: '/' + s.toLowerCase(),
                     data: {
-                        secondaryTitle: s.charAt(0).toUpperCase() + s.slice(1) + ' collection of learning and practicing resources',
+                        secondaryTitle: s.charAt(0).toUpperCase() + s.slice(1) + ' collection of resources for learning and practicing',
                     },
                 };
             };

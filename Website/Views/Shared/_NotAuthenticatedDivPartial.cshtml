@@ -1,7 +1,9 @@
 ﻿@model System.String
 @if (!Request.IsAuthenticated)
 {
-    <div class="@Model alert alert-warning text-center" role="alert" ng-cloak>
-        Please @Html.ActionLinkWithProtocol("log in", "Login", "Account", "https", null) to enable this feature
+    <div class="@Model" ng-cloak>
+        <div class="alert alert-warning text-center app-margin-bottom-none" role="alert">
+            Please @Html.ActionLinkWithProtocol("log in", "Login", "Account", "https", null) to enable this feature
+        </div>
     </div>
 }

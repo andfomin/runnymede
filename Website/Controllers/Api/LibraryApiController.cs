@@ -170,45 +170,45 @@ order by ReferenceLevel;
             return Ok(result);
         }
 
-        // GET /api/library/friend_history/12345
-        [Route("friend_history/{id:int}")]
-        public async Task<IHttpActionResult> GetFriendHistory(int id)
-        {
-            object result = null;
+//        // GET /api/library/friend_history/12345
+//        [Route("friend_history/{id:int}")]
+//        public async Task<IHttpActionResult> GetFriendHistory(int id)
+//        {
+//            object result = null;
 
-            if (this.IsAuthenticated())
-            {
-                var userId = this.GetUserId();
+//            if (this.IsAuthenticated())
+//            {
+//                var userId = this.GetUserId();
 
-                // Check if the users are friends.
-                const string sql = @"
-select convert(bit, count(*)) as IsActive
-from dbo.friGetFriends(@UserId)
-where Id = @FriendUserId and UserIsActive = 1 and FriendIsActive = 1;
-";
-                var isActive = (await DapperHelper.QueryResilientlyAsync<bool>(sql, new { UserId = userId, FriendUserId = id })).Single();
+//                // Check if the users are friends.
+//                const string sql = @"
+//select convert(bit, count(*)) as IsActive
+//from dbo.friGetFriends(@UserId)
+//where Id = @FriendUserId and UserIsActive = 1 and FriendIsActive = 1;
+//";
+//                var isActive = (await DapperHelper.QueryResilientlyAsync<bool>(sql, new { UserId = userId, FriendUserId = id })).Single();
 
-                if (!isActive)
-                {
-                    return BadRequest("Friendship is not mutually active.");
-                }
+//                if (!isActive)
+//                {
+//                    return BadRequest("Friendship is not mutually active.");
+//                }
 
-                // Limit table scan by row key. Look up in the last day history to cover any timezone and mistakes with local clock.
-                var localTime = DateTime.UtcNow.AddDays(-1).EncodeLocalTime();
-                // RowKeys are inverse to time value.
-                var rowKey = KeyUtils.LocalTimeToInvertedKey(localTime);
+//                // Limit table scan by row key. Look up in the last day history to cover any timezone and mistakes with local clock.
+//                var localTime = DateTime.UtcNow.AddDays(-1).EncodeLocalTime();
+//                // RowKeys are inverse to time value.
+//                var rowKey = KeyUtils.LocalTimeToInvertedKey(localTime);
 
-                // One hour is hardcoded within the message in app.library.Friend.load();
-                var timestampValue = DateTimeOffset.UtcNow.AddHours(-1);
+//                // One hour is hardcoded within the message in app.library.Friend.load();
+//                var timestampValue = DateTimeOffset.UtcNow.AddHours(-1);
 
-                var filterRow = TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.LessThanOrEqual, rowKey);
-                var filterTimestamp = TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.GreaterThanOrEqual, timestampValue);
-                string combinedFilter = TableQuery.CombineFilters(filterRow, TableOperators.And, filterTimestamp);
+//                var filterRow = TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.LessThanOrEqual, rowKey);
+//                var filterTimestamp = TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.GreaterThanOrEqual, timestampValue);
+//                string combinedFilter = TableQuery.CombineFilters(filterRow, TableOperators.And, filterTimestamp);
 
-                result = await GetHistoryResources(id, combinedFilter, 0, 10);
-            }
-            return Ok(result);
-        }
+//                result = await GetHistoryResources(id, combinedFilter, 0, 10);
+//            }
+//            return Ok(result);
+//        }
 
         // PUT /api/library/   // Add a resource to the user's personal collection.
         [Route("")]

@@ -16,5 +16,15 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
+        // GET: sessions/teacher
+        public ActionResult Teacher()
+        {
+            if (!this.GetUserIsTeacher())
+            {
+                return Redirect(Url.Action("Logout", "Account", null, "https"));
+            }
+            return View();
+        }
+
 	}
 }

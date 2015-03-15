@@ -3,12 +3,14 @@ module app {
 
     export var DateTimeFormat = 'DD MMM YYYY HH:mm';
     export var BlobDomainName = 'englmdata.blob.core.windows.net'; // Custom domain mapping does not support HTTPS.
+    export var notAuthenticatedMessage = 'Please log in to enable this feature.';
 
     export function accountUrl(path?: string) { return '/account/' + (path || ''); };
     export function exercisesUrl(path?: string) { return '/exercises/' + path || ''; };
     export function reviewsUrl(path?: string) { return '/reviews/' + (path || ''); };
 
     export function accountsApiUrl(path?: string) { return '/api/accounts/' + (path || ''); };
+    export function converstionsApiUrl(path?: string) { return '/api/converstions/' + (path || ''); };
     export function exercisesApiUrl(path?: string) { return '/api/exercises/' + (path || ''); };
     export function friendsApiUrl(path?: string) { return '/api/friends/' + (path || ''); };
     export function pickapicApiUrl(path?: string) { return '/api/pickapic/' + (path || ''); };

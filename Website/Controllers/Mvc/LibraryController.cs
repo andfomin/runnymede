@@ -58,11 +58,11 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
-        // GET: /friend
-        public ActionResult Friend()
-        {
-            return View();
-        }
+        //// GET: /friend
+        //public ActionResult Friend()
+        //{
+        //    return View();
+        //}
 
     }
 

@@ -12,7 +12,7 @@ module app.exercises {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $timeout: ng.ITimeoutService
+            private $timeout: angular.ITimeoutService
             ) {
             /* ----- Constructor  ----- */
             $scope.vm = this;

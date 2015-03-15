@@ -39,7 +39,7 @@ insert into dbo.appTypes (Id, Name, [Description]) values ('ACPPIF', 'Incoming P
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRIPLT', 'Internal payment from learner to teacher', 'ATLITI');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRIPFD', 'Service fee deducted from internal payment', 'ATLITI');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRNACC', 'New account', null);
-insert dbo.appTypes (Id, Name, AttributeType) values ('TRPPIF', 'Incoming PayPal payment fee compensation', 'ATPPRI');
+insert dbo.appTypes (Id, Name, AttributeType) values ('TRPPIF', 'Incoming PayPal payment fee', 'ATPPRI');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRPPIP', 'Incoming PayPal payment', 'ATPPRI');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRPPOP', 'Outgoing PayPal payment', null);
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVRQ', 'Request for review of exercise', 'ATREVW');
@@ -48,8 +48,7 @@ insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVST', 'Review started.
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVFN', 'Review finished', 'ATREVW');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVFD', 'Service fee deducted from review price', 'ATREVW');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRSSRQ', 'Request for session', 'ATSSSN');
-insert dbo.appTypes (Id, Name, AttributeType) values ('TRSSFN', 'Session finished', 'ATSSSN');
-insert dbo.appTypes (Id, Name, AttributeType) values ('TRSSFD', 'Service fee deducted from session payment', 'ATSSSN');
+insert dbo.appTypes (Id, Name, AttributeType) values ('TRSSCL', 'Session closed', 'ATSSSN');
 
 -- EX exeExercises
 insert dbo.appTypes (Id, Name) values ('EXAREC', 'Audio Recording MP3');

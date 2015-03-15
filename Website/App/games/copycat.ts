@@ -33,10 +33,10 @@
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService,
-            private $window: ng.IWindowService,
-            private $interval: ng.IIntervalService,
-            private $modal: ng.ui.bootstrap.IModalService
+            private $http: angular.IHttpService,
+            private $window: angular.IWindowService,
+            private $interval: angular.IIntervalService,
+            private $modal: angular.ui.bootstrap.IModalService
             ) {
             /* ----- Constructor  ----- */
             super($scope);

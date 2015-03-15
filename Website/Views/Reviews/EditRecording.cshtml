@@ -68,7 +68,7 @@
                                 </td>
                                 <td width="35%">
                                     <textarea rows="3" style="box-sizing: border-box;width:100%;" ng-show="vma.isEditing(r)" ng-model="r.correction" ng-change="vm.makeDirty(r)"></textarea>
-                                    <span ng-show="!vma.isEditing(r)">{{r.correction}}</span>
+                                    <span ng-show="!vma.isEditing(r)">{{r.correction || 'Click here to edit'}}</span>
                                 </td>
                                 <td width="35%">
                                     <textarea rows="3" style="box-sizing: border-box;width:100%;" ng-show="vma.isEditing(r)" ng-model="r.comment" ng-change="vm.makeDirty(r)"></textarea>
@@ -87,18 +87,17 @@
             </div>
 
         </div><!-- ng-controller="AudioPlayer" -->
-
         @Html.Partial("_BottomPartial")
 
     </div><!-- /ng-controller="EditRecording" -->
 </div>
 
 @*@using (Html.BeginInstructionsContainer())
-{
-    <ul>
-        <li>As you are adding and editing your remarks, the changes are automatically saved every minute. You may be prompted to save changes manually on page exit.</li>
-    </ul>
-}*@
+    {
+        <ul>
+            <li>As you are adding and editing your remarks, the changes are automatically saved every minute. You may be prompted to save changes manually on page exit.</li>
+        </ul>
+    }*@
 @section BottomScripts {
     <script type="text/javascript">
         var app = app || {};

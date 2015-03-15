@@ -12,7 +12,7 @@ RETURNS
 		RowNumber int identity primary key clustered,
 		Id int,
 		DisplayName nvarchar(100),
-		SessionRate decimal(9, 2),
+		SessionRate decimal(9,2),
 		Announcement nvarchar(200)
 	)
 AS

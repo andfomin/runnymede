@@ -1,36 +1,7 @@
-﻿<!--<p class="text-right">
-    You are signed in as <strong>{{vm.userName}}</strong>. <a href="#/logins">Manage&nbsp;logins.</a>
-</p>-->
-<p class="text-right" ng-if="vm.profile.isTeacher">
-    You have got the <strong>Teacher</strong> status. <a href="#/teacher">Edit your teacher profile.</a>
-</p>
-<div class="alert alert-warning text-center" role="alert">
-    All personal information entered on this page will be publicly visible. The Skype name will be visible only to your speaking partners.
+﻿<div class="alert alert-warning text-center" role="alert">
+    All personal information entered on this page will be publicly visible. The Skype name will be only visible to the other party of a confirmed session.
 </div>
 <hr />
-
-<!--<p ng-show="vm.profile.emailConfirmed">
-    Email address <strong>{{vm.profile.email}}</strong>
-</p>
-<form class="form-horizontal" name="emailForm" role="form" ng-show="!vm.profile.emailConfirmed" novalidate>
-    <div class="form-group">
-        <label class="col-sm-4 control-label" for="email">Email address</label>
-        <div class="col-sm-4">
-            <input type="email" id="email" name="email" class="form-control" ng-model="vm.newEmail" />
-        </div>
-        <div class="col-sm-4" style="padding-top: 7px;">
-            <span class="text-danger">Not verified</span>
-            &nbsp;&nbsp; <span ng-show="vm.linkSent"><small>Verification link sent</small></span>
-        </div>
-    </div>
-    <div class="form-group" ng-hide="vm.linkSent">
-        <div class="col-sm-offset-4 col-sm-6">
-            <button type="submit" class="btn btn-default btn-sm app-btn-disablable" ng-click="vm.sendEmailLink()" ng-disabled="vm.sending">Send verification link</button>
-        </div>
-    </div>
-</form>
-<hr />-->
-
 <form class="form-horizontal" name="mainForm" role="form" novalidate>
     <div class="form-group">
         <label class="col-sm-4 control-label" for="displayName">Name</label>

@@ -2,6 +2,7 @@
 using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -22,15 +23,7 @@ namespace Runnymede.Website.Controllers.Mvc
         [Authorize]
         public async Task<ActionResult> Edit(int id)
         {
-            const string sql = @"
-select E.Id, E.[Length], E.[Type], E.Artifact, 
-    R.ExerciseId, R.Id, R.StartTime, R.FinishTime
-from dbo.exeExercises E 	
-	inner join dbo.exeReviews as R on E.Id = R.ExerciseId
-where R.Id = @Id 
-    and R.UserId = @UserId;
-";
-            var exercise = (await QueryExerciseReviews(sql, id, this.GetUserId())).Single();
+            var exercise = (await QueryExerciseReviews("exeGetReview", this.GetUserId(), id)).Single();
 
             ViewBag.ExerciseParam = exercise;
 
@@ -45,15 +38,17 @@ where R.Id = @Id
             }
         }
 
-        internal static async Task<IEnumerable<ExerciseDto>> QueryExerciseReviews(string sql, int entityId, int userId)
+        internal static async Task<IEnumerable<ExerciseDto>> QueryExerciseReviews(string sql, int userId, int entityId)
         {
             using (var connection = await DapperHelper.GetOpenConnectionAsync())
             {
                 return await connection.QueryAsync<ExerciseDto, ReviewDto, ExerciseDto>(
                     sql,
                     (e, r) => { e.Reviews = new[] { r }; return e; },
-                    new { Id = entityId, UserId = userId },
-                    splitOn: "ExerciseId");
+                    new { UserId = userId, Id = entityId, },
+                    splitOn: "ExerciseId",
+                    commandType: CommandType.StoredProcedure
+                    );
             }
         }
 

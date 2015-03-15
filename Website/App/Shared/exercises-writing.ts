@@ -18,10 +18,10 @@ module app.exercises {
 
         constructor(
             public $appRemarks: app.exercises.IRemarksService,
-            private $document: ng.IDocumentService,
-            public $modal: ng.ui.bootstrap.IModalService,
+            private $document: angular.IDocumentService,
+            public $modal: angular.ui.bootstrap.IModalService,
             public $scope: app.IScopeWithViewModel,
-            private $window: ng.IWindowService
+            private $window: angular.IWindowService
             )
         /* ----- Constructor  ------------ */
         {
@@ -222,10 +222,6 @@ module app.exercises {
                 }
             }
         };
-
-        canEditLength = () => {
-            return this.exercise.reviews.every((i) => { return !!i.cancelationTime; });
-        }
 
         onRemarksChanged = () => {
             var old = this.remark;

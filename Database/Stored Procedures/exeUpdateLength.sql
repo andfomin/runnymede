@@ -1,6 +1,6 @@
 ﻿
 
-create PROCEDURE [dbo].[exeUpdateLength]
+CREATE PROCEDURE [dbo].[exeUpdateLength]
 	@ExerciseId int,
 	@UserId int,
 	@Length int
@@ -28,7 +28,7 @@ begin try
 				select *
 				from dbo.exeReviews
 				where ExerciseId = @ExerciseId
-					and CancelationTime is null
+					and StartTime is not null
 			)
 
 		if @@rowcount = 0

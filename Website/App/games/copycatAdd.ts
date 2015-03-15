@@ -14,8 +14,8 @@ module app.games {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService,
-            private $window: ng.IWindowService
+            private $http: angular.IHttpService,
+            private $window: angular.IWindowService
             ) {
             /* ----- Constructor  ----- */
             super($scope);

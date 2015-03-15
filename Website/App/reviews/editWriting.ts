@@ -7,13 +7,13 @@ module app.reviews {
 
     //    constructor(
     //        $appRemarks: app.exercises.IRemarksService,
-    //        $http: ng.IHttpService,
-    //        $interval: ng.IIntervalService,
-    //        $modal: ng.ui.bootstrap.IModalService,
-    //        $q: ng.IQService,
-    //        $rootScope: ng.IRootScopeService,
+    //        $http: angular.IHttpService,
+    //        $interval: angular.IIntervalService,
+    //        $modal: angular.ui.bootstrap.IModalService,
+    //        $q: angular.IQService,
+    //        $rootScope: angular.IRootScopeService,
     //        $scope: app.IScopeWithViewModel,
-    //        $window: ng.IWindowService
+    //        $window: angular.IWindowService
     //        )
     //    /* ----- Constructor  ------------ */
     //    {
@@ -30,10 +30,10 @@ module app.reviews {
 
         constructor(
             $appRemarks: app.exercises.IRemarksService,
-            $document: ng.IDocumentService,
-            $modal: ng.ui.bootstrap.IModalService,
+            $document: angular.IDocumentService,
+            $modal: angular.ui.bootstrap.IModalService,
             $scope: app.IScopeWithViewModel,
-            $window: ng.IWindowService
+            $window: angular.IWindowService
             )
         /* ----- Constructor  ------------ */
         {

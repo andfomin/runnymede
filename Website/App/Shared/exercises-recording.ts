@@ -8,14 +8,14 @@ module app.exercises {
         soundPosition: number = 0;
         autoLoad: boolean = false;
         soundLoaded: boolean = false;
-        sliderTimer: ng.IPromise<any> = undefined;
+        sliderTimer: angular.IPromise<any> = undefined;
         playing: boolean = false;
 
         constructor(
             public $scope: app.IScopeWithViewModel,
-            private $filter: ng.IFilterService,
-            private $interval: ng.IIntervalService,
-            private $timeout: ng.ITimeoutService
+            private $filter: angular.IFilterService,
+            private $interval: angular.IIntervalService,
+            private $timeout: angular.ITimeoutService
             )
         /* ----- Constructor  ------------ */
         {
@@ -187,7 +187,7 @@ module app.exercises {
     } // end of class AudioPlayer
 
     var injector = angular.injector(['ng']);
-    var $q: ng.IQService = injector.get('$q');
+    var $q: angular.IQService = injector.get('$q');
     var soundManagerReady = $q.defer();
 
     var setupSoundManager = () => {

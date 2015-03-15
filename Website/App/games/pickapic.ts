@@ -20,7 +20,7 @@ module app.games {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService
+            private $http: angular.IHttpService
             ) {
             /* ----- Constructor  ----- */
             $scope.vm = this;

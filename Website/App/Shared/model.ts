@@ -30,25 +30,23 @@ module app {
     export interface IReview {
         id: number;
         exerciseId: number;
+        price: number;
+        userId: number;
         requestTime: string; // Date;
-        cancelationTime: string; // Date;
         startTime: string; // Date;
         finishTime: string; // Date;
-        authorName: string;
-        userId: number;
-        reviewerName: string;
-        price: number;
+        exerciseType: string;
         exerciseLength: number;
+        reviewerName: string;
         comment: IComment;
         suggestions: ISuggestion[];
     };
 
     // Review piece, the base interface for IRemark, ISuggestion, IComment.
     export interface IPiece {
+        id: number; // The number means milliseconds passed from the start of the review. It is an uniquefier, not a meaningful time.
         reviewId: number;
-        type: string; // Constants are declared in CtrlBase
-        //creationTime: number; // The difference in milliseconds between the item creation time and the review start time.
-        id: number;
+        type: string; // Constants are declared in app.exercises.PieceTypes in exercises.ts
         dirtyTime: Date; // Invalidate the item.
     };
 
@@ -74,6 +72,7 @@ module app {
         comment: string;
     };
 
+    // TODO. Deprecated
     export interface IScheduleEvent {
         id: number;
         start: moment.Moment;
@@ -87,22 +86,6 @@ module app {
         backgroundColor: string;
         borderColor: string;
         className: string[];
-    };
-
-    export interface ISession {
-        id: number;
-        start: string;
-        end: string;
-        hostUserId: number;
-        guestUserId: number;
-        price: number;
-        requestTime: string;
-        confirmationTime: string;
-        cancellationTime: string;
-        cancellationUserId: number;
-        disputedTime: string;
-        disputeUser: number;
-        finishTime: string;
     };
 
     export interface IMessage {

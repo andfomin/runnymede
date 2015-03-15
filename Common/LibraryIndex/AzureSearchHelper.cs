@@ -75,8 +75,8 @@ namespace Runnymede.Common.LibraryIndex
             }
         }
 
-        private const string ApiVersion = "2014-07-31-Preview";
-        private const string ApiVersionString = "api-version=2014-07-31-Preview";
+        private const string ApiVersion = "2015-02-28"; // "2014-07-31-Preview";
+        private const string ApiVersionString = "api-version=2015-02-28"; // "api-version=2014-07-31-Preview";
 
         private string indexName;
         private int userId;

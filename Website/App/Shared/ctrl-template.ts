@@ -6,7 +6,7 @@ module app._ {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService
+            private $http: angular.IHttpService
             ) {
             /* ----- Constructor  ----- */
             $scope.vm = this;
@@ -21,7 +21,7 @@ module app._ {
     } // end of class
 
     angular.module(app.myAppName, [])
-        .controller('Ctrl', Ctrl);
+        .controller('Ctrl', app._.Ctrl);
 
 } // end of module
 

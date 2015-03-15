@@ -7,19 +7,23 @@ AS
 BEGIN
 SET NOCOUNT ON;
 
-declare @TotalCount int;
+	declare @TotalCount int;
 
-select @TotalCount = count(*) from dbo.exeReviews where UserId = @UserId;
+	-- There is index IX_UserId_FinishTime
+	select @TotalCount = count(*) 
+	from dbo.exeReviews 
+	where UserId = @UserId;
 
-select Id, ExerciseId, ExerciseType, ExerciseLength, Price, StartTime, FinishTime, AuthorUserId, AuthorName
-from dbo.exeReviews
-where UserId = @UserId
-order by StartTime desc
-offset @RowOffset rows
-	fetch next @RowLimit rows only;
+	select R.Id, R.StartTime, R.FinishTime, E.[Type] as ExerciseType, E.[Length] as ExerciseLength
+	from dbo.exeReviews R
+		inner join dbo.exeExercises E on R.ExerciseId = E.Id
+	where R.UserId = @UserId
+	order by R.StartTime desc
+	offset @RowOffset rows
+		fetch next @RowLimit rows only;
 
--- Do not return @TotalCount as a column in the main query, because the main query may return no rows for a big @RowOffset.
-select @TotalCount as TotalCount;
+	-- Do not return @TotalCount as a column in the main query, because the main query may return no rows for a big @RowOffset.
+	select @TotalCount as TotalCount;
 
 END
 GO

@@ -14,7 +14,7 @@ module app.exercises {
 
         constructor(
             public $appRemarks: app.exercises.IRemarksService,
-            public $http: ng.IHttpService,
+            public $http: angular.IHttpService,
             public $scope: app.IScopeWithViewModel
             )
         /* ----- Constructor  ------------ */ {
@@ -107,7 +107,7 @@ module app.exercises {
 
         constructor(
             private $appRemarksComparer: (a: IRemark, b: IRemark) => number,
-            private $rootScope: ng.IRootScopeService
+            private $rootScope: angular.IRootScopeService
             ) { /* ----- Ctor  ----- */
         } // end of ctor
 

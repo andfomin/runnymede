@@ -14,9 +14,9 @@ module app.library {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService,
-            private $rootScope: ng.IRootScopeService,
-            private $window: ng.IWindowService
+            private $http: angular.IHttpService,
+            private $rootScope: angular.IRootScopeService,
+            private $window: angular.IWindowService
             ) {
             /* ----- Constructor  ----- */
             super($scope);

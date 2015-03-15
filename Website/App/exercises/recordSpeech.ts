@@ -27,11 +27,11 @@ module app.exercises {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $rootScope: ng.IRootScopeService,
-            private $http: ng.IHttpService,
-            private $window: ng.IWindowService,
-            private $document: ng.IDocumentService,
-            private $modal: ng.ui.bootstrap.IModalService
+            private $rootScope: angular.IRootScopeService,
+            private $http: angular.IHttpService,
+            private $window: angular.IWindowService,
+            private $document: angular.IDocumentService,
+            private $modal: angular.ui.bootstrap.IModalService
             ) {
             /* ----- Constructor  ----- */
             $scope.vm = this;

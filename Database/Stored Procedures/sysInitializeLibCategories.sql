@@ -166,8 +166,8 @@ insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) va
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('098_', '097_', N'Simple passive', null, '98', 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('099_', '097_', N'All passive forms', null, '99', 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('100_', '000B', N'Other Verb Forms', 11, '100', 1)
-insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('101_', '419_', N'Reported speech', null, '101', 1)
-insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('102_', '419_', N'Relative clauses', null, '102', 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('101_', '100_', N'Reported speech', null, '101', 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('102_', '100_', N'Relative clauses', null, '102', 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('103_', '000B', N'Modals: Can', 12, '103', 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('104_', '103_', N'Can/can''t (ability)', null, '104', 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('105_', '103_', N'Can/could (functional)', null, '105', 1)
@@ -394,7 +394,9 @@ insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) va
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('417_', '124_', N'Reflexive pronouns (myself, themselves)', null, null, 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('418_', '100_', N'Delexical verbs (have, take, make, give)', null, null, 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('419_', '000B', N'Phrases, clauses, sentences', 25, null, 1)
-insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('420_', '419_', N'Phrases', 1, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('420_', '419_', N'Phrases', 1, null, 1);
+update dbo.libCategories set ParentId = '419_' where Id = '101_'; -- 'Reported speech'
+update dbo.libCategories set ParentId = '419_' where Id = '102_'; -- 'Relative clauses'
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('421_', '419_', N'Sentence structure', 2, null, 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('422_', '100_', N'Transitive and intransitive verbs', null, null, 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('423_', '419_', N'Link verbs', null, null, 1)

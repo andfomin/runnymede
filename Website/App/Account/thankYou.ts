@@ -9,8 +9,8 @@ module app.account {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService,
-            $location: ng.ILocationService
+            private $http: angular.IHttpService,
+            $location: angular.ILocationService
             ) {
             $scope.vm = this;
 
@@ -27,7 +27,7 @@ module app.account {
 
     class LocationConfig {
         static $inject = [app.ngNames.$locationProvider];
-        constructor($locationProvider: ng.ILocationProvider) {
+        constructor($locationProvider: angular.ILocationProvider) {
             // The typing does not know this kind of parameter.
             var locationProvider = <any>$locationProvider;
             locationProvider.html5Mode({

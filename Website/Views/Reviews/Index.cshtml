@@ -4,11 +4,11 @@
 }
 <div ng-app="myApp" ng-cloak>
     <div class="row">
-        @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6")
+        @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6 app-margin-bottom")
     </div>
-    <div ng-controller="Index_Requests">
+    <div ng-controller="Requests">
         <div class="row">
-            <div class="col-md-offset-2 col-md-8">
+            <div class="col-md-offset-3 col-md-6">
                 <div class="alert alert-warning app-margin-bottom-none" ng-show="vm.unfinishedReviewId">
                     <p class="text-center">
                         You have an <a href="" ng-href="{{vm.unfinishedUrl()}}">unfinished review</a>.
@@ -16,32 +16,21 @@
                 </div>
                 <div ng-show="!vm.unfinishedReviewId">
                     <h4 class="text-center">Requests for reviewing exercises</h4>
-                    <table class="table table-condensed app-margin-bottom-none">
+                    <table class="table app-margin-bottom-none">
+                        @*<table class="table table-condensed app-margin-bottom-none">*@
                         <thead>
                             <tr>
-                                <th>Exercise author</th>
                                 <th class="text-right">Length</th>
-                                <th class="text-right">Price</th>
-                                <th class="text-right">Request age</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="r in vm.requests" ng-class="{'app-last-row':$last}">
-                                <td>
-                                    <img class="img-circle app-avatar" width="16" height="16" ng-src="{{r.authorUserId | appAvatarSmall}}" />{{r.authorName}}
-                                </td>
                                 <td class="text-right">
                                     {{r.exerciseLength | appLength : r.exerciseType}}
                                 </td>
-                                <td class="text-right">
-                                    {{r.price | currency:"$"}}
-                                </td>
-                                <td class="text-right">
-                                    {{r.requestTime | appDateAgo}}
-                                </td>
-                                <td class="text-right">
-                                    <button class="btn btn-primary btn-xs" ng-click="vm.showStartReviewModal(r)">Start</button>
+                                <td>
+                                    <button class="btn btn-primary btn-xs app-margin-left" ng-click="vm.showStartReviewModal(r)">Start</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -52,19 +41,17 @@
                 </div>
             </div>
         </div>
-    </div><!-- /ng-controller="Index_Requests" -->
+    </div><!-- /ng-controller="Requests" -->
     <hr />
-    <div class="row" ng-controller="Index_Reviews">
+    <div class="row" ng-controller="Reviews">
         <h4 class="text-center">Reviews</h4>
-        <div class="col-md-offset-1 col-md-10">
+        <div class="col-md-offset-2 col-md-8">
             <table class="table table-condensed">
                 <thead>
                     <tr>
                         <th>Started</th>
                         <th>Finished</th>
-                        <th>Exercise author</th>
                         <th class="text-right">Length</th>
-                        <th class="text-right">Price</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,14 +63,8 @@
                         <td>
                             <a ng-href="{{vm.getEditUrl(r)}}" ng-show="r.finishTime">{{r.finishTime | appDateTime}}</a>
                         </td>
-                        <td>
-                            <img class="img-circle app-2px-up app-avatar" width="16" height="16" ng-src="{{r.authorUserId | appAvatarSmall}}" />{{r.authorName}}
-                        </td>
                         <td class="text-right">
                             {{r.exerciseLength | appLength : r.exerciseType}}
-                        </td>
-                        <td class="text-right" style="padding-right: 5px;">
-                            {{r.price | currency:"$"}}
                         </td>
                     </tr>
                 </tbody>
@@ -94,7 +75,7 @@
             <div class="pagination-sm" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="5" data-boundary-links="true" data-rotate="false"
                  ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.pgLoad()"></div>
         </div>
-    </div><!-- /ng-controller="Index_Reviews" -->
+    </div><!-- /ng-controller="Reviews" -->
 </div><!-- /ng-app="myApp" -->
 @section BottomScripts {
     @Scripts.Render(

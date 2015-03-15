@@ -13,6 +13,7 @@
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     @*<link href='+http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
     @Styles.Render("~/bundles/app-css")
+    @Html.Partial("_ApplicationInsightsPartial")
     @RenderSection("HeadScripts", required: false)
     @if (sendAnalytics)
     {

@@ -1,37 +1,27 @@
 module app.reviews {
 
-    export interface IRequest {
-        reviewId: number;
-        reviewerUserId: number;
-        price: number;
-        exerciseType: string;
-        exerciseLength: number;
-        authorUserId: number;
-        authorName: string;
-    }
-
     function getEditUrl(id: number) {
         return app.reviewsUrl('edit/' + id);
     }
 
-    export class Index_Requests extends app.CtrlBase {
+    export class Requests extends app.CtrlBase {
 
         unfinishedReviewId: number = null;
-        requests: IRequest[] = null;
+        requests: IReview[] = null;
 
         static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$modal, app.ngNames.$interval, app.ngNames.$window];
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService,
-            private $modal: ng.ui.bootstrap.IModalService,
-            $interval: ng.IIntervalService,
-            private $window: ng.IWindowService
+            private $http: angular.IHttpService,
+            private $modal: angular.ui.bootstrap.IModalService,
+            $interval: angular.IIntervalService,
+            private $window: angular.IWindowService
             ) {
             super($scope);
             this.getRequests();
             var interval = $interval(() => { this.getRequests(); }, 60000);
-            $scope.$on('$destroy', () => { $interval.cancel(interval); });
+            $scope.$on('$destroy',() => { $interval.cancel(interval); });
         } // end of ctor
         
         private getRequests = () => {
@@ -40,12 +30,9 @@ module app.reviews {
                     app.reviewsApiUrl('requests'),
                     null,
                     (data) => {
-                        this.requests = data.items || [];
-                        // If the user has an unfinished review, do not show them requests. We return the ReviewId without a Price to indicate that case (Price is not nullable.)
-                        this.unfinishedReviewId =
-                        ((this.requests.length === 1) && (!angular.isDefined(this.requests[0].price)))
-                        ? this.requests[0].reviewId
-                        : null;
+                        this.requests = data || [];
+                        // If the user has an unfinished review, do not show them requests. We return the review with exerciseType set to 'unfinished' to indicate that case.
+                        this.unfinishedReviewId = (this.requests.length === 1) && (this.requests[0].exerciseType == 'unfinished' ? this.requests[0].id : null);
                     });
             }
         }
@@ -62,14 +49,14 @@ module app.reviews {
                     request: request
                 },
                 () => {
-                    this.$window.location.assign(getEditUrl(request.reviewId));
+                    this.$window.location.assign(getEditUrl(request.id));
                 }
                 );
         };
 
-    } // end of class Index_Requests
+    } // end of class Requests
 
-    export class Index_Reviews extends app.CtrlBase {
+    export class Reviews extends app.CtrlBase {
 
         reviews: app.IReview[] = null;
 
@@ -77,13 +64,13 @@ module app.reviews {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService,
-            $interval: ng.IIntervalService
+            private $http: angular.IHttpService,
+            $interval: angular.IIntervalService
             ) {
             super($scope);
             this.pgLoad();
             var interval = $interval(() => { this.pgLoad(); }, 300000);
-            $scope.$on('$destroy', () => { $interval.cancel(interval); });
+            $scope.$on('$destroy',() => { $interval.cancel(interval); });
         } // end of ctor
 
         pgLoad() {
@@ -114,11 +101,11 @@ module app.reviews {
 
     export class StartReviewModal extends app.Modal {
 
-        request: IRequest;
+        request: IReview;
 
         constructor(
-            $http: ng.IHttpService,
-            $modalInstance: ng.ui.bootstrap.IModalServiceInstance,
+            $http: angular.IHttpService,
+            $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
             ) {
@@ -128,17 +115,15 @@ module app.reviews {
 
         internalOk = () => {
             return app.ngHttpPost(this.$http,
-                app.reviewsApiUrl(this.request.reviewId.toString() + '/start'),
-                null,
-                null,
+                app.reviewsApiUrl(this.request.id.toString() + '/start'),
                 null
                 );
         };
     }
 
     angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar'])
-        .controller('Index_Requests', Index_Requests)
-        .controller('Index_Reviews', Index_Reviews);
+        .controller('Requests', Requests)
+        .controller('Reviews', Reviews);
 
 } // end of module app.reviews
 

@@ -1,6 +1,6 @@
 ﻿
 
-CREATE PROCEDURE [dbo].[accPostIncomingPayPalPayment]
+create PROCEDURE [dbo].[accPostIncomingPayPalPayment]
 	@UserName nvarchar(200) = null,
 	@Amount decimal(18, 2),
 	@Fee decimal(18, 2), 
@@ -12,8 +12,8 @@ BEGIN
 /*
 Post accounting entries on an incoming PayPal payment.
 20121016 AF. Initial release.
-
 20150129 AF. Do not make the customer to compensate the fee. The service will absorb the fee.
+20150227 AF. Deduct the payment fee again.
 */
 SET NOCOUNT ON;
 
@@ -24,7 +24,7 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @TransactionId int;
+	declare @PaymentTransactionId int, @FeeCompensationTransactionId int, @InitialUserBalance decimal(18,2), @InitialFeeBalance decimal(18,2);
 
 	declare @UserId int = dbo.appGetUserId(@UserName);
 
@@ -58,27 +58,48 @@ begin try
 		insert dbo.accPostedPayPalPayments (ExtId)
 			values (@ExtId);
 
-		insert dbo.accTransactions ([Type], ObservedTime, Attribute, Details)
-			values ('TRPPIP', sysutcdatetime(), @ReceiptId, @Details);
+		declare @Now datetime2(7) = sysutcdatetime();
 
-		select @TransactionId = scope_identity() where @@rowcount != 0;
+		insert dbo.accTransactions ([Type], ObservedTime, Attribute, Details)
+			values ('TRPPIP', @Now, @ReceiptId, @Details);
+
+		select @PaymentTransactionId = scope_identity() where @@rowcount != 0;
+
+		-- Make the user to compensate the transfer fee.
+		insert dbo.accTransactions ([Type], ObservedTime, Attribute)
+			values ('TRPPIF', @Now, @ReceiptId);
+
+		select @FeeCompensationTransactionId = scope_identity() where @@rowcount != 0;
 
 		set transaction isolation level serializable;
 
 		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select @TransactionId, @CashAccountId, @Amount - @Fee, null, Balance + @Amount - @Fee
+			select @PaymentTransactionId, @CashAccountId, @Amount - @Fee, null, Balance + @Amount - @Fee
 			from dbo.accEntries
 			where Id = (select max(Id) from dbo.accEntries where AccountId = @CashAccountId);
 	
+		-- We are going to post two entries. Reuse the balance.
+		select @InitialFeeBalance = Balance
+		from dbo.accEntries
+		where Id = (select max(Id) from dbo.accEntries where AccountId = @FeeAccountId);
+
+		-- Post the fee initially
 		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select @TransactionId, @FeeAccountId, @Fee, null, Balance + @Fee
-			from dbo.accEntries
-			where Id = (select max(Id) from dbo.accEntries where AccountId = @FeeAccountId);
+			values (@PaymentTransactionId, @FeeAccountId, @Fee, null, @InitialFeeBalance + @Fee);
+
+		-- Compensate
+		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
+			values (@FeeCompensationTransactionId, @FeeAccountId, null, @Fee, @InitialFeeBalance);
+
+		select @InitialUserBalance = Balance
+		from dbo.accEntries
+		where Id = (select max(Id) from dbo.accEntries where AccountId = @UserAccountId);
 
 		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select @TransactionId, @UserAccountId, null, @Amount, Balance + @Amount
-			from dbo.accEntries
-			where Id = (select max(Id) from dbo.accEntries where AccountId = @UserAccountId);
+			values (@PaymentTransactionId, @UserAccountId, null, @Amount, @InitialUserBalance + @Amount);
+
+		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
+			values (@FeeCompensationTransactionId, @UserAccountId, @Fee, null, @InitialUserBalance + @Amount - @Fee);
 
 /* Remark. Although to post two rows in a single insert seems more performant, we cannot guarantee the order of the rows in that case. 
 We need to post entries in a particlar order to keep the running balance correct. */

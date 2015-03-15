@@ -56,6 +56,8 @@ bower-installer
 rem +http://joshbranchaud.com/blog/2014/02/19/Managing-Single-Files-With-Bower.html
 rem +https://github.com/blittle/bower-installer  /* You can specify a folder and get all files inside it preserving its folder structure. */
 
+!!! angular.d.ts is broken. We use the version from 2/2/2015.
+
 
 
 

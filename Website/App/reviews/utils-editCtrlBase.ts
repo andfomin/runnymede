@@ -13,13 +13,13 @@ module app.reviews {
 
         constructor(
             $appRemarks: app.exercises.IRemarksService,
-            $http: ng.IHttpService,
-            public $interval: ng.IIntervalService,
-            private $modal: ng.ui.bootstrap.IModalService,
-            private $q: ng.IQService,
-            private $rootScope: ng.IRootScopeService,
+            $http: angular.IHttpService,
+            public $interval: angular.IIntervalService,
+            private $modal: angular.ui.bootstrap.IModalService,
+            private $q: angular.IQService,
+            private $rootScope: angular.IRootScopeService,
             $scope: app.IScopeWithViewModel,
-            public $window: ng.IWindowService
+            public $window: angular.IWindowService
             )
         /* ----- Constructor  ------------ */ {
             super($appRemarks, $http, $scope);
@@ -141,7 +141,7 @@ module app.reviews {
 
             var pieces: app.IPiece[] = [].concat(remarks, suggestions, comments);
 
-            var promise: ng.IPromise<any> = null;
+            var promise: angular.IPromise<any> = null;
 
             if (pieces.length > 0) {
                 // Make Runnymede.Website.Models.ReviewPiece entities to store them in Azure Table as is.
@@ -252,7 +252,7 @@ module app.reviews {
         internalOk = () => {
             var review = this.modalParams.review;
             return app.ngHttpPost(this.$http,
-                app.reviewsApiUrl('finish/' + review.id),
+                app.reviewsApiUrl(review.id + '/finish'),
                 null,
                 (data) => {
                     review.finishTime = new Date(data.finishTime);

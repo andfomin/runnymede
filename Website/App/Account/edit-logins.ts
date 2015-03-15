@@ -22,9 +22,9 @@ module app.account_edit {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService,
+            private $http: angular.IHttpService,
             private $stateParams: ng.ui.IStateParamsService,
-            $location: ng.ILocationService
+            $location: angular.ILocationService
             ) {
             $scope.vm = this;
 
@@ -33,7 +33,7 @@ module app.account_edit {
             if (error) {
                 this.error = decodeURIComponent(error);
             }
-            // Clear the error text in the address bar. We have specified reloadOnSearch: false in ng.ui.IState
+            // Clear the error text in the address bar. We have specified reloadOnSearch: false in angular.ui.IState
             $location.search('error', null); 
 
             var self = app.getSelfUser();

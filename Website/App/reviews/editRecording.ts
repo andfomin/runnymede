@@ -7,13 +7,13 @@
 
     //    constructor(
     //        $appRemarks: app.exercises.IRemarksService,
-    //        $http: ng.IHttpService,
-    //        $interval: ng.IIntervalService,
-    //        $modal: ng.ui.bootstrap.IModalService,
-    //        $q: ng.IQService,
-    //        $rootScope: ng.IRootScopeService,
+    //        $http: angular.IHttpService,
+    //        $interval: angular.IIntervalService,
+    //        $modal: angular.ui.bootstrap.IModalService,
+    //        $q: angular.IQService,
+    //        $rootScope: angular.IRootScopeService,
     //        $scope: app.IScopeWithViewModel,
-    //        $window: ng.IWindowService
+    //        $window: angular.IWindowService
     //        )
     //    /* ----- Constructor  ------------ */
     //    {
@@ -32,11 +32,11 @@
 
         constructor(
             private $appRemarks: app.exercises.IRemarksService,
-            $filter: ng.IFilterService,
-            $interval: ng.IIntervalService,
-            private $modal: ng.ui.bootstrap.IModalService,
+            $filter: angular.IFilterService,
+            $interval: angular.IIntervalService,
+            private $modal: angular.ui.bootstrap.IModalService,
             $scope: app.IScopeWithViewModel,
-            $timeout: ng.ITimeoutService
+            $timeout: angular.ITimeoutService
             )
         /* ----- Constructor  ------------ */
         {

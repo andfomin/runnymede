@@ -1,139 +1,156 @@
-module app.sessions_utils {
+module app.sessions {
 
-    // Corresponds to dbo.appTypes (SE....)
-    export class EventTypes {
-        public static VacantTime = 'SES_VT';
-        public static Request = 'SESSRQ';
-        public static Confirmed = 'SESSCF';
-        public static CanceledSelf = 'SESSCS';
-        public static CanceledOther = 'SESSCO';
-
-        static SessionTypes = [
-            EventTypes.Request,
-            EventTypes.Confirmed,
-            EventTypes.CanceledSelf,
-            EventTypes.CanceledOther
-        ];
-    }  
-
-    export class EventClasses {
-        public static Generic = 'app-event';
-        public static VacantTime = 'app-event-vt';
-        public static Request = 'app-event-rq';
-        public static Confirmed = 'app-event-cf';
-        public static CanceledSelf = 'app-event-cs';
-        public static CanceledOther = 'app-event-co';
-    }  
-
-    // Minimal time slot is 15 minutes. A session may be requested not less than 15 minutes in advance. So the end of the vacant time should be at least 30 minutes ahead.
-    export function isVacantTime(event: app.IScheduleEvent) {
-        return ((event.type == app.sessions_utils.EventTypes.VacantTime) && moment(event.end).subtract(30, 'minutes').isAfter());
+    export interface ISession extends FullCalendar.EventObject {
+        // url?: string; // Chrome weiredly tries to silently send a request to this URL as if it was a real URL. It gets an unrecoverable error for 'javascript:;' and the event fials to render. If the value is malformed, Firefox uncoditionally goes to the URL on click and reports the unknown format to the user.
+        teacherUserId: number;
+        learnerUserId: number;
+        cost: number;
+        price: number;
+        rating: number;
     };
 
-    export function isSessionEvent(event: app.IScheduleEvent) {
-        return app.sessions_utils.EventTypes.SessionTypes.indexOf(event.type) >= 0;
-    };
-
-    // The time which is at least 15 minutes ahead from now, rounded up to the next nearest quarter hour(i.e. 0, 15, 30, 45 minute)
-    // Corresponds to dbo.sesGetEarliestPossibleStartTime()
-    export function minStart(start?: Date) {
-        var m15 = 15 * 60 * 1000; // Milliseconds in 15 minutes
-        var minMsec = Date.now() + m15;
-        var minStartMsec = Math.max(((start && start.getTime()) || 0), minMsec);
-        var quarterHourMsec = Math.ceil(minStartMsec / m15) * m15;
-        return new Date(quarterHourMsec);
-    };
-
-    export function classNames(eventClass?: string) {
-        var classes = [EventClasses.Generic];
-        if (angular.isString(eventClass)) {
-            classes.push(eventClass);
-        };
-        return classes;
+    export class CssClasses {
+        public static Generic = 'app-session';
+        public static Selected = 'app-session-selected';
+        public static Proposed = 'app-session-proposed';
+        public static Accepted = 'app-session-accepted';
+        public static Booked = 'app-session-booked';
     }
 
-    export class ModalCreateSessionRequest extends app.Modal {
+    export class ShowSessionDetailsModal extends app.Modal {
 
-        user: app.IUser;
-        now: Date = new Date();
-        minStart: Date;
-        start: Date;
-        duration: number;
-        message: string = null;
-        startIsOpen: boolean = false;
+        session: ISession;
+        otherUser: IUser;
+        messages: app.IMessage[] = [];
+        message: string;
+        selfUser: IUser;
+        rating: number = 3;
 
-        durations: any[] = [
-            { text: '15 minutes', span: 15 },
-            { text: '30 minutes', span: 30 },
-            { text: '45 minutes', span: 45 },
-            { text: '1 hour', span: 60 },
-        ];
+        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modalInstance, app.ngNames.$scope, app.ngNames.$timeout, 'modalParams'];
 
         constructor(
-            $http: ng.IHttpService,
-            $modalInstance: ng.ui.bootstrap.IModalServiceInstance,
+            $http: angular.IHttpService,
+            $interval: angular.IIntervalService,
+            $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
+            private $timeout: angular.ITimeoutService,
             modalParams: any
             ) {
             super($http, $modalInstance, $scope, modalParams);
-            this.dismissOnError = true;
-            this.user = modalParams.user;
-            this.minStart = app.sessions_utils.minStart();
-            this.start = app.sessions_utils.minStart(modalParams.start && modalParams.start.toDate());
+            this.session = modalParams.session;
+            this.selfUser = app.getSelfUser();
+            this.load();
+            this.watchMessages();
+            var interval = $interval(() => { this.watchMessages(); }, 10000);
+            $scope.$on('$destroy',() => { $interval.cancel(interval); });
         } // ctor
 
-        getPrice = () => {
-            // Corresponds to price calculation in dbo.sesCreateSessionRequest
-            var price = this.user.sessionRate * this.duration / 60;
-            var rnd = Math.round(price * 100) / 100;
-            var res = Number(rnd.toFixed(2));
-            //return { price: price, rnd: rnd, res: res };
-            return res;
-        }
+        load = () => {
+            app.ngHttpGet(this.$http,
+                app.sessionsApiUrl(this.session.id + '/other_user'),
+                null,
+                (data) => {
+                    this.otherUser = data;
+                }
+                );
 
-        onSetStart = (newDate: Date, oldDate: Date) => {
-            this.startIsOpen = false;
         };
 
-        canOk = () => {
-            return !this.busy
-                && (this.start != null)
-                && (this.duration != null)
-                && (this.start >= this.minStart);
+        watchMessages = () => {
+            app.ngHttpGet(this.$http,
+                app.sessionsApiUrl(this.session.id + '/message_count'),
+                null,
+                (data) => {
+                    if (this.messages.length !== +data) {
+                        this.getMessages();
+                    }
+                }
+                );
         };
 
-        internalOk = () => {
-            var timeInfo = app.getLocalTimeInfo();
+        getMessages = () => {
+            app.ngHttpGet(this.$http,
+                app.sessionsApiUrl(this.session.id + '/messages'),
+                null,
+                (data) => {
+                    if (angular.isArray(data)) {
+                        this.messages = data;
+                    }
+                }
+                );
+        };
 
-            return app.ngHttpPost(this.$http,
-                app.sessionsApiUrl(),
+        loadMessageText = (m: IMessage) => {
+            if (!angular.isString(m.text)) {
+                // May be cached. 
+                this.$http.get(app.sessionsApiUrl('message_text/' + (m.extId || '')))
+                    .success((data: any) => {
+                    m.text = (data || '');
+                    if (this.isUnread(m)) {
+                        this.$timeout(() => {
+                            app.ngHttpPut(this.$http,
+                                app.sessionsApiUrl('message_read/' + m.id + '/' + (m.extId || '')),
+                                null,
+                                () => { m.receiveTime = 'at this form view'; }
+                                );
+                        },
+                            1000);
+                    }
+                })
+                    .error(app.logError);
+            }
+        };
+
+        isUnread = (m: IMessage) => {
+            return (m.recipientUserId == this.selfUser.id) && !m.receiveTime;
+        };
+
+        showMessages = () => {
+            return moment(this.session.start).isBefore();
+        };
+
+        canSend = () => {
+            return !this.busy && !!this.message;
+        };
+
+        sendMessage = () => {
+            this.busy = true;
+            app.ngHttpPost(this.$http,
+                app.sessionsApiUrl(this.session.id + '/message'),
                 {
-                    localTime: timeInfo.time,
-                    localTimezoneOffset: timeInfo.timezoneOffset,
-                    userId: this.user.id,
-                    start: this.start,
-                    duration: this.duration,
-                    price: this.getPrice(),
                     message: this.message,
                 },
-                () => { toastr.success('Session request has been sent.'); }
+                () => {
+                    this.message = null;
+                    this.getMessages();
+                },
+                () => { this.busy = false; }
                 );
         };
 
-        /* Shortcut to open createSessionRequestModal.html */
-        public static Open($modal: ng.ui.bootstrap.IModalService, user: app.IUser, start: moment.Moment, successCallback: () => void) {
-            return app.Modal.openModal($modal,
-                '/app/sessions/createSessionRequestModal.html',
-                ModalCreateSessionRequest,
-                {
-                    user: user,
-                    start: start,
-                },
-                successCallback,
-                'static'
-                );
-        }
+        showSatisfaction = () => {
+            return !this.selfUser.isTeacher && moment(this.session.start).isBefore();
+        };
 
-    }; // end of class ModalCreateSessionRequest
+        saveRating = () => {
+            this.busy = true;
+            app.ngHttpPut(this.$http,
+                app.sessionsApiUrl(this.session.id + '/rating'),
+                {
+                    rating: this.session.rating,
+                },
+                () => {
+                    this.message = null;
+                    this.getMessages();
+                },
+                () => { this.busy = false; }
+                );
+        };
+
+        saveRating1 = () => {
+            toastr.info('Rating: ' + this.session.rating);
+        };
+
+    } // end of class ShowSessionDetailsModal
 
 } // end of module

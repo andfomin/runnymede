@@ -6,13 +6,10 @@ using System.Web;
 namespace Runnymede.Website.Models
 {
 
-    public class ScheduleEventDto
+    public class FullCalendarEventDto
     {
-        public string Type { get; set; }
-        public int UserId { get; set; }
-
         //<fc> These properties correspond to the ones in FullCalendar.
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         private DateTime? start = null;
         public DateTime? Start
@@ -42,12 +39,46 @@ namespace Runnymede.Website.Models
         //</fc>
     }
 
+    public class ScheduleEventDto : FullCalendarEventDto
+    {
+        public string Type { get; set; }
+        public int UserId { get; set; }
+    }
+    // TODO: Depricated ?
+    public class ScheduleEventGroupDto : FullCalendarEventDto
+    {
+        public decimal MinPrice { get; set; }
+    }
+
+    public class SessionDto : FullCalendarEventDto
+    {
+        public int ProposedTeacherUserId { get; set; }
+        public int TeacherUserId { get; set; }
+        public int LearnerUserId { get; set; }
+        public decimal Cost { get; set; }
+        public decimal Price { get; set; }
+        public byte Rating { get; set; }
+
+        private DateTime? bookingTime = null;
+        public DateTime? BookingTime
+        {
+            get
+            {
+                return bookingTime;
+            }
+            set
+            {
+                bookingTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
+            }
+        }
+    }
+
+    // TODO: Depricated ?
     public class SessionUserDto
     {
         public int Id { get; set; }
         public string DisplayName { get; set; }
         public string Announcement { get; set; }
-        public decimal? SessionRate { get; set; }
         public IEnumerable<ScheduleEventDto> ScheduleEvents { get; set; }
     }
 

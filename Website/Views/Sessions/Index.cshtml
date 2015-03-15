@@ -1,43 +1,27 @@
 ﻿@{
+    ViewBag.Title = "Live sessions with teachers";
     ViewBag.NavItem = "Conversations";
 }
 @section HeadScripts {
     @Styles.Render(
-"~/bower_installer/angular-bootstrap-datetimepicker/datetimepicker.css",
 "~/bower_installer/fullcalendar/fullcalendar.css"
     )
 }
 <div ng-app="myApp" ng-cloak>
-    <div class="row">
-        <div class="col-sm-6">
-            <h3 class="page-header app">{{pageTitle}} <small>{{secondaryTitle}}</small></h3>
-        </div>
-        <div class="col-sm-6">
-            <ul class="nav nav-pills app-margin-bottom app-nav-pills">
-                <li data-ui-sref-active="active"><a href="" data-ui-sref="offers">Offers</a></li>
-                <li data-ui-sref-active="active"><a href="" data-ui-sref="friendSchedules">Friend schedules</a></li>
-                <li data-ui-sref-active="active"><a href="" data-ui-sref="ownSchedule">Your schedule</a></li>
-            </ul>
-        </div>
-    </div>
-    @* Call angular.module().run(app.wrongClockDetector) to add isClockWrong to the root scope *@
-    <div ng-if="isClockWrong" class="app-margin-bottom" ng-cloak>
+    <div ng-controller="Index">
+        @Html.Partial("_ClockWrongPartial")
         <div class="row">
-            <div class="col-md-offset-2 col-md-8">
-                <div class="alert alert-danger">
-                    <h4 class="text-center"><strong>Warning: Your computer's clock is potentially incorrect!</strong></h4>
-                    <p>Please check that your computer's date and time are correct.</p>
-                    <p>Also check your time zone setting. Your time may be correct for the place where you live, but your time zone might be set for another place.</p>
-                    <p>If your clock is wrong, session shedule will not work properly.</p>
-                    @*<a href="#" class="alert-link">Learn more ...</a>*@
-                </div>
+            <div class="col-lg-offset-1 col-lg-10">
+                <ul class="list-inline list-unstyled">
+                    <li><strong>Legend</strong></li>
+                    <li><i class="fa fa-square fa-fw  fa-lg app-2px-up app-appblue"></i>Offered session</li>
+                    <li><i class="fa fa-square fa-fw  fa-lg app-2px-up" style="color:#5cb85c;"></i>Booked session</li>
+                </ul>
+                <div ng-model="vm.eventSources" data-ui-calendar="vm.calConfig" data-calendar="calObj"></div>
             </div>
         </div>
-    </div>
-
-    <div data-ui-view></div>
-
-</div><!-- /ng-app="myApp" -->
+    </div><!-- /Index -->
+</div><!-- /app -->
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/angular",
@@ -45,14 +29,9 @@
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
 
-"~/bower_installer/angular-bootstrap-datetimepicker/datetimepicker.js",
 "~/bower_installer/fullcalendar/fullcalendar.min.js",
 "~/bower_installer/angular-ui-calendar/calendar.js",
 
 "~/app/sessions/utils-sessions.js",
-"~/app/sessions/index-offers.js",
-"~/app/sessions/index-ownSchedule.js",
-"~/app/sessions/index-friendSchedules.js",
-"~/app/sessions/index-session.js",
-"~/app/sessions/index-app.js"
+"~/app/sessions/index.js"
 )}

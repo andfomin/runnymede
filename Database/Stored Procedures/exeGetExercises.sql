@@ -46,7 +46,7 @@ select Id, CreateTime, [Type], Title, [Length]
 from @t
 order by CreateTime desc;
 
-select R.ExerciseId, R.Id, R.Price, R.RequestTime, R.StartTime, R.FinishTime, R.CancelationTime, R.ReviewerName 
+select R.ExerciseId, R.Id, R.Price, R.RequestTime, R.StartTime, R.FinishTime
 from dbo.exeReviews R 
 	inner join @t T on R.ExerciseId = T.Id;
 

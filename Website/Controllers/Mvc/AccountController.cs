@@ -254,21 +254,6 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
-        // GET: /account/pay-teacher/2000000001
-        [RequireHttps]
-        public async Task<ActionResult> PayTeacher(int id)
-        {
-            var sql = @"
-select DisplayName from dbo.appGetUser(@Id) where IsTeacher = 1
-";
-            // Single() will throw if the user is not found.
-            var displayName = (await DapperHelper.QueryResilientlyAsync<string>(sql, new { Id = id, })).Single();
-
-            ViewBag.TeacherUserId = id;
-            ViewBag.TeacherDisplayName = displayName;
-            return View();
-        }
-
         // GET: /account/edit/
         [RequireHttps]
         public ActionResult Edit()

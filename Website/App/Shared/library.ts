@@ -51,10 +51,10 @@ module app.library {
         constructor(
             // ----- Constructor ----- 
             private $scope: app.IScopeWithViewModel,
-            private $rootScope: ng.IRootScopeService,
-            private $http: ng.IHttpService,
-            private $modal: ng.ui.bootstrap.IModalService,
-            private $window: ng.IWindowService
+            private $rootScope: angular.IRootScopeService,
+            private $http: angular.IHttpService,
+            private $modal: angular.ui.bootstrap.IModalService,
+            private $window: angular.IWindowService
             ) {
             $scope.vm = this;
 
@@ -299,8 +299,8 @@ module app.library {
         showUrl: boolean = true;
 
         constructor(
-            $http: ng.IHttpService,
-            $modalInstance: ng.ui.bootstrap.IModalServiceInstance,
+            $http: angular.IHttpService,
+            $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
             ) {
@@ -364,8 +364,8 @@ module app.library {
 
     export class AddNewResourceModal extends AddResourceModal {
         constructor(
-            $http: ng.IHttpService,
-            $modalInstance: ng.ui.bootstrap.IModalServiceInstance,
+            $http: angular.IHttpService,
+            $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
             ) {
@@ -381,8 +381,8 @@ module app.library {
     export class AddCommonResourceModal extends AddResourceModal {
 
         constructor(
-            $http: ng.IHttpService,
-            $modalInstance: ng.ui.bootstrap.IModalServiceInstance,
+            $http: angular.IHttpService,
+            $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
             ) {
@@ -423,8 +423,8 @@ module app.library {
         resource: IResource;
 
         constructor(
-            $http: ng.IHttpService,
-            $modalInstance: ng.ui.bootstrap.IModalServiceInstance,
+            $http: angular.IHttpService,
+            $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
             ) {
@@ -448,8 +448,8 @@ module app.library {
         reportedVersion: IResource;
 
         constructor(
-            $http: ng.IHttpService,
-            $modalInstance: ng.ui.bootstrap.IModalServiceInstance,
+            $http: angular.IHttpService,
+            $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
             ) {
@@ -554,7 +554,7 @@ module app.library {
         return HostPage[hostPageParam] || HostPage.HostPage_Null;
     };
 
-    export function logResourceView($http: ng.IHttpService, resource: IResource) {
+    export function logResourceView($http: angular.IHttpService, resource: IResource) {
         resource.viewed = true;
         // A suggestion may have resource.id == null(0?) when the resource is made in code and points to Google
         app.ngHttpPost($http,
@@ -567,7 +567,7 @@ module app.library {
             );
     };
 
-    export function createYouTubePlayer($window: ng.IWindowService, width: number, height: number, idOfElementToReplace: string,
+    export function createYouTubePlayer($window: angular.IWindowService, width: number, height: number, idOfElementToReplace: string,
         onReadyCallback: (event: YT.EventArgs) => void,
         onErrorCallback?: (event: YT.EventArgs) => void,
         onStateChangeCallback?: (event: YT.EventArgs) => void

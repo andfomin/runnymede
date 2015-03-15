@@ -23,21 +23,6 @@ namespace Runnymede.Website.Controllers.Api
     public class ReviewsApiController : ApiController
     {
 
-        // DELETE /api/reviews/12345
-        [Route("{id:int}")]
-        public async Task<IHttpActionResult> DeleteReviewRequest(int id)
-        {
-            await DapperHelper.QueryResilientlyAsync<DateTime>(
-                   "dbo.exeCancelReviewRequest",
-                   new
-                   {
-                       UserId = this.GetUserId(),
-                       ReviewId = id,
-                   },
-                   CommandType.StoredProcedure);
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
         // DELETE api/reviews/piece/20000000001/0000000000X0000000000
         [Route("piece/{partitionKey}/{rowKey}")]
         public async Task<IHttpActionResult> DeletePiece(string partitionKey, string rowKey)
@@ -147,63 +132,39 @@ namespace Runnymede.Website.Controllers.Api
         [Route("requests")]
         public async Task<IHttpActionResult> GetRequests()
         {
+            if (!this.GetUserIsTeacher())
+            {
+                return BadRequest();
+            }
+
             var items = await DapperHelper.QueryResilientlyAsync<dynamic>(
                 "dbo.exeGetRequests",
                 new
                 {
                     UserId = this.GetUserId(),
-                    UserIsTeacher = this.GetUserIsTeacher(), // If the user is not a teacher, filter out requests to "Any teacher". Return only the direct ones.
                 },
                 CommandType.StoredProcedure);
-            return Ok(new { Items = items });
+
+            return Ok(items);
         }
 
         // POST /api/reviews/
         [Route("")]
         public async Task<IHttpActionResult> PostRequest(JObject value)
         {
-            int exerciseId = (int)value["exerciseId"];
-
-            var reviewers = value["reviewers"]
-                .Select(i =>
+            var review = (await DapperHelper.QueryResilientlyAsync<ReviewDto>(
+                "dbo.exeCreateReviewRequest",
+                new
                 {
-                    var priceStr = ((string)i["price"]).Trim().Replace(',', '.');
-                    decimal price;
-                    var parsed = decimal.TryParse(priceStr, out price);
-                    return new
-                       {
-                           UserId = (int?)i["userId"],
-                           Price = price,
-                           Parsed = parsed
-                       };
-                })
-                .ToList();
+                    UserId = this.GetUserId(),
+                    ExerciseId = (int)value["exerciseId"],
+                    Price = (decimal)value["price"],
+                },
+                CommandType.StoredProcedure
+                ))
+                .Single();
 
-            if (reviewers.Any(i => !i.Parsed))
-            {
-                return BadRequest(value.ToString());
-            }
-
-            var requestXml =
-                new XElement("Request",
-                    new XElement("User", new XAttribute("Id", this.GetUserId())),
-                    new XElement("Exercise", new XAttribute("Id", exerciseId)),
-                    from r in reviewers
-                    select new XElement("Reviewer",
-                        r.UserId.HasValue ? new XAttribute("UserId", r.UserId) : null, // Absense of the UserId attribute in T-SQL means UserId = null, i.e. 'Any teacher'.
-                        new XAttribute("Price", r.Price)
-                        )
-                    )
-                    .ToString(SaveOptions.DisableFormatting);
-
-            var returned = (await DapperHelper.QueryResilientlyAsync<ReviewDto>(
-                            "dbo.exeCreateReviewRequest",
-                            new { Request = requestXml },
-                            CommandType.StoredProcedure
-                            ))
-                            .Single();
-
-            return Content<ReviewDto>(HttpStatusCode.Created, returned);
+            return Content<ReviewDto>(HttpStatusCode.Created, review);
         }
 
         // POST /api/reviews/12345/start
@@ -254,13 +215,14 @@ namespace Runnymede.Website.Controllers.Api
             await table.ExecuteBatchAsync(batchOperation);
 
             var startTime = DateTime.SpecifyKind(output.StartTime, DateTimeKind.Utc);
+            // SignalR
             this.GetAuthorConnections(partitionKey).ReviewStarted(reviewId, startTime, output.ReviewerUserId, output.ReviewerName);
 
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST /api/reviews/finish/12345
-        [Route("finish/{reviewId:int}")]
+        // POST /api/reviews/12345/finish
+        [Route("{reviewId:int}/finish")]
         public async Task<IHttpActionResult> PostFinishReview(int reviewId)
         {
             var userId = this.GetUserId();
@@ -288,11 +250,12 @@ namespace Runnymede.Website.Controllers.Api
             var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.ReviewPieces);
             await table.ExecuteAsync(operation);
 
-            // Notify the watching exercise author
             var finishTime = DateTime.SpecifyKind(output.FinishTime, DateTimeKind.Utc);
+
+            // Notify the watching exercise author
             this.GetAuthorConnections(partitionKey).ReviewFinished(reviewId, finishTime);
 
-            return Ok(new { FinishTime = output.FinishTime });
+            return Ok(new { FinishTime = finishTime });
         }
 
         // PUT /api/reviews/pieces

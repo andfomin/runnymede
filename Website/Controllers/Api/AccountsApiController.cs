@@ -314,40 +314,6 @@ select dbo.accGetBalance(@UserId);
                 : (IHttpActionResult)BadRequest(result.PlainErrorMessage());
         }
 
-        // POST api/accounts/payment_to_teacher
-        [AllowAnonymous]
-        [Route("payment_to_teacher")]
-        public async Task<IHttpActionResult> PostPaymentToTeacher(JObject value)
-        {
-            // Revalidate the sender's password.
-            var password = ((string)value["password"]);
-            var user = await OwinUserManager.FindAsync(this.GetUserName(), password);
-            if (user == null)
-            {
-                return BadRequest("Wrong password.");
-            }
-
-            // Parse the amount value entered by the user.
-            var amountStr = ((string)value["amount"]).Trim().Replace(',', '.');
-            decimal amount;
-            if (!decimal.TryParse(amountStr, out amount))
-                return BadRequest(amountStr);
-
-            var teacherUserId = ((int)value["teacherUserId"]);
-
-            DapperHelper.ExecuteResiliently("dbo.accMakePaymentToTeacher",
-                new
-                {
-                    UserId = user.Id,
-                    TeacherUserId = teacherUserId,
-                    Amount = amount,
-                },
-                CommandType.StoredProcedure
-                );
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
         // PUT api/accounts/profile
         [Route("profile")]
         public IHttpActionResult PutProfile([FromBody] JObject value)
@@ -368,21 +334,6 @@ select dbo.accGetBalance(@UserId);
             },
             CommandType.StoredProcedure);
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        // PUT api/accounts/teacher_profile
-        [Route("teacher_profile")]
-        public IHttpActionResult PutTeacherProfile([FromBody] JObject value)
-        {
-            // Update only changed fields. The null value indicates the field has not been changed. If a parameter is null, that meens keep the corresponding field intact.
-            DapperHelper.ExecuteResiliently("dbo.appUpdateUser",
-                new
-                {
-                    UserId = this.GetUserId(),
-                    SessionRate = (decimal?)value["sessionRate"],
-                },
-                CommandType.StoredProcedure);
             return StatusCode(HttpStatusCode.NoContent);
         }
 

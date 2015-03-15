@@ -6685,14 +6685,24 @@ textarea.form-control.app {
 .app-margin-top-none {
   margin-top: 0;
 }
+.app-margin-top {
+  margin-top: 20px;
+}
+@media (max-width: 767px) {
+  .app-margin-top-xs {
+    margin-top: 20px;
+  }
+}
 .app-margin-bottom-none {
   margin-bottom: 0;
 }
 .app-margin-bottom {
   margin-bottom: 20px;
 }
-.app-margin-top {
-  margin-top: 20px;
+@media (max-width: 767px) {
+  .app-margin-bottom-xs {
+    margin-bottom: 20px;
+  }
 }
 .app-margin-left {
   margin-left: 20px;
@@ -6859,33 +6869,24 @@ a div.tooltip-inner {
 }
 /* #endregion */
 /* #region FullCalendar events ----------- */
-a.fc-event.app-event {
-  color: black;
+a.fc-event.app-session {
   background-color: #f5f5f5;
   border-color: #f5f5f5;
+  color: black;
 }
-a.fc-event.app-event.app-event-vt {
+a.fc-event.app-session.app-session-proposed {
   background-color: #006699;
   border-color: #006699;
+  color: white;
   cursor: pointer;
 }
-a.fc-event.app-event.app-event-rq {
-  background-color: #ffc82d;
-  border-color: #ffc82d;
-  cursor: pointer;
+a.fc-event.app-session.app-session-accepted {
+  background-color: #dff0d8;
+  border-color: #dff0d8;
 }
-a.fc-event.app-event.app-event-cf {
+a.fc-event.app-session.app-session-booked {
   background-color: #5cb85c;
   border-color: #5cb85c;
-  cursor: pointer;
-}
-a.fc-event.app-event.app-event-cs {
-  border-color: #d9534f;
-  cursor: pointer;
-}
-a.fc-event.app-event.app-event-co {
-  background-color: #d9534f;
-  border-color: #d9534f;
   cursor: pointer;
 }
 /* #endregion */

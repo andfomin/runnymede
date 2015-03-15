@@ -1,0 +1,16 @@
+﻿<div class="modal-header">
+    <h3>Book a session with a teacher</h3>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-10">
+            <p>Start time: {{vm.session.start.toDate() | appDate}}</p>
+            <p>Duration: {{vm.duration}} minutes</p>
+            <p>Price: {{vm.session.price | currency:'$'}}</p>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="vm.busy">OK</button>
+    <a href="" class="app-close" ng-click="vm.cancel()">Close</a>
+</div>

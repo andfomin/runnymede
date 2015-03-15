@@ -3,8 +3,8 @@
 
 CREATE FUNCTION [dbo].[sesGetMessageCount]
 (
-	@SessionId int,
-	@UserId int
+	@UserId int,
+	@SessionId int
 )
 RETURNS int
 AS

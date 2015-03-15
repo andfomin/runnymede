@@ -1,0 +1,73 @@
+﻿@{
+    ViewBag.Title = "Conversation offers from learners";
+    ViewBag.NavItem = "Conversations";
+}
+<div ng-app="myApp" ng-cloak>
+    <div ng-controller="Index">
+        <div class="row">
+            @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6 app-margin-bottom")
+        </div>
+        <div class="row" ng-show="vm.authenticated && vm.offered === false">
+            <div class="col-sm-3 text-center">
+                <button class="btn btn-primary app-btn-disablable" ng-click="vm.offer()" ng-disabled="vm.busy">Offer conversations</button>
+            </div>
+        </div>
+        <div ng-repeat="u in vm.users">
+            <div class="row">
+                <div class="col-lg-offset-1 col-sm-2 text-center app-margin-bottom-xs">
+                    <img class="img-circle" ng-src="{{u.id | appAvatarLarge}}" width="96" height="96" />
+                </div>
+                <div class="col-sm-5">
+                    <p><strong>{{u.displayName}}</strong></p>
+                    <p>
+                        {{u.announcement}}
+                        <a href="" class="app-margin-left-half" ng-click="u.showPresen = !u.showPresen; vm.loadPresentation(u);" ng-style="u.presentation === '' ? {color:'#bbb'} : {}">
+                            {{u.showPresen ? 'Less' : 'More'}}<i class="fa fa-fw" ng-class="u.showPresen ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+                        </a>
+                    </p>
+                    <p class="app-pre-line" ng-show="u.showPresen">{{u.presentation}}</p>
+                </div>
+                <div class="col-sm-5 col-lg-4">
+                    <p ng-show="!u.invitationTo">
+                        <button class="btn btn-default btn-xs app-btn-disablable" ng-click="vm.invite(u)" ng-disabled="vm.busy">Invite this person</button>
+                    </p>
+                    <p ng-show="u.invitationTo">
+                        <strong>You have invited this person</strong>
+                    </p>
+                    <p ng-show="!u.invitationFrom">
+                        This person has not invited you
+                    </p>
+                    <p ng-show="u.invitationFrom">
+                        <strong>This person has invited you</strong>
+                    </p>
+                    <p ng-show="u.skypeName">
+                        <i class="fa fa-skype fa-fw"></i> This person's Skype name is
+                        <a href="skype:{{u.skypeName}}?add"><strong>{{u.skypeName}}</strong></a>
+                    </p>
+                </div>
+            </div>
+            <hr />
+        </div>
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6">
+                <ul class="app-margin-bottom-none">
+                    <li>
+                        You will find here the list of learners who want to meet other learners on Skype. To see the list you first need to offer conversations yourself. You will be visible on the list for  48 hours after your last action.
+                    </li>
+                    <li>
+                        Indicate your interest by inviting a person. If you and the other person mutually invite each other, you will see the other side's Skype name. Then try to contact each other on Skype. Invitations expire in 48 hours.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div><!-- /Index -->
+</div><!-- /app -->
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/conversations/index.js"
+)
+}

@@ -56,17 +56,9 @@ namespace Runnymede.Website.Controllers.Mvc
         [ActionName("View")] // Be carefull, the term "View" has a special meaning in ASP.NET MVC. There is method View() in the base class.
         public async Task<ActionResult> ViewExercise(int id)
         {
-            const string sql = @"
-select E.Id, E.[Length], E.[Type], E.Artifact, E.CreateTime, E.Title, 
-    R.ExerciseId, R.Id, R.RequestTime, R.StartTime, R.FinishTime, R.UserId, R.ReviewerName
-from dbo.exeExercises E 	
-	left join dbo.exeReviews as R on E.Id = R.ExerciseId and R.CancelationTime is null
-where E.Id = @Id 
-    and E.UserId = @UserId;
-";
-            var exercises = await ReviewsController.QueryExerciseReviews(sql, id, this.GetUserId());
+            var exercises = await ReviewsController.QueryExerciseReviews("dbo.exeGetExerciseWithReviews", this.GetUserId(), id);
 
-            // We got a few rows of the same Exercise, each with a single Review. Group them into a single Exercise.               
+            // We got a few rows of the same Exercise, joined with different Reviews. Group them into a single Exercise.               
             var reviews = exercises
                 .SelectMany(i => i.Reviews)
                 .Where(i => i is ReviewDto) // Otherwise an absent review is deserialized by Dapper as null. i.e [null].

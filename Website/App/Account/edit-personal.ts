@@ -22,14 +22,14 @@ module app.account_edit {
 
         static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$document, app.ngNames.$interval];
 
-        static myScope: ng.IScope;
+        static myScope: angular.IScope;
         //static onFileChange: () => void;
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService,
-            private $document: ng.IDocumentService,
-            $interval: ng.IIntervalService
+            private $http: angular.IHttpService,
+            private $document: angular.IDocumentService,
+            $interval: angular.IIntervalService
             ) {
             $scope.vm = this;
             var self = app.getSelfUser();
@@ -58,7 +58,7 @@ module app.account_edit {
             app.getUserPresentation(this.$http, this.profile.id, (data) => { this.profile.presentation = data; });
         };
 
-        saveMain = (form: ng.IFormController) => {
+        saveMain = (form: angular.IFormController) => {
             if (form.$valid) {
                 this.sending = true;
                 this.clearChanged();
@@ -83,7 +83,7 @@ module app.account_edit {
             }
         }
 
-        saveAnnt = (form: ng.IFormController) => {
+        saveAnnt = (form: angular.IFormController) => {
             if (form.$valid) {
                 this.sending = true;
                 this.anntChanged = false;
@@ -105,7 +105,7 @@ module app.account_edit {
             }
         }
 
-        savePresen = (form: ng.IFormController) => {
+        savePresen = (form: angular.IFormController) => {
             if (form.$valid) {
                 this.sending = true;
                 this.presenChanged = false;

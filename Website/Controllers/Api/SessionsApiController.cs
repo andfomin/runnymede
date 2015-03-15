@@ -15,6 +15,7 @@ using Dapper;
 using System.Data.SqlClient;
 using Microsoft.WindowsAzure.Storage.Table;
 using Runnymede.Common.Utils;
+using System.Xml.Linq;
 
 namespace Runnymede.Website.Controllers.Api
 {
@@ -22,26 +23,6 @@ namespace Runnymede.Website.Controllers.Api
     [RoutePrefix("api/sessions")]
     public class SessionsApiController : ApiController
     {
-
-        // DELETE /api/sessions/vacant_time
-        [Route("vacant_time")]
-        public async Task<IHttpActionResult> DeleteVacantTime(string start, string end, string localTime, int localTimezoneOffset)
-        {
-            DateTime startDate, endDate;
-            ConvertDateTimePickerDates(start, end, localTime, localTimezoneOffset, out startDate, out endDate);
-
-            // This operation is idempotent.
-            await DapperHelper.ExecuteResilientlyAsync("dbo.sesDeleteVacantTime",
-                new
-                {
-                    UserId = this.GetUserId(),
-                    Start = startDate,
-                    End = endDate,
-                },
-                CommandType.StoredProcedure);
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
 
         // GET api/sessions/MillisSinceEpoch
         [Route("millis_since_epoch")]
@@ -53,123 +34,47 @@ namespace Runnymede.Website.Controllers.Api
             return TimeUtils.GetMillisecondsSinceEpoch(DateTime.UtcNow);
         }
 
-        // GET api/sessions/own_schedule
-        [Route("own_schedule")]
-        public async Task<IHttpActionResult> GetOwnSchedule(string start, string end, string localTime, int localTimezoneOffset)
-        {
-            DateTime startDate, endDate;
-            ConvertFullCalendarDates(start, end, localTime, localTimezoneOffset, out startDate, out endDate);
-
-            var sql = @"
-select Id, Start, [End], [Type], @UserId as UserId
-from dbo.sesScheduleEvents
-where UserId = @UserId
-    and Start <= @End
-    and [End] >= @Start;
-";
-            var events = await DapperHelper.QueryResilientlyAsync<ScheduleEventDto>(sql, new
-            {
-                UserId = this.GetUserId(),
-                Start = start,
-                End = end,
-            });
-
-            return Ok(events);
-        }
-
-        // GET api/sessions/friend_schedules
-        [Route("friend_schedules")]
-        public async Task<IHttpActionResult> GetFriendSchedules(string start, string end, string localTime, int localTimezoneOffset)
-        {
-            DateTime startDate, endDate;
-            ConvertFullCalendarDates(start, end, localTime, localTimezoneOffset, out startDate, out endDate);
-
-            IEnumerable<SessionUserDto> result = null;
-            await DapperHelper.QueryMultipleResilientlyAsync(
-                  "dbo.sesGetFriendSchedules",
-                  new
-                  {
-                      Start = startDate,
-                      End = endDate,
-                      UserId = this.GetUserId(),
-                  },
-                  CommandType.StoredProcedure,
-                  (Dapper.SqlMapper.GridReader reader) =>
-                  {
-                      result = reader.Map<SessionUserDto, ScheduleEventDto, int>(u => u.Id, i => i.UserId, (u, i) => { u.ScheduleEvents = i; });
-                  });
-
-            return Ok(result);
-        }
-
-        // GET api/sessions/Offers
-        [Route("offers")]
-        [AllowAnonymous]
-        public async Task<IHttpActionResult> GetOffers(string date, int startHour, int endHour, string localTime, int localTimezoneOffset)
-        {
-            // The Date and Hours values come from the custom filter. Date comes as local midnight expressed for the UTC timezone.
-            TimeUtils.ThrowIfClientTimeIsAmbiguous(localTime, localTimezoneOffset);
-
-            DateTime dateValue;
-            if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out dateValue))
-            {
-                return BadRequest("Date is wrong.");
-            }
-
-            // We allow for an anonymous user.
-            var tryUserId = this.GetUserId();
-            var userId = tryUserId != 0 ? tryUserId : (int?)null;
-
-            IEnumerable<SessionUserDto> result = null;
-            await DapperHelper.QueryMultipleResilientlyAsync(
-                  "dbo.sesGetOffers",
-                  new
-                  {
-                      Start = dateValue.AddHours(startHour),
-                      End = dateValue.AddHours(endHour),
-                      UserId = userId,
-                  },
-                  CommandType.StoredProcedure,
-                  (Dapper.SqlMapper.GridReader reader) =>
-                  {
-                      result = reader.Map<SessionUserDto, ScheduleEventDto, int>(u => u.Id, i => i.UserId, (u, i) => { u.ScheduleEvents = i; });
-                  });
-
-            return Ok(result);
-        }
-
-        // GET api/sessions/?eventId=12345
+        // GET api/sessions
         [Route("")]
-        public async Task<IHttpActionResult> GetSession(int eventId)
+        public async Task<IHttpActionResult> GetSessions(string start, string end, string localTime, int localTimezoneOffset)
         {
-            dynamic session = null;
-            dynamic messages = null;
+            DateTime startDate, endDate;
+            ConvertFullCalendarDates(start, end, localTime, localTimezoneOffset, out startDate, out endDate);
 
-            await DapperHelper.QueryMultipleResilientlyAsync(
-                 "dbo.sesGetSession",
-                 new
-                 {
-                     EventId = eventId,
-                     UserId = this.GetUserId(),
-                 },
-                 CommandType.StoredProcedure,
-                 (Dapper.SqlMapper.GridReader reader) =>
-                 {
-                     // The order of the recordsets does matter.
-                     messages = reader.Read<dynamic>();
-                     session = reader.Read<dynamic>().Single();
-                 });
+            var items = await DapperHelper.QueryResilientlyAsync<SessionDto>(
+                this.GetUserIsTeacher() ? "dbo.sesGetSessionsForTeacher" : "dbo.sesGetSessionsForLearner",
+                new
+                {
+                    UserId = this.GetUserId(),
+                    Start = startDate,
+                    End = endDate,
+                },
+            CommandType.StoredProcedure);
 
-            return Ok(new { Session = session, Messages = messages });
+            return Ok(items);
+        }
+
+        // GET api/sessions/12345/other_user
+        [Route("{id:int}/other_user")]
+        public async Task<IHttpActionResult> GetOtherUser(int id)
+        {
+            var item = (await DapperHelper.QueryResilientlyAsync<dynamic>("dbo.sesGetOtherUser", new
+                   {
+                       SessionId = id,
+                       UserId = this.GetUserId(),
+                   },
+                   CommandType.StoredProcedure))
+                   .Single();
+
+            return Ok(item);
         }
 
         // GET api/sessions/12345/message_count
         [Route("{id:int}/message_count")]
-        [AllowAnonymous]
         public async Task<IHttpActionResult> GetMessageCount(int id)
         {
             const string sql = @"
-select dbo.sesGetMessageCount(@SessionId, @UserId) as MessageCount;
+select dbo.sesGetMessageCount(@UserId, @SessionId);
 ";
             int messageCount;
             // This query is executed in pooling. We do not need resiliency here. So avoid overhead, don't use DapperHelper.QueryResilientlyAsync
@@ -178,13 +83,28 @@ select dbo.sesGetMessageCount(@SessionId, @UserId) as MessageCount;
                 messageCount = (await connection.QueryAsync<int>(sql,
                     new
                     {
-                        SessionId = id,
                         UserId = this.GetUserId(),
+                        SessionId = id,
                     }))
                     .Single();
             }
 
             return Ok(messageCount);
+        }
+
+        // GET api/sessions/12345/messages
+        [Route("{id:int}/messages")]
+        public async Task<IHttpActionResult> GetMessages(int id)
+        {
+            var items = await DapperHelper.QueryResilientlyAsync<dynamic>("dbo.sesGetMessages", new
+            {
+                UserId = this.GetUserId(),
+                SessionId = id,
+            },
+            CommandType.StoredProcedure
+            );
+
+            return Ok(items);
         }
 
         // GET api/sessions/message_text/234567qwerty
@@ -204,83 +124,38 @@ select dbo.sesGetMessageCount(@SessionId, @UserId) as MessageCount;
             return new RawStringResult(this, text, RawStringResult.TextMediaType.PlainText);
         }
 
-        // POST /api/sessions/
-        [Route("")]
-        public async Task<IHttpActionResult> PostSession([FromBody] JObject json)
+        // POST /api/sessions/booking
+        [Route("booking")]
+        public async Task<IHttpActionResult> PostBooking([FromBody] JObject json)
         {
             TimeUtils.ThrowIfClientTimeIsAmbiguous((string)json["localTime"], (int)json["localTimezoneOffset"]);
 
-            // angular-bootstrap-datetimepicker sends values as UTC
-            // There is constraint [Start]<[End] on dbo.relScheduleEvents .
-            var start = (DateTime)json["start"];
-            var end = start.AddMinutes((int)json["duration"]);
-
-            var hostUserId = (int)json["userId"]; // who will confirm
-            var guestUserId = this.GetUserId(); // who requests and pays
-            if (hostUserId == guestUserId)
+            await DapperHelper.ExecuteResilientlyAsync("dbo.sesBookSession", new
             {
-                return BadRequest("Wrong session partner.");
-            }
-
-            var priceStr = ((string)json["price"]).Trim().Replace(',', '.');
-            decimal price;
-            var parsed = decimal.TryParse(priceStr, out price);
-            if (!parsed)
-            {
-                return BadRequest(priceStr);
-            }
-
-            var message = (string)json["message"];
-            // We cannot use a transaction in heterogeneous storage mediums. An orphaned message on Azure Table is not a problem. The main message metadata is in the database anyway.
-            var messageExtId = await SaveMessageAndGetExtId(message);
-
-            // This operation is NOT idempotent.
-            DapperHelper.ExecuteResiliently("dbo.sesRequestSession", new
-            {
-                GuestUserId = guestUserId, // who requests and pays
-                HostUserId = hostUserId, // who will confirm
-                Start = start,
-                End = end,
-                Price = price,
-                MessageExtId = messageExtId,
+                UserId = this.GetUserId(), // who requests and pays
+                Start = (DateTime)json["start"],
+                End = (DateTime)json["end"],
+                Price = (decimal)json["price"],
+                TeacherUserId = (int?)json["teacherUserId"],
             },
             CommandType.StoredProcedure);
 
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST /api/sessions/12345?action=abcdefg
-        [Route("{id:int}")]
-        public async Task<IHttpActionResult> PostAction(int id, string action, [FromBody] JObject json)
+        // POST /api/sessions/12345/message
+        [Route("{id:int}/message")]
+        public async Task<IHttpActionResult> PostMessage(int id, [FromBody] JObject json)
         {
-            string procName = null;
-            switch (action)
-            {
-                case "Confirm":
-                    procName = "dbo.sesConfirmSession";
-                    break;
-                case "Cancel":
-                    procName = "dbo.sesCancelSession";
-                    break;
-                case "Dispute":
-                    procName = "dbo.sesDisputeSession";
-                    break;
-                case "SendMessage":
-                    procName = "dbo.sesPostSessionMessage";
-                    break;
-                default:
-                    return BadRequest(action);
-            };
-
             var message = (string)json["message"];
             // We cannot use a transaction in heterogeneous storage mediums. An orphaned message on Azure Table is not a problem. The main message metadata is in the database anyway.
             var messageExtId = await SaveMessageAndGetExtId(message);
 
-            await DapperHelper.ExecuteResilientlyAsync(procName,
+            await DapperHelper.ExecuteResilientlyAsync("dbo.sesPostMessage",
                 new
                 {
-                    SessionId = id,
                     UserId = this.GetUserId(),
+                    SessionId = id,
                     MessageExtId = messageExtId,
                 },
                 CommandType.StoredProcedure);
@@ -288,21 +163,25 @@ select dbo.sesGetMessageCount(@SessionId, @UserId) as MessageCount;
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // PUT /api/sessions/vacant_time
-        [Route("vacant_time")]
-        public async Task<IHttpActionResult> PutVacantTime([FromBody] JObject value)
+        // POST /api/sessions/accepted_proposals
+        [Route("accepted_proposals")]
+        public async Task<IHttpActionResult> PostAcceptedProposals([FromBody] IEnumerable<SessionDto> offers)
         {
-            // angular-bootstrap-datetimepicker sends values as UTC
-            // There is constraint [Start]<[End] in dbo.sesScheduleEvents .
-            // This operation is idempotent.
-            await DapperHelper.ExecuteResilientlyAsync("dbo.sesInsertVacantTime",
+            var proposalsXml =
+                new XElement("Proposals",
+                    from offer in offers
+                    select new XElement("Proposal", new XAttribute("Id", offer.Id), new XAttribute("Cost", offer.Cost))
+                    )
+                    .ToString(SaveOptions.DisableFormatting);
+
+            await DapperHelper.ExecuteResilientlyAsync("dbo.sesAcceptProposals",
                 new
                 {
                     UserId = this.GetUserId(),
-                    Start = (DateTime)value["start"],
-                    End = (DateTime)value["end"],
+                    Proposals = proposalsXml,
                 },
-                CommandType.StoredProcedure);
+                CommandType.StoredProcedure
+                );
 
             return StatusCode(HttpStatusCode.NoContent);
         }
@@ -317,6 +196,23 @@ select dbo.sesGetMessageCount(@SessionId, @UserId) as MessageCount;
                     UserId = this.GetUserId(),
                     MessageId = id,
                     MessageExtId = extId,
+                },
+                CommandType.StoredProcedure);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        // PUT api/sessions/12345/rating
+        [Route("{id:int}/rating")]
+        public async Task<IHttpActionResult> PutRating([FromUri] int id, [FromBody] JObject json)
+        {
+            // Idempotent
+            await DapperHelper.ExecuteResilientlyAsync("dbo.sesUpdateRating",
+                new
+                {
+                    UserId = this.GetUserId(),
+                    SessionId = id,
+                    Rating = (byte)json["rating"],
                 },
                 CommandType.StoredProcedure);
 
@@ -360,19 +256,18 @@ select dbo.sesGetMessageCount(@SessionId, @UserId) as MessageCount;
             endDate = endDay.AddMinutes(localTimezoneOffset);
         }
 
-        private void ConvertDateTimePickerDates(string start, string end, string localTime, int localTimezoneOffset, out DateTime startDate, out DateTime endDate)
-        {
-            // angular-bootstrap-datetimepicker sends values as UTC
-            TimeUtils.ThrowIfClientTimeIsAmbiguous(localTime, localTimezoneOffset);
+        //private void ConvertDateTimePickerDates(string start, string end, string localTime, int localTimezoneOffset, out DateTime startDate, out DateTime endDate)
+        //{
+        //    // angular-bootstrap-datetimepicker sends values as UTC
+        //    TimeUtils.ThrowIfClientTimeIsAmbiguous(localTime, localTimezoneOffset);
 
-            if ((!DateTime.TryParse(start, null, DateTimeStyles.RoundtripKind, out startDate))
-                ||
-                (!DateTime.TryParse(end, null, DateTimeStyles.RoundtripKind, out endDate)))
-            {
-                throw new ArgumentException("Date is wrong.");
-            }
-        }
-
+        //    if ((!DateTime.TryParse(start, null, DateTimeStyles.RoundtripKind, out startDate))
+        //        ||
+        //        (!DateTime.TryParse(end, null, DateTimeStyles.RoundtripKind, out endDate)))
+        //    {
+        //        throw new ArgumentException("Date is wrong.");
+        //    }
+        //}
 
     }
 }

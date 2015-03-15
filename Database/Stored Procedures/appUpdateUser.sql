@@ -5,7 +5,6 @@ CREATE PROCEDURE [dbo].[appUpdateUser]
 	@UserId int,
 	@DisplayName nvarchar(100) = null,
 	@SkypeName nvarchar(100) = null,
-	@SessionRate decimal(9,2) = null,
 	@Announcement nvarchar(1000) = null
 AS
 BEGIN
@@ -22,8 +21,7 @@ begin try
 	if (
 		(@DisplayName is null) and
 		(@SkypeName is null) and
-		(@Announcement is null)	and
-		(@SessionRate is null)	
+		(@Announcement is null)
 	)
 			raiserror('%s,%d:: Cannot update the user profile.', 16, 1, @ProcName, @UserId);
 
@@ -33,7 +31,6 @@ begin try
 		update dbo.appUsers set 
 			DisplayName = coalesce(@DisplayName, DisplayName),
 			SkypeName = coalesce(@SkypeName, SkypeName),
-			SessionRate = coalesce(@SessionRate, SessionRate),
 			Announcement = coalesce(@Announcement, Announcement)
 		where Id = @UserId;
 

@@ -11,7 +11,7 @@ module app.account {
 
         constructor(
             private $scope: app.IScopeWithViewModel,
-            private $http: ng.IHttpService
+            private $http: angular.IHttpService
 
             ) {
             $scope.vm = this;

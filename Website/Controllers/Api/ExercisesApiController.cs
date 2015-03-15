@@ -55,44 +55,30 @@ namespace Runnymede.Website.Controllers.Api
             return Ok(result);
         }
 
-        // GET /api/exercises/EX____/review_conditions
-        [Route("{exerciseType:alpha}/review_conditions")]
-        public async Task<IHttpActionResult> GetReviewConditions(string exerciseType)
+        // GET /api/exercises/review_conditions?exerciseType=EX____&length=10000
+        [Route("review_conditions")]
+        public async Task<IHttpActionResult> GetReviewConditions(string exerciseType, int length)
         {
-            string fieldName = "null";
-            switch (exerciseType)
-            {
-                case ExerciseType.AudioRecording:
-                    fieldName = "RecordingRate";
-                    break;
-                case ExerciseType.WritingPhoto:
-                    fieldName = "WritingRate";
-                    break;
-                default:
-                    break;
-            }
-
             var sql = @"
+select dbo.exeCalculateReviewPrice(@ExerciseType, @Length);
 select dbo.accGetBalance(@UserId);
-select dbo.exeGetAnyTeacherReviewRate(@ExerciseType);
-" + String.Format("select Id, DisplayName, {0} as Rate from dbo.friGetReviewers(@UserId) where {0} is not null;", fieldName);
-
+";
             object result = null;
             await DapperHelper.QueryMultipleResilientlyAsync(
                 sql,
                 new
                 {
                     UserId = this.GetUserId(),
-                    ExerciseType = exerciseType
+                    ExerciseType = exerciseType,
+                    Length = length,
                 },
                 CommandType.Text,
                 (Dapper.SqlMapper.GridReader reader) =>
                 {
                     result = new
                       {
+                          Price = reader.Read<decimal>().Single(),
                           Balance = reader.Read<decimal?>().Single(),
-                          AnyTeacherReviewRate = reader.Read<decimal>().Single(),
-                          Reviewers = reader.Read<dynamic>().ToList(),
                       };
                 });
             return Ok(result);

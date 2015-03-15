@@ -28,16 +28,16 @@ namespace Runnymede.Website.Models
         public int? Length { get; set; }
         public virtual IEnumerable<ReviewDto> Reviews { get; set; }
 
-        private DateTime? _createTime;
+        private DateTime? createTime;
         public DateTime? CreateTime
         {
             get
             {
-                return _createTime;
+                return createTime;
             }
             set
             {
-                _createTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
+                createTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
             }
         }
 
@@ -47,63 +47,48 @@ namespace Runnymede.Website.Models
     {
         public int Id { get; set; }
         public int ExerciseId { get; set; }
-        public string ExerciseType { get; set; }
+        public string ExerciseType { get; set; } // No column in the table. Used on the client. Joined on the fly.
+        public int? ExerciseLength { get; set; } // No column in the table. Used on the client. Joined on the fly.
         public int? UserId { get; set; }
         public decimal? Price { get; set; }
-        public string AuthorUserId { get; set; }
-        public string AuthorName { get; set; }
-        public string ReviewerName { get; set; }
-        public int? ExerciseLength { get; set; }
+        public string ReviewerName { get; set; } // No column in the table. Used on the client. Joined on the fly.
 
-        private DateTime? _requestTime;
+        private DateTime? requestTime;
         public DateTime? RequestTime
         {
             get
             {
-                return _requestTime;
+                return requestTime;
             }
             set
             {
-                _requestTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
+                requestTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
             }
         }
 
-        private DateTime? _cancelationTime;
-        public DateTime? CancelationTime
-        {
-            get
-            {
-                return _cancelationTime;
-            }
-            set
-            {
-                _cancelationTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
-            }
-        }
-
-        private DateTime? _startTime;
+        private DateTime? startTime;
         public DateTime? StartTime
         {
             get
             {
-                return _startTime;
+                return startTime;
             }
             set
             {
-                _startTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
+                startTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
             }
         }
 
-        private DateTime? _finishTime;
+        private DateTime? finishTime;
         public DateTime? FinishTime
         {
             get
             {
-                return _finishTime;
+                return finishTime;
             }
             set
             {
-                _finishTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
+                finishTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
             }
         }
     } // end of class ReviewDto
