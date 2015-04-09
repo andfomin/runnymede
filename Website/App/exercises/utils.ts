@@ -34,6 +34,9 @@ module app.exercises {
             },
             (data: app.IReview) => {
                 if ((data && data.exerciseId) === exercise.id) {
+                    if (!angular.isArray(exercise.reviews)) {
+                        exercise.reviews = [];
+                    }
                     exercise.reviews.push(data);
                     (successCallback || angular.noop)();
                 }

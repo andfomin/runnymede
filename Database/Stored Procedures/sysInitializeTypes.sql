@@ -23,10 +23,9 @@ begin try
 		--	values ('FRWP', 'appFees', 'Fees.WritingPhoto', 'Fee for reviewing photographed writing', 'Fee for reviewing photographed writing', null);
 
 -- AT Attributes
-insert dbo.appTypes (Id, Name) values ('ATLITI', 'LearnerUserId to TeacherUserId');
 insert dbo.appTypes (Id, Name) values ('ATSSSN', 'dbo.sesSessions');
 insert dbo.appTypes (Id, Name) values ('ATREVW', 'dbo.exeReviews');
-insert dbo.appTypes (Id, Name) values ('ATPPRI', 'PayPal Receipt Id');
+insert dbo.appTypes (Id, Name) values ('ATPPTI', 'PayPal transaction Id');
 
 -- AC accAccounts
 insert into dbo.appTypes (Id, Name, [Description]) values ('ACPERS', 'Personal', '<Kind>LIABILITY</Kind><IsDebit>0</IsDebit>');
@@ -34,17 +33,17 @@ insert into dbo.appTypes (Id, Name, [Description]) values ('ACESCR', 'Escrow', '
 insert into dbo.appTypes (Id, Name, [Description]) values ('ACSREV', 'Service Revenue', '<Kind>REVENUE</Kind><IsDebit>0</IsDebit>');
 insert into dbo.appTypes (Id, Name, [Description]) values ('ACPPCA', 'PayPal Cash', '<Kind>ASSET</Kind><IsDebit>1</IsDebit>');
 insert into dbo.appTypes (Id, Name, [Description]) values ('ACPPIF', 'Incoming PayPal Payment Fee', '<Kind>EXPENSE</Kind><IsDebit>1</IsDebit>');
+insert into dbo.appTypes (Id, Name, [Description]) values ('ACPPIT', 'Incoming PayPal Payment Sales Tax', '<Kind>LIABILITY</Kind><IsDebit>0</IsDebit>');
 
 -- TR accTransactions
-insert dbo.appTypes (Id, Name, AttributeType) values ('TRIPLT', 'Internal payment from learner to teacher', 'ATLITI');
-insert dbo.appTypes (Id, Name, AttributeType) values ('TRIPFD', 'Service fee deducted from internal payment', 'ATLITI');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRNACC', 'New account', null);
-insert dbo.appTypes (Id, Name, AttributeType) values ('TRPPIF', 'Incoming PayPal payment fee', 'ATPPRI');
-insert dbo.appTypes (Id, Name, AttributeType) values ('TRPPIP', 'Incoming PayPal payment', 'ATPPRI');
+insert dbo.appTypes (Id, Name, AttributeType) values ('TRPPIF', 'Incoming PayPal payment - Transfer fee deducted', 'ATPPTI');
+insert dbo.appTypes (Id, Name, AttributeType) values ('TRPPIP', 'Incoming PayPal payment', 'ATPPTI');
+insert dbo.appTypes (Id, Name, AttributeType) values ('TRPPIT', 'Incoming PayPal payment - Sales tax deducted', 'ATPPTI');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRPPOP', 'Outgoing PayPal payment', null);
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVRQ', 'Request for review of exercise', 'ATREVW');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVRC', 'Request for review canceled', 'ATREVW');
-insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVST', 'Review started. Refund of extra escrow', 'ATREVW');
+insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVST', 'Review started - Refund of extra escrow', 'ATREVW');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVFN', 'Review finished', 'ATREVW');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVFD', 'Service fee deducted from review price', 'ATREVW');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRSSRQ', 'Request for session', 'ATSSSN');

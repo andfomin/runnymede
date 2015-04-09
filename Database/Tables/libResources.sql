@@ -3,6 +3,8 @@
     [Format]                CHAR (6)        NULL,
     [NaturalKey]            NVARCHAR (2000) NOT NULL,
     [Segment]               NVARCHAR (1000) NULL,
+    [Checksum]              AS              (CONVERT([bigint],(4294967296.))*binary_checksum([Format],[NaturalKey],[Segment])+binary_checksum(reverse([Segment]),reverse([NaturalKey]),reverse([Format]))),
+    [NaturalKeyChecksum]    AS              (CONVERT([bigint],(4294967296.))*binary_checksum([NaturalKey])+binary_checksum(reverse([NaturalKey]))),
     [IsCommon]              BIT             NULL,
     [IsForCopycat]          BIT             CONSTRAINT [DF_libResources_ForCopycat] DEFAULT ((0)) NOT NULL,
     [DescriptionId]         INT             NULL,
@@ -13,14 +15,17 @@
     [IndexedRating]         TINYINT         NULL,
     [ReindexSearch]         BIT             CONSTRAINT [DF_libResources_ReindexSearch] DEFAULT ((0)) NOT NULL,
     [UserId]                INT             NOT NULL,
-    [Checksum]              AS              (CONVERT([bigint],(4294967296.))*binary_checksum([Format],[NaturalKey],[Segment])+binary_checksum(reverse([Segment]),reverse([NaturalKey]),reverse([Format]))),
-    [NaturalKeyChecksum]    AS              (CONVERT([bigint],(4294967296.))*binary_checksum([NaturalKey])+binary_checksum(reverse([NaturalKey]))),
+    [Notes]                 XML             NULL,
     CONSTRAINT [PK_libResources] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [CK_libResources_Format] CHECK (substring([Format],(1),(2))='FR'),
     CONSTRAINT [FK_libResources_appTypes] FOREIGN KEY ([Format]) REFERENCES [dbo].[appTypes] ([Id]),
     CONSTRAINT [FK_libResources_appUsers] FOREIGN KEY ([UserId]) REFERENCES [dbo].[appUsers] ([Id]),
     CONSTRAINT [FK_libResources_libDescriptions] FOREIGN KEY ([DescriptionId]) REFERENCES [dbo].[libDescriptions] ([Id])
 );
+
+
+
+
 
 
 

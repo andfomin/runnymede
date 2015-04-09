@@ -89,7 +89,6 @@ namespace Runnymede.Common.Models
         public bool Sortable { get; set; }
         public bool Facetable { get; set; }
         public bool Retrievable { get; set; }
-        public bool Suggestions { get; set; }
     }
 
 

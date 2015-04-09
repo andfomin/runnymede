@@ -1,6 +1,6 @@
 -- Copy database to the test database. (use master)
---CREATE DATABASE englmdb_test AS COPY OF englmdb;
---SELECT name, state, state_desc FROM sys.databases WHERE name = 'englmdb_test';
+--CREATE DATABASE test_englmdb AS COPY OF englmdb;
+--SELECT name, state, state_desc FROM sys.databases WHERE name = 'test_englmdb';
 
 -- Prepare manual SQL schema update scripts.
 
@@ -14,13 +14,13 @@
 
 -- Publish the new website to the staging.
 
--- Change the database connection string in the staging slot to 'englmdb_test'
+-- Change the database connection string in the staging slot to 'test_englmdb'
 
 -- Test the staging site.
 
 -- Change the database connection string in the staging slot back to 'englmdb'
 
--- Delete 'englmdb_test'.
+-- Delete 'test_englmdb'.
 
 ---------------------- OFFLINE ----------------------
 
@@ -55,7 +55,7 @@ ALTER DATABASE [englmdb_backup] MODIFY NAME = [englmdb]
 
 -- Switch the staging and the production back.
 
--- Rename App_Offline.htm to ~App_Offline.htm on the old production.
+-- Rename App_Offline.htm to ~App_Offline.htm on the old production. ( rename App_Offline.htm "~App_Offline.htm" )
 
 ---------------------- NOTES ----------------------
 EXECUTE sp_rename N'dbo.appUsers.SessionRate', N'Tmp_SessionPrice', 'COLUMN' 

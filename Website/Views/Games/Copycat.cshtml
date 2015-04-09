@@ -37,7 +37,7 @@
                     <div class="app-margin-bottom" ng-show="vm.resource" ng-cloak>
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" ng-model="vm.loop" ng-change="vm.changeVolume=false"><i class="fa fa-refresh fa-fw"></i> Play in a loop
+                                <input type="checkbox" ng-model="vm.loop" ng-change="vm.changeVolume=false;vm.replay()"><i class="fa fa-refresh fa-fw"></i> Play in a loop
                             </label>
                         </div>
                         @*<div class="checkbox">

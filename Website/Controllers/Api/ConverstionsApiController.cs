@@ -15,7 +15,7 @@ namespace Runnymede.Website.Controllers.Api
     [Authorize]
     public class ConverstionsApiController : ApiController
     {
-        private const int MaxPresenceAgeHours = 48;
+        private const int MaxPresenceAgeHours = 168;
 
         // GET: /api/converstions/
         [Route("")]

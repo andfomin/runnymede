@@ -29,20 +29,27 @@ namespace LibraryIndexer
             {
                 var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
-                var recreate = false;
+                var recreate = false; 
                 var reindexAllResources = Boolean.Parse(ConfigurationManager.AppSettings["Search.ReindexAll"]);
 
-                var indexHelper = new CommonIndexHelper(connectionString);
-                //var indexHelper = new PersonalIndexHelper(connectionString);
-
-                using (indexHelper)
+                using (var commonHelper = new CommonIndexHelper(connectionString))
                 {
                     if (recreate)
                     {
-                        indexHelper.RecreateIndex();
+                        //commonHelper.RecreateIndex();
                     }
-                    await indexHelper.IndexResources(reindexAllResources);
+                    await commonHelper.IndexResources(reindexAllResources);
                 }
+
+                using (var personalHelper = new PersonalIndexHelper(connectionString))
+                {
+                    if (recreate)
+                    {
+                         //personalHelper.RecreateIndex();
+                    }
+                    await personalHelper.IndexResources(reindexAllResources);
+                }
+
             }
             catch (Exception e)
             {

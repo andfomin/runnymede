@@ -25,26 +25,35 @@ namespace Runnymede.Common.LibraryIndex
         {
             var fields = new IndexField[] 
                 { 
-                    new IndexField { Name = "id",                Type = "Edm.String",             Key = true,  Searchable = false, Filterable = false, Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "format",            Type = "Edm.String",             Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "naturalKey",        Type = "Edm.String",             Key = false, Searchable = false, Filterable = false, Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "segment",           Type = "Edm.String",             Key = false, Searchable = false, Filterable = false, Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "title",             Type = "Edm.String",             Key = false, Searchable = true,  Filterable = false, Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "categoryIds",       Type = "Edm.String",             Key = false, Searchable = false, Filterable = false, Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "categoryPathIds",   Type = "Collection(Edm.String)", Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = false, Suggestions = false },
-                    new IndexField { Name = "categoryPathNames", Type = "Edm.String",             Key = false, Searchable = true,  Filterable = false, Sortable = false, Facetable = false, Retrievable = false, Suggestions = true  },
-                    new IndexField { Name = "tags",              Type = "Edm.String",             Key = false, Searchable = true,  Filterable = false, Sortable = false, Facetable = false, Retrievable = true,  Suggestions = true  },
-                    new IndexField { Name = "source",            Type = "Edm.String",             Key = false, Searchable = true,  Filterable = true,  Sortable = false, Facetable = false, Retrievable = true,  Suggestions = true  },
-                    new IndexField { Name = "hasExplanation",    Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "hasExample",        Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "hasExercise",       Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "hasText",           Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "hasPicture",        Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "hasAudio",          Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },
-                    new IndexField { Name = "hasVideo",          Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true,  Suggestions = false },               
-                    new IndexField { Name = "languageLevel",     Type = "Edm.Int32",              Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = false, Suggestions = false },               
-                    new IndexField { Name = "rating",            Type = "Edm.Int32",              Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = false, Suggestions = false },               
+                    new IndexField { Name = "id",                Type = "Edm.String",             Key = true,  Searchable = false, Filterable = false, Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "format",            Type = "Edm.String",             Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "naturalKey",        Type = "Edm.String",             Key = false, Searchable = false, Filterable = false, Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "segment",           Type = "Edm.String",             Key = false, Searchable = false, Filterable = false, Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "title",             Type = "Edm.String",             Key = false, Searchable = true,  Filterable = false, Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "categoryIds",       Type = "Edm.String",             Key = false, Searchable = false, Filterable = false, Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "categoryPathIds",   Type = "Collection(Edm.String)", Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = false },
+                    new IndexField { Name = "categoryPathNames", Type = "Edm.String",             Key = false, Searchable = true,  Filterable = false, Sortable = false, Facetable = false, Retrievable = false },
+                    new IndexField { Name = "tags",              Type = "Edm.String",             Key = false, Searchable = true,  Filterable = false, Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "source",            Type = "Edm.String",             Key = false, Searchable = true,  Filterable = true,  Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "hasExplanation",    Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "hasExample",        Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "hasExercise",       Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "hasText",           Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "hasPicture",        Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "hasAudio",          Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true  },
+                    new IndexField { Name = "hasVideo",          Type = "Edm.Boolean",            Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = true  },               
+                    new IndexField { Name = "languageLevel",     Type = "Edm.Int32",              Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = false },               
+                    new IndexField { Name = "rating",            Type = "Edm.Int32",              Key = false, Searchable = false, Filterable = true,  Sortable = false, Facetable = false, Retrievable = false },               
             };
+
+            var suggesters = new[]
+            {
+            new {
+                Name = "sg",
+                SearchMode = "analyzingInfixMatching",
+                SourceFields = new []{"categoryPathNames", "tags", "source"}
+                }
+             };
 
             var scoringProfiles = new[] {
                 new {
@@ -89,6 +98,7 @@ namespace Runnymede.Common.LibraryIndex
             {
                 Name = IndexName,
                 Fields = fields,
+                Suggesters = suggesters,
                 ScoringProfiles = scoringProfiles,
                 DefaultScoringProfile = "spMedRating",
             };

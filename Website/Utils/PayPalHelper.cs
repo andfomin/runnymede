@@ -24,6 +24,7 @@ namespace Runnymede.Website.Utils
 #if DEBUG
         private const string PayPalAddress = "https://www.sandbox.paypal.com/cgi-bin/webscr";
         private const string ReceiverEmail = "paypal-test-seller-usd%40englisharium.com";
+        // Payer: paypal-test-buyer-jp@englisharium.com / qwertyuiop
 #else
         private const string PayPalAddress = "https://www.paypal.com/cgi-bin/webscr";
         private const string ReceiverEmail = "paypal%40englisharium.com";
@@ -174,14 +175,30 @@ namespace Runnymede.Website.Utils
                     throw new ArgumentException("Invalid payment details.");
                 }
 
-                // This value is displayd to the sender in the confirmation email from PayPal as "Receipt No".
-                string receiptId;
-                pairs.TryGetValue("receipt_id", out receiptId);
+                // Pre-2015: The "receipt_id" value is displayd to the sender in the confirmation email from PayPal as "Receipt No". 
+                // Update 20150324: The "receipt_id" value is now missing. The sender and the recepient get different Transaction ID values in their notification emails. txn_id (ExtId) in these transaction detals has another different value.
+                string taxText = null;
+                decimal? tax = null;
+                if (pairs.TryGetValue("tax", out taxText))
+                {
+                    decimal temp;
+                    tax = decimal.TryParse(taxText, out temp) ? (decimal?)temp : null;                
+                }
+                string residenceCountry;
+                pairs.TryGetValue("residence_country", out residenceCountry);
+                string memo;
+                pairs.TryGetValue("memo", out memo);
+                string payerId;
+                pairs.TryGetValue("payer_id", out payerId);
 
                 var transactionDetails =
                         new XElement("PayPalPayment",
-                            new XAttribute("ExtId", extId),
-                            new XAttribute("LogRowKey", logRowKey)
+                            new XAttribute("extId", extId),
+                            new XAttribute("logRowKey", logRowKey),
+                            new XElement("Tax", taxText),
+                            new XElement("ResidenceCountry", residenceCountry),
+                            new XElement("Memo", memo),
+                            new XElement("PayerId", payerId)
                         )
                         .ToString(SaveOptions.DisableFormatting);
 
@@ -190,7 +207,7 @@ namespace Runnymede.Website.Utils
 select count(*) from dbo.accPostedPayPalPayments where ExtId = @ExtId;
 ";
                 const string sqlPost = @"
-execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @ReceiptId, @Details;
+execute dbo.accPostIncomingPayPalPayment @UserName, @ExtId, @Amount, @Fee, @Tax, @Details;
 ";
 
                 post = (DapperHelper.QueryResiliently<int>(sqlCheck, new { ExtId = extId, }).First()) == 0;
@@ -200,10 +217,10 @@ execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @Rece
                     DapperHelper.ExecuteResiliently(sqlPost, new
                         {
                             UserName = userName,
+                            ExtId = extId,
                             Amount = amount,
                             Fee = fee,
-                            ExtId = extId,
-                            ReceiptId = receiptId,
+                            Tax = tax,
                             Details = transactionDetails
                         });
 

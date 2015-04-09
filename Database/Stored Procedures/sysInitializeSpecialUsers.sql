@@ -14,7 +14,7 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
-declare @Comment nvarchar(100) = 'Special account.';
+declare @Comment nvarchar(100) = 'Special account';
 
 --------------------- $Service
 
@@ -48,6 +48,14 @@ insert dbo.appConstants (Name, Value, Comment)
 	from dbo.accAccounts AA
 	where AA.UserId = @ServiceUserId
 		and AA.[Type] = 'ACPPIF';
+
+execute dbo.accCreateAccount @ServiceUserId, 'ACPPIT';
+
+insert dbo.appConstants (Name, Value, Comment)
+	select 'Account.$Service.IncomingPayPalPaymentTax', AA.Id, @Comment
+	from dbo.accAccounts AA
+	where AA.UserId = @ServiceUserId
+		and AA.[Type] = 'ACPPIT';
 
 --------------------- $UnknownPayPalPayer
 

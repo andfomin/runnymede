@@ -16,6 +16,7 @@ begin try
 
 /* Inserted into dbo.appConstants whithin dbo.newInitializeSpecialUsers:
 'Account.$Service.PayPalIncomingPaymentFee', 
+'Account.$Service.PayPalIncomingPaymentTax', 
 'Account.$Service.PayPalCash', 
 'Account.$Service.ServiceRevenue',
 'Account.$UnknownPayPalPayer.Personal'
@@ -34,8 +35,8 @@ insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.BookingAdv
 --insert into dbo.appConstants (Name, Value, Comment) values ('AnyTeacher.ReviewRate.EXAREC', '2.5', 'Anonymous teacher recordings review rate');
 --insert into dbo.appConstants (Name, Value, Comment) values ('AnyTeacher.ReviewRate.EXWRPH', '3.0', 'Anonymous teacher writings review rate');
 insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.ClosingDelay.Minutes', '60', 'The learner has an opportunity to dispute a session until it is closed programmatically.');
-insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRate.EXAREC', '3.0', 'Review rate for recordings');
-insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRate.EXWRPH', '3.0', 'Review rate for writings');
+insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRate.EXAREC', '1.0', 'Review rate for recordings, $/1minute');
+insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRate.EXWRPH', '1.0', 'Review rate for writings, $/100words');
 -- end 20150313
 
 --insert dbo.appAttributeTypes (Id, Name, [Description]) values ('SCEV', 'dbo.sesScheduleEvents', null);

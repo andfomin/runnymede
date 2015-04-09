@@ -166,10 +166,13 @@
                     <div class="item">
                         <div class="row">
                             <div class="col-sm-offset-1 col-sm-5 my-screenshot">
-                                <img class="img-responsive" src="/content/images/ielts-test-240.jpg">
+                                <a href='@Url.Action("Ielts", "Info")'>
+                                    <img class="img-responsive" src="/content/images/ielts-test-240.jpg">
+                                </a>
                             </div>
                             <div class="col-sm-4 my-description">
                                 You will progress faster and achive better results if you know what exactly you need to emprove. Teachers can help you with setting priorities and correcting your learning plan.
+                                <a href='@Url.Action("Ielts", "Info")' class="app-margin-left-half"><strong>...</strong><i class="fa fa-chevron-right fa-fw"></i></a>
                             </div>
                         </div>
                     </div>
@@ -206,53 +209,63 @@
             <h3 class="app-appred">The easiest way to start speaking</h3>
         </div>
     </div>
-    <div class="row app-margin-bottom">
-        <div class="col-sm-5 col-sm-push-6 text-center app-margin-bottom">
-            <img src="/content/images/do-you-speak-english.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+    <div class="row">
+        <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4">
+            <p class="visible-xs-block text-center">
+                <img src="/content/images/do-you-speak-english.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
+            <p>
+                You cannot learn to speak English by reading textbooks or watching movies. You need to practice it. And you need feedback to know whether you are speaking correctly.
+            </p>
+            <p class="visible-xs-block text-center">
+                <img src="/content/images/shy-learner.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
+            <p>
+                But the problem is that most people do not like making mistakes publicly, and teachers do not like interrupting students by pointing out every single mistake.
+            </p>
+            <p class="visible-xs-block text-center">
+                <img src="/content/images/learner-teddybear.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
+            <p>
+                There is an idea about how to learn speaking English more comfortably. A teacher can provide feedback to a learner’s speech after it is done, for example, by annotating a record of the speech. This way, we avoid embarrassing the learner.
+            </p>
+            @*<p>
+                    Professor Orlando&nbsp;R.&nbsp;Kelm has written a <a href="https://orkelm.wordpress.com/2014/01/07/correct-me-please/" target="_blank">good description</a> of such approach:
+                    "Here’s my strategy. There are two parts: First, I like to have a correction guru, somebody who becomes my go-to person who can tell me what I’m saying wrong. Second part, I like to ask my correction guru to simply listen to my speech, jot a few notes down, and then at a separate time we sit down together to review notes."
+                </p>*@
+            <p>
+                This approach is based on the idea <a href="https://orkelm.wordpress.com/2014/01/07/correct-me-please/" target="_blank">described</a> by Professor Orlando&nbsp;R.&nbsp;Kelm:
+                &quot;Here's my strategy. There are two parts: First, I like to have a correction guru, somebody who becomes my go-to person who can tell me what I'm saying wrong. Second part, I like to ask my correction guru to simply listen to my speech, jot a few notes down, and then at a separate time we sit down together to review notes.&quot;
+            </p>
         </div>
-        <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
-            You cannot learn to speak English by reading textbooks or watching movies. You need to practice it. And you need feedback to know whether you are speaking correctly.
+        <div class="col-sm-5 hidden-xs text-center app-margin-bottom">
+            <p>
+                <img src="/content/images/do-you-speak-english.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
+            <p>
+                <img src="/content/images/shy-learner.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
+            <p>
+                <img src="/content/images/learner-teddybear.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
         </div>
     </div>
-    <div class="row app-margin-bottom">
-        <div class="col-sm-5 col-sm-push-6 text-center app-margin-bottom">
-            <img src="/content/images/shy-learner.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
-        </div>
-        <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
-            But the problem is that most people do not like making mistakes publicly, and teachers do not like interrupting students by pointing out every single mistake.
-        </div>
-    </div>
-    <div class="row app-margin-bottom">
-        <div class="col-sm-5 col-sm-push-6 text-center app-margin-bottom">
-            <img src="/content/images/learner-teddybear.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
-        </div>
-        <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
-            There is an idea about how to learn speaking English more comfortably. A teacher can provide feedback to a learner’s speech after it is done, for example, by annotating a record of the speech. This way, we avoid embarrassing the learner.
-            <a href="#myKelm" data-toggle="collapse" aria-expanded="false" aria-controls="collapseExample">More...</a>
-            <div class="collapse small" id="myKelm">
-                Professor Orlando&nbsp;R.&nbsp;Kelm has written a
-                <a href="https://orkelm.wordpress.com/2014/01/07/correct-me-please/" target="_blank">good description</a>
-                of such approach:
-                "Here’s my strategy. There are two parts: First, I like to have a correction guru, somebody who becomes my go-to person who can tell me what I’m saying wrong. Second part, I like to ask my correction guru to simply listen to my speech, jot a few notes down, and then at a separate time we sit down together to review notes."
+    @*<div class="row app-margin-bottom">
+            <div class="col-md-offset-1 col-lg-offset-2 col-sm-10">
+                <h3 class="app-margin-top-none app-appred">The more you speak, the better you speak</h3>
             </div>
         </div>
-    </div>
-    <div class="row app-margin-bottom">
+        <div class="row app-margin-bottom">
+            <div class="col-sm-5 col-sm-push-6 text-center app-margin-bottom">
+                <img src="/content/images/skype-together.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </div>
+            <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
+                Although Skype is an awesome communication medium, scheduling sessions with parties scattered around different time zones is a cumbersome process. Now you have got a schedule tool to easily arrange and manage multiple speaking sessions with other learners and teachers. There is no more excuse for not playing the speaking games.
+            </div>
+        </div>*@
+    <div class="row app-margin-top app-margin-bottom">
         <div class="col-md-offset-1 col-lg-offset-2 col-sm-10">
-            <h3 class="app-margin-top-none app-appred">The more you speak, the better you speak</h3>
-        </div>
-    </div>
-    <div class="row app-margin-bottom">
-        <div class="col-sm-5 col-sm-push-6 text-center app-margin-bottom">
-            <img src="/content/images/skype-together.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
-        </div>
-        <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
-            Although Skype is an awesome communication medium, scheduling sessions with parties scattered around different time zones is a cumbersome process. Now you have got a schedule tool to easily arrange and manage multiple speaking sessions with other learners and teachers. There is no more excuse for not playing the speaking games.
-        </div>
-    </div>
-    <div class="row app-margin-bottom">
-        <div class="col-md-offset-1 col-lg-offset-2 col-sm-10">
-            <h3 class="app-margin-top-none app-appred">Start speaking English today</h3>
+            <h3 class="app-margin-top-none app-appred">Start speaking today</h3>
         </div>
     </div>
     <div class="row app-margin-bottom">
@@ -260,7 +273,7 @@
             <img src="~/content/images/conversation-three-240.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
         </div>
         <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
-            The main goal of Englisharium is to provide learners of English with all possible options to practice speaking. Whether you are a beginner or an advanced speaker, you will find here a number of activities aprropriate for your level. If you are ready to do something new, simply explore the menu items at the top of the page.
+            The main goal of Englisharium is to provide learners of English with all possible options to practice speaking. Whether you are a beginner or an advanced speaker, you will find here a number of activities appropriate for your level. If you are ready to do something new, simply explore the menu items at the top of the page.
         </div>
     </div>
     @if (!isAuthenticated)

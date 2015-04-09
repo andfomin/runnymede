@@ -1,4 +1,4 @@
-CREATE TABLE [dbo].[libDescriptions] (
+﻿CREATE TABLE [dbo].[libDescriptions] (
     [Id]             INT            IDENTITY (1, 1) NOT NULL,
     [TitleId]        BIGINT         NULL,
     [CategoryIds]    NVARCHAR (50)  NULL,
@@ -12,10 +12,13 @@ CREATE TABLE [dbo].[libDescriptions] (
     [HasAudio]       BIT            CONSTRAINT [DF_libDescriptions_HasAudio] DEFAULT ((0)) NOT NULL,
     [HasVideo]       BIT            CONSTRAINT [DF_libDescriptions_HasVideo] DEFAULT ((0)) NOT NULL,
     [Checksum]       AS             (CONVERT([bigint],(4294967296.))*binary_checksum([TitleId],[CategoryIds],[Tags],[SourceId],[HasExplanation],[HasExample],[HasExercise],[HasText],[HasPicture],[HasAudio],[HasVideo])+binary_checksum(reverse([CategoryIds]),reverse([Tags]),reverse([SourceId]))),
+    [CreationTime]   SMALLDATETIME  CONSTRAINT [DF_libDescriptions_CreationTime] DEFAULT (sysutcdatetime()) NULL,
     CONSTRAINT [PK_libDescriptions] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_libDescriptions_libSources] FOREIGN KEY ([SourceId]) REFERENCES [dbo].[libSources] ([Id]),
     CONSTRAINT [FK_libDescriptions_libTitles] FOREIGN KEY ([TitleId]) REFERENCES [dbo].[libTitles] ([Id])
 );
+
+
 
 
 

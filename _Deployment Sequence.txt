@@ -2,6 +2,7 @@
 -- CREATE LOGIN websitelogin WITH PASSWORD = '123qweASD' -- (In database master)
 -- Schema compare from the project. Update.
 -- Run dbo.InitializeAll
+-- ALTER USER websiteuser WITH LOGIN = websitelogin
 -- GRANT CONNECT TO websiteuser;
 -- Change Database of DefaultConnection in Web.config (and LibratyIndexer App.config)
 -- Run LibratyIndexer for common01 and personal01 (recreate = true, reindexAllResources = true)

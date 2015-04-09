@@ -36,6 +36,7 @@ namespace Runnymede.Website.Controllers.Api
 
         // GET api/sessions
         [Route("")]
+        [AllowAnonymous]
         public async Task<IHttpActionResult> GetSessions(string start, string end, string localTime, int localTimezoneOffset)
         {
             DateTime startDate, endDate;

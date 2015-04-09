@@ -11,8 +11,8 @@ BEGIN
 Publishes exercise for reviewing. 
 
 20121113 AF. Initial release
-
 20150313 AF. Single price. Any reviewer.
+20150325 AF. Do not use escrow. Post revenue directly at this moment.
 */
 SET NOCOUNT ON;
 
@@ -42,15 +42,13 @@ begin try
 
 	set @Attribute = cast(@ReviewId as nvarchar(100));
 
-	set @Now = sysutcdatetime();
-
 	if @ExternalTran = 0
 		begin transaction;
 
+		exec dbo.accPostRevenue @UserId = @UserId, @Amount = @Price, @TransactionType = 'TRRVRQ', @Attribute = @Attribute, @Now = @Now output;
+
 		insert dbo.exeReviews (Id, ExerciseId, Price, RequestTime)
 			values (@ReviewId, @ExerciseId, @Price, @Now);		
-
-		exec dbo.accChangeEscrow @UserId = @UserId, @Amount = @Price, @TransactionType = 'TRRVRQ', @Attribute = @Attribute;
 
 	if @ExternalTran = 0
 		commit;

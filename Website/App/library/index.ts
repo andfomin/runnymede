@@ -58,7 +58,11 @@ module app.library {
                 (newValue) => {
                     if (newValue !== this.categoriesL1KnownState) {
                         this.categoriesL1KnownState = newValue;
-                        this.selectL1(app.arrFind(this.categoriesL1,(i) => { return i.active; }));
+                        // The switch happens not atomicaly. At some time two root categories may be active. There may be two events. It causes a wrong search call, and the susequent call is lost because the busy value is true on the first one.
+                        var selectL1 = app.arrFind(this.categoriesL1,(i) => { return i.active; });
+                        if (selectL1 != this.selectedL1) {
+                            this.selectL1(selectL1);
+                        }
                     }
                 });
 

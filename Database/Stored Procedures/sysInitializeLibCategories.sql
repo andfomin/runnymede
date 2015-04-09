@@ -257,7 +257,7 @@ insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) va
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('184_', '166_', N'Differentiating to choose the best in context', null, '184', 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('186_', '166_', N'Eliminating false friends', null, '186', 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('187_', '166_', N'Formal and informal registers', null, '187', 1)
-insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('188_', '166_', N'Idiomatic expressions', null, '188', 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('188_', '166_', N'Idioms', null, '188', 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('189_', '000C', N'Topics', 3, '189', 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('190_', '189_', N'Family life', null, '190', 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('191_', '189_', N'Hobbies and pastimes', null, '191', 1)
@@ -393,7 +393,7 @@ insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) va
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('416_', '124_', N'Relative pronouns (who, whose, what, which, that)', null, null, 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('417_', '124_', N'Reflexive pronouns (myself, themselves)', null, null, 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('418_', '100_', N'Delexical verbs (have, take, make, give)', null, null, 1)
-insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('419_', '000B', N'Phrases, clauses, sentences', 25, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('419_', '000B', N'Phrases, clauses, sentences', 26, null, 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('420_', '419_', N'Phrases', 1, null, 1);
 update dbo.libCategories set ParentId = '419_' where Id = '101_'; -- 'Reported speech'
 update dbo.libCategories set ParentId = '419_' where Id = '102_'; -- 'Relative clauses'
@@ -408,6 +408,62 @@ insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) va
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('429_', '100_', N'Irregular verbs', null, null, 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('430_', '100_', N'Verbs followed by ''that'' clause', null, null, 1)
 ----- Deployed.
+-- Additions 20150320.
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('431_', '166_', N'Business terms', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('432_', '189_', N'Business', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('433_', '000F', N'IELTS', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('434_', '433_', N'IELTS Listening', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('436a', '433_', N'IELTS Reading Academic', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('436b', '433_', N'IELTS Reading General', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('437a', '433_', N'IELTS Writing Academic', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('437b', '433_', N'IELTS Writing General', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('438_', '433_', N'IELTS Speaking', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('439_', '000F', N'TOEFL iBT', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('440_', '439_', N'TOEFL Reading', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('441_', '439_', N'TOEFL Listening', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('442_', '439_', N'TOEFL Speaking', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('443_', '439_', N'TOEFL Writing', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('444_', '000F', N'TOEIC', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('445_', '444_', N'TOEIC Listening', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('446_', '444_', N'TOEIC Reading', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('447_', '444_', N'TOEIC Speaking', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('448_', '444_', N'TOEIC Writing', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('449_', '000F', N'Cambridge English: First (FCE)', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('451_', '449_', N'FCE Reading and Use of English', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('452_', '449_', N'FCE Writing', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('453_', '449_', N'FCE Listening', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('454_', '449_', N'FCE Speaking', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('455_', '000F', N'Cambridge English: Advanced (CAE)', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('456_', '455_', N'CAE Reading and Use of English', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('457_', '455_', N'CAE Writing', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('458_', '455_', N'CAE Listening', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('459_', '455_', N'CAE Speaking', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('460_', '000F', N'Cambridge English: Proficiency (CPE)', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('461_', '460_', N'CPE Reading and Use of English', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('462_', '460_', N'CPE Writing', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('463_', '460_', N'CPE Listening', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('464_', '460_', N'CPE Speaking', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('465_', '000F', N'STEP Eiken', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('466_', '465_', N'Eiken First stage', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('467_', '465_', N'Eiken Second stage (speaking)', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('468_', '000F', N'EGE English (ЕГЭ)', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('469_', '468_', N'EGE Part A', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('470_', '468_', N'EGE Part B', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('471_', '468_', N'EGE Part C', null, null, 1);
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('472_', '468_', N'EGE Speaking', null, null, 1);
+----- Deployed.
+-- Additions 20150323.
+update dbo.libCategories set Position = 26 where Id = '419_'; -- 'Phrases, clauses, sentences'
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('473_', '000B', N'Conjunctions', 25, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('474_', '473_', N'Coordinating conjunctions', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('475_', '473_', N'Correlative conjunctions', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('476_', '473_', N'Subordinating conjunctions', null, null, 1)
+----- Deployed.
+-- Additions 20150330.
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('477_', '419_', N'Punctuation: Comma, ampersand', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('478_', '419_', N'Punctuation: Period, exclamation point, question mark', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('479_', '419_', N'Punctuation: Colon, semicolon, dash, hyphen, parenthesis, quotation marks, slash, ellipsis', null, null, 1)
+
 
 	if @ExternalTran = 0
 		commit;

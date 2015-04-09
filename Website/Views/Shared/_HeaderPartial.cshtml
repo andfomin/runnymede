@@ -29,14 +29,15 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="headerCollapse">
             <ul class="nav navbar-nav app">
+                <li class="@NavClass("Library")">@Html.ActionLink("Library", "Index", "Library")</li>
                 @if (Model.IsTeacher)
                 {
                     <li class="dropdown app-dropdown-hover @NavClass("Teacher")">
                         <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Teacher<b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li>@Html.ActionLink("Live sessions", "Teacher", "Sessions")</li>
-                            <li class="divider"></li>
                             <li>@Html.ActionLink("Reviews of exercises", "Index", "Reviews", null, new { tabindex = "-1" })</li>
+                            <li class="divider"></li>
+                            <li>@Html.ActionLink("Live sessions", "Teacher", "Sessions")</li>
                         </ul>
                     </li>
                 }
@@ -47,11 +48,10 @@
                         <ul class="dropdown-menu">
                             <li>@Html.ActionLink("Speaking", "Index", "Exercises", null, null, "/speaking", null, new { tabindex = "-1" })</li>
                             <li>@Html.ActionLink("Writing", "Index", "Exercises", null, null, "/writing", null, new { tabindex = "-1" })</li>
-                            <li class="divider"></li>
-                            <li>@Html.ActionLink("Live sessions", "Index", "Sessions")</li>
+                            @*<li class="divider"></li>
+                            <li>@Html.ActionLink("Live sessions", "Index", "Sessions")</li>*@
                         </ul>
                     </li>
-                    <li>@Html.ActionLink("Conversations", "Index", "Conversations")</li>
                 }
                 <li class="dropdown app-dropdown-hover @NavClass("Games")">
                     <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Games<b class="caret"></b></a>
@@ -60,7 +60,10 @@
                         <li>@Html.ActionLink("Copycat", "Copycat", "Games", null, new { tabindex = "-1" })</li>
                     </ul>
                 </li>
-                <li class="@NavClass("Library")">@Html.ActionLink("Library", "Index", "Library")</li>
+                @if (!Model.IsTeacher)
+                {
+                    <li>@Html.ActionLink("Conversations", "Index", "Conversations")</li>
+                }
             </ul>
             <ul class="nav navbar-nav navbar-right app">
                 @if (Request.IsAuthenticated)

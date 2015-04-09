@@ -110,7 +110,6 @@
     <Build Include="Functions\appGetConstantAsFloat.sql" />
     <Build Include="Stored Procedures\relAddLearnerToTeacher.sql" />
     <Build Include="Stored Procedures\accTransferMoney.sql" />
-    <Build Include="Stored Procedures\accFinishReview.sql" />
     <Build Include="Stored Procedures\sysAssignTeacherStatus.sql" />
     <Build Include="Stored Procedures\exeTryChangeExerciseAuthor.sql" />
     <Build Include="Stored Procedures\exeCreateUploadedReview.sql" />
@@ -189,6 +188,8 @@
     <Build Include="Stored Procedures\exeGetReview.sql" />
     <Build Include="Stored Procedures\exeGetExerciseWithReviews.sql" />
     <Build Include="Security\websiteuser.sql" />
+    <Build Include="Stored Procedures\sysAddResourceNote.sql" />
+    <Build Include="Stored Procedures\accPostRevenue.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />

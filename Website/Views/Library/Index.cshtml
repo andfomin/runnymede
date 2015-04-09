@@ -116,15 +116,15 @@
                      ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.pgLoad()"></div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" ng-cloak>
             <div class="col-md-6 my-toolbar0">
                 <hr />
                 <span class="text-nowrap app-margin-left-half">
                     <i class="fa fa-history fa-fw"></i>&nbsp;@Html.ActionLink("History", "History", "Library")
                 </span>
                 @*<span class="text-nowrap app-margin-left">
-                        <i class="fa fa-skype fa-fw"></i>&nbsp;@Html.ActionLink("Viewed by friend", "Friend", "Library")
-                    </span>*@
+                    <i class="fa fa-skype fa-fw"></i>&nbsp;@Html.ActionLink("Viewed by friend", "Friend", "Library")
+                </span>*@
                 <span class="text-nowrap app-margin-left" ng-show="vm.isPersonal()">
                     <i class="fa fa-plus fa-fw text-success"></i>&nbsp;<a href="" ng-click="vm.showAddResourceModal()">Add new resource</a>
                 </span>

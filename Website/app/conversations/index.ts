@@ -19,18 +19,20 @@
         }
 
         load = () => {
-            app.ngHttpGet(this.$http,
-                app.converstionsApiUrl(),
-                null,
-                (data) => {
-                    if (data) {
-                        this.offered = data.offered;
-                        if (this.offered) {
-                            this.users = data.users;
+            if (this.authenticated) {
+                app.ngHttpGet(this.$http,
+                    app.converstionsApiUrl(),
+                    null,
+                    (data) => {
+                        if (data) {
+                            this.offered = data.offered;
+                            if (this.offered) {
+                                this.users = data.users;
+                            }
                         }
                     }
-                }
-                );
+                    );
+            }
         };
 
         loadPresentation = (user: IUser) => {

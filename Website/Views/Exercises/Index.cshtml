@@ -27,10 +27,10 @@
         <h4 class="text-center app-margin-top-none app-margin-bottom-none">
             <span ng-show="vm.isStateSpeaking()">
                 <span class="text-nowrap"><i class="fa fa-microphone fa-fw app-appblue"></i>&nbsp;@Html.ActionLink("Record speech", "RecordSpeech", "Exercises")</span>
-                <span class="text-nowrap"><i class="fa fa-skype fa-fw app-margin-left"></i>&nbsp;@Html.ActionLink("Record Skype conversation", "Index", "RecorderForSkype")</span>
+                @*<span class="text-nowrap"><i class="fa fa-skype fa-fw app-margin-left"></i>&nbsp;@Html.ActionLink("Record Skype conversation", "Index", "RecorderForSkype")</span>*@
             </span>
             <span ng-show="vm.isStateWriting()">
-                <span class="text-nowrap"><i class="fa fa-camera fa-fw app-margin-left app-appblue"></i>&nbsp;@Html.ActionLink("Photograph written text", "PhotographWriting", "Exercises")</span>
+                <span class="text-nowrap"><i class="fa fa-camera fa-fw app-margin-left app-appblue"></i>&nbsp;@Html.ActionLink("Photograph text", "PhotographWriting", "Exercises")</span>
             </span>
         </h4>
         <hr />
@@ -40,7 +40,7 @@
                     <thead>
                         <tr>
                             <th>Title</th>
-                            <th class="text-right">Length</th>
+                            <th class="app-text-right">Length</th>
                             <th>Created</th>
                             <th>Reviews</th>
                         </tr>
@@ -50,10 +50,10 @@
                             <td>
                                 <a ng-href="{{vm.getViewUrl(e)}}">{{e.title}}</a>
                             </td>
-                            <td class="text-right" style="padding-right: 10px;">
+                            <td class="app-text-right">
                                 {{e.length | appLength : e.type}}
                             </td>
-                            <td style="padding-right: 10px;">
+                            <td>
                                 {{e.createTime | appDateHuman}}
                             </td>
                             <td>
