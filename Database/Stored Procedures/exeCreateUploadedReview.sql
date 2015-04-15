@@ -9,18 +9,12 @@ BEGIN
 */
 SET NOCOUNT ON;
 
-	insert dbo.exeReviews (ExerciseId, UserId, Reward, RequestTime, StartTime, AuthorName, ReviewerName)
+	insert dbo.exeReviews (Id, ExerciseId, UserId, Price, RequestTime, StartTime)
 	output inserted.Id
-		select @ExerciseId, @UserId, 0, q1.NowTime, q1.NowTime, q1.DisplayName, q2.DisplayName
+		select dbo.exeGetNewReviewId(), @ExerciseId, @UserId, 0, q.NowTime, q.NowTime
 		from (
-			select U.DisplayName, sysutcdatetime() as NowTime
-			from dbo.appUsers U 
-				inner join dbo.exeExercises E on U.Id = E.UserId
-			where E.Id = @ExerciseId
-		) q1,
-		(
-			select DisplayName from dbo.appUsers where Id = @UserId
-		) q2;
+			select sysutcdatetime() as NowTime
+		) q;
 
 END
 GO

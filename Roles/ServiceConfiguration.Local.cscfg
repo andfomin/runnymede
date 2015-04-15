@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="Roles" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2014-06.2.4">
+  <Role name="Helper">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Andrey" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="MIIBnQYJKoZIhvcNAQcDoIIBjjCCAYoCAQAxggFOMIIBSgIBADAyMB4xHDAaBgNVBAMME1dpbmRvd3MgQXp1cmUgVG9vbHMCEHOWSw8d7kSdQJFM+8hinXAwDQYJKoZIhvcNAQEBBQAEggEAgH3YPwIzlZcqsxXuQetDUrzRtYiVEObn3xWmY4+JTiopMVSm5XDr1Sb0rfNWB66duBcRGtbIve0jGLRzBD0Tskpi+hR05OOi5lljym7whPc6VKrAxn1Fz+3mpPx7AIOcTc94MTACEkaf+ehaGc3OyMReQYGnZIs+3ZF2ef2fCED2CTF8bNSrTLK6uNQ1trz/M+kViDNtW2jV4zFriUdX7iRWTsSSc862KAxaPMdX5NNREq09U/o9uNfd3tSQ488U1HBR3VGH8z5JAT60FnHFgdk/IEJ1K3OntbF2qKaM4/fvZIzShE7ZE+ZnL7bvRSgL9iMB0Lc5xY5cjXDvPjXbCzAzBgkqhkiG9w0BBwEwFAYIKoZIhvcNAwcECB9C+TjmgRXegBBGnVO6E7J5PFdK082NGQ0F" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2016-02-06T23:59:59.0000000-05:00" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="true" />
+      <Setting name="StorageConnection" value="UseDevelopmentStorage=true" />
+      <Setting name="RecordingsBlobContainer" value="recordings" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="780EAECC5BA0E387C36B24576B9E297330B3CAE3" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+</ServiceConfiguration>

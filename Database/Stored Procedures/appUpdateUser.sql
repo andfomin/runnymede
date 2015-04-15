@@ -4,9 +4,7 @@ CREATE PROCEDURE [dbo].[appUpdateUser]
 -- If a parameter is null, that meens keep the corresponding field intact.
 	@UserId int,
 	@DisplayName nvarchar(100) = null,
-	@Skype nvarchar(100) = null,
-	@ReviewRate decimal(18,2) = null,
-	@SessionRate decimal(18,2) = null,
+	@SkypeName nvarchar(100) = null,
 	@Announcement nvarchar(1000) = null
 AS
 BEGIN
@@ -22,31 +20,22 @@ begin try
 	-- Coalesce() uses the data type with highest precedence as the data type of the result. Throws Error converting data type nvarchar to numeric. 
 	if (
 		(@DisplayName is null) and
-		(@Skype is null) and
-		(@Announcement is null)	and
-		(@ReviewRate is null) and	
-		(@SessionRate is null)	
+		(@SkypeName is null) and
+		(@Announcement is null)
 	)
-			raiserror('%s,%d:: Cannot update the profile of the user.', 16, 1, @ProcName, @UserId);
+			raiserror('%s,%d:: Cannot update the user profile.', 16, 1, @ProcName, @UserId);
 
 	if @ExternalTran = 0
 		begin transaction;
 
 		update dbo.appUsers set 
 			DisplayName = coalesce(@DisplayName, DisplayName),
-			Skype = coalesce(@Skype, Skype),
-			ReviewRate = coalesce(@ReviewRate, ReviewRate),
-			SessionRate = coalesce(@SessionRate, SessionRate),
+			SkypeName = coalesce(@SkypeName, SkypeName),
 			Announcement = coalesce(@Announcement, Announcement)
 		where Id = @UserId;
 
 		if @@rowcount = 0
 			raiserror('%s,%d:: The user profile update failed.', 16, 1, @ProcName, @UserId);
-
-		if (@DisplayName is not null) begin
-			update dbo.relLearnersTeachers set LearnerDisplayName = @DisplayName where LearnerUserId = @UserId;
-			update dbo.relLearnersTeachers set TeacherDisplayName = @DisplayName where TeacherUserId = @UserId;
-		end	
 
 	if @ExternalTran = 0
 		commit;

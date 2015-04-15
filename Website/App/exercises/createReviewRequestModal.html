@@ -1,0 +1,28 @@
+﻿<div class="modal-header">
+    <h3>Request a review of the exercise</h3>
+</div>
+<!-- The form will not submit on Enter keypress until it contains a button. So the form tag wraps all the footer too, not the input section alone. -->
+<form class="form-horizontal">
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-sm-offset-1 col-sm-10">
+                <p>
+                    You are requesting a review of the exercise &quot;<strong>{{vm.exercise.title}}</strong>&quot;
+                    which was created <strong>{{vm.exercise.createTime | appDateHuman}}</strong>
+                    and has length <strong>{{vm.exercise.length | appLength : vm.exercise.type}}</strong>.
+                </p>
+                <p>
+                    The review price is <strong>{{vm.price | number:2}}</strong>&nbsp;dollars.
+                </p>
+                <p ng-show="vm.price > vm.balance">
+                    Your account balance is currently <strong>{{vm.balance | number:2}}</strong>&nbsp;dollars.
+                    <a class="btn btn-primary btn-sm app-2px-up" ng-href="{{vm.getAddLink()}}">Add money to account</a>
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="!vm.canOk()">OK</button>
+            <a href="" class="app-close" ng-click="vm.cancel()">Close</a>
+        </div>
+    </div>
+</form>

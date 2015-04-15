@@ -1,0 +1,18 @@
+-- Create empty database test01
+-- CREATE LOGIN websitelogin WITH PASSWORD = '123qweASD' -- (In database master)
+-- Schema compare from the project. Update.
+-- Run dbo.InitializeAll
+-- ALTER USER websiteuser WITH LOGIN = websitelogin
+-- GRANT CONNECT TO websiteuser;
+-- Change Database of DefaultConnection in Web.config (and LibratyIndexer App.config)
+-- Run LibratyIndexer for common01 and personal01 (recreate = true, reindexAllResources = true)
+-- Delete Blob containers and Tables.
+-- Start the site. Storage objects are created on start.
+-- Add the Youtube API Key on the portal
+-- Add the Mandrill API Key on the portal
+-- Add the Azure Search's Service Name and Key on the portal
+-- ServiceBus key
+
+
+
+

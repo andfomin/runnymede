@@ -1,0 +1,61 @@
+-- Copy database to the test database. (use master)
+--CREATE DATABASE test_englmdb AS COPY OF englmdb;
+--SELECT name, state, state_desc FROM sys.databases WHERE name = 'test_englmdb';
+
+-- Prepare manual SQL schema update scripts.
+
+-- Prepare manual SQL data update scripts.
+
+-- Run manual SQL schema update scripts on the test database.
+
+-- Run schema compare and update the test database.
+
+-- Run manual SQL data update scripts on the test database.
+
+-- Publish the new website to the staging.
+
+-- Change the database connection string in the staging slot to 'test_englmdb'
+
+-- Test the staging site.
+
+-- Change the database connection string in the staging slot back to 'englmdb'
+
+-- Delete 'test_englmdb'.
+
+---------------------- OFFLINE ----------------------
+
+-- Rename ~App_Offline.htm to App_Offline.htm on the production slot on the Preview portal -> Website -> Console.
+rename ~App_Offline.htm App_Offline.htm
+
+-- Copy database to the backup database 'englmdb_backup'
+
+-- Run manual SQL schema update scripts on the main database.
+
+-- Run schema compare and update the main database.
+
+-- Run manual SQL data update scripts on the main database.
+
+-- Switch the staging to the production.
+
+---------------------- ONLINE ----------------------
+
+-- Run tests on the production website.
+
+-- Delete the test database.
+
+-- Delete the backup database.
+
+---------------------- ON ERROR ----------------------
+
+-- Rename the main database to the old database. Connect to [master]
+ALTER DATABASE [englmdb] MODIFY NAME = [englmdb_main_old]
+
+-- Rename the backup database to the main database.
+ALTER DATABASE [englmdb_backup] MODIFY NAME = [englmdb]
+
+-- Switch the staging and the production back.
+
+-- Rename App_Offline.htm to ~App_Offline.htm on the old production. ( rename App_Offline.htm "~App_Offline.htm" )
+
+---------------------- NOTES ----------------------
+EXECUTE sp_rename N'dbo.appUsers.SessionRate', N'Tmp_SessionPrice', 'COLUMN' 

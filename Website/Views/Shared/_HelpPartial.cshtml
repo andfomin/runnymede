@@ -1,0 +1,22 @@
+﻿@* This code snippet is a good candidate to become an Angular directive. *@
+@model System.String
+<div class="row" ng-controller="Help">
+    <div class="col-sm-offset-1 col-md-offset-2" ng-class="vm.isCollapsed ? 'col-sm-3' : 'col-sm-10 col-md-8'">
+        <div class="panel panel-default app-margin-bottom-none">
+            <div class="panel-heading">
+                <i class="fa fa-question-circle fa-fw app-1px-down"></i>
+                <a href="" class="app-margin-left-half" ng-click="vm.onClick()">
+                    {{vm.isCollapsed ? 'Show help' : 'Hide help'}}
+                    <i class="fa fa-fw" ng-class="vm.isCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
+                </a>
+            </div>
+            <div class="panel-body" collapse="vm.isCollapsed">
+                <div ng-include="vm.include"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var app = app || {};
+    app.helpFileParam = '@Model';
+</script>

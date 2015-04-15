@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "Photograph written text";
+    //ViewBag.SecondaryTitle = "Take a picture of essay";
+}
+@section HeadScripts {
+    @Styles.Render(
+"~/bundles/animate-css"
+)
+    <style>
+        label.my-file-label input[type="file"] {
+            position: fixed;
+            top: -1000px;
+            left: -1000px;
+        }
+
+        .my-radios label.radio {
+            font-weight: normal;
+        }
+    </style>
+}
+<div ng-app="myApp" ng-controller="PhotographWriting">
+
+    <div class="row" ng-show="!vm.supported" ng-cloak>
+        <div class="col-md-offset-3 col-md-6">
+            <div class="alert alert-warning">
+                <p>
+                    It seems that your browser does not support taking photos directly from a camera. This feature is usually supported on mobile devices.
+                    If you have scanned your pages then you can upload the files here.
+                </p>
+            </div>
+        </div>
+    </div>
+    <form class="form-horizontal" role="form" method="post" name="recordingForm" action="save-writing-photos" enctype="multipart/form-data" ng-submit="vm.onSubmit()">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Exercise title</label>
+            <div class="col-sm-10 col-lg-8">
+                <input type="text" name="title" class="form-control" maxlength="100" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Word count</label>
+            <div class="col-sm-2">
+                <input type="text" name="wordCount" class="form-control" maxlength="4" />
+            </div>
+            <div class="col-sm-1">&nbsp;</div>
+            <div class="col-sm-7">
+                <strong>
+                    There&nbsp;will&nbsp;be
+                    <select class="form-control" style="max-width:100px;display:inline-block;" ng-model="vm.pageCount" ng-options="i as (i + ' page' + (i==1?'':'s')) for i in vm.allPages.slice(1,6)"></select>
+                    in&nbsp;total
+                </strong>
+            </div>
+        </div>
+        <div class="form-group" ng-repeat="i in vm.pages()">
+            <div class="col-xs-4 col-md-3 col-md-offset-2">
+                <p><strong>Page&nbsp;{{1+i}}</strong></p>
+                <label class="my-file-label">
+                    @* The input name must be exactly "files[i]" to bind to "IEnumerable<HttpPostedFileBase> files". The first index must be 0. *@
+                    <input type="file" accept="image/jpeg" capture onchange="app.exercises.PhotographWriting.onFileChange(event, id)" id="{{'file'+i}}" name="{{'files['+i+']'}}" />
+                    <span class="btn btn-primary btn-lg" ng-bind="vm.supported ? 'Take photo' : 'Choose file'"></span>
+                </label>
+            </div>
+            <div class="col-xs-4 col-md-3" ng-show="vm.fileReady(i)">
+                <canvas class="app-margin-left-half" id="{{'canvasfile'+i}}" width="100" height="100" style="vertical-align:middle;"></canvas>
+            </div>
+            <div class="col-xs-4 col-md-3 my-radios" style="padding-top:6px;" ng-show="vm.fileReady(i)">
+                <label class="radio">
+                    <input type="radio" name="{{'rotations['+i+']'}}" value="-1" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" />
+                    <span class="text-nowrap">Rotate left<i class="fa fa-undo fa-fw"></i></span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="{{'rotations['+i+']'}}" value="0" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" />
+                    <span class="text-nowrap">Do not rotate</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="{{'rotations['+i+']'}}" value="1" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" />
+                    <span class="text-nowrap">Rotate right<i class="fa fa-repeat fa-fw"></i></span>
+                </label>
+            </div>
+        </div>
+        <div class="form-group text-center">
+            @Html.Partial("_NotAuthenticatedSpanPartial")
+            <button type="submit" class="btn btn-default btn-lg app-btn-disablable" ng-disabled="!vm.filesReady()">
+                <i class="fa app-1px-up" ng-class="{'fa-check fa-fw text-success animated flash app-fa-pulse':(vm.filesReady() && !vm.uploading), 'fa-spinner fa-fw fa-spin app-appblue':vm.uploading}"></i>
+                <span ng-bind="(vm.supported ? 'Save photo' : 'Upload file') + (vm.pageCount == 1 ? '' : 's')"></span>
+            </button>
+        </div>
+    </form>
+</div>
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/exercises/utils.js",
+ "~/app/exercises/PhotographWriting.js"
+)}

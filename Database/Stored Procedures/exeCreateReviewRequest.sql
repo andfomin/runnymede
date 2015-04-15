@@ -2,16 +2,17 @@
 
 
 CREATE PROCEDURE [dbo].[exeCreateReviewRequest]
+	@UserId int,
 	@ExerciseId int,
-	@AuthorUserId int,
-	@Reward decimal(18, 2),
-	@ReviewerUserIds dbo.appUsersType readonly
+	@Price decimal(9,2)
 AS
 BEGIN
 /*
-Publishes exercise for reviewing.
+Publishes exercise for reviewing. 
 
 20121113 AF. Initial release
+20150313 AF. Single price. Any reviewer.
+20150325 AF. Do not use escrow. Post revenue directly at this moment.
 */
 SET NOCOUNT ON;
 
@@ -22,62 +23,37 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @ReviewerCount int, @AuthorName nvarchar(100), @TypeId nchar(4), @Length int, @Attribute nvarchar(100);
+	declare @ExerciseType char(6), @ExerciseLength int,	@ReviewId int, @Attribute nvarchar(100), @Now datetime2(2);
 
-	if (@Reward < 0) begin
-		declare @RewardText nvarchar(100) = cast(@Reward as nvarchar(100));
-		raiserror('%s,%d,%s:: The user has offered negative reward.', 16, 1, @ProcName, @AuthorUserId, @RewardText);
-	end;
+	-- Only the owner of the exercise can request a review. 
+	select @ExerciseType = [Type], @ExerciseLength = [Length] 
+	from dbo.exeExercises 
+	where Id = @ExerciseId 
+		and UserId = @UserId;
+	
+	-- Type is non-nullable.
+	if (@ExerciseType is null)
+		raiserror('%s,%d,%d:: The user cannot request a review of the exercise.', 16, 1, @ProcName, @UserId, @ExerciseId);
 
-	-- Only the owner of the exercise can request a review. TypeId is non-nullable.
-	select @TypeId = TypeId, @Length = [Length] from dbo.exeExercises where Id = @ExerciseId and UserId = @AuthorUserId
-	if (@TypeId is null)
-		raiserror('%s,%d,%d:: The user cannot request review for the exercise.', 16, 1, @ProcName, @AuthorUserId, @ExerciseId);
+   if (@Price <> dbo.exeCalculateReviewPrice(@ExerciseType, @ExerciseLength))
+		raiserror('%s,%d,%d:: The price is wrong.', 16, 1, @ProcName, @UserId, @ExerciseId);
 
-	select @ReviewerCount = count(*) from @ReviewerUserIds;
+	select @ReviewId = dbo.exeGetNewReviewId();
 
-	if @ReviewerCount > 0 begin
-		if exists (
-			select *
-			from @ReviewerUserIds R
-				left join dbo.relLearnersTeachers LT on LT.LearnerUserId = @AuthorUserId and R.UserId = LT.TeacherUserId
-			where LT.TeacherUserId is null
-		)
-			raiserror('%s,%d:: The user has no relationship with a proposed reviewer.', 16, 1, @ProcName, @AuthorUserId);
-	end
-
-	select @AuthorName = DisplayName from dbo.appUsers where Id = @AuthorUserId;
-
-	--declare @Now datetime2(0) = sysutcdatetime();
-	declare @ReviewId int;
+	set @Attribute = cast(@ReviewId as nvarchar(100));
 
 	if @ExternalTran = 0
 		begin transaction;
 
-		insert dbo.exeReviews (ExerciseId, Reward, AuthorName)
-			values (@ExerciseId, @Reward, @AuthorName);
+		exec dbo.accPostRevenue @UserId = @UserId, @Amount = @Price, @TransactionType = 'TRRVRQ', @Attribute = @Attribute, @Now = @Now output;
 
-		select @ReviewId = scope_identity() where @@rowcount != 0;
-
-	    if @ReviewerCount > 0 begin
-			insert dbo.exeRequests (ReviewId, Reward, AuthorName, ReviewerUserId, TypeId, [Length])
-				select distinct @ReviewId, @Reward, @AuthorName, UserId, @TypeId, @Length 
-				from @ReviewerUserIds
-		end
-		else begin
-			insert dbo.exeRequests (ReviewId, Reward, AuthorName, TypeId, [Length])
-				values (@ReviewId, @Reward, @AuthorName, @TypeId, @Length);
-		end;
-
-		set @Attribute = cast(@ReviewId as nvarchar(100));
-
-		exec dbo.accChangeEscrow @AuthorUserId, @Reward, 'EXRR', @Attribute, null;
+		insert dbo.exeReviews (Id, ExerciseId, Price, RequestTime)
+			values (@ReviewId, @ExerciseId, @Price, @Now);		
 
 	if @ExternalTran = 0
 		commit;
 
-	--select @ReviewId as Id, @ExerciseId as ExerciseId, @Reward as Reward, @Now as RequestTime;
-	select Id, ExerciseId, Reward, RequestTime from dbo.exeReviews where Id = @ReviewId;
+	select @ReviewId as Id, @ExerciseId as ExerciseId, @Price as Price, @Now as RequestTime;
 
 end try
 begin catch

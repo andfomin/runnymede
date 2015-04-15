@@ -1,19 +1,19 @@
 <AudiorSettings>
-	<maxTimeLimit>300</maxTimeLimit>
-	<recordName>0</recordName>
+  <maxTimeLimit>300</maxTimeLimit>
+  <recordName>0</recordName>
   <!-- Do not capitalize letters in the route to prevent get dashes inserted. -->
-  <uploadURL>/exercises/saverecording</uploadURL>
+  <uploadURL>/exercises/save-recording</uploadURL>
   <canDownload>0</canDownload>
-	<showSoundWave>1</showSoundWave>
-	<markerDistance>0</markerDistance>
-	<languageFile>en.xml</languageFile>
-	<showButtons>1</showButtons>
-	<disableSaveButton>1</disableSaveButton>
-	<disableRecordAgainButton>1</disableRecordAgainButton>
-	<bgCornerRadius>8</bgCornerRadius>
-	<bgColor>0xffffff</bgColor>
-	<borderColor>0xeeeeee</borderColor>
-	<borderWidth>1</borderWidth>
-	<soundWaveColor>0xac1f28</soundWaveColor>
-	<playBackFillColor>0xFA5223</playBackFillColor>
+  <showSoundWave>1</showSoundWave>
+  <markerDistance>0</markerDistance>
+  <languageFile>en.xml</languageFile>
+  <showButtons>1</showButtons>
+  <disableSaveButton>1</disableSaveButton>
+  <disableRecordAgainButton>1</disableRecordAgainButton>
+  <bgCornerRadius>8</bgCornerRadius>
+  <bgColor>0xffffff</bgColor>
+  <borderColor>0xeeeeee</borderColor>
+  <borderWidth>1</borderWidth>
+  <soundWaveColor>0xac1f28</soundWaveColor>
+  <playBackFillColor>0xFA5223</playBackFillColor>
 </AudiorSettings>

@@ -18,6 +18,8 @@ using System.Web;
 using System.Web.Http;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.SqlClient;
 
 /* The following code is based on +https://aspnet.codeplex.com/SourceControl/latest#Samples/Identity . Description at +http://blogs.msdn.com/b/webdev/archive/2013/12/20/announcing-preview-of-microsoft-aspnet-identity-2-0-0-alpha1.aspx
  * Original file is Models/IdentityModels.cs
@@ -28,8 +30,8 @@ namespace Runnymede.Website.Models
 
     public static class AppClaimTypes
     {
-        public const string DisplayName = "engcos.com/DisplayName"; // We don't use System.Security.Claims.ClaimTypes.Name because of its length and to save on traffic costs.
-        public const string IsTeacher = "engcos.com/IsTeacher";
+        public const string DisplayName = "englm.com/DisplayName"; // We don't use System.Security.Claims.ClaimTypes.Name because of its length and to save on traffic costs.
+        public const string IsTeacher = "englm.com/IsTeacher";
     }
 
     public class ApplicationUser : IdentityUser<int, CustomUserLogin, CustomUserRole, CustomUserClaim>
@@ -41,18 +43,16 @@ namespace Runnymede.Website.Models
 
             // Add custom user claims
             const string sql = @"
-select DisplayName, IsTeacher
-from dbo.appUsers
-where Id = @Id
+select DisplayName, IsTeacher from dbo.appGetUser(@Id)
 ";
-            var appUser = (await DapperHelper.QueryResilientlyAsync<dynamic>(sql, new { Id = this.Id })).FirstOrDefault();
+            var appUser = (await DapperHelper.QueryResilientlyAsync<dynamic>(sql, new { Id = this.Id })).SingleOrDefault();
 
             if (appUser != null)
             {
                 var displayName = (string)appUser.DisplayName;
                 var isTeacher = (bool?)appUser.IsTeacher;
 
-                if (!string.IsNullOrWhiteSpace(displayName))
+                if (!String.IsNullOrWhiteSpace(displayName))
                 {
                     userIdentity.AddClaim(new Claim(AppClaimTypes.DisplayName, displayName));
                 }
@@ -89,6 +89,17 @@ where Id = @Id
         {
             return new ApplicationDbContext();
         }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            // Since Id is marked with [Key] attribute, Entity Framework expects an autoincremented column. We provide a custom value for Id. Tell EF to send our value on insert.
+            modelBuilder
+                .Entity<ApplicationUser>()
+                .Property(i => i.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+        } 
+
     }
 
     public class CustomUserStore : UserStore<ApplicationUser, CustomRole, int, CustomUserLogin, CustomUserRole, CustomUserClaim>

@@ -1,4 +1,6 @@
-﻿using Microsoft.Owin.Security.OAuth;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.Owin.Security.OAuth;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -11,37 +13,33 @@ namespace Runnymede.Website
     {
         public static void Register(HttpConfiguration config)
         {
-            // Web API configuration and services
-            // Configure Web API to use only bearer token authentication.
-            config.SuppressDefaultHostAuthentication();
-            config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
+            config.Filters.Add(new HostAuthenticationFilter(DefaultAuthenticationTypes.ApplicationCookie));        
 
-            // Web API routes
+            // Attribute routing.
             config.MapHttpAttributeRoutes();
 
-            config.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
-            );
+            // Convention-based routing.
+            //config.Routes.MapHttpRoute(
+            //    name: "DefaultApi",
+            //    routeTemplate: "api/{controller}/{id}",
+            //    defaults: new { id = RouteParameter.Optional }
+            //);
 
-            Configure(config);
+            CustomizeConfiguration(config);
         }
         
-        private static void Configure(HttpConfiguration config)
+        private static void CustomizeConfiguration(HttpConfiguration config)
         {
-            //config.EnableQuerySupport();
-
             // To disable tracing in your application, please comment out or remove the following line of code. For more information, refer to: +http://www.asp.net/web-api
             //config.EnableSystemDiagnosticsTracing();
 
-            var jsonFormatter = config.Formatters.JsonFormatter;
+            var jsonSettings = config.Formatters.JsonFormatter.SerializerSettings;
             // +http://www.asp.net/web-api/overview/formats-and-model-binding/json-and-xml-serialization
             // Here we configure it to write JSON property names with camel casing without changing our server-side data model:
-            jsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
-            jsonFormatter.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-            //json.SerializerSettings.DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore;
+            jsonSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            jsonSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            jsonSettings.DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Include;
+            jsonSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
         }
 
     }

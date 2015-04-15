@@ -1,0 +1,14 @@
+﻿@* Call angular.module().run(app.wrongClockDetector) to add isClockWrong to the root scope *@
+<div ng-if="isClockWrong" class="app-margin-bottom" ng-cloak>
+    <div class="row">
+        <div class="col-md-offset-2 col-md-8">
+            <div class="alert alert-danger">
+                <h4 class="text-center"><strong>Warning: Your computer's clock is potentially incorrect!</strong></h4>
+                <p>Please check that your computer's date and time are correct.</p>
+                <p>Also check your time zone setting. Your time may be correct for the place where you live, but your time zone might be set for another place.</p>
+                <p>If your clock is wrong, session shedule will not work properly.</p>
+                @*<a href="#" class="alert-link">Learn more ...</a>*@
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,185 @@
+﻿@{
+    ViewBag.Title = "Record speech";
+    /*
+    //"7374617274737065616b696e67656e676caurc8be6973682e636f6d3f6c6f63616c686f7374aurc0c2c4baceba139"; // startspeakingenglish.com,   localhost
+    //"7265766965776d79656e676c6973682e636f6d3f73746172747370aurc8be65616b696e67656e676c6973682e636f6d3f6c6f63616c686f7374aurc0c2c4baceba1fd"; // reviewmyenglish.com,   startspeakingenglish.com,   localhost
+    // "6469676e69636f6d2e636faurc8be6d3f6c6f63616c686f7374aurc0c2c4bacebac3"; // dignicom.com, localhost
+    // 656e676c632e636f6d3f617a75726577656273aurc8be697465732e6e65743f6c6f63616c686f7374aurc0c2c4baceba149  englc.com + azurewebsites.net + localhost
+    // 6469676e69636f6d2e636f6d3f617a7572657765aurc8be6273697465732e6e65743f6c6f63616c686f7374aurc0c2c4baceba16c dignicom.com + azurewebsites.net + localhost
+    // 656e676c697368617269756d2e636f6d3f617a757265aurc8be77656273697465732e6e65743f6c6f63616c686f7374aurc0c2c4baceba198 englisharium.com + azurewebsites.net + localhost
+    */
+}
+@section HeadScripts {
+    @Styles.Render(
+"~/bundles/animate-css"
+            //"~/bower_installer/ng-tags-input/ng-tags-input.min.css",
+            //"~/bower_installer/ng-tags-input/ng-tags-input.bootstrap.min.css"
+)
+    @Scripts.Render("~/bundles/swfobject")
+    <style>
+        object:focus {
+            outline: none;
+        }
+
+        label.my-file-label input[type="file"] {
+            position: fixed;
+            top: -1000px;
+            left: -1000px;
+        }
+    </style>
+}
+@* Do not use ng-cloak on the root div. We have two Flash players below *@
+<div ng-app="myApp" ng-controller="RecordSpeech">
+
+    <!-- Mobile recorder -->
+    <form class="form-horizontal app-margin-bottom" role="form"
+          method='post' name="recordingForm" action="save-recording-mobile" enctype="multipart/form-data" ng-submit="vm.onSubmit()">
+        <input type="hidden" name="recorderId" ng-value="vm.recorderId" />
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Recording title</label>
+            <div class="col-sm-7">
+                <input type="text" name="recordingTitle" class="form-control" ng-model="vm.recordingTitle" maxlength="100" />
+            </div>
+        </div>
+        <div class="form-group" ng-show="vm.mobile" ng-cloak>
+            <div class="col-sm-offset-3 col-sm-9">
+                <label class="my-file-label">
+                    <input type="file" name="fileInput" id="fileInput" accept="audio/*" capture
+                           onchange="app.exercises.RecordSpeech.onFileChange()" value="Start Recording" required />
+                    <span class="btn btn-primary btn-lg">Record speech</span>
+                </label>
+            </div>
+        </div>
+        <div class="form-group" ng-show="vm.mobile" ng-cloak>
+            <div class="col-sm-offset-3 col-sm-9">
+                <button type="submit" class="btn btn-default btn-lg app-btn-disablable" ng-disabled="!vm.fileReady()">
+                    <i class="fa app-1px-up"
+                       ng-class="{'fa-check fa-fw text-success animated flash app-fa-pulse':(vm.fileReady() && !vm.uploading), 'fa-spinner fa-fw fa-spin app-appblue':vm.uploading}"></i>
+                    <span>Save recording</span>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Flash recorder -->
+    <div class="text-center">
+        <div class="alert alert-danger" role="alert" ng-show="!vm.mobile && !vm.flashFound" ng-cloak>
+            <p>
+                To record speech you need to install Adobe Flash Player to your browser.
+                <a href="http://get.adobe.com/flashplayer" target="_blank">Get&nbsp;Adobe&nbsp;Flash&nbsp;Player</a>
+            </p>
+        </div>
+        <div id="toBeReplacedByAudiorSwfObject"></div>
+        <div style="margin-top:17px;" ng-show="!vm.mobile" ng-cloak>
+            @Html.Partial("_NotAuthenticatedSpanPartial")
+            <button class="btn btn-default app-btn-disablable" ng-disabled="!vm.canSave()" ng-click="vm.save()">
+                <i class="fa fa-check fa-fw text-success animated flash app-fa-pulse" ng-show="vm.canSave()"></i><span>Save recording</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-10">
+            <hr />
+            <h4 class="text-center app-margin-bottom-none"><a href="" ng-click="vm.opened = !vm.opened;vm.selectActivity(null)">Browse suggested topic ideas for your speech</a></h4>
+        </div>
+    </div>
+    <div class="app-margin-top app-margin-bottom-none" data-collapse="!vm.opened" ng-cloak>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <h4 class="text-right" style="margin-top:8px;">Choose&nbsp;activity</h4>
+                </div>
+                <div class="col-sm-8">
+                    <ul class="nav nav-pills app-nav-pills">
+                        <li ng-class="{active: vm.isTelling()}">
+                            <a href="" ng-click="vm.selectActivity(vm.ActivityTelling)">Tell about your experiences</a>
+                        </li>
+                        <li ng-class="{active: vm.isRetelling()}">
+                            <a href="" ng-click="vm.selectActivity(vm.ActivityRetelling)">Listen to and retell a story</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </form>
+    </div>
+    @* Do not hide the player! See comments in the partial. *@
+    <div class="row">
+        <div class="col-md-offset-1 col-md-3" data-collapse="!vm.selectedActivity" ng-cloak>
+            <h4>Choose&nbsp;category</h4>
+            @*<div class="list-group">
+                    <a class="list-group-item app" href="" ng-repeat="c2 in vm.categoriesL2" ng-class="{active: c2 === vm.selectedL2}" ng-click="vm.selectL2(c2)">
+                        <span class="app-appblue">{{c2.name}}</span>
+                    </a>
+                </div>*@
+            <div class="list-group">
+                <a class="list-group-item app" href="" ng-repeat="c3 in vm.categoriesL3" ng-class="{active: c3 === vm.selectedL3}" ng-click="vm.selectL3(c3)">
+                    <span class="app-appblue">{{c3.name}}</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <!-- _ResourceListPartial begin -->
+            @* Do not hide the player! See the comments in the partial. *@
+            @* @Html.Partial("_ResourceListPartial")*@
+            <!-- _ResourceListPartial end -->
+            <div class="pagination-sm" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="5" data-boundary-links="true" data-rotate="false"
+                 ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.load()"></div>
+        </div>
+
+        <div class="col-md-8" ng-show="vm.cards" ng-cloak>
+            <h4>Choose&nbsp;topic</h4>
+            <div ng-repeat="c in vm.cards">
+                <i class="fa fa-file-text-o fa-fw"></i>
+                <a href="" ng-click="vm.selectCard(c)">{{c.title}}</a>
+                <ul data-ng-repeat="l in c.lines" ng-show="c === vm.selectedCard">
+                    <li>{{l}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+@*@using (Html.BeginInstructionsContainer())
+    {
+        <ul>
+            <li>Choose the topic for your speech.</li>
+            <li>If there is more than one microphone available, you will see an option at the top of the recorder panel to select the appropriate one.</li>
+            <li>Press the big round button to start recording.</li>
+            <li>If you record for the first time, you will be present with a <em>Settings</em> dialog. Select <em>Allow</em> and <em>Remember</em>, then press the <em>Close</em> button. The dialog will no more appear after that.</li>
+            <li>Imagine you are speaking to your English teacher.</li>
+            <li>Speak clearly and loudly.</li>
+            <li>Don't start talking right away. Take a moment to collect yourself. Take a deep breath and begin speaking.</li>
+            <li>The current record duration is indicated in minutes and seconds at the bottom of the recorder panel, before the slash. The time limit is indicated after the slash, it is 5 minutes.</li>
+            <li>You may pause recording by pressing the small round button.</li>
+            <li>Press the big round button to stop recording.</li>
+            <li>After you have finished recording, wait while the record is being processed and uploaded to the website. It may take a couple of minutes.</li>
+            <li>
+                Here is the template that you can use to retell a story
+                <ul>
+                    <li>Who were the main characters?</li>
+                    <li>What problem did the main characters experience?</li>
+                    <li>What happened first, next, and last?</li>
+                    <li>How did the story end?</li>
+                    <!--<li>How was the problem solved?</li>-->
+                </ul>
+            </li>
+        </ul>
+    }*@
+@section BottomScripts {
+    <script type="text/javascript">
+        var app = app || {};
+        app.hostPageParam = 'HostPage_Recording';
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/shared/library-data.js",
+"~/app/shared/library.js",
+"~/app/exercises/recordSpeech-cardList.js",
+"~/app/exercises/utils.js",
+"~/app/exercises/recordSpeech.js"
+)}

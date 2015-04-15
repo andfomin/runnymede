@@ -10,26 +10,34 @@ using System.Web;
 using System.Xml.Linq;
 using Dapper;
 using Runnymede.Website.Models;
+using Runnymede.Common.Utils;
+using System.Net.Http;
+using System.Text;
+using System.Configuration;
 
 namespace Runnymede.Website.Utils
 {
     public class PayPalHelper
     {
-        private const string PayPalAddress = "https://www.paypal.com/cgi-bin/webscr";
         public const string PayPalUserNameHashSalt = "#Salt7B190B1B03B9#";
 
-        public PayPalHelper()
-        {
-        }
+#if DEBUG
+        private const string PayPalAddress = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+        private const string ReceiverEmail = "paypal-test-seller-usd%40englisharium.com";
+        // Payer: paypal-test-buyer-jp@englisharium.com / qwertyuiop
+#else
+        private const string PayPalAddress = "https://www.paypal.com/cgi-bin/webscr";
+        private const string ReceiverEmail = "paypal%40englisharium.com";
+#endif
 
         public string WriteLog(PayPalLogEntity.NotificationKind kind, string tx, string logData)
         {
-            if (string.IsNullOrEmpty(tx))
+            if (String.IsNullOrEmpty(tx))
             {
                 throw new ArgumentException();
             }
 
-            var rowKey = LoggingUtils.GetUniquifiedObservedTime();
+            var rowKey = KeyUtils.GetCurrentTimeKey();
 
             var entity = new PayPalLogEntity
             {
@@ -38,63 +46,95 @@ namespace Runnymede.Website.Utils
                 Kind = kind.ToString(),
                 LogData = logData,
             };
-            AzureStorageUtils.InsertEntry(AzureStorageUtils.TableNames.PaymentLog, entity);
+            AzureStorageUtils.InsertEntity(AzureStorageUtils.TableNames.PaymentLog, entity);
 
             return rowKey;
         }
 
-        public string RequestPaymentDetails(string tx)
+        //public string RequestPaymentDetails0(string tx)
+        //{
+        //    HttpWebRequest req = (HttpWebRequest)WebRequest.Create(PayPalAddress);
+
+        //    //Set values for the request
+        //    req.Method = "POST";
+        //    req.ContentType = "application/x-www-form-urlencoded";
+
+        //    string query = "cmd=_notify-synch&tx=" + tx + "&at=" + PayPalAuthToken;
+        //    req.ContentLength = query.Length;
+        //    using (var streamOut = new StreamWriter(req.GetRequestStream(), System.Text.Encoding.ASCII))
+        //    {
+        //        streamOut.Write(query);
+        //    }
+
+        //    //Send the request to PayPal and get the response
+        //    var webResponse = req.GetResponse();
+        //    string response;
+        //    using (var streamIn = new StreamReader(webResponse.GetResponseStream()))
+        //    {
+        //        response = streamIn.ReadToEnd();
+        //    }
+
+        //    return response;
+        //}
+
+        //public string VerifyIPN0(string message, string tx = null)
+        //{
+        //    //Post back
+        //    var req = (HttpWebRequest)WebRequest.Create(PayPalAddress);
+        //    req.Method = "POST";
+        //    req.ContentType = "application/x-www-form-urlencoded";
+        //    message += "&cmd=_notify-validate";
+        //    req.ContentLength = message.Length;
+
+        //    //Send the request to PayPal and get the response
+        //    using (var streamOut = new StreamWriter(req.GetRequestStream(), System.Text.Encoding.ASCII))
+        //    {
+        //        streamOut.Write(message);
+        //    }
+
+        //    var webResponse = req.GetResponse();
+        //    string response;
+        //    using (var streamIn = new StreamReader(webResponse.GetResponseStream()))
+        //    {
+        //        response = streamIn.ReadToEnd();
+        //    }
+
+        //    return response;
+        //}
+
+        public string RequestPayPal(string urlEncodedContent, string tx)
         {
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(PayPalAddress);
-
-            //Set values for the request
-            req.Method = "POST";
-            req.ContentType = "application/x-www-form-urlencoded";
-
-            // This is the seller's Payment Data Transfer authorization token found in "Website Payment Preferences" under the account.
-            string authToken = "RaKmpVPpjxMbCfvh21wxGlDohA8hLIFJov7rSoWZLQ6ib7xcWKDs4Dvs3N8";
-            string query = "cmd=_notify-synch&tx=" + tx + "&at=" + authToken;
-            req.ContentLength = query.Length;
-            using (var streamOut = new StreamWriter(req.GetRequestStream(), System.Text.Encoding.ASCII))
+            string result = null;
+            var content = new StringContent(urlEncodedContent, Encoding.ASCII, "application/x-www-form-urlencoded");
+            using (var client = new HttpClient())
             {
-                streamOut.Write(query);
+                var response = client.PostAsync(PayPalAddress, content).Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    result = response.Content.ReadAsStringAsync().Result;
+                }
+                else
+                {
+                    var errorMessage = String.Format("StatusCode:{1}; Reason:{2}; RequestContent:{0}", response.StatusCode.ToString(), response.ReasonPhrase, urlEncodedContent);
+                    WriteLog(PayPalLogEntity.NotificationKind.Error, tx, errorMessage);
+                }
             }
-
-            //Send the request to PayPal and get the response
-            var webResponse = req.GetResponse();
-            string response;
-            using (var streamIn = new StreamReader(webResponse.GetResponseStream()))
-            {
-                response = streamIn.ReadToEnd();
-            }
-
-            return response;
+            return result;
         }
 
-
-        public string VerifyIPN(string message)
+        // PDT +https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/paymentdatatransfer/
+        public string RequestPaymentDetails(string tx)
         {
-            //Post back
-            var req = (HttpWebRequest)WebRequest.Create(PayPalAddress);
-            req.Method = "POST";
-            req.ContentType = "application/x-www-form-urlencoded";
-            message += "&cmd=_notify-validate";
-            req.ContentLength = message.Length;
+            // This is the seller's Payment Data Transfer authorization token found in "Selling Preferences" -> "Website Payment Preferences" under the account.
+            var authToken = ConfigurationManager.AppSettings["PayPal.AuthToken"];
+            var urlEncodedContent = "cmd=_notify-synch&tx=" + tx + "&at=" + authToken;
+            return RequestPayPal(urlEncodedContent, tx);
+        }
 
-            //Send the request to PayPal and get the response
-            using (var streamOut = new StreamWriter(req.GetRequestStream(), System.Text.Encoding.ASCII))
-            {
-                streamOut.Write(message);
-            }
-
-            var webResponse = req.GetResponse();
-            string response;
-            using (var streamIn = new StreamReader(webResponse.GetResponseStream()))
-            {
-                response = streamIn.ReadToEnd();
-            }
-
-            return response;
+        public string VerifyIPN(string message, string tx)
+        {
+            var urlEncodedContent = message + "&cmd=_notify-validate";
+            return RequestPayPal(urlEncodedContent, tx);
         }
 
         public bool PostIncomingPaymentTransaction(IEnumerable<string> lines, string logRowKey)
@@ -112,6 +152,7 @@ namespace Runnymede.Website.Utils
 
             if (post)
             {
+
                 post =
                         pairs.ContainsKey("txn_id")
                         && pairs.ContainsKey("option_selection2")
@@ -121,27 +162,43 @@ namespace Runnymede.Website.Utils
                         && pairs.ContainsKey("mc_fee");
 
                 var extId = pairs["txn_id"];
-                var userName = HttpUtility.UrlDecode(pairs["option_selection2"]);
+                var userName = HttpUtility.UrlDecode(pairs["option_selection2"] ?? "");
                 decimal amount = 0;
                 post = post && decimal.TryParse(pairs["mc_gross"], out amount);
                 decimal fee = 0;
                 post = post && decimal.TryParse(pairs["mc_fee"], out fee);
                 post = post && (pairs["mc_currency"] == "USD");
-                post = post && (pairs["receiver_email"] == "paypal%40englc.com");
+                post = post && (pairs["receiver_email"] == ReceiverEmail);
 
                 if (!post)
                 {
                     throw new ArgumentException("Invalid payment details.");
                 }
 
-                // This value is displayd to the sender in the confirmation email from PayPal as "Receipt No".
-                string receiptId;
-                pairs.TryGetValue("receipt_id", out receiptId);
+                // Pre-2015: The "receipt_id" value is displayd to the sender in the confirmation email from PayPal as "Receipt No". 
+                // Update 20150324: The "receipt_id" value is now missing. The sender and the recepient get different Transaction ID values in their notification emails. txn_id (ExtId) in these transaction detals has another different value.
+                string taxText = null;
+                decimal? tax = null;
+                if (pairs.TryGetValue("tax", out taxText))
+                {
+                    decimal temp;
+                    tax = decimal.TryParse(taxText, out temp) ? (decimal?)temp : null;                
+                }
+                string residenceCountry;
+                pairs.TryGetValue("residence_country", out residenceCountry);
+                string memo;
+                pairs.TryGetValue("memo", out memo);
+                string payerId;
+                pairs.TryGetValue("payer_id", out payerId);
 
                 var transactionDetails =
                         new XElement("PayPalPayment",
-                            new XAttribute("ExtId", extId),
-                            new XAttribute("LogRowKey", logRowKey)
+                            new XAttribute("extId", extId),
+                            new XAttribute("logRowKey", logRowKey),
+                            new XElement("Tax", taxText),
+                            new XElement("ResidenceCountry", residenceCountry),
+                            new XElement("Memo", memo),
+                            new XElement("PayerId", payerId)
                         )
                         .ToString(SaveOptions.DisableFormatting);
 
@@ -150,7 +207,7 @@ namespace Runnymede.Website.Utils
 select count(*) from dbo.accPostedPayPalPayments where ExtId = @ExtId;
 ";
                 const string sqlPost = @"
-execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @ReceiptId, @Details;
+execute dbo.accPostIncomingPayPalPayment @UserName, @ExtId, @Amount, @Fee, @Tax, @Details;
 ";
 
                 post = (DapperHelper.QueryResiliently<int>(sqlCheck, new { ExtId = extId, }).First()) == 0;
@@ -160,10 +217,10 @@ execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @Rece
                     DapperHelper.ExecuteResiliently(sqlPost, new
                         {
                             UserName = userName,
+                            ExtId = extId,
                             Amount = amount,
                             Fee = fee,
-                            ExtId = extId,
-                            ReceiptId = receiptId,
+                            Tax = tax,
                             Details = transactionDetails
                         });
 
@@ -210,11 +267,11 @@ execute dbo.accPostIncomingPayPalPayment @UserName, @Amount, @Fee, @ExtId, @Rece
         /// </summary>
         public static string GetTimestampedUserName(string userName)
         {
-            var timeText = DateTime.UtcNow.ToBinary().ToString("X"); // 16 chars
+            var timeText = DateTime.UtcNow.ToBinary().ToString("X").ToLower(); // 16 chars
             var textToHash = userName + timeText + PayPalUserNameHashSalt;
             var bytesToHash = System.Text.Encoding.UTF8.GetBytes(textToHash);
             var hash = System.Security.Cryptography.MD5.Create().ComputeHash(bytesToHash);
-            var hashText = new Guid(hash).ToString("N").ToUpper(); // 32 chars
+            var hashText = new Guid(hash).ToString("N"); // 32 chars lower-case
             var text = timeText + hashText;
             var chunkSize = 24;
             // 49 chars = 2 chunks * 24 chars + 1 separating space.

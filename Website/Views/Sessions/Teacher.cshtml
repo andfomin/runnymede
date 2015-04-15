@@ -1,17 +1,78 @@
 ﻿@{
-    ViewBag.NavItem = "Sessions";
+    ViewBag.Title = "Sessions";
+    ViewBag.NavItem = "Teacher";
 }
 @section HeadScripts {
     @Styles.Render(
-"~/bower_installer/angular-bootstrap-datetimepicker/datetimepicker.css",
-"~/Content/fullcalendar/fullcalendar.css"
+"~/bower_installer/fullcalendar/fullcalendar.css"
     )
-}
-<div data-ng-app="app">
-    @Html.Partial("_ClockWarning")
-    <div data-ng-view=""></div>
-</div>
+    <style>
+        @@-webkit-keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
 
+            50% {
+                opacity: 0;
+            }
+        }
+
+        @@-moz-keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        @@keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        a.fc-event.app-session.app-session-selected {
+            -webkit-animation: blink 2s infinite;
+            -moz-animation: blink 2s infinite;
+            animation: blink 2s infinite;
+        }
+
+    </style>
+}
+<div ng-app="myApp" ng-cloak>
+    <div ng-controller="Teacher">
+        @Html.Partial("_ClockWrongPartial")
+        <div class="row">
+            <div class="col-lg-offset-1 col-lg-10">
+                <div class="row app-margin-bottom">
+                    <div class="col-sm-9">
+                        <ul class="list-inline list-unstyled">
+                            <li><strong>Legend</strong></li>
+                            <li><i class="fa fa-square fa-fw fa-lg app-2px-up app-appblue"></i>Proposed time slot</li>
+                            <li><i class="fa fa-square fa-fw fa-lg app-2px-up" style="color:#dff0d8;"></i>Accepted time slot</li>
+                            <li><i class="fa fa-square fa-fw fa-lg app-2px-up" style="color:#5cb85c;"></i>Booked session</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-primary btn-sm app-btn-disablable" ng-click="vm.acceptProposals()" ng-disabled="vm.selections.length == 0">Accept selected time slots</button>
+                    </div>
+                </div>
+                <div ng-model="vm.eventSources" data-ui-calendar="vm.calConfig" data-calendar="calObj"></div>
+            </div>
+        </div>
+    </div><!-- /Sessions -->
+</div><!-- /app -->
+<h4>Activity suggestions for a session</h4>
+<ul>
+    <li><a href="/games/pick-a-pic">Game "Pick a picture"</a></li>
+    <li><a href="http://iteslj.org/questions/" target="_blank">Topic questions</a></li>
+</ul>
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/angular",
@@ -19,17 +80,9 @@
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
 
-"~/bundles/angular-bootstrap",
-"~/bower_installer/angular-bootstrap-datetimepicker/datetimepicker.js",
-
-"~/Content/fullcalendar/fullcalendar.min.js",
+"~/bower_installer/fullcalendar/fullcalendar.min.js",
 "~/bower_installer/angular-ui-calendar/calendar.js",
 
-"~/App/Shared/utils-schedule.js",
-"~/App/Sessions/teacher-schedule.js",
-"~/App/Sessions/utils-session.js",
-"~/App/Sessions/teacher-session.js",
-"~/App/Sessions/teacher-app.js"
-)
-}
-
+"~/app/sessions/utils-sessions.js",
+"~/app/sessions/teacher.js"
+)}

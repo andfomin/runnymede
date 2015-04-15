@@ -1,88 +1,37 @@
-﻿<h3 class="page-header">{{pageTitle}}</h3>
-<div class="row">
-    <div class="col-sm-3">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <ul class="list-unstyled">
-                    <li><a href="#/personal">Personal</a></li>
-                    <li><a href="#/logins">Manage&nbsp;logins</a></li>
-                    <li>Teacher</li>
-                </ul>
+﻿<div data-ng-if="vm.profile.isTeacher">
+    <p>
+        Rate for Skype sessions is {{vm.profile.sessionRate}} US$/hour
+    </p>
+    <hr />
+    <!--<form class="form-horizontal" name="phoneForm" role="form" novalidate>
+        <div class="form-group">
+            <label class="col-sm-5 control-label" for="phoneNumber">Mobile phone number</label>
+            <div class="col-sm-4">
+                <input type="text" id="phoneNumber" name="phoneNumber" class="form-control" ng-model="vm.newPhone" />
+            </div>
+            <div class="col-sm-3" style="padding-top: 7px;">
+                <span class="text-success" ng-show="vm.isPhoneVerified()">Verified</span>
+                <span class="text-danger" ng-show="!vm.isPhoneVerified()">Not verified</span>
+                &nbsp;&nbsp; <span ng-show="!vm.isPhoneVerified() && vm.codeSent"><small>Verification code sent</small></span>
             </div>
         </div>
-    </div>
-    <div class="col-sm-9">
-        <div data-ng-if="vm.profile.isTeacher">
-            <form class="form-horizontal" name="teacherForm" role="form" novalidate>
-                <div class="form-group">
-                    <label class="col-md-2 control-label" for="announcement">Announcement</label>
-                    <div class="col-md-8">
-                        <textarea id="announcement" name="announcement" class="form-control" rows="20" data-ng-model="vm.profile.announcement" maxlength="1000" placeholder="Write your marketing message here"></textarea>
-                    </div>
-                    <div class="col-md-2">
-                        <span data-ng-show="vm.anntChanged"><small class="text-success">Announcement changed.</small></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" for="reviewRate">Review hourly rate, US&nbsp;dollars.</label>
-                    <div class="col-sm-2">
-                        <input type="text" id="reviewRate" name="reviewRate" class="form-control" data-ng-model="vm.profile.reviewRate" ng-pattern="/^\d+(?:(?:\.|,)\d{1,2})?$/" />
-                    </div>
-                    <div class="col-sm-6">
-                        <span ng-show="teacherForm.reviewRate.$error.pattern"><small class="text-danger">Dollars.cents, ex. 0.99</small></span>
-                        <span data-ng-show="vm.reviewRateChanged"><small class="text-success">Review hourly rate changed.</small></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" for="sessionRate">Session hourly rate, US&nbsp;dollars.</label>
-                    <div class="col-sm-2">
-                        <input type="text" id="sessionRate" name="sessionRate" class="form-control" data-ng-model="vm.profile.sessionRate" ng-pattern="/^\d+(?:(?:\.|,)\d{1,2})?$/" />
-                    </div>
-                    <div class="col-sm-6">
-                        <span ng-show="teacherForm.sessionRate.$error.pattern"><small class="text-danger">Dollars.cents, ex. 0.99</small></span>
-                        <span data-ng-show="vm.sessionRateChanged"><small class="text-success">Session hourly rate changed.</small></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-4 col-sm-6">
-                        <button type="submit" class="btn btn-primary" data-ng-click="vm.saveTeacher(teacherForm)" data-ng-disabled="teacherForm.$pristine || vm.sending">Save</button>
-                    </div>
-                </div>
-            </form>
-
-            <hr class="app-separator" />
-            <form class="form-horizontal" name="phoneForm" role="form" novalidate>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" for="phoneNumber">Phone number</label>
-                    <div class="col-sm-4">
-                        <input type="text" id="phoneNumber" name="phoneNumber" class="form-control" ng-model="vm.newPhone" />
-                    </div>
-                    <div class="col-sm-4" style="padding-top: 7px;">
-                        <span class="text-success" ng-show="vm.isPhoneVerified()">Verified</span>
-                        <span class="text-danger" ng-show="!vm.isPhoneVerified()">Not verified</span>
-                        &nbsp;&nbsp; <span ng-show="!vm.isPhoneVerified() && vm.codeSent"><small>Verification code sent</small></span>
-                    </div>
-                </div>
-                <div class="form-group" ng-hide="vm.isPhoneVerified() || vm.newPhone.length == 0 || vm.codeSent">
-                    <div class="col-sm-offset-4 col-sm-6">
-                        <button type="submit" class="btn btn-default" ng-click="vm.sendPhoneCode()" ng-disabled="vm.sending">Send verification code</button>
-                    </div>
-                </div>                
-                <div class="form-group" ng-show="!vm.isPhoneVerified() && vm.codeSent">
-                    <label class="col-sm-4 control-label" for="phoneCode">Verification Code</label>
-                    <div class="col-sm-2">
-                        <input type="number" id="phoneCode" name="phoneCode" class="form-control" ng-model="vm.phoneCode" />
-                    </div>
-                </div>
-                <div class="form-group" ng-show="!vm.isPhoneVerified() && vm.codeSent">
-                    <div class="col-sm-offset-4 col-sm-6">
-                        <button type="submit" class="btn btn-primary" data-ng-click="vm.submitPhoneCode()" ng-disabled="!vm.phoneCode || vm.sending">Submit</button>
-                    </div>
-                </div>
-            </form>
-
-
-
+        <div class="form-group" ng-hide="vm.isPhoneVerified() || vm.newPhone.length == 0 || vm.codeSent">
+            <div class="col-sm-offset-5 col-sm-6">
+                <button type="submit" class="btn btn-default btn-sm" ng-click="vm.sendPhoneCode()" ng-disabled="vm.sending">Send verification code</button>
+            </div>
         </div>
-    </div>
+        <div class="form-group" ng-show="!vm.isPhoneVerified() && vm.codeSent">
+            <label class="col-sm-5 control-label" for="phoneCode">Verification Code</label>
+            <div class="col-sm-2">
+                <input type="number" id="phoneCode" name="phoneCode" class="form-control" ng-model="vm.phoneCode" />
+            </div>
+        </div>
+        <div class="form-group" ng-show="!vm.isPhoneVerified() && vm.codeSent">
+            <div class="col-sm-offset-5 col-sm-6">
+                <button type="submit" class="btn btn-primary btn-sm" data-ng-click="vm.submitPhoneCode()" ng-disabled="!vm.phoneCode || vm.sending">Submit</button>
+            </div>
+        </div>
+    </form>-->
 </div>
+
+

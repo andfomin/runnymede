@@ -5,52 +5,81 @@
         return navItem == ViewBag.NavItem ? "active" : "";
     }
 }
+@{
+    var avatarUrl = AzureStorageUtils.GetBlobUrl(AzureStorageUtils.ContainerNames.AvatarsSmall, Runnymede.Common.Utils.KeyUtils.IntToKey(Model.UserId), Request.IsSecureConnection);
+}
 <nav class="navbar navbar-default navbar-static-top" role="navigation">
     <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-            <a class="navbar-brand" href="/">English Cosmos</a>
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#headerCollapse">
+            @*<div class="navbar-brand app app-collapsable-brand">*@
+            <div class="navbar-brand app">
+                @Html.ActionLink("Englisharium", "Index", "Home", null, new { @class = "app-appyellow", @style = "text-decoration:none;" })
+            </div>
+            @*<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#headerCollapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>*@
+            <button type="button" class="navbar-toggle" style="padding:4px 10px 5px;" data-toggle="collapse" data-target="#headerCollapse">
                 <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+                <span style="color:white;font-size:15px;">Menu<b class="caret"></b></span>
             </button>
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="headerCollapse">
-            <ul class="nav navbar-nav">
-                <li class="@NavClass("Home")">@Html.ActionLink("Home", "Index", "Home")</li>
+            <ul class="nav navbar-nav app">
+                <li class="@NavClass("Library")">@Html.ActionLink("Library", "Index", "Library")</li>
                 @if (Model.IsTeacher)
                 {
-                    <li class="@NavClass("Sessions")">@Html.ActionLink("Sessions", "Teacher", "Sessions", null, null, "/schedule", null, new { tabindex = "-1" })</li>
-                    <li class="@NavClass("Reviews")">@Html.ActionLink("Reviews", "Index", "Reviews")</li>
-                    <li class="@NavClass("Requests")">@Html.ActionLink("Requests", "Requests", "Reviews")</li>
-                }
-                else
-                {
-                    <li class="@NavClass("Teachers")">@Html.ActionLink("Teachers", "Index", "Teachers")</li>
-                    <li class="@NavClass("Sessions")">@Html.ActionLink("Sessions", "Learner", "Sessions", null, null, "/schedule", null, new { tabindex = "-1" })</li>
-                    <li class="@NavClass("Exercises")">@Html.ActionLink("Exercises", "Index", "Exercises")</li>
-                    <li class="@NavClass("Reports")">@Html.ActionLink("Reports", "Index", "Statistics")</li>
-                }
-                @*<li class="dropdown @NavClass("Search")">
-                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Search<b class="caret"></b></a>
+                    <li class="dropdown app-dropdown-hover @NavClass("Teacher")">
+                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Teacher<b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li>@Html.ActionLink("IELTS", "Ielts", "Search", null, new { tabindex = "-1" })</li>
+                            <li>@Html.ActionLink("Reviews of exercises", "Index", "Reviews", null, new { tabindex = "-1" })</li>
+                            <li class="divider"></li>
+                            <li>@Html.ActionLink("Live sessions", "Teacher", "Sessions")</li>
                         </ul>
-                    </li>*@
-                <li class="@NavClass("Resources")">@Html.ActionLink("Resources", "Youtube", "Resources")</li>
+                    </li>
+                }
+                @if (!Model.IsTeacher)
+                {
+                    <li class="dropdown app-dropdown-hover @NavClass("Exercises")">
+                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Exercises<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li>@Html.ActionLink("Speaking", "Index", "Exercises", null, null, "/speaking", null, new { tabindex = "-1" })</li>
+                            <li>@Html.ActionLink("Writing", "Index", "Exercises", null, null, "/writing", null, new { tabindex = "-1" })</li>
+                            @*<li class="divider"></li>
+                            <li>@Html.ActionLink("Live sessions", "Index", "Sessions")</li>*@
+                        </ul>
+                    </li>
+                }
+                <li class="dropdown app-dropdown-hover @NavClass("Games")">
+                    <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">Games<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li>@Html.ActionLink("Pick a picture", "PickAPic", "Games", null, new { tabindex = "-1" })</li>
+                        <li>@Html.ActionLink("Copycat", "Copycat", "Games", null, new { tabindex = "-1" })</li>
+                    </ul>
+                </li>
+                @if (!Model.IsTeacher)
+                {
+                    <li>@Html.ActionLink("Conversations", "Index", "Conversations")</li>
+                }
             </ul>
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav navbar-right app">
                 @if (Request.IsAuthenticated)
                 {
-                    <li class="dropdown @NavClass("Account")">
-                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span>&nbsp;@Model.DisplayName<b class="caret"></b></a>
+                    @*<li>
+                            @Html.Raw(
+                             @Html.ActionLinkWithProtocol("[replacetext]", "Edit", "Account", "https", new { tabindex = "-1", @class = "app-collapsable-avatar", @style = "padding:4px;" })
+                            .ToHtmlString()
+                             .Replace("[replacetext]", "<img class=\"img-circle\" id=\"navAvatar\" width=\"32\" height=\"32\" src=\"" + @avatarUrl + "\" title=\"" + @Model.DisplayName + "\" />")
+                        )
+                        </li>*@
+                    <li class="dropdown app-dropdown-hover @NavClass("Account")">
+                        <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">@Model.DisplayName<b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li>@Html.ActionLinkWithProtocol("Edit profile", "Edit", "Account", "https", new { tabindex = "-1" })</li>
-                            <li>@Html.ActionLinkWithProtocol("View balance", "Balance", "Account", "https", new { tabindex = "-1" })</li>
-                            @*<li>@Html.ActionLinkWithProtocol("Add money to account", "AddMoney", "Account", "https", new { tabindex = "-1" })</li>*@
+                            <li>@Html.ActionLinkWithProtocol("Profile", "Edit", "Account", "https", new { tabindex = "-1" })</li>
+                            <li>@Html.ActionLinkWithProtocol("Balance", "Balance", "Account", "https", new { tabindex = "-1" })</li>
                             <li class="divider"></li>
                             <li>@Html.ActionLinkWithProtocol("Log out", "Logout", "Account", "http", new { tabindex = "-1" })</li>
                         </ul>

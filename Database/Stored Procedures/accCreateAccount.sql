@@ -3,7 +3,7 @@
 
 CREATE PROCEDURE [dbo].[accCreateAccount]
 	@UserId int,
-	@AccountTypeId char(4)
+	@Type char(6)
 AS
 BEGIN
 /*
@@ -11,6 +11,7 @@ Creates a new money account for a user. Initializes zero balance on the account.
 
 20121015 AF. Initial release.
 20131001 AF. Reincarnation.
+20141228 AF Migration from dbo.accAccountTypes to dbo.appTypes
 */
 SET NOCOUNT ON;
 declare @ExternalTran int, @XState int, @ProcName sysname;
@@ -22,23 +23,29 @@ begin try
 
 	declare @IsDebit bit, @AccountId int, @TransactionId int;
 
-	select @AccountTypeId = Id, @IsDebit = IsDebit from dbo.accAccountTypes where Id = @AccountTypeId;
+	select @IsDebit = C.value('.', 'bit')
+	from (
+		select Id, convert(xml, [Description]) as [Description]
+		from dbo.appTypes
+		where Id = @Type
+	) q
+		cross apply q.[Description].nodes('/IsDebit') T(C);
 
-	if @AccountTypeId is null or @IsDebit is null
+	if @IsDebit is null
 	begin
-		raiserror('%s:: One or more accounting constants not found.', 16, 1, @ProcName);  
+		raiserror('%s:: Account property not found.', 16, 1, @ProcName);  
 	end;
 
 	if @ExternalTran = 0
 		begin transaction;
 
-	insert dbo.accAccounts (AccountTypeId, UserId)
-		values (@AccountTypeId, @UserId);
+	insert dbo.accAccounts ([Type], UserId)
+		values (@Type, @UserId);
 
 	select @AccountId = scope_identity() where @@rowcount != 0;
 
-	insert dbo.accTransactions (TransactionTypeId)
-		values ('NACC');
+	insert dbo.accTransactions ([Type])
+		values ('TRNACC');
 
 	select @TransactionId = scope_identity() where @@rowcount != 0;
 

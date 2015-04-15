@@ -1,72 +1,32 @@
-module App.Account_Edit {
+module app.account_edit {
 
     export class Teacher {
 
-        profile: App.Model.IUser;
-
+        profile: app.IUser;
         sending: boolean;
-        displayNameChanged: boolean;
-        skypeChanged: boolean;
-        reviewRateChanged: boolean;
-        sessionRateChanged: boolean;
-        anntChanged: boolean;
         codeSent: boolean = false;
         phoneCode: string;
         newPhone: string;
         phoneToVerify: string;
 
-        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http];
+        static $inject = [app.ngNames.$scope, app.ngNames.$http];
 
         constructor(
-            private $scope: App.Utils.IScopeWithViewModel,
-            private $http: ng.IHttpService
+            private $scope: app.IScopeWithViewModel,
+            private $http: angular.IHttpService
             ) {
             $scope.vm = this;
             this.load();
-
         } // end of ctor
         
         private load = () => {
-            App.Utils.ngHttpGet(this.$http,
-                App.Utils.accountApiUrl('TeacherProfile'),
+            app.ngHttpGet(this.$http,
+                app.accountsApiUrl('teacher_profile'),
+                null,
                 (data) => {
                     this.profile = data;
                     this.newPhone = this.profile.phoneNumber;
                 });
-        }
-
-        clearChanged() {
-            this.reviewRateChanged = false;
-            this.sessionRateChanged = false;
-            this.anntChanged = false;
-        }
-
-        saveTeacher(form: ng.IFormController) {
-            if (form.$valid) {
-                this.sending = true;
-                this.clearChanged();
-                var reviewRateDirty = (<any>form).reviewRate.$dirty ? true : false;
-                var sessionRateDirty = (<any>form).sessionRate.$dirty ? true : false;
-                var anntDirty = (<any>form).announcement.$dirty ? true : false;
-
-                App.Utils.ngHttpPut(this.$http,
-                    Utils.accountApiUrl('TeacherProfile'),
-                    {
-                        reviewRate: reviewRateDirty ? this.profile.reviewRate : null,
-                        sessionRate: sessionRateDirty ? this.profile.sessionRate : null,
-                        announcement: anntDirty ? this.profile.announcement : null,
-                    },
-                    () => {
-                        form.$setPristine();
-                        this.reviewRateChanged = reviewRateDirty;
-                        this.sessionRateChanged = sessionRateDirty;
-                        this.anntChanged = anntDirty;
-                    },
-                    () => {
-                        this.sending = false;
-                    }
-                    );
-            }
         }
 
         isPhoneVerified() {
@@ -75,8 +35,8 @@ module App.Account_Edit {
 
         sendPhoneCode() {
             this.sending = true;
-            App.Utils.ngHttpPost(this.$http,
-                Utils.accountApiUrl('PhoneNumber'),
+            app.ngHttpPost(this.$http,
+                app.accountsApiUrl('phone_number'),
                 {
                     phoneNumber: this.newPhone
                 },
@@ -90,8 +50,8 @@ module App.Account_Edit {
 
         submitPhoneCode() {
             this.sending = true;
-            App.Utils.ngHttpPost(this.$http,
-                Utils.accountApiUrl('PhoneVerification'),
+            app.ngHttpPost(this.$http,
+                app.accountsApiUrl('phone_verification'),
                 {
                     phoneNumber: this.newPhone,
                     phoneCode: this.phoneCode

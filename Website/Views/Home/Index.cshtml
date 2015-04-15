@@ -1,133 +1,323 @@
 ﻿@{
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.HeadTitle = "Practice speaking English";
     ViewBag.NavItem = "Home";
     bool isAuthenticated = Request.IsAuthenticated;
 }
 <style type="text/css">
-    .my-centered {
-        text-align: center;
+    #myJumbotron {
+        padding: 32px 0;
     }
 
-    h3.my-header {
-        margin-top: 0;
-        margin-bottom: 14px;
-        color: #ac1f28; /* appRed */
-        text-align: center;
+        #myJumbotron .btn.btn-primary.btn-lg {
+            border-top-color: rgb(0,158,234);
+            border-left-color: rgb(0,158,234);
+            border-right-color: rgb(0,158,234);
+        }
+
+    #myContainer {
+        margin: 0;
+        overflow: hidden;
+    }
+
+        #myContainer > div {
+            float: left;
+        }
+
+    #myList > ul {
+        margin: 0;
+        padding: 0 5px;
+        list-style: none;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    #myList li:before {
+        display: inline-block;
+        margin-right: 10px;
+        width: 12px;
+        height: 12px;
+        border-radius: 12px;
+        border: 3px solid #ac1f28; /* appRed */
+        background-color: white;
+        content: " ";
+    }
+
+    #myList li.active:before {
+        border-color: white;
+    }
+
+    .my-shadow {
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+    }
+
+    #myCall {
+        padding-right: 10px;
+    }
+
+    #myCarousel {
+        margin-top: 32px;
+    }
+
+    .carousel-control {
+        width: 10%;
+    }
+
+    .carousel-inner .item .my-screenshot {
+        padding: 0;
+        overflow: hidden;
+    }
+
+        /* +http://www.cssmatic.com/box-shadow */
+        .carousel-inner .item .my-screenshot img {
+            margin: 0 auto;
+            /*box-shadow: 0px 0px 20px 20px white;*/
+            border-radius: 3px;
+        }
+
+    .carousel-inner .item .my-description {
+        padding: 20px 25px 0;
+        font-size: 14px;
+    }
+
+    #myCopy {
+        font-size: 14px;
     }
 </style>
-<br />
-<div class="jumbotron">
-    <div class="row">
-        <div class="col-md-offset-1 col-md-11">
-            <h3 class="app-jumbotron-heading">Learn English naturally. Learn the language by speaking it!</h3>
-        </div>
-    </div>
-    <div class="row">
-        <div class="@(isAuthenticated ? "col-md-offset-2 col-md-8" : "col-md-offset-1 col-md-8")" style="font-size:larger;">
-            <ul>
-                <li>Find speaking partners or practice individually.</li>
-                <li>Record your conversations and speeches.</li>
-                <li>Have your exercises reviewed and corrected by teachers.</li>
-                <li>Analyze statistics of your mistakes.</li>
-            </ul>
-        </div>
-        @if (!isAuthenticated)
-        {
-            <div class="col-md-3 my-centered">
-                <br />&nbsp;
-                @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Signup", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
+
+<div class="row">
+    <div class="col-lg-offset-1 col-lg-10">
+        <div class="jumbotron app-margin-top" id="myJumbotron">
+            <div class="text-center" style="padding:0 10px;">
+                <h3 class="app-margin-top-none app-margin-bottom app-appyellow my-shadow">Learn&nbsp;English&nbsp;naturally. &nbsp;Pass&nbsp;exam&nbsp;easily.</h3>
             </div>
-        }
+            <div class="row" id="myContainer">
+                <div class="my-space">&nbsp;</div>
+                <div id="myList">
+                    <ul>
+                        <li class="my-indicator active" onclick="mySlideTo(0);">Watch hundreds of lessons <span class="app-appyellow my-shadow">for&nbsp;free</span></li>
+                        <li class="my-indicator" onclick="mySlideTo(1);">Find speaking partners or practice individually <span class="app-appyellow my-shadow">for&nbsp;free</span></li>
+                        <li class="my-indicator" onclick="mySlideTo(2);">Have fun by playing games with friends or alone <span class="app-appyellow my-shadow">for&nbsp;free</span></li>
+                        <li class="my-indicator" onclick="mySlideTo(3);">Get your speaking exercises reviewed by teachers</li>
+                        <li class="my-indicator" onclick="mySlideTo(4);"><span class="app-appyellow my-shadow">New<span style="margin-left:1px;">!</span></span> Have your <em>handwritten</em> texts reviewed by teachers</li>
+                        <li class="my-indicator" onclick="mySlideTo(5);">Let qualified teachers guide your exam preparation</li>
+                    </ul>
+                </div>
+                @if (!isAuthenticated)
+                {
+                    <div class="hidden-xs my-space">&nbsp;</div>
+                    <div class="hidden-xs" id="myCall">
+                        @Html.ActionLinkWithProtocol("Join for free", "Signup", "Account", "https", new { @class = "btn btn-primary btn-lg" })
+                    </div>
+                }
+            </div>
+
+            <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="8000">
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner" role="listbox">
+                    <div class="item active">
+                        <div class="row">
+                            <div class="col-sm-offset-1 col-sm-5 my-screenshot">
+                                <img class="img-responsive" src="/content/images/youtube-voa.jpg">
+                            </div>
+                            <div class="col-sm-4 my-description">
+                                Although there are so many learning resources available, since they are all categorized and indexed, you can quickly find what you need and even compile your own collection.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="row">
+                            <div class="col-sm-offset-1 col-sm-5 my-screenshot">
+                                <img class="img-responsive" src="/content/images/happy-learner.jpg">
+                            </div>
+                            <div class="col-sm-4 my-description">
+                                Start practicing by retelling stories and record as many attempts as you wish. Then join other learners who want to communicate and cooperate on Skype.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="row">
+                            <div class="col-sm-offset-1 col-sm-5 my-screenshot">
+                                <img class="img-responsive" src="/content/images/cooperation-240.jpg">
+                            </div>
+                            <div class="col-sm-4 my-description">
+                                You will enjoy playing the games regardless of whether you are a beginner or an advanced speaker.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="row">
+                            <div class="col-sm-offset-1 col-sm-5 my-screenshot">
+                                <img class="img-responsive" src="~/content/images/teacher.jpg">
+                            </div>
+                            <div class="col-sm-4 my-description">
+                                You will progress faster if you get professional feedback about your exercises. You can get it any time you need it.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="row">
+                            <div class="col-sm-offset-1 col-sm-5 my-screenshot">
+                                <img class="img-responsive" src="/content/images/writing.jpg">
+                            </div>
+                            <div class="col-sm-4 my-description">
+                                You maybe want to be able to write 150 words in 20 minutes or 250 words in 40 minutes and you maybe want to know how good your writing is.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="row">
+                            <div class="col-sm-offset-1 col-sm-5 my-screenshot">
+                                <a href='@Url.Action("Ielts", "Info")'>
+                                    <img class="img-responsive" src="/content/images/ielts-test-240.jpg">
+                                </a>
+                            </div>
+                            <div class="col-sm-4 my-description">
+                                You will progress faster and achive better results if you know what exactly you need to emprove. Teachers can help you with setting priorities and correcting your learning plan.
+                                <a href='@Url.Action("Ielts", "Info")' class="app-margin-left-half"><strong>...</strong><i class="fa fa-chevron-right fa-fw"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <!-- Controls -->
+                <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+
+            @if (!isAuthenticated)
+            {
+                <div class="visible-xs-block text-center app-margin-top">
+                    @Html.ActionLinkWithProtocol("Join for free", "Signup", "Account", "https", new { @class = "btn btn-primary btn-lg" })
+                </div>
+            }
+
+        </div>
     </div>
 </div>
 
-<div style="font-size:larger;">
-    <hr class="app-separator" />
-    <div class="row">
-        <div class="col-sm-offset-1 col-sm-5 my-centered">
-            <h3 class="my-header">Learners</h3>
+<hr class="app-appred" />
+<div id="myCopy">
+    <div class="row app-margin-bottom">
+        <div class="col-md-offset-1 col-lg-offset-2 col-sm-10">
+            <h3 class="app-appred">The easiest way to start speaking</h3>
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-offset-1 col-sm-5">
+        <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4">
+            <p class="visible-xs-block text-center">
+                <img src="/content/images/do-you-speak-english.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
             <p>
                 You cannot learn to speak English by reading textbooks or watching movies. You need to practice it. And you need feedback to know whether you are speaking correctly.
             </p>
-        </div>
-        <div class="col-sm-5 my-centered">
-            <img src="/Content/Images/do-you-speak-english.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
-        </div>
-    </div>
-    <br />
-    <div class="row">
-        <div class="col-sm-offset-1 col-sm-5">
+            <p class="visible-xs-block text-center">
+                <img src="/content/images/shy-learner.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
             <p>
                 But the problem is that most people do not like making mistakes publicly, and teachers do not like interrupting students by pointing out every single mistake.
             </p>
-        </div>
-        <div class="col-sm-5 my-centered">
-            <img src="/Content/Images/shy-learner.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
-        </div>
-    </div>
-    <br />
-    <div class="row">
-        <div class="col-sm-offset-1 col-sm-5">
-            <p>
-                There is an idea on how to practice speaking English more comfortably. A teacher can be given a tool to provide feedback to a learner’s speech after it is done, by annotating a record of the speech. This way, we avoid embarrassing the learner. Learners also get the opportunity to analyze statistics of their mistakes and adjust their learning plan accordingly.
+            <p class="visible-xs-block text-center">
+                <img src="/content/images/learner-teddybear.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
             </p>
-            <p>@Html.ActionLink("More...", "HowItWorks", "Info")</p>
-        </div>
-        <div class="col-sm-5 my-centered">
-            <img src="/Content/Images/learner-teddybear.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
-        </div>
-    </div>
-    <hr class="app-separator" />
-    <div class="row">
-        <div class="col-sm-offset-1 col-sm-5 my-centered">
-            <h3 class="my-header">Teachers</h3>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-offset-1 col-sm-5">
             <p>
-                Although Skype is an awesome teaching medium, scheduling sessions with parties scattered around the globe is a cumbersome process. Now you can ignore time zones and work even while learners are sleeping. Work the way you want and get paid.
+                There is an idea about how to learn speaking English more comfortably. A teacher can provide feedback to a learner’s speech after it is done, for example, by annotating a record of the speech. This way, we avoid embarrassing the learner.
             </p>
-            <p>@Html.ActionLink("More...", "HowItWorks", "Info")</p>
-        </div>
-        <div class="col-sm-5 my-centered">
-            <img src="/Content/Images/teacher.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
-        </div>
-    </div>
-    <hr class="app-separator" />
-    <div class="row">
-        <div class="col-sm-offset-1 col-sm-5 my-centered">
-            <h3 class="my-header">&nbsp;All together</h3>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-offset-1 col-sm-5">
+            @*<p>
+                    Professor Orlando&nbsp;R.&nbsp;Kelm has written a <a href="https://orkelm.wordpress.com/2014/01/07/correct-me-please/" target="_blank">good description</a> of such approach:
+                    "Here’s my strategy. There are two parts: First, I like to have a correction guru, somebody who becomes my go-to person who can tell me what I’m saying wrong. Second part, I like to ask my correction guru to simply listen to my speech, jot a few notes down, and then at a separate time we sit down together to review notes."
+                </p>*@
             <p>
-                If you want to find a conversation partner, you are welcome to join the directory of the learners and teachers who are available on Skype. In this case, learners are also able to record fragments of their Skype conversations and get them reviewed by teachers.
+                This approach is based on the idea <a href="https://orkelm.wordpress.com/2014/01/07/correct-me-please/" target="_blank">described</a> by Professor Orlando&nbsp;R.&nbsp;Kelm:
+                &quot;Here's my strategy. There are two parts: First, I like to have a correction guru, somebody who becomes my go-to person who can tell me what I'm saying wrong. Second part, I like to ask my correction guru to simply listen to my speech, jot a few notes down, and then at a separate time we sit down together to review notes.&quot;
             </p>
         </div>
-        <div class="col-sm-5 my-centered">
-            <img src="/Content/Images/skype-together.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+        <div class="col-sm-5 hidden-xs text-center app-margin-bottom">
+            <p>
+                <img src="/content/images/do-you-speak-english.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
+            <p>
+                <img src="/content/images/shy-learner.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
+            <p>
+                <img src="/content/images/learner-teddybear.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </p>
+        </div>
+    </div>
+    @*<div class="row app-margin-bottom">
+            <div class="col-md-offset-1 col-lg-offset-2 col-sm-10">
+                <h3 class="app-margin-top-none app-appred">The more you speak, the better you speak</h3>
+            </div>
+        </div>
+        <div class="row app-margin-bottom">
+            <div class="col-sm-5 col-sm-push-6 text-center app-margin-bottom">
+                <img src="/content/images/skype-together.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+            </div>
+            <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
+                Although Skype is an awesome communication medium, scheduling sessions with parties scattered around different time zones is a cumbersome process. Now you have got a schedule tool to easily arrange and manage multiple speaking sessions with other learners and teachers. There is no more excuse for not playing the speaking games.
+            </div>
+        </div>*@
+    <div class="row app-margin-top app-margin-bottom">
+        <div class="col-md-offset-1 col-lg-offset-2 col-sm-10">
+            <h3 class="app-margin-top-none app-appred">Start speaking today</h3>
+        </div>
+    </div>
+    <div class="row app-margin-bottom">
+        <div class="col-sm-5 col-sm-push-6 text-center app-margin-bottom">
+            <img src="~/content/images/conversation-three-240.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+        </div>
+        <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
+            The main goal of Englisharium is to provide learners of English with all possible options to practice speaking. Whether you are a beginner or an advanced speaker, you will find here a number of activities appropriate for your level. If you are ready to do something new, simply explore the menu items at the top of the page.
         </div>
     </div>
     @if (!isAuthenticated)
     {
-        <hr class="app-separator" />
-        <div class="row">
-            <div class="col-sm-offset-4 col-sm-4">
-                @Html.ActionLink(HttpUtility.HtmlDecode("Try it for free"), "Signup", "Account", null, new { @class = "btn btn-primary btn-lg btn-block" })
-            </div>
+        <div class="text-center">
+            @Html.ActionLink("Join for free", "Signup", "Account", null, new { @class = "btn btn-primary btn-lg" })
         </div>
     }
-
-
-
-
-
 </div>
-@*<br />&nbsp;*@
+@section BottomScripts {
+    <script>
+        var setSpace = function () {
+            window.setTimeout(function () {
+                var cn = $('#myContainer');
+                var lt = $('#myList');
+                var ca = $('#myCall');
+                var caw = ca.outerWidth(); // null if absent, 0 if hidden
+                var space = (cn.width() - lt.outerWidth() - caw) / (caw > 1 ? 3 : 2);
+                $('.my-space').width(space);
+                ca.css('padding-top', '0px'); // Workaround. Otherwise, if the window width jumps from minimum to maximum, cn.height() is bigger and the button is placed too low.
+                var cap = (cn.height() - ca.height()) / 2;
+                ca.css('padding-top', cap + 'px');
+            }, 0);
+        };
+        $(window).resize(setSpace);
+        $().ready(setSpace);
+
+        $('#myCarousel').on('slide.bs.carousel', function (e) {
+            var indicators = $('.my-indicator');
+            if (indicators.length) {
+                indicators.filter('.active').removeClass('active');
+                var i = $('#myCarousel .item').index(e.relatedTarget);
+                var next = indicators[i];
+                next && $(next).addClass('active');
+            }
+        });
+
+        function mySlideTo(to) {
+            $('#myCarousel').carousel(to);
+        };
+
+        $(function () {
+            $('[data-toggle="popover"]').popover()
+        });
+
+    </script>
+}

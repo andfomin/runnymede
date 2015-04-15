@@ -3,6 +3,7 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
+using Newtonsoft.Json.Linq;
 using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
@@ -12,11 +13,18 @@ using System.Data.Entity;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using System.Xml.Linq;
+using Dapper;
+using Runnymede.Common.Utils;
+using System.Windows.Media.Imaging;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Configuration;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
@@ -24,55 +32,84 @@ namespace Runnymede.Website.Controllers.Mvc
     public class ExercisesController : Runnymede.Website.Utils.CustomController
     {
         // GET: /exercises/
+        [AllowAnonymous]
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: /exercises/record?topic=12345678
-        public ActionResult Record(string topic = null)
+        // GET: /exercises/record-speech
+        [AllowAnonymous]
+        public ActionResult RecordSpeech()
         {
-            IEnumerable<string> model = null;
-            if (!string.IsNullOrEmpty(topic))
-            {
-                var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.Topics);
-                var filter = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, topic);
-                var query = new TableQuery<TopicEntity>().Where(filter);
-                var entity = table.ExecuteQuery(query).Single();
-
-                ViewBag.TopicId = topic;
-
-                var title = entity.RowKey ?? "";
-                ViewBag.TopicTitle = title;
-                ViewBag.TopicShortTitle = title.Length <= UploadUtils.MaxExerciseTitleLength ? title : title.Substring(0, UploadUtils.MaxExerciseTitleLength);
-
-                var lines = entity.Lines ?? "";
-                model = lines.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-            }
-            return View(model);
+            return View();
         }
 
-        // Do not capitalize letters within the action name. Otherwise the route will get dashes inserted whereas letters will be still lower-case anyway.
-        // Audior hardcodes the path prefix, so the routing has limited options.
-        // POST: /exercises/saverecording
+        // GET: /exercises/photograph-writing
+        [AllowAnonymous]
+        public ActionResult PhotographWriting()
+        {
+            return View();
+        }
+
+        // GET: /view/2000000001 by ExerciseId
+        [ActionName("View")] // Be carefull, the term "View" has a special meaning in ASP.NET MVC. There is method View() in the base class.
+        public async Task<ActionResult> ViewExercise(int id)
+        {
+            var exercises = await ReviewsController.QueryExerciseReviews("dbo.exeGetExerciseWithReviews", this.GetUserId(), id);
+
+            // We got a few rows of the same Exercise, joined with different Reviews. Group them into a single Exercise.               
+            var reviews = exercises
+                .SelectMany(i => i.Reviews)
+                .Where(i => i is ReviewDto) // Otherwise an absent review is deserialized by Dapper as null. i.e [null].
+                .OrderBy(i => i.RequestTime)
+                .ToList(); // ToList() is needed, otherwise a mistical StackOverflow occurs within IIS.
+            // Use the first Exercise as a single instance. Make it the common parent of all Reviews.
+            var exercise = exercises.First();
+            exercise.Reviews = reviews;
+
+            ViewBag.ExerciseParam = exercise;
+
+            switch (exercise.Type)
+            {
+                case ExerciseType.WritingPhoto:
+                    return View("ViewWriting");
+                case ExerciseType.AudioRecording:
+                    return View("ViewRecording");
+                default:
+                    return HttpNotFound(exercise.Type);
+            }
+        }
+
+        // GET: /exercises/upload?dir=BASE64_ENCODED_STRING
+        public ActionResult Upload(string dir = "")
+        {
+            byte[] encodedDataAsBytes = System.Convert.FromBase64String(dir);
+            string userDir = System.Text.Encoding.Unicode.GetString(encodedDataAsBytes);
+            ViewBag.UserDir = userDir;
+            return View();
+        }
+
+        // The action name corresponds to the path in audior_settings.xml.
+        // Audior hardcodes the path prefix, so routing has limited options.
+        // POST: /exercises/save-recording
         [HttpPost]
-        public string saverecording(double duration, string recorderId = null, string userId = null)
+        public async Task<string> SaveRecording(double duration, string recorderId = null)
         {
             bool success = false;
             try
             {
                 using (var stream = Request.InputStream)
                 {
-                    UploadUtils.SaveRecording(
-                                                stream,
-                                                this.GetUserId(),
-                                                ExerciseType.AudioRecording,
-                                                Convert.ToInt32(duration * 1000),
-                                                recorderId, // recorderId coming from Audior means topicId
-                                                userId // userId coming from Audior means topicTitle.
-                                            );
+                    await UploadUtils.SaveRecording(
+                        stream,
+                        this.GetUserId(),
+                        ExerciseType.AudioRecording,
+                        UploadUtils.DurationToLength(duration),
+                        null,
+                        recorderId // recorderId comes from Audior, 13 digits, milliseconds, current Date in the browser. It is part of Artifact and will be used to update Title with the real title after upload is done.
+                    );
                 }
-
                 success = true;
             }
             catch (Exception ex)
@@ -83,21 +120,82 @@ namespace Runnymede.Website.Controllers.Mvc
             return "save=" + (success ? "ok" : "failed");
         }
 
-        // GET: /exercises/topics
-        public ActionResult Topics()
+        // POST: /exercises/save-recording-mobile
+        [HttpPost]
+        public async Task<ActionResult> SaveRecordingMobile(HttpPostedFileBase fileInput, string recorderId, string recordingTitle)
         {
-            return View();
-        }
+            /*
+             * 1. Save the original media file to a blob
+             * 2. Call the remote Transcoding service. Pass the blob name.
+             * 3. The Transcoding service saves the MP3 file to a blob and returns its name and the recording's duration.
+             * 4. Create a database record.             
+             */
+            if (fileInput == null)
+            {
+                return RedirectToAction("RecordSpeech", new { error = "no_file" });
+            }
 
-        // GET: /exercises/upload?dir=BASE64_ENCODED_STRING
-        public ActionResult Upload(string dir = "")
-        {
-            byte[] encodedDataAsBytes = System.Convert.FromBase64String(dir);
-            string userDir = System.Text.Encoding.Unicode.GetString(encodedDataAsBytes);
+            //  return RedirectToAction("RecordSpeech", new { error = "test01" });
 
-            ViewBag.UserDir = userDir;
+            var contentType = fileInput.ContentType;
+            var acceptedContentType = (new[] { MediaType.Amr, MediaType.Gpp, MediaType.QuickTime }).Contains(contentType);
+            if (!acceptedContentType)
+            {
+                return RedirectToAction("RecordSpeech", new { error = contentType });
+            }
 
-            return View();
+            var userId = this.GetUserId();
+
+            // 1. Save the original file.
+            // The directory structure in Blob Storage is userIdKey/timeKey/originalFileName.ext
+            var timeKey = KeyUtils.GetTimeAsBase32();
+            var fileName = fileInput.FileName;
+            // Sanitize the fileName. Reserved URL characters must be properly escaped.
+            fileName = String.IsNullOrWhiteSpace(fileName)
+                ? timeKey
+                : Uri.EscapeUriString(fileName.Trim());
+            var invalidChars = Path.GetInvalidFileNameChars();
+            fileName = new String(fileName.Select(i => invalidChars.Contains(i) ? '_' : i).ToArray());
+            if (!Path.HasExtension(fileName))
+            {
+                Path.ChangeExtension(fileName, MediaType.GetExtension(contentType));
+            }
+
+            var blobName = KeyUtils.IntToKey(userId) + AzureStorageUtils.DefaultDirectoryDelimiter + timeKey + AzureStorageUtils.DefaultDirectoryDelimiter + fileName;
+            using (var stream = fileInput.InputStream)
+            {
+                await AzureStorageUtils.UploadBlobAsync(stream, AzureStorageUtils.ContainerNames.Recordings, blobName, contentType);
+            }
+
+            // 2. Call the transcoding service.
+            var host = ConfigurationManager.AppSettings["RecordingTranscoderHost"];
+            var url = String.Format("http://{0}/api/recordings/transcoded/?inputBlobName={1}", host, blobName);
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("RecordSpeech", new { error = "transcoding_error" });
+            }
+            // 3. Get the results from the service.
+            // Error is returned as HTML. Then we get error here: No MediaTypeFormatter is available to read an object of type 'JObject' from content with media type 'text/html'.
+            var value = await response.Content.ReadAsAsync<JObject>();
+            var outputBlobName = (string)value["outputBlobName"];
+            var durationMsec = (int)value["durationMsec"];
+            // The transcoder may return -1 if it has failed to parse the ffmpeg logs.
+            if (durationMsec < 0)
+            {
+                // Read the blob and try to determine the duration directly.
+                var outputBlob = AzureStorageUtils.GetBlob(AzureStorageUtils.ContainerNames.Recordings, outputBlobName);
+                using (var stream = new MemoryStream())
+                {
+                    await outputBlob.DownloadToStreamAsync(stream);
+                    durationMsec = UploadUtils.GetMp3DurationMsec(stream); // Seeks the stream to the beginning internally.
+                }
+            }
+            // 4. Create a database record.
+            var exerciseId = await UploadUtils.CreateExercise(outputBlobName, userId, ExerciseType.AudioRecording, durationMsec, recordingTitle);
+            // 5. Redirect to the exercise page.
+            return RedirectToAction("View", new { Id = exerciseId });
         }
 
         // POST: /exercises/upload
@@ -121,17 +219,16 @@ namespace Runnymede.Website.Controllers.Mvc
                         var durationMsec = UploadUtils.GetMp3DurationMsec(stream);
                         if (durationMsec > 0)
                         {
-                            var exerciseTitle = !string.IsNullOrEmpty(title)
+                            var recordingTitle = !String.IsNullOrEmpty(title)
                                 ? title
                                 : Path.GetFileNameWithoutExtension(mp3File.FileName);
 
-                            exerciseId = UploadUtils.SaveRecording(
+                            exerciseId = await UploadUtils.SaveRecording(
                                 stream,
                                 userId,
                                 ExerciseType.AudioRecording,
                                 durationMsec,
-                                null,
-                                exerciseTitle
+                                recordingTitle
                                 );
                         }
                     }
@@ -146,14 +243,14 @@ namespace Runnymede.Website.Controllers.Mvc
             {
                 // We may succeed or fail with updating the user of the exercise depending on whether the provided Skype name is found and is unambiguous.
                 // Continue anyway with either old or new user.
-                if (!string.IsNullOrEmpty(learnerSkype))
+                if (!String.IsNullOrEmpty(learnerSkype))
                 {
                     newUserId = (await DapperHelper.QueryResilientlyAsync<int>("dbo.exeTryChangeExerciseAuthor",
                                              new
                                              {
                                                  ExerciseId = exerciseId,
                                                  UserId = userId,
-                                                 Skype = learnerSkype,
+                                                 SkypeName = learnerSkype,
                                              },
                                              CommandType.StoredProcedure))
                                              .FirstOrDefault();
@@ -205,30 +302,54 @@ namespace Runnymede.Website.Controllers.Mvc
                     // Save remarks.
                     if (reviewId != 0)
                     {
-                        var partitionKey = AzureStorageUtils.IntToKey(reviewId);
-
-                        var entities = remarkSpots
+                        var pieces = remarkSpots
                             .OrderBy(i => i)
                             .Distinct()
-                            .Select(i =>
+                            .Select((i, index) =>
                             {
                                 var finish = Math.Max(0, i - 1000); // We allow for a 1 second delay between the actual learner's mistake and the teacher's action.
                                 var start = Math.Max(0, finish - 2000); // Assume the spot is 2 second long.
-                                // Make Id fixed-length sequecial. The clustered index in Azure Table is PartitionKey+RowKey.
-                                var remarkId = ConvertToSixDigitBase36((start + finish) / 2);
 
-                                return new RemarkEntity
+                                var remark = new RemarkSpot
                                 {
-                                    PartitionKey = partitionKey,
-                                    RowKey = remarkId,
+                                    ReviewId = reviewId,
+                                    Type = ReviewPiece.PieceTypes.Remark,
+                                    Id = index,
                                     Start = start,
                                     Finish = finish,
+                                };
+
+                                return new ReviewPiece
+                                {
+                                    PartitionKey = ReviewPiece.GetPartitionKey(exerciseId),
+                                    RowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Remark, index),
+                                    Json = JsonUtils.SerializeAsJson(remark),
                                 };
                             });
 
                         var batchOperation = new TableBatchOperation();
-                        entities.ToList().ForEach(i => batchOperation.InsertOrReplace(i));
-                        var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.Remarks);
+                        foreach (var piece in pieces)
+                        {
+                            batchOperation.InsertOrReplace(piece);
+                        }
+
+                        // Write entities which will allow the reviewer to access remarks for reading and writing. We will simply check the presence of one of these records as we read or write the entities.
+                        // The write entity will be deleted on review finish.
+                        var viewerEntity = new ReviewPiece()
+                        {
+                            PartitionKey = ReviewPiece.GetPartitionKey(exerciseId),
+                            RowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Viewer, userId),
+                        };
+                        batchOperation.InsertOrReplace(viewerEntity);
+
+                        var editorEntity = new ReviewPiece()
+                        {
+                            PartitionKey = ReviewPiece.GetPartitionKey(exerciseId),
+                            RowKey = ReviewPiece.GetRowKey(reviewId, ReviewPiece.PieceTypes.Editor, userId),
+                        };
+                        batchOperation.InsertOrReplace(editorEntity);
+
+                        var table = AzureStorageUtils.GetCloudTable(AzureStorageUtils.TableNames.ReviewPieces);
                         await table.ExecuteBatchAsync(batchOperation);
 
                         // Redirect to the reviews page.
@@ -247,25 +368,89 @@ namespace Runnymede.Website.Controllers.Mvc
             ViewBag.UserDir = userdir;
 
             return View();
-        }
+        } // end of Upload()
 
-        private string ConvertToSixDigitBase36(int number)
+        // POST: /exercises/save-writing-photos
+        [HttpPost]
+        public async Task<ActionResult> SaveWritingPhotos(IEnumerable<HttpPostedFileBase> files, IEnumerable<int> rotations, string title, string wordCount)
         {
-            const int radix = 36;
-            const string Digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Base36
-            char[] charArray = { '0', '0', '0', '0', '0', '0' }; // The number is padded with zeros at the beginning.
-            int index = 5;
-
-            while (number != 0 && index > 0)
+            if (files == null)
             {
-                int remainder = (int)(number % radix);
-                charArray[index--] = Digits[remainder];
-                number = number / radix;
+                return RedirectToAction("PhotographWriting", new { error = "no_file" });
+            }
+            if (files.Count() != rotations.Count())
+            {
+                return RedirectToAction("PhotographWriting", new { error = "wrong_rotations" });
             }
 
-            return new String(charArray);
-        }
+            var items = files
+                .Select((i, idx) => new { File = i, Rotation = rotations.ElementAt(idx) })
+                // There may be empty form parts from input elements with no file selected.
+                .Where(i => i.File != null)
+                .Where(i => i.File.ContentType == MediaType.Jpeg);
 
+            var userId = this.GetUserId();
+            var userKey = KeyUtils.IntToKey(userId);
+            var timeKey = KeyUtils.GetTimeAsBase32();
+            var page = 1; // Pages start counting from 1.
+            var blobNames = new List<string>();
+
+            foreach (var item in items)
+            {
+                using (var inputStream = item.File.InputStream)
+                {
+                    var blobName = String.Format("{0}/{1}/{2}.original.jpg", userKey, timeKey, page);
+                    await AzureStorageUtils.UploadBlobAsync(inputStream, AzureStorageUtils.ContainerNames.WritingPhotos, blobName, MediaType.Jpeg);
+
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        /* I am not sure about using JpegBitmapDecoder. Because of the native code dependencies, the PresentationCore and WindowsBase assemblies need to be distributed as x86 and x64, so AnyCPU may be not possible? */
+                        inputStream.Seek(0, SeekOrigin.Begin);
+                        using (var image = Image.FromStream(inputStream))
+                        {
+                            RotateFlipType rotateFlipType = RotateFlipType.RotateNoneFlipNone;
+                            switch (item.Rotation)
+                            {
+                                case -1:
+                                    rotateFlipType = RotateFlipType.Rotate270FlipNone;
+                                    break;
+                                case 1:
+                                    rotateFlipType = RotateFlipType.Rotate90FlipNone;
+                                    break;
+                                default:
+                                    break;
+                            };
+                            if (rotateFlipType != RotateFlipType.RotateNoneFlipNone)
+                            {
+                                image.RotateFlip(rotateFlipType);
+                            }
+                            // We re-encode the image to decrease the size.
+                            var codec = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                            var encoderParams = new EncoderParameters(1);
+                            int quality = 50; // Do not pass inline. This parameter is passed via pointer and it has to be strongly typed. Highest quality is 100.
+                            encoderParams.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+                            image.Save(memoryStream, codec, encoderParams);
+                            //image.Save(memoryStream, ImageFormat.Jpeg);
+                        }
+
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        blobName = String.Format("{0}/{1}/{2}.jpg", userKey, timeKey, page);
+                        await AzureStorageUtils.UploadBlobAsync(memoryStream, AzureStorageUtils.ContainerNames.WritingPhotos, blobName, MediaType.Jpeg);
+                        blobNames.Add(blobName);
+                    }
+
+                    page++;
+                }
+            }
+
+            var artifact = String.Join(",", blobNames);
+            int length;
+            Int32.TryParse(wordCount, out length); // Assigns 0 if failed.
+
+            var exerciseId = await UploadUtils.CreateExercise(artifact, userId, ExerciseType.WritingPhoto, length, title);
+
+            return RedirectToAction("View", new { Id = exerciseId });
+        }
 
     }
 }

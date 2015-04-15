@@ -53,13 +53,6 @@ begin try
 			N'ttt name',
 			1;
 
-		--execute dbo.newInitializeUser
-		--	N'', 
-		--	N'', --'123456' 
-		--	N'',
-		--	N'',
-		--	0;
-
 -- -- Insert teachers in batch
 --declare @i int = 100;
 --declare @id nvarchar(100);

@@ -7,7 +7,8 @@ CREATE PROCEDURE [dbo].[exeFinishReview]
 AS
 BEGIN
 /*
-20121117 AF.
+20121117 AF. Initial
+20150325 AF. We do not use escrow anymore. Revenue is posted at the request moment.
 */
 SET NOCOUNT ON;
 
@@ -18,27 +19,23 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @Now datetime2(7) = sysutcdatetime();
-
 	if @ExternalTran = 0
 		begin transaction;
 
-		update dbo.exeReviews 
-		set FinishTime = @Now
+		update dbo.exeReviews
+			set FinishTime = sysutcdatetime()
+		output inserted.ExerciseId, inserted.FinishTime
 		where Id = @ReviewId 
 			and UserId = @UserId 
+			and StartTime is not null
 			and FinishTime is null;
 
 		if @@rowcount = 0
 			raiserror('%s,%d,%d:: The user failed to finish the review.', 16, 1, @ProcName, @UserId, @ReviewId);
 
-		exec dbo.accFinishReview @ReviewId;
-
 	if @ExternalTran = 0
 		commit;
-
-	select @Now;
-
+	
 end try
 begin catch
 	set @XState = xact_state();

@@ -14,49 +14,63 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @ExerciseId int, @ReviewerName nvarchar(100), @HasAnother bit, @HasReviewed bit;
+	declare @ExerciseId int, @AuthorUserId int, @ReviewerName nvarchar(100), @Attribute nvarchar(100), @Now datetime2(2);		
 	
-	select @ExerciseId = ExerciseId from dbo.exeReviews where Id = @ReviewId and StartTime is null;
+	select @ExerciseId = R.ExerciseId, @AuthorUserId = E.UserId
+	from dbo.exeReviews R
+		inner join dbo.exeExercises E on R.ExerciseId = E.Id
+	where R.Id = @ReviewId 
+		and R.StartTime is null;
 
 	if @ExerciseId is null 
 		raiserror('%s,%d:: The review has already been started.', 16, 1, @ProcName, @ReviewId);
 
-	select @HasAnother = max(case when FinishTime is null then 1 else 0 end), 
-		@HasReviewed = max(case when ExerciseId = @ExerciseId then 1 else 0 end)
-	from dbo.exeReviews 
-	where UserId = @UserId;
+	select @ReviewerName = DisplayName 
+	from dbo.appUsers 
+	where Id = @UserId
+		and IsTeacher = 1;
 
-	if @HasAnother = 1 
+	if (@ReviewerName is null)
+		raiserror('%s,%d,%d:: The user cannot start the review.', 16, 1, @ProcName, @UserId, @ReviewId);
+
+	-- There is index IX_UserId_FinishTime
+	if exists (
+		select *
+		from dbo.exeReviews 
+		where UserId = @UserId 
+			and FinishTime is null
+	)
 		raiserror('%s,%d:: The user has another ongoing review.', 16, 1, @ProcName, @UserId);
 
-	if @HasReviewed = 1
-		raiserror('%s,%d,%d:: The user has already reviewed the exercise.', 16, 1, @ProcName, @UserId, @ExerciseId);
+	if exists (
+		select * 
+		from dbo.exeReviews
+		where ExerciseId = @ExerciseId
+			and UserId = @UserId
+	)
+		raiserror('%s,%d:: The user has already reviewed this exercise.', 16, 1, @ProcName, @UserId);
 
-	select @ReviewerName = DisplayName from dbo.appUsers where Id = @UserId and IsTeacher = 1
-
-	if @ReviewerName is null 
-		raiserror('%s,%d:: The user is not a teacher.', 16, 1, @ProcName, @UserId);
-
-	if not exists (select * from dbo.exeRequests where ReviewId = @ReviewId and coalesce(ReviewerUserId, @UserId) = @UserId) 
-		raiserror('%s,%d,%d:: The user is not allowed to start the review.', 16, 1, @ProcName, @UserId, @ReviewId);
+	set @Now = sysutcdatetime();
 
 	if @ExternalTran = 0
 		begin transaction;
 
 		update dbo.exeReviews 
-			set UserId = @UserId, ReviewerName = @ReviewerName, StartTime = sysutcdatetime()
-			where Id = @ReviewId and StartTime is null;
+		set UserId = @UserId, StartTime = @Now
+		where Id = @ReviewId 
+			and StartTime is null;
 
 		if @@rowcount = 0
 			raiserror('%s,%d,%d:: The user failed to start the review.', 16, 1, @ProcName, @UserId, @ReviewId);
 
-		delete dbo.exeRequests
-			output deleted.Id, deleted.ReviewId, deleted.ReviewerUserId
-			into dbo.exeRequestsArchive (RequestId, ReviewId, ReviewerUserId)
-		where ReviewId = @ReviewId
+		--exec dbo.friUpdateLastContact @UserId = @UserId, @FriendUserId = @AuthorUserId, @ContactType = 'CN__RS';
 
 	if @ExternalTran = 0
 		commit;
+
+	-- ExerciseId is the PartitionKey in the storage table. We add access records for both the author and the reviewer. And we will notify the author in real-time.
+	select @ExerciseId as ExerciseId, @Now as StartTime, @UserId as ReviewerUserId, @ReviewerName as ReviewerName, @AuthorUserId as AuthorUserId;
+
 end try
 begin catch
 	set @XState = xact_state();

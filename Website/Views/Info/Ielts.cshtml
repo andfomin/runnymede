@@ -1,0 +1,33 @@
+﻿@{
+    //Layout = null;
+    ViewBag.Title = "Prepare for IELTS Speaking and Writing tests";
+}
+<div class="row">
+    <div class="col-md-offset-1 col-md-7" style="font-size:larger;">
+        <br />
+        <p>
+            You can prepare for an IELTS test in many ways at Englisharium:
+            <ul>
+                <li>Simulate speaking tests and record your exercises with a voice recorder. Ask competent teachers to review recordings of your simulated tests and find your difficulties.</li>
+                <li>Simulate writing tests, upload your handwritten texts using a smartphone, then ask teachers to review them and suggest ways to improve your results.</li>
+                <li>Use the library to find learning resources which will help you to prepare for an IELTS test.</li>
+            </ul>
+        </p>
+        <br />
+        <p><small>You can use these features for free. You may need to pay teachers, if you ask them to review your exercises.</small></p>
+        <p>@Html.ActionLink("More...", "Index", "Home")</p>
+
+        @if (!Request.IsAuthenticated)
+        {
+            <div class="row app-margin-top">
+                <div class="col-sm-offset-4 col-sm-4 text-center">
+                    @Html.ActionLinkWithProtocol("Join for free", "Signup", "Account", "https", new { @class = "btn btn-primary btn-lg" })
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-md-4">
+        <br />&nbsp;
+        <img class="img-responsive img-thumbnail" src="~/content/images/ielts-test-450.jpg" />
+    </div>
+</div>

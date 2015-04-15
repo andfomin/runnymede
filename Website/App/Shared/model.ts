@@ -1,233 +1,130 @@
-interface App {
-    // Declared in bceg-lookup.js
-    bcegLookup: any;
-}
-
-module App.Model {
+module app {
 
     export interface IUser {
         id: number;
         displayName: string;
         userName: string;
-        skype: string;
+        skypeName: string;
         isTeacher: boolean;
-        isAssistant: boolean;
-        timezoneName: string;
-        reviewRate: number;
+        recordingRate: number;
+        writingRate: number;
         sessionRate: number;
         announcement: string;
-        avatarLargeUrl: string;
-        avatarSmallUrl: string;
+        presentation: string;
         phoneNumber: string;
         phoneNumberConfirmed: boolean;
         email: string;
         emailConfirmed: boolean;
-    }
+    };
 
     export interface IExercise {
         id: number;
         createTime: string;
-        typeId: string;
-        artefactId: string;
-        title: KnockoutObservable<string>;
-        length: number;
-        reviews: KnockoutObservableArray<IReview>;
-        // Non-persisted
-        isTitleDirty: any;
-        formattedLength: string;
-    }
-
-    export interface IExercise2 {
-        id: number;
-        createTime: string;
-        typeId: string;
-        artefactId: string;
+        type: string;
+        artifact: string;
         title: string;
         length: number;
-        reviews: IReview2[];
-    }
+        reviews: IReview[];
+    };
 
     export interface IReview {
         id: number;
         exerciseId: number;
-        requestTime: string;
-        cancelTime: KnockoutObservable<string>;
-        startTime: KnockoutObservable<string>;
-        finishTime: KnockoutObservable<string>;
-        authorName: string;
-        //reward: number;
-        // Non-persisted
-        formattedReward: string;
-    }
+        price: number;
+        userId: number;
+        requestTime: string; // Date;
+        startTime: string; // Date;
+        finishTime: string; // Date;
+        exerciseType: string;
+        exerciseLength: number;
+        reviewerName: string;
+        comment: IComment;
+        suggestions: ISuggestion[];
+    };
 
-    export interface IReview2 {
-        id: number;
-        exerciseId: number;
-        requestTime: Date;
-        cancelTime: Date;
-        startTime: Date;
-        finishTime: Date;
-        authorName: string;
-        reward: number;
-    }
-
-    export interface IRemark {
-        id: string;
+    // Review piece, the base interface for IRemark, ISuggestion, IComment.
+    export interface IPiece {
+        id: number; // The number means milliseconds passed from the start of the review. It is an uniquefier, not a meaningful time.
         reviewId: number;
-        start: KnockoutObservable<number>;
-        finish: KnockoutObservable<number>;
-        tags: KnockoutObservable<string>;
-        text: KnockoutObservable<string>;
-        starred: KnockoutObservable<boolean>;
-        // Non-persisted
-        dirtyFlag: any;
-        formatStart: KnockoutComputed<string>;
-        formatFinish: KnockoutComputed<string>;
-    }
+        type: string; // Constants are declared in app.exercises.PieceTypes in exercises.ts
+        dirtyTime: Date; // Invalidate the item.
+    };
 
-    export interface IRemark2 {
-        id: string;
-        reviewId: number;
+    export interface IRemark extends IPiece {
         start: number;
         finish: number;
-        tags: string;
+        correction: string;
+        comment: string;
+        // Writing photo
+        page: number; // first page is 1
+        x: number;
+        y: number;
+        like: boolean;
+    };
+
+    export interface ISuggestion extends IPiece {
+        suggestion: string;
+        keywords: string;
+        categoryId: string;
+    };
+
+    export interface IComment extends IPiece {
+        comment: string;
+    };
+
+    // TODO. Deprecated
+    export interface IScheduleEvent {
+        id: number;
+        start: moment.Moment;
+        end: moment.Moment;
+        type: string;
+        userId: number;
+        // These properties are supported by FullCalendar
+        title: string;
+        url: string; // Chrome weiredly tries to silently send a request to this URL as if it was a real URL. It gets an unrecoverable error for 'javascript:;' and the event fials to render. If  the value is malformed, Firefox uncoditionally goes to the URL on click and reports the unknown format to the user.
+        color: string;
+        backgroundColor: string;
+        borderColor: string;
+        className: string[];
+    };
+
+    export interface IMessage {
+        id: number;
+        type: string;
+        postTime: string;
+        receiveTime: string;
+        senderUserId: number;
+        senderDisplayName: string;
+        recipientUserId: number;
+        recipientDisplayName: string;
+        extId: string;
         text: string;
-        starred: boolean;
+    };
+
+    export interface IResource {
+        id: number;
+        url: string; // Entered by the user while adding manually
+        naturalKey: string; // Stored in database and serach
+        format: string;
+        segment: string;
+        title: string;
+        categoryIds: string;
+        tags: string;
+        source: string;
+        hasExplanation: boolean;
+        hasExample: boolean;
+        hasExercise: boolean;
+        hasText: boolean;
+        hasPicture: boolean;
+        hasAudio: boolean;
+        hasVideo: boolean;
+        isPersonal: boolean;
+        languageLevelRating: number;
+        priority: number; // Copycat segment priority, affects display order. Values are from 0 to 4.
+        comment: string;
+        // Not persisted.
+        viewed: boolean;
+        localTime: string; // for History
     }
-
-    export class Exercise implements IExercise {
-
-        id: number;
-        createTime: string;
-        typeId: string;
-        artefactId: string;
-        title: KnockoutObservable<string>;
-        length: number;
-        reviews: KnockoutObservableArray<Review>;
-        // Non-persisted
-        isTitleDirty: any;
-        formattedLength: string;
-
-        constructor(data: any) {
-            this.id = data.id;
-            this.typeId = data.typeId;
-            this.artefactId = data.artefactId;
-            this.length = data.length;
-            this.title = ko.observable(data.title);
-            this.createTime = App.Utils.formatDateLocal(data.createTime);
-            this.reviews = ko.observableArray(<Review[]>$.map(data.reviews || [], i => new Review(i)));
-            this.formattedLength = App.Utils.formatMsec(this.length);
-
-            //var titles = $.map(this.reviews(), (i) => { return i.note; });
-            //titles.push(this.title);
-            this.isTitleDirty = new ko.DirtyFlag([this.title], false);
-        } // end of ctor
-
-        viewUrl() {
-            return App.Utils.reviewsUrl('view/' + this.id);
-        }
-    } // end of class
-
-    export class Review implements IReview {
-        id: number;
-        exerciseId: number;
-        requestTime: string;
-        cancelTime: KnockoutObservable<string>;
-        startTime: KnockoutObservable<string>;
-        finishTime: KnockoutObservable<string>;
-        authorName: string;
-        // Non-persisted
-        formattedReward: string;
-
-        constructor(data: any) {
-            this.id = data.id;
-            this.exerciseId = data.exerciseId;
-            this.authorName = data.authorName;
-            this.formattedReward = App.Utils.formatMoney(data.reward);
-            this.requestTime = App.Utils.formatDateLocal(data.requestTime);
-            this.cancelTime = ko.observable(App.Utils.formatDateLocal(data.cancelTime));
-            this.startTime = ko.observable(App.Utils.formatDateLocal(data.startTime));
-            this.finishTime = ko.observable(App.Utils.formatDateLocal(data.finishTime));
-        } // end of ctor
-
-        viewUrl() {
-            return this.composeUrl('view');
-        }
-
-        editUrl() {
-            return this.composeUrl('edit');
-        }
-
-        private composeUrl(action) {
-            return App.Utils.reviewsUrl(action + '/' + this.id);
-        }
-
-        status() {
-            if (this.finishTime()) {
-                return 'Finished ' + this.finishTime();
-            }
-            else {
-                if (this.startTime()) {
-                    return 'Started ' + this.startTime();
-                }
-                else {
-                    if (this.cancelTime()) {
-                        return 'Canceled ' + this.cancelTime();
-                    }
-                    else {
-                        return 'Requested ' + this.requestTime;
-                    }
-                }
-            }
-        }
-
-    } // end of class
-
-    export class Remark implements IRemark {
-        id: string;
-        reviewId: number;
-        start: KnockoutObservable<number>;
-        finish: KnockoutObservable<number>;
-        tags: KnockoutObservable<string>;
-        text: KnockoutObservable<string>;
-        starred: KnockoutObservable<boolean>;
-        // Non-persisted
-        dirtyFlag: any;
-        formatStart: KnockoutComputed<string>;
-        formatFinish: KnockoutComputed<string>;
-
-        constructor(data: any) {
-            this.reviewId = data.reviewId;
-            this.id = data.id;
-            this.start = ko.observable(data.start);
-            this.finish = ko.observable(data.finish);
-            this.tags = ko.observable(data.tags);
-            this.text = ko.observable(data.text);
-            this.starred = ko.observable(data.starred);
-
-            var trackArr: any[] = [this.start, this.finish, this.tags, this.text, this.starred];
-            this.dirtyFlag = new ko.DirtyFlag(trackArr, true);
-
-            this.formatStart = ko.computed(() => {
-                return App.Utils.formatMsec(this.start());
-            });
-
-            this.formatFinish = ko.computed(() => {
-                return App.Utils.formatMsec(this.finish());
-            });
-        } // end of ctor
-
-        tagsUrl() {
-            //return 'https://' + window.location.host + App.Utils.reviewsUrl('tagsearch?q=' + encodeURIComponent(this.tags()));
-            return App.Utils.reviewsUrl('tag-search?q=' + encodeURIComponent(this.tags()));
-        }
-
-        tagAliases() {
-            var tags = $.map(this.tags().split(','), i => $.trim(i));
-            var aliases = $.map(tags, i => App['bcegLookup'][i] || i);
-            return aliases.join(', ');
-        }
-
-    } // end of class
 
 }

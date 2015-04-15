@@ -1,5 +1,6 @@
 ﻿@{
     var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
+    var sendAnalytics = !Html.IsDebug() && !(new int[] { 1099489445, 1245020022 }).Contains(pageViewModel.UserId);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -7,16 +8,16 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    @*<title>@(ViewBag.HeadTitle ?? ViewBag.Title) - English Cosmos</title>*@
-    <title>English Cosmos</title>
+    <title>Englisharium</title>
     <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-    @*<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    @*<link href='+http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
     @Styles.Render("~/bundles/app-css")
+    @Html.Partial("_ApplicationInsightsPartial")
     @RenderSection("HeadScripts", required: false)
-    @if (!Html.IsDebug())
+    @if (sendAnalytics)
     {
-        @Html.Partial("_GoogleAnalyticsPartial")
+        @Html.Partial("_GoogleAnalyticsPartial", pageViewModel.UserId)
     }
 </head>
 <body>
@@ -31,28 +32,36 @@
     <header>
         @Html.Partial("_HeaderPartial", pageViewModel)
     </header>
-
-    <section id="main" class="container">
+    <section class="container">
         @if (ViewBag.Title != null)
         {
-            <h3 class="page-header">@ViewBag.Title</h3>
+            <h3 class="page-header app">
+                @ViewBag.Title
+                @if (ViewBag.SecondaryTitle != null)
+                {
+                    <small>@ViewBag.SecondaryTitle</small>
+                }
+            </h3>
         }
-
         @RenderBody()
     </section>
-
-    @*<!-- The footer separator is not in a container -->*@
-    <hr class="app-separator" />
-    <footer id="footerContents" class="container">
+    @*<!-- The footer separator is not in a container and goes full page width -->*@
+    <hr class="app-appred" />@* appRed *@
+    <footer class="container app-footer">
         @Html.Partial("_FooterPartial")
     </footer>
-    @* bootstrap.js is needed for the dropdown menu in the navbar and for scrollspy in the Info controller pages *@
+    @* bootstrap.js is needed for the dropdown menu in the top navbar and for scrollspy in the Info controller pages *@
     @Scripts.Render(
-        "~/bundles/jquery",
-        "~/bundles/bootstrap"
+"~/bundles/jquery",
+"~/bundles/bootstrap"
         )
+    @if (Request.IsAuthenticated)
+    {
+        <script>
+            var app = app || {};
+            app.selfUserParam = @JavaScriptConvert.Serialize(pageViewModel.SelfUserParam);
+        </script>
+    }
     @RenderSection("BottomScripts", required: false)
 </body>
-
-
 </html>

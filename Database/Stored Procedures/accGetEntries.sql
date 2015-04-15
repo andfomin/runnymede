@@ -10,18 +10,19 @@ SET NOCOUNT ON;
 declare @AccountId int = dbo.accGetPersonalAccount(@UserId);
 
 declare @TotalCount int;
+
 select @TotalCount = count(*) from dbo.accEntries where AccountId = @AccountId;
 
-select T.ObservedTime, TT.[Description], E.Debit, E.Credit, E.Balance
+select T.ObservedTime, TT.Name as [Description], E.Debit, E.Credit, E.Balance
 from dbo.accEntries E
 	inner join dbo.accTransactions T on E.TransactionId = T.Id
-	inner join dbo.accTransactionTypes TT on T.TransactionTypeId = TT.Id
+	inner join dbo.appTypes TT on T.[Type] = TT.Id
 where E.AccountId = @AccountId
 order by T.Id desc
 offset @RowOffset rows
 	fetch next @RowLimit rows only;
 
--- Do not return @TotalCount as a column in the main query, because the main query may return no rows for a big @RowOffset.
+-- Do not return @TotalCount as a column in the main query, because the main query may return no rows for a non-existing account or for a big @RowOffset.
 select @TotalCount as TotalCount;
 
 END

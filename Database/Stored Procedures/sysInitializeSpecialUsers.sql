@@ -14,61 +14,76 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
-declare @Comment nvarchar(100) = 'Special account.';
+declare @Comment nvarchar(100) = 'Special account';
 
 --------------------- $Service
 
-declare @ServiceUserId int;
+declare @ServiceUserId int = 1;
 declare @ServiceUserName nvarchar(100) = N'$Service';
 
-insert dbo.aspnetUsers (UserName) values (@ServiceUserName);
-
-select @ServiceUserId = scope_identity() where @@rowcount != 0;
+insert dbo.aspnetUsers (Id, UserName) values (@ServiceUserId, @ServiceUserName);
 
 insert dbo.appUsers (Id, DisplayName) values (@ServiceUserId, @ServiceUserName);
 
-execute dbo.accCreateAccount @ServiceUserId, 'SREV';
+execute dbo.accCreateAccount @ServiceUserId, 'ACSREV';
 
 insert dbo.appConstants (Name, Value, Comment)
 	select 'Account.$Service.ServiceRevenue', AA.Id, @Comment
 	from dbo.accAccounts AA
 	where AA.UserId = @ServiceUserId
-		and AA.AccountTypeId = 'SREV';
+		and AA.[Type] = 'ACSREV';
 
-execute dbo.accCreateAccount @ServiceUserId, 'PPCA';
+execute dbo.accCreateAccount @ServiceUserId, 'ACPPCA';
 
 insert dbo.appConstants (Name, Value, Comment)
 	select 'Account.$Service.PayPalCash', AA.Id, @Comment
 	from dbo.accAccounts AA
 	where AA.UserId = @ServiceUserId
-		and AA.AccountTypeId = 'PPCA';
+		and AA.[Type] = 'ACPPCA';
 
-execute dbo.accCreateAccount @ServiceUserId, 'PPIF';
+execute dbo.accCreateAccount @ServiceUserId, 'ACPPIF';
 
 insert dbo.appConstants (Name, Value, Comment)
 	select 'Account.$Service.IncomingPayPalPaymentFee', AA.Id, @Comment
 	from dbo.accAccounts AA
 	where AA.UserId = @ServiceUserId
-		and AA.AccountTypeId = 'PPIF';
+		and AA.[Type] = 'ACPPIF';
+
+execute dbo.accCreateAccount @ServiceUserId, 'ACPPIT';
+
+insert dbo.appConstants (Name, Value, Comment)
+	select 'Account.$Service.IncomingPayPalPaymentTax', AA.Id, @Comment
+	from dbo.accAccounts AA
+	where AA.UserId = @ServiceUserId
+		and AA.[Type] = 'ACPPIT';
 
 --------------------- $UnknownPayPalPayer
 
-declare @PayerUserId int;
+declare @PayerUserId int = 2;
 declare @PayerUserName nvarchar(100) = N'$UnknownPayPalPayer';
 
-insert dbo.aspnetUsers (UserName) values (@PayerUserName);
-
-select @PayerUserId = scope_identity() where @@rowcount != 0;
+insert dbo.aspnetUsers (Id, UserName) values (@PayerUserId, @PayerUserName);
 
 insert dbo.appUsers (Id, DisplayName) values (@PayerUserId, @PayerUserName);
 
-execute dbo.accCreateAccount @PayerUserId, 'PERS';
+execute dbo.accCreateAccount @PayerUserId, 'ACPERS';
 
 insert dbo.appConstants (Name, Value, Comment)
 	select 'Account.$UnknownPayPalPayer.Personal', AA.Id, @Comment
 	from dbo.accAccounts AA
 	where AA.UserId = @PayerUserId
-		and AA.AccountTypeId = 'PERS';
+		and AA.[Type] = 'ACPERS';
+
+--------------------- $AnyTeacher
+
+declare @AnyTeacherUserId int = 3; -- Hardcoded in app.AnyTeacherId
+declare @AnyTeacherUserName nvarchar(100) = N'$AnyTeacher';
+
+insert dbo.aspnetUsers (Id, UserName) values (@AnyTeacherUserId, @AnyTeacherUserName);
+
+insert dbo.appUsers (Id, DisplayName) values (@AnyTeacherUserId, @AnyTeacherUserName);
+
+execute dbo.accCreateAccount @AnyTeacherUserId, 'ACPERS';
 
 ---------------------
 

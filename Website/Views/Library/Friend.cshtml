@@ -1,0 +1,94 @@
+﻿@{
+    ViewBag.NavItem = "Library";
+}
+@section HeadScripts {
+    <style>
+        .app-nav-pills .fa {
+            font-size: 21px;
+            position: relative;
+            top: 2px;
+        }
+    </style>
+}
+<div ng-app="myApp">
+    <div class="row">
+        <div class="col-md-8">
+            <h3 class="page-header app">Library <small> Resources recently viewed by your friends</small></h3>
+        </div>
+        <div class="col-md-4 app-margin-bottom">
+            <ul class="nav nav-pills app-nav-pills">
+                <li><a href="/library#/common"><i class="fa fa-book fa-fw app-appyellow"></i>&nbsp;Common&nbsp;</a></li>
+                <li><a href="/library#/personal"><i class="fa fa-star fa-fw"></i>&nbsp;Personal</a></li>
+            </ul>
+        </div>
+    </div>
+    <div ng-controller="Friend">
+        <div class="row">
+            @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6")
+        </div>
+        <div class="row" ng-show="vm.friends && (vm.friends.length===0)" ng-cloak>
+            <div class="col-md-offset-2 col-md-8 text-center">
+                <div class="alert alert-warning">
+                    You have no active friendships. You can add a friend on the @Html.ActionLink("Friends", "Index", "Friends") page.
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-offset-1 col-md-5">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Friend's name</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" ng-model="vm.friend" autofocus
+                                   data-typeahead="f as f.displayName for f in vm.friends | filter:{displayName:$viewValue} | limitTo:5" data-typeahead-template-url="friendTemplate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-4">
+                            <button class="btn btn-primary btn-block app-btn-disablable" ng-click="vm.load()" ng-disabled="!vm.canSyncFriend()">View history</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <!-- _ResourceListPartial begin -->
+                @* Do not hide the player! See the comments in the partial. *@
+                @Html.Partial("_ResourceListPartial")
+                <!-- _ResourceListPartial end -->
+            </div>
+        </div>
+    </div>
+    <!-- Templates -->
+    <script type="text/ng-template" id="friendTemplate">
+        <a>
+            <img class="img-circle" width="24" height="24" ng-src="{{match.model.id | appAvatarSmall}}">
+            <span data-bind-html-unsafe="match.label | typeaheadHighlight:query"></span>
+        </a>
+    </script>
+    <!-- /Templates -->
+</div><!-- /app -->
+@*@using (Html.BeginInstructionsContainer())
+{
+    <ul>
+        <li>To find out the resources recently viewed by your friend, enter the friend's name and then press the "View history" button.</li>
+        <li>The friendship realationship must be active from both sides. You can check the particular friendship status on the @Html.ActionLink("Friends", "Index", "Friends") page.</li>
+        <li>Only last ten resources viewed during the last hour will be shown.</li>
+    </ul>
+}*@
+@section BottomScripts {
+    <script type="text/javascript">
+        var app = app || {};
+        app.hostPageParam = 'HostPage_Friend';
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+
+"~/app/shared/library.js",
+"~/app/library/friend.js"
+)
+}
+
+

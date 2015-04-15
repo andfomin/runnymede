@@ -7,9 +7,9 @@ namespace Runnymede.Website.Models
 {
     public class KeeperLogEntity : Microsoft.WindowsAzure.Storage.Table.TableEntity
     {
-        public KeeperLogEntity()
-        {
-        }
+        //public KeeperLogEntity()
+        //{
+        //}
 
         // PartitionKey = string "ObservedTime"
         // RowKey = string "Uniqueifier" 

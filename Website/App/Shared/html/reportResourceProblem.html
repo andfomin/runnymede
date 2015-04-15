@@ -1,0 +1,68 @@
+﻿<form class="form-horizontal">
+    <div class="form-group">
+        <label class="col-md-2 control-label">Wrong web address</label>
+        <div class="col-md-9">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="vm.report.notFound">The resource is unavailable, the browser displays error "404 Not Found"
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="vm.report.anotherUrl">The link should be replaced with another one pointing more correctly to the resource
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Wrong description</label>
+        <div class="col-sm-9">
+            <label class="checkbox-inline">
+                <input type="checkbox" ng-model="vm.report.title" />Title
+            </label>
+            <label class="checkbox-inline">
+                <input type="checkbox" ng-model="vm.report.category" />Category
+            </label>
+            <label class="checkbox-inline">
+                <input type="checkbox" ng-model="vm.report.tags" />Tags
+            </label>
+            <label class="checkbox-inline">
+                <input type="checkbox" ng-model="vm.report.learningType" />Learning type
+            </label>
+            <label class="checkbox-inline">
+                <input type="checkbox" ng-model="vm.report.mediaType" />Media type
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-md-2 control-label">Bad content</label>
+        <div class="col-md-9">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="vm.report.lowSoundQuality">Low sound quality
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="vm.report.notRelated">Not related to learning English
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="vm.report.intolerance">Sexual, racial or religious intolerance
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="vm.report.propaganda">Political propaganda
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-md-2 control-label">Other</label>
+        <div class="col-md-9">
+            <textarea class="form-control"  rows="2" style="width:100%; resize:vertical;" ng-model="vm.report.other" maxlength="1000"></textarea>
+        </div>
+    </div>
+</form>

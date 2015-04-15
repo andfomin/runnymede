@@ -1,11 +1,35 @@
-﻿<span class="text-muted">&copy;&nbsp;@DateTime.Now.Year</span>
-@Html.ActionLink("English Cosmos", "EnglishCosmos", "Info", null, new { @class = "credit" })
-<span class="pull-right">
-    @Html.ActionLink("IELTS", "PracticeSpeaking", "Ielts")
-    @Html.ActionLink("How it works", "HowItWorks", "Info")
-    @Html.ActionLink("FAQ", "Faq", "Info")
-    @Html.ActionLink("Support", "Support", "Info")
-    @Html.ActionLink("Terms", "TermsOfService", "Info")
-    @Html.ActionLink("Privacy", "PrivacyPolicy", "Info")
-</span>
-<br />&nbsp;
+﻿<div class="row">
+    <div class="col-lg-offset-1 col-md-9 col-lg-8">
+        <table>
+            <tr>
+                @*<td>
+                    <p class="small text-muted"><strong>LEARNERS</strong></p>
+                    <p>@Html.ActionLink("How it works", "HowItWorks", "Info")</p>
+                    <p><a href="http://support.englisharium.com/support/solutions/5000105857">Frequently Asked Questions</a></p>
+                    <p>@Html.ActionLink("IELTS", "Ielts", "Info")</p>
+                </td>
+                <td>
+                    <p class="small text-muted"><strong>TEACHERS</strong></p>
+                    <p>@Html.ActionLink("How it works", "HowItWorks", "Info")</p>
+                    <p><a href="http://support.englisharium.com/support/solutions/5000109955">FAQ</a></p>
+                </td>*@
+                <td>
+                    <p class="small text-muted"><strong>SUPPORT</strong></p>
+                    <p class="hidden-xs">Email: <img src="~/content/images/email-support.png" width="160" height="15" /></p>
+                    <p class="visible-xs-inline-block"><a href="http://support.englisharium.com/support/tickets/new">Contact Us</a></p>
+                    <p><a href="http://support.englisharium.com/support/solutions/5000105857">Frequently Asked Questions</a></p>
+                    <p><a href="http://support.englisharium.com/support/discussions">Forums</a></p>
+                </td>
+                <td>
+                    <p class="small text-muted"><strong>POLICIES</strong></p>
+                    <p>@Html.ActionLink("Terms of Service", "TermsOfService", "Info")</p>
+                    <p>@Html.ActionLink("Privacy Policy", "PrivacyPolicy", "Info")</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-md-3 app-margin-bottom">
+        <span class="text-muted app-margin-left">&copy;&nbsp;2014</span>
+        @Html.ActionLinkWithProtocol("Dignicom" + ((char)160).ToString() + "Inc.", "Dignicom", "Info", "https", new { @class = "credit" })
+    </div>
+</div>

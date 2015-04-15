@@ -1,4 +1,4 @@
-module App.Account_Edit {
+module app.account_edit {
 
     export class Logins {
 
@@ -11,40 +11,58 @@ module App.Account_Edit {
         hasPassword: boolean;
         sending: boolean;
         error: string = null;
-        loaded: boolean = false;
+        loginsLoaded: boolean = false;
 
-        static $inject = [App.Utils.ngNames.$scope, App.Utils.ngNames.$http, App.Utils.ngNames.$routeParams, App.Utils.ngNames.$location];
+        profile: app.IUser;
+        newEmail: string;
+        emailConfirmed: boolean;
+        linkSent: boolean = false;
+
+        static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$stateParams, app.ngNames.$location];
 
         constructor(
-            private $scope: Utils.IScopeWithViewModel,
-            private $http: ng.IHttpService,
-            $routeParams: ng.route.IRouteParamsService,
-            $location: ng.ILocationService
+            private $scope: app.IScopeWithViewModel,
+            private $http: angular.IHttpService,
+            private $stateParams: ng.ui.IStateParamsService,
+            $location: angular.ILocationService
             ) {
             $scope.vm = this;
 
-            // An error, if any, is returned by the callback action after an external login attempt.
-            var error = (<any>$routeParams).error; // Otherwise decodeURIComponent returns 'undefined'.
+            // An error may be returned by AccountController.ExternalLoginCallback after an external login attempt.
+            var error = $stateParams['error']; // Otherwise decodeURIComponent returns 'undefined'.
             if (error) {
                 this.error = decodeURIComponent(error);
             }
-            $location.search('error', null); // Clear the error text in the address bar. We have specified reloadOnSearch: false in $routeProvider config
+            // Clear the error text in the address bar. We have specified reloadOnSearch: false in angular.ui.IState
+            $location.search('error', null); 
 
-            this.isTeacher = (<any>App).isTeacher; // Passed via the page.
-            this.userName = (<any>App).userName;
+            var self = app.getSelfUser();
+            this.isTeacher = self.isTeacher;
+            this.userName = self.userName;
 
-            this.getLogins();
+            this.loadProfile();
+            this.loadLogins();
         } // end of ctor
 
-        getLogins() {
-            App.Utils.ngHttpGetWithParamsNoCache(this.$http,
-                Utils.accountApiUrl('Logins'),
+        private loadProfile() {
+            app.ngHttpGet(this.$http,
+                app.accountsApiUrl('personal_profile'),
+                null,
+                (data) => {
+                    this.profile = data;
+                    this.newEmail = this.profile.email;
+                });
+        }
+
+        private loadLogins() {
+            app.ngHttpGet(this.$http,
+                app.accountsApiUrl('logins'),
                 null,
                 (data) => {
                     this.userLogins = data.userLogins;
                     this.otherLogins = data.otherLogins;
                     this.hasPassword = data.hasPassword;
-                    this.loaded = true;
+                    this.loginsLoaded = true;
                 });
         }
 
@@ -54,9 +72,9 @@ module App.Account_Edit {
 
         removeLogin(loginProvider, providerKey) {
             this.sending = true;
-            this.$http.delete(App.Utils.accountApiUrl('ExternalLogin?loginProvider=' + loginProvider + '&providerKey=' + providerKey))
-                .success(() => { this.getLogins(); })
-                .error(App.Utils.logError)
+            this.$http.delete(app.accountsApiUrl('external_login?loginProvider=' + loginProvider + '&providerKey=' + providerKey))
+                .success(() => { this.loadLogins(); })
+                .error(app.logError)
                 .finally(() => { this.sending = false; });
         }
 
@@ -64,8 +82,8 @@ module App.Account_Edit {
             if (form.$valid) {
                 this.sending = true;
 
-                App.Utils.ngHttpPut(this.$http,
-                    Utils.accountApiUrl('Password'),
+                app.ngHttpPut(this.$http,
+                    app.accountsApiUrl('password'),
                     {
                         oldPassword: this.oldPassword,
                         newPassword: this.newPassword,
@@ -81,6 +99,20 @@ module App.Account_Edit {
                     }
                     );
             }
+        }
+
+        sendEmailLink() {
+            this.sending = true;
+            app.ngHttpPut(this.$http,
+                app.accountsApiUrl('email'),
+                {
+                    email: this.newEmail
+                },
+                () => {
+                    this.linkSent = true;
+                },
+                () => { this.sending = false; }
+                );
         }
 
     } // end of class

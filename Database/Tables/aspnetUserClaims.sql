@@ -20,6 +20,8 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [IX_User_Id]
     ON [dbo].[aspnetUserClaims]([UserId] ASC);
@@ -28,9 +30,7 @@ CREATE NONCLUSTERED INDEX [IX_User_Id]
 
 
 GO
-GRANT UPDATE
-    ON OBJECT::[dbo].[aspnetUserClaims] TO [websiterole]
-    AS [dbo];
+
 
 
 GO
@@ -40,13 +40,9 @@ GRANT SELECT
 
 
 GO
-GRANT INSERT
-    ON OBJECT::[dbo].[aspnetUserClaims] TO [websiterole]
-    AS [dbo];
+
 
 
 GO
-GRANT DELETE
-    ON OBJECT::[dbo].[aspnetUserClaims] TO [websiterole]
-    AS [dbo];
+
 

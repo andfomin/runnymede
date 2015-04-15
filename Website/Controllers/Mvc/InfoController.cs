@@ -13,11 +13,6 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
-        public ActionResult Support()
-        {
-            return View();
-        }
-
         public ActionResult TermsOfService()
         {
             return View();
@@ -33,7 +28,8 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
-        public ActionResult EnglishCosmos()
+        [RequireHttps]
+        public ActionResult Dignicom()
         {
             return View();
         }
@@ -49,6 +45,11 @@ namespace Runnymede.Website.Controllers.Mvc
         }
 
         public ActionResult UnsupportedBrowser()
+        {
+            return View();
+        }
+
+        public ActionResult Ielts()
         {
             return View();
         }

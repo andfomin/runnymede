@@ -1,17 +1,57 @@
-var app = angular.module('app', ['ngRoute', 'ngUpload', 'chieffancypants.loadingBar']);
+module app.account_edit {
 
-app.controller('Personal', App.Account_Edit.Personal);
-app.controller('Teacher', App.Account_Edit.Teacher);
-app.controller('Logins', App.Account_Edit.Logins);
+    class StateConfig {
+        static $inject = [app.ngNames.$stateProvider, app.ngNames.$urlRouterProvider];
+        constructor(
+            private $stateProvider: ng.ui.IStateProvider,
+            private $urlRouterProvider: ng.ui.IUrlRouterProvider
+            ) {
+            var title = 'Edit profile';
+            var templateUrl = (template: string) => { return '/app/account/' + template; };
 
-app.config(['$routeProvider', function ($routeProvider: ng.route.IRouteProvider) {
-    var templateUrl = (template: string) => { return '/App/Account/' + template; };
-    $routeProvider
-        .when('/personal', { templateUrl: templateUrl('edit-personal.html'), controller: 'Personal', title: 'Edit profile' })
-        .when('/teacher', { templateUrl: templateUrl('edit-teacher.html'), controller: 'Teacher', title: 'Teacher profile' })
-        .when('/logins', { templateUrl: templateUrl('edit-logins.html'), controller: 'Logins', title: 'Manage logins', reloadOnSearch: false })
-        .otherwise({ redirectTo: '/personal' });
-}]);
+            var personal: ng.ui.IState = {
+                name: 'personal',
+                url: '/personal',
+                templateUrl: templateUrl('edit-personal.html'),
+                controller: app.account_edit.Personal,
+                data: {
+                    title: title,
+                    secondaryTitle: 'Personal information',
+                },
+            };
+            var logins: ng.ui.IState = {
+                name: 'logins',
+                url: '/logins?error',
+                templateUrl: templateUrl('edit-logins.html'),
+                controller: app.account_edit.Logins,
+                reloadOnSearch: false,
+                data: {
+                    title: title,
+                    secondaryTitle: 'Manage logins',
+                },
+            };
+            var teacher: ng.ui.IState = {
+                name: 'teacher',
+                url: '/teacher',
+                templateUrl: templateUrl('edit-teacher.html'),
+                controller: app.account_edit.Teacher,
+                data: {
+                    title: title,
+                    secondaryTitle: 'Teacher settings',
+                },
+            };
+            $stateProvider
+                .state(personal)
+                .state(logins)
+                .state(teacher)
+            ;
+            $urlRouterProvider.otherwise(personal.url);
+        }
+    };
 
-App.Utils.useRouteTitle(app);
+    angular.module(app.myAppName, ['ui.router', 'ngUpload', 'angular-loading-bar'])
+        .config(StateConfig)
+        .run(app.StateTitleSyncer)
+    ;
 
+}

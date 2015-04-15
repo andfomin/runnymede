@@ -3,32 +3,34 @@
     ViewBag.NavItem = "Account";
     var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
     // Protect userName from tampering with.
-    var englcCode = Runnymede.Website.Utils.PayPalHelper.GetTimestampedUserName(pageViewModel.UserName);
+    var timestampedUserName = Runnymede.Website.Utils.PayPalHelper.GetTimestampedUserName(pageViewModel.UserName);
+    var isDebug = HtmlHelperExtensions.IsDebug(null);
+    var formAction = isDebug ? "https://www.sandbox.paypal.com/cgi-bin/webscr" : "https://www.paypal.com/cgi-bin/webscr";
+    var buttonId = isDebug ? "CS9V5ALWHXX56" : "MW9Y4D4PNWJHE";
+    var imgSrc = isDebug ? "https://www.sandbox.paypal.com/en_US/i/scr/pixel.gif" : "https://www.paypalobjects.com/en_US/i/scr/pixel.gif";
 }
-@if (ViewBag.IsConfirmed ?? false)
+@if (!ViewBag.IsEmailConfirmed ?? false)
 {
     <div class="row">
-        <div class="col-sm-offset-3 col-sm-6 alert alert - info">
-            <p class="text-center">
-                Your email address @pageViewModel.UserName is not yet verified. 
-                Send verification email again
-            </p>
+        <div class="col-sm-offset-2 col-sm-8 alert alert-warning text-center">
+            Your email address <strong>@pageViewModel.UserName</strong> is not yet verified. <br />
+            To send a verification email, go to the @Html.ActionLinkWithProtocol("Profile", "Edit", "Account", "https", "/logins", null, null) page.
         </div>
     </div>
 }
-<img class="center-block" src="~/Content/Images/payment-logos.png" width="352" height="38" alt="Payment methods" />
-<img src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1" alt="" border="0">
+<img class="img-responsive center-block" src="~/content/images/payment-logos.png" width="352" height="38" alt="Payment methods" />
 
-<form class="form-horizontal" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" role="form">
+<img src="@imgSrc" width="1" height="1" alt="" border="0">
+
+<form class="form-horizontal" action="@formAction" method="post" target="_top" role="form">
     <input type="hidden" name="cmd" value="_s-xclick">
-    <input type="hidden" name="hosted_button_id" value="MW9Y4D4PNWJHE">
+    <input type="hidden" name="hosted_button_id" value="@buttonId">
     <input type="hidden" name="on0" value="amount">
+    <input type="hidden" name="currency_code" value="USD">
     <input type="hidden" name="on1" value="email">
     <input type="hidden" name="os1" value="@pageViewModel.UserName">
-    <input type="hidden" name="on2" value="englc-code">
-    <input type="hidden" name="os2" value="@englcCode">
-
-    <input type="hidden" name="currency_code" value="USD">
+    <input type="hidden" name="on2" value="account">
+    <input type="hidden" name="os2" value="@timestampedUserName">
 
     <div class="form-group">
         <label for="amount" class="col-sm-5 control-label">Amount</label>
@@ -39,22 +41,29 @@
                 <option value="$40">$30.00 USD</option>
                 <option value="$40">$40.00 USD</option>
                 <option value="$50">$50.00 USD</option>
-                @*<option value="1">1 $1.00 USD</option>*@
+
+                @if (isDebug || (pageViewModel.UserId == 1245020022))
+                {
+                    <option value="1">1 $1.00 USD</option>
+                }
             </select>
         </div>
     </div>
     <div class="form-group">
         <div class="col-sm-offset-5 col-sm-2">
-            <input class="btn btn-primary" type="submit" value="Pay now" />
+            @*<input class="btn btn-primary btn-lg" type="submit" value="Pay now" />*@
+            <input type="button" class="btn btn-primary btn-lg app-btn-disablable" value="Go to PayPal" onclick="this.disabled=true;this.value='Waiting...';this.form.submit();" />
         </div>
     </div>
 </form>
-@using (Html.BeginInstructionsContainer())
-{
-    <li>We use <a href="https://www.paypal.com/" target="blank">PayPal</a> as a payment processor.</li>
-    <li>Select an appropriate amount of money in the drop-down box.</li>
-    <li>There are currently only five standard options for the amount. The minimum amount is $10, the maximum amount is $50 US dollars.</li>
-}
+@*@using (Html.BeginInstructionsContainer())
+    {
+        <ul>
+            <li>We use <a href="https://www.paypal.com/" target="blank">PayPal</a> as a payment processor.</li>
+            <li>Select an appropriate amount of money in the drop-down box.</li>
+            <li>There are currently only five standard options for the amount. The minimum amount is $10, the maximum amount is $50 US dollars.</li>
+        </ul>
+    }*@
 
 @section BottomScripts {
     <script>

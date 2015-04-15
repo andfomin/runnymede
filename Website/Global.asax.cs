@@ -34,14 +34,18 @@ namespace Runnymede.Website
 
         protected void Application_PreSendRequestHeaders(object sender, EventArgs e)
         {
-            //HttpContext.Current.Response.Headers.Remove("X-Powered-By"); // Done in Web.config <system.webServer><httpProtocol><customHeaders><remove name="X-Powered-By"/>
-            //HttpContext.Current.Response.Headers.Remove("X-AspNet-Version"); // Done in Web.config <system.web><httpRuntime enableVersionHeader="false" />
-            HttpContext.Current.Response.Headers.Remove("X-AspNetMvc-Version");
-            /* Web.config might work on Azure, it does not work on the dev machine. <system.webServer><security><requestFiltering removeServerHeader="true" />
-             * Config Error on localhost: Unrecognized attribute 'removeServerHeader'
-             * +http://blogs.msdn.com/b/windowsazure/archive/2013/11/22/removing-standard-server-headers-on-windows-azure-web-sites.aspx . */
-            HttpContext.Current.Response.Headers.Remove("Server");
-            // X-SourceFiles is generated only for localhost
+            var context = HttpContext.Current;
+            if (context != null)
+            {
+                //HttpContext.Current.Response.Headers.Remove("X-Powered-By"); // Done in Web.config <system.webServer><httpProtocol><customHeaders><remove name="X-Powered-By"/>
+                //HttpContext.Current.Response.Headers.Remove("X-AspNet-Version"); // Done in Web.config <system.web><httpRuntime enableVersionHeader="false" />
+                context.Response.Headers.Remove("X-AspNetMvc-Version");
+                /* Web.config might work on Azure, it does not work on the dev machine. <system.webServer><security><requestFiltering removeServerHeader="true" />
+                 * Config Error on localhost: Unrecognized attribute 'removeServerHeader'
+                 * +http://blogs.msdn.com/b/windowsazure/archive/2013/11/22/removing-standard-server-headers-on-windows-azure-web-sites.aspx . */
+                context.Response.Headers.Remove("Server");
+                // X-SourceFiles is generated only for localhost
+            }
         }
     }
 }
