@@ -19,7 +19,7 @@ module app {
 
     export interface IExercise {
         id: number;
-        createTime: string;
+        creationTime: string;
         type: string;
         artifact: string;
         title: string;
@@ -125,6 +125,13 @@ module app {
         // Not persisted.
         viewed: boolean;
         localTime: string; // for History
+    }
+
+    export interface ICard {
+        id: number;
+        type: string;
+        title: string;
+        items: any[];
     }
 
 }

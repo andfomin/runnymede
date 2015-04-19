@@ -34,6 +34,9 @@ insert into dbo.appTypes (Id, Name, [Description]) values ('ACSREV', 'Service Re
 insert into dbo.appTypes (Id, Name, [Description]) values ('ACPPCA', 'PayPal Cash', '<Kind>ASSET</Kind><IsDebit>1</IsDebit>');
 insert into dbo.appTypes (Id, Name, [Description]) values ('ACPPIF', 'Incoming PayPal Payment Fee', '<Kind>EXPENSE</Kind><IsDebit>1</IsDebit>');
 insert into dbo.appTypes (Id, Name, [Description]) values ('ACPPIT', 'Incoming PayPal Payment Sales Tax', '<Kind>LIABILITY</Kind><IsDebit>0</IsDebit>');
+-- Added 20150415
+insert into dbo.appTypes (Id, Name, [Description]) values ('ACREVW', 'Personal Review Account', '<Kind>LIABILITY</Kind><IsDebit>0</IsDebit><IsMonetary>0</IsMonetary>');
+insert into dbo.appTypes (Id, Name, [Description]) values ('ACRQRV', 'Requested Reviews Account', '<Kind>REVENUE</Kind><IsDebit>0</IsDebit><IsMonetary>0</IsMonetary>');
 
 -- TR accTransactions
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRNACC', 'New account', null);
@@ -48,6 +51,8 @@ insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVFN', 'Review finished
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRRVFD', 'Service fee deducted from review price', 'ATREVW');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRSSRQ', 'Request for session', 'ATSSSN');
 insert dbo.appTypes (Id, Name, AttributeType) values ('TRSSCL', 'Session closed', 'ATSSSN');
+-- Added 20150417
+insert dbo.appTypes (Id, Name, AttributeType) values ('TRPRRV', 'Purchase of reviews', 'ATPPTI');
 
 -- EX exeExercises
 insert dbo.appTypes (Id, Name) values ('EXAREC', 'Audio Recording MP3');
@@ -81,6 +86,17 @@ insert into dbo.appTypes (Id, Name) values ('FRCIEX', 'Core Inventory exponents'
 insert into dbo.appTypes (Id, Name) values ('FRYTVD', 'YouTube video');
 insert into dbo.appTypes (Id, Name) values ('FRHTML', 'Web page');
 insert into dbo.appTypes (Id, Name, [Description]) values ('FRBCEG', 'British Council English Grammar', '{"urlBase":"http://learnenglish.britishcouncil.org/en/english-grammar/"}');
+
+-- TS exeCards -- Corresponds to Runnymede.Website.Controllers.Api.ExercisesApiController.MapCardType()
+insert into dbo.appTypes (Id, Name) values ('TSIW1A', 'IELTS Writing Task 1 Academic');
+insert into dbo.appTypes (Id, Name) values ('TSIW1G', 'IELTS Writing Task 1 General');
+insert into dbo.appTypes (Id, Name) values ('TSIW2A', 'IELTS Writing Task 2 Academic');
+insert into dbo.appTypes (Id, Name) values ('TSIW2G', 'IELTS Writing Task 2 General');
+insert into dbo.appTypes (Id, Name) values ('TSIS1_', 'IELTS Speaking Part 1');
+insert into dbo.appTypes (Id, Name) values ('TSIS23', 'IELTS Speaking Parts 2 & 3');
+
+-- VL appValues
+insert into dbo.appTypes (Id, Name) values ('VLRVPK', 'Review pack');
 
 	if @ExternalTran = 0
 		commit;

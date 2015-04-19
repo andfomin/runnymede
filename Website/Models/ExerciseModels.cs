@@ -28,16 +28,16 @@ namespace Runnymede.Website.Models
         public int? Length { get; set; }
         public virtual IEnumerable<ReviewDto> Reviews { get; set; }
 
-        private DateTime? createTime;
-        public DateTime? CreateTime
+        private DateTime? creationTime;
+        public DateTime? CreationTime
         {
             get
             {
-                return createTime;
+                return creationTime;
             }
             set
             {
-                createTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
+                creationTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
             }
         }
 
@@ -159,5 +159,22 @@ namespace Runnymede.Website.Models
         public int Start { get; set; }
         public int Finish { get; set; }
     }
+
+    public class CardDto
+    {
+        public int Id { get; set; }
+        public string Type { get; set; }
+        public string Title { get; set; }
+        public IEnumerable<CardItemDto> Items { get; set; }
+    }
+
+    public class CardItemDto
+    {
+        public int Id { get; set; }
+        public int CardId { get; set; }
+        public string Position { get; set; }
+        public string Contents { get; set; }
+    }
+
 
 } // end of namespace

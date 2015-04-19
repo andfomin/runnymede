@@ -58,6 +58,7 @@ namespace Runnymede.Website
 
             bundles.Add(new ScriptBundle("~/bundles/angular-libs").Include(
                 "~/bower_installer/angular-animate/angular-animate.min.js",
+                "~/bower_installer/angular-sanitize/angular-sanitize.min.js",
                 // Angular UI
                 "~/bower_installer/angular-bootstrap/ui-bootstrap-tpls.min.js",
                 "~/bower_installer/angular-ui-router/angular-ui-router.min.js",

@@ -463,6 +463,38 @@ insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) va
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('477_', '419_', N'Punctuation: Comma, ampersand', null, null, 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('478_', '419_', N'Punctuation: Period, exclamation point, question mark', null, null, 1)
 insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('479_', '419_', N'Punctuation: Colon, semicolon, dash, hyphen, parenthesis, quotation marks, slash, ellipsis', null, null, 1)
+----- Deployed.
+-- Additions 20150401.
+delete dbo.libCategories where Id = '434_';
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('435_', '433_', N'IELTS Listening', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('435a', '433_', N'IELTS Listening - Section 1', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('435b', '433_', N'IELTS Listening - Section 2', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('435c', '433_', N'IELTS Listening - Section 3', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('435d', '433_', N'IELTS Listening - Section 4', null, null, 1)
+
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('436_', '433_', N'IELTS Reading', null, null, 1)
+
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('437_', '433_', N'IELTS Writing', null, null, 1)
+update dbo.libCategories set Name = 'IELTS Writing Academic - Task 1' where Id = '437a'; 
+update dbo.libCategories set Name = 'IELTS Writing Academic - Task 2' where Id = '437b'; 
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('437c', '433_', N'IELTS Writing General - Task 1', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('437d', '433_', N'IELTS Writing General - Task 2', null, null, 1)
+
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('438a', '433_', N'IELTS Speaking - Part 1', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('438b', '433_', N'IELTS Speaking - Part 2', null, null, 1)
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('438c', '433_', N'IELTS Speaking - Part 3', null, null, 1)
+----- Deployed.
+----- Deployed.
+-- Additions 20150409.
+update dbo.libCategories set Name = 'IELTS Writing General - Task 1' where Id = '437b'; 
+update dbo.libCategories set Name = 'IELTS Writing - Task 2' where Id = '437c'; 
+delete dbo.libCategories where Id = '437d';
+----- Deployed.
+----- Deployed.
+-- Additions 20150409.
+insert dbo.libCategories (Id, ParentId, Name, Position, FeatureCode, Display) values ('480_', '473_', N'Conjunctive adverbs', null, null, 1)
+----- Deployed.
+
 
 
 	if @ExternalTran = 0

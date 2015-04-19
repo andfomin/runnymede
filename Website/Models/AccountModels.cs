@@ -32,16 +32,16 @@ namespace Runnymede.Website.Models
 
     public class BalanceEntryDto
     {
-        private DateTime? _observedTime;
+        private DateTime? observedTime;
         public DateTime? ObservedTime
         {
             get
             {
-                return _observedTime;
+                return observedTime;
             }
             set
             {
-                _observedTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
+                observedTime = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
             }
         }
 
@@ -50,5 +50,21 @@ namespace Runnymede.Website.Models
         public decimal? Credit { get; set; }
         public decimal Balance { get; set; }
     }
+
+    public class IncomingPayPalPayment
+    {
+        public string PaymentStatus { get; set; }
+        public string TxnId { get; set; }
+        public string OptionSelection2 { get; set; }
+        public string ReceiverEmail { get; set; }
+        public string McCurrency { get; set; }
+        public decimal? McGross { get; set; }
+        public decimal? McFee { get; set; }
+        public decimal? Tax { get; set; }
+        public string ResidenceCountry { get; set; }
+        public string Memo { get; set; }
+        public string PayerId { get; set; }
+    }
+
 
 }

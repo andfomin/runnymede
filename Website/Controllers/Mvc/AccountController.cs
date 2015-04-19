@@ -6,7 +6,6 @@ using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
 using System.Configuration;
-using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -246,9 +245,16 @@ namespace Runnymede.Website.Controllers.Mvc
             return View(payPalPaymentResult);
         }
 
-        // GET: /account/add-money
+        // GET: /account/transactions-reviews
         [RequireHttps]
-        public async Task<ActionResult> AddMoney()
+        public ActionResult TransactionsReviews(PayPalPaymentResult payPalPaymentResult = PayPalPaymentResult.None)
+        {
+            return View(payPalPaymentResult);
+        }
+
+        // GET: /account/buy-reviews
+        [RequireHttps]
+        public async Task<ActionResult> BuyReviews()
         {
             ViewBag.IsEmailConfirmed = await this.OwinUserManager.IsEmailConfirmedAsync(this.GetUserId());
             return View();
@@ -305,17 +311,17 @@ namespace Runnymede.Website.Controllers.Mvc
                 var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.DetailsRequest, tx, response);
 
                 var lines = helper.SplitPdtMessage(response);
+                var payment = helper.ParsePaymentLines(lines);
 
                 // Write the payment to the database.
-                helper.PostIncomingPaymentTransaction(lines, logRowKey);
-
-                if (lines.Count() > 0)
+                if (helper.PostIncomingPayPalPayment(payment, logRowKey))
                 {
                     result = PayPalPaymentResult.Success;
+                    helper.BuyReviewsOnIncomingPayPalPayment(payment);
                 }
             }
 
-            return RedirectToAction("Balance", new { PayPalPaymentResult = result });
+            return RedirectToAction("TransactionsReviews", new { PayPalPaymentResult = result });
         }
 
         // GET: /account/paypal-ipn
@@ -327,20 +333,23 @@ namespace Runnymede.Website.Controllers.Mvc
             var message = Encoding.ASCII.GetString(content);
 
             var helper = new PayPalHelper();
+
             var lines = helper.SplitIpnMessage(message);
-            var pairs = helper.SplitKeyValuePairs(lines);
+            var payment = helper.ParsePaymentLines(lines);
+            var txnId = String.IsNullOrEmpty(payment.TxnId) ? payment.TxnId : "IPN " + KeyUtils.GetCurrentTimeKey();
 
-            var tx = pairs.ContainsKey("txn_id") ? pairs["txn_id"] : "IPN " + KeyUtils.GetCurrentTimeKey();
+            var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.IPN, txnId, message);
 
-            var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.IPN, tx, message);
+            var response = helper.VerifyIPN(message, txnId);
 
-            var response = helper.VerifyIPN(message, tx);
-
-            helper.WriteLog(PayPalLogEntity.NotificationKind.IPNResponse, tx, response);
+            helper.WriteLog(PayPalLogEntity.NotificationKind.IPNResponse, txnId, response);
 
             if (response == "VERIFIED")
             {
-                helper.PostIncomingPaymentTransaction(lines, logRowKey);
+                if (helper.PostIncomingPayPalPayment(payment, logRowKey))
+                {
+                    helper.BuyReviewsOnIncomingPayPalPayment(payment);
+                }
             }
 
             return new HttpStatusCodeResult(HttpStatusCode.NoContent);

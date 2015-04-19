@@ -422,7 +422,7 @@ module app {
         }
     };
 
-    // Format exercise length depending on the exercise type.
+    // Format exercise length depending on the exercise type. {{vm.exercise.length | appLength : vm.exercise.type}}
     export function AppLengthFilter() {
         return (length: number, type: string) => {
             return ExerciseType.formatLength(length, type);

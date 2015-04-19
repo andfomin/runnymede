@@ -1,30 +1,5 @@
 module app.exercises {
 
-    //export function isMobileDevice() {
-    //    var ver = window.navigator.appVersion;
-    //    var ua = window.navigator.userAgent.toLowerCase();
-    //    var mobile = (ver.indexOf("iPad") != -1)
-    //        || (ver.indexOf("iPhone") != -1)
-    //        || (ua.indexOf("android") != -1)
-    //        || (ua.indexOf("ipod") != -1)
-    //        || (ua.indexOf("windows ce") != -1)
-    //        || (ua.indexOf("windows phone") != -1);
-    //    return !!mobile;
-    //}
-
-    export function captureSupported(accept: string) {
-        // element will be garbage-collected on function return.
-        //var element = (<Document>(<any>this.$document[0])).createElement('input'); 
-        var element = document.createElement('input');
-        element.setAttribute('type', 'file');
-        element.setAttribute('accept', accept);
-        /* Working Draft +http://www.w3.org/TR/2012/WD-html-media-capture-20120712/ described string values for the capture attribute.
-         * Candidate Recommendation +http://www.w3.org/TR/2013/CR-html-media-capture-20130509/ specifies that the capture attribute is of type boolean.
-         */
-        element.setAttribute('capture', <any>true);
-        return element.hasAttribute('accept') && element.hasAttribute('capture');
-    }
-
     export function showCreateRequestModal($modal: angular.ui.bootstrap.IModalService, exercise: app.IExercise, successCallback?: () => void) {
         app.Modal.openModal($modal,
             '/app/exercises/createReviewRequestModal.html',
@@ -42,6 +17,17 @@ module app.exercises {
                 }
             },
             'static'
+            );
+    };
+
+    export function showChooseCardModal($modal: angular.ui.bootstrap.IModalService, successCallback: (any) => void) {
+        app.Modal.openModal($modal,
+            '/app/exercises/chooseCardModal.html',
+            ChooseCardModal,
+            null,
+            successCallback,
+            true,
+            'lg'
             );
     };
 
@@ -75,8 +61,8 @@ module app.exercises {
                 });
         };
 
-        getAddLink = () => {
-            return 'https://' + window.document.location.hostname + '/account/add-money';
+        getBuyLink = () => {
+            return 'https://' + window.document.location.hostname + '/account/buy-reviews';
         }
 
         canOk = () => {
@@ -97,5 +83,50 @@ module app.exercises {
                 );
         };
     }; // end of class CreateReviewRequestModal
+
+    class ChooseCardModal extends app.Modal {
+
+        cards: ICard[];
+
+        static $inject = [app.ngNames.$http, app.ngNames.$modalInstance, app.ngNames.$q, app.ngNames.$scope, 'modalParams'];
+
+        constructor(
+            $http: angular.IHttpService,
+            $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
+            private $q: angular.IQService,
+            $scope: app.IScopeWithViewModel,
+            modalParams: any
+            ) {
+            super($http, $modalInstance, $scope, modalParams);
+            this.getCards();
+        } // ctor
+
+        getCards = () => {
+            app.ngHttpGet(this.$http,
+                app.exercisesApiUrl('cards' + location.pathname),
+                null,
+                (data) => {
+                    this.cards = data;
+                }
+                );
+        };
+
+        findOpenCard = () => {
+            return app.arrFind(this.cards,(i) => { return i['open']; });
+        };
+
+        canOk = () => {
+            return !!this.findOpenCard();
+        };
+
+        internalOk = () => {
+            var deferred = this.$q.defer();
+            var promise = deferred.promise;
+            deferred.resolve(this.findOpenCard());
+            return promise;
+        };
+
+    }; // end of class ChooseCardModal
+
 
 } // end of module exercises

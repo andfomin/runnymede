@@ -434,9 +434,8 @@ order by q1.[Level], C.ParentId, coalesce(C.Position, 999), C.Id
         { id: '436b', parentId: '433_', pathIds: '000F 433_ 436b', position: 999, level: 3, name: 'IELTS Reading General' },
         { id: '437_', parentId: '433_', pathIds: '000F 433_ 437_', position: 999, level: 3, name: 'IELTS Writing' },
         { id: '437a', parentId: '433_', pathIds: '000F 433_ 437a', position: 999, level: 3, name: 'IELTS Writing Academic - Task 1' },
-        { id: '437b', parentId: '433_', pathIds: '000F 433_ 437b', position: 999, level: 3, name: 'IELTS Writing Academic - Task 2' },
-        { id: '437c', parentId: '433_', pathIds: '000F 433_ 437c', position: 999, level: 3, name: 'IELTS Writing General - Task 1' },
-        { id: '437d', parentId: '433_', pathIds: '000F 433_ 437d', position: 999, level: 3, name: 'IELTS Writing General - Task 2' },
+        { id: '437b', parentId: '433_', pathIds: '000F 433_ 437b', position: 999, level: 3, name: 'IELTS Writing General - Task 1' },
+        { id: '437c', parentId: '433_', pathIds: '000F 433_ 437c', position: 999, level: 3, name: 'IELTS Writing - Task 2' },
         { id: '438_', parentId: '433_', pathIds: '000F 433_ 438_', position: 999, level: 3, name: 'IELTS Speaking' },
         { id: '438a', parentId: '433_', pathIds: '000F 433_ 438a', position: 999, level: 3, name: 'IELTS Speaking - Part 1' },
         { id: '438b', parentId: '433_', pathIds: '000F 433_ 438b', position: 999, level: 3, name: 'IELTS Speaking - Part 2' },
@@ -470,6 +469,7 @@ order by q1.[Level], C.ParentId, coalesce(C.Position, 999), C.Id
         { id: '474_', parentId: '473_', pathIds: '000B 473_ 474_', position: 999, level: 3, name: 'Coordinating conjunctions' },
         { id: '475_', parentId: '473_', pathIds: '000B 473_ 475_', position: 999, level: 3, name: 'Correlative conjunctions' },
         { id: '476_', parentId: '473_', pathIds: '000B 473_ 476_', position: 999, level: 3, name: 'Subordinating conjunctions' },
+        { id: '480_', parentId: '473_', pathIds: '000B 473_ 480_', position: 999, level: 3, name: 'Conjunctive adverbs' },
     ];
 
 } // end of module app.library

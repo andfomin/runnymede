@@ -31,8 +31,6 @@ namespace Runnymede.Website.Controllers.Api
 
             if (this.IsAuthenticated() || !viewed)
             {
-
-
                 result = await DapperHelper.QueryPageItems<dynamic>("dbo.copGetResources",
                     new
                     {

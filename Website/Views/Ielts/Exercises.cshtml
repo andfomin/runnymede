@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.NavItem = "IeltsExercises";
+    ViewBag.Title = "IELTS Exercises";
+}
+
+<div ng-app="myApp" ng-cloak>
+    <div ng-controller="Exercises">
+
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10">
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-offset-1 col-sm-3">
+                                <h3 class="app-margin-top-none app-appred">
+                                  Practice tests
+                                </h3>
+                            </div>
+                            <div class="col-sm-9 col-md-8">
+                                <h4 class="app-margin-top-none app-margin-bottom-none">
+                                    <span class="text-nowrap app-margin-left">
+                                        <i class="fa fa-pencil fa-fw app-appblue app-1px-up"></i>&nbsp;@Html.ActionLink("Writing Task 1 Academic", "Writing", new { Id = "1a" })
+                                    </span>
+                                    <span class="text-nowrap app-margin-left">
+                                        <i class="fa fa-pencil fa-fw app-appblue app-1px-up"></i>&nbsp;@Html.ActionLink("Writing Task 1 General", "Writing", new { Id = "1g" })
+                                    </span>
+                                </h4>
+                                <h4 class="app-margin-bottom-none">
+                                    <span class="text-nowrap app-margin-left">
+                                        <i class="fa fa-pencil fa-fw app-appblue app-1px-up"></i>&nbsp;@Html.ActionLink("Writing Task 2 Academic", "Writing", new { Id = "2a" })
+                                    </span>
+                                    <span class="text-nowrap app-margin-left">
+                                        <i class="fa fa-pencil fa-fw app-appblue app-1px-up"></i>&nbsp;@Html.ActionLink("Writing Task 2 General", "Writing", new { Id = "2g" })
+                                    </span>
+                                </h4>
+                                <h4 class="app-margin-bottom-none">
+                                    <span class="text-nowrap app-margin-left">
+                                        <i class="fa fa-comment-o fa-fw app-appblue app-2px-up"></i>&nbsp;@Html.ActionLink("Speaking Part 1", "Speaking", new { Id = "1" })
+                                    </span>
+                                    <span class="text-nowrap app-margin-left">
+                                        <i class="fa fa-comment-o fa-fw app-appblue app-2px-up"></i>&nbsp;@Html.ActionLink("Speaking Parts 2 & 3", "Speaking", new { Id = "23" })
+                                    </span>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-offset-1 col-lg-10">
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Created</th>
+                            <th>Reviews</th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="e in vm.exercises">
+                        <tr>
+                            <td>
+                                <a ng-href="{{vm.getViewUrl(e)}}">{{e.title}}</a>
+                            </td>
+                            <td>
+                                {{e.creationTime | appDateHuman}}
+                            </td>
+                            <td>
+                                <ul class="app-margin-bottom-none">
+                                    <li class="app-row-review" ng-repeat="r in e.reviews">
+                                        <span ng-class="vm.getReviewStatusStyle(r)"><strong>{{vm.getReviewStatusText(r)}}</strong></span>
+                                        &nbsp;{{vm.getReviewStatusTime(r) | appDateHuman}}
+                                    </li>
+                                </ul>
+                                <button class="btn btn-primary btn-xs" ng-show="!e.reviews || e.reviews.length == 0" ng-click="vm.showCreateRequestModal(e)">Request&nbsp;review</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="text-muted text-center" style="margin-top:19px;" ng-show="vm.isEmpty()" ng-cloak>
+                    You have not done any exercises yet.
+                </p>
+                <div class="pagination-sm" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="5" data-boundary-links="true" data-rotate="false"
+                     ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.pgLoad()"></div>
+            </div>
+        </div>
+
+    </div><!-- /ng-controller="Exercises" -->
+</div><!-- /ng-app="myApp" -->
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/exercises/utils.js",
+"~/app/ielts/exercises.js"
+)
+}
+
+
+
+

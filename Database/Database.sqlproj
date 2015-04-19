@@ -160,7 +160,6 @@
     <Build Include="Stored Procedures\copGetResources.sql" />
     <Build Include="Stored Procedures\copUpdatePriority.sql" />
     <Build Include="Tables\appTypes.sql" />
-    <Build Include="Tables\appFeeRates.sql" />
     <Build Include="Stored Procedures\sysInitializeTypes.sql" />
     <Build Include="Functions\exeIsTypeWriting.sql" />
     <Build Include="Functions\exeIsTypeRecording.sql" />
@@ -170,7 +169,6 @@
     <Build Include="Stored Procedures\sysInitializeLibDescriptions.sql" />
     <Build Include="Stored Procedures\sysInitializeLibCategories.sql" />
     <Build Include="Stored Procedures\exeUpdateLength.sql" />
-    <Build Include="Stored Procedures\sysUpdateFeeRate.sql" />
     <Build Include="Tables\conOffers.sql" />
     <Build Include="Functions\conGetOffers.sql" />
     <Build Include="Tables\sesRates.sql" />
@@ -190,6 +188,17 @@
     <Build Include="Security\websiteuser.sql" />
     <Build Include="Stored Procedures\sysAddResourceNote.sql" />
     <Build Include="Stored Procedures\accPostRevenue.sql" />
+    <Build Include="Tables\exeUserCards.sql" />
+    <Build Include="Tables\exeCards.sql" />
+    <Build Include="Tables\exeCardItems.sql" />
+    <Build Include="Functions\accGetReviewBalance.sql" />
+    <Build Include="Functions\accGetReviewAccount.sql" />
+    <Build Include="Stored Procedures\accGetReviewTransactions.sql" />
+    <Build Include="Tables\appValues.sql" />
+    <Build Include="Stored Procedures\sysUpdateValue.sql" />
+    <Build Include="Functions\appGetValueAsXml.sql" />
+    <Build Include="Stored Procedures\accRequestReview.sql" />
+    <Build Include="Stored Procedures\accBuyReviewsOnIncomingPayPalPayment.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />

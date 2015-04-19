@@ -40,8 +40,8 @@ module app.exercises {
 
         loadPieces = () => {
             if (this.reviews.length > 0) {
-                // We do not send exercise.createTime to the review editor. Use that fact to distinguish between the Review and Exercise pages.
-                var singleReview = !this.exercise.createTime;
+                // We do not send exercise.creationTime to the review editor. Use that fact to distinguish between the Review and Exercise pages.
+                var singleReview = !this.exercise.creationTime;
                 var route = ('exercise/' + this.exercise.id) + (singleReview ? ('/review/' + this.reviews[0].id) : '') + '/pieces';
 
                 app.ngHttpGet(this.$http,

@@ -28,9 +28,9 @@ namespace Runnymede.Website.Controllers.Api
     [RoutePrefix("api/exercises")]
     public class ExercisesApiController : ApiController
     {
-        // GET api/exercises/?offset=0&limit=10&type=WRPH
+        // GET api/exercises/?offset=0&limit=10
         [Route("")]
-        public async Task<IHttpActionResult> GetExercises(int offset, int limit, string type)
+        public async Task<IHttpActionResult> GetExercises(int offset, int limit)
         {
             object result = null;
             await DapperHelper.QueryMultipleResilientlyAsync(
@@ -38,7 +38,6 @@ namespace Runnymede.Website.Controllers.Api
                   new
                   {
                       UserId = this.GetUserId(),
-                      Type = type,
                       RowOffset = offset,
                       RowLimit = limit,
                   },
@@ -60,8 +59,8 @@ namespace Runnymede.Website.Controllers.Api
         public async Task<IHttpActionResult> GetReviewConditions(string exerciseType, int length)
         {
             var sql = @"
-select dbo.exeCalculateReviewPrice(@ExerciseType, @Length);
-select dbo.accGetBalance(@UserId);
+select cast(1 as decimal(9,2)); -- dbo.exeCalculateReviewPrice(@ExerciseType, @Length);
+select dbo.accGetReviewBalance(@UserId);
 ";
             object result = null;
             await DapperHelper.QueryMultipleResilientlyAsync(
@@ -110,6 +109,98 @@ select dbo.accGetBalance(@UserId);
             }
             else
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
+        }
+
+        // GET: /api/exercises/cards/ielts/writing/2a
+        [Route("cards/{exam}/{test}/{part}")]
+        public async Task<IHttpActionResult> GetCards(string exam, string test, string part)
+        {
+            var sql = @"
+select C.Id, C.[Type], C.Title, CI.CardId, CI.Id, CI.Position, CI.Contents
+from dbo.exeCards C
+	inner join dbo.exeCardItems CI on C.Id = CI.CardId
+where C.[Type] = @Type;
+";
+            var cards = await InternalGetCards(sql, new { Type = MapCardType(exam, test, part) });
+            return Ok(cards);
+        }
+
+        // GET: /api/exercises/user_card/ielts/writing/2a
+        [Route("user_card/{exam}/{test}/{part}")]
+        public async Task<IHttpActionResult> GetCard(string exam, string test, string part)
+        {
+            string type = MapCardType(exam, test, part);
+            var sql = @"
+select C.Id, C.[Type], C.Title, CI.CardId, CI.Id, CI.Position, CI.Contents
+from dbo.exeUserCards U
+	inner join dbo.exeCards C on U.CardId = C.Id
+	inner join dbo.exeCardItems CI on C.Id = CI.CardId
+where U.UserId = @UserId
+	and C.[Type] = @Type;
+";
+            var card = (await InternalGetCards(sql, new
+            {
+                UserId = this.GetUserId(),
+                Type = MapCardType(exam, test, part)
+            }))
+            .FirstOrDefault();
+
+            return Ok(card);
+        }
+
+        private async Task<IEnumerable<CardDto>> InternalGetCards(string sql, object param)
+        {
+            IEnumerable<CardDto> cards;
+
+            using (var conn = await DapperHelper.GetOpenConnectionAsync())
+            {
+                cards = await conn.QueryAsync<CardDto, CardItemDto, CardDto>(
+                     sql,
+                     (c, ci) => { c.Items = new[] { ci }; return c; },
+                     param,
+                     splitOn: "CardId",
+                     commandType: CommandType.Text
+                     );
+            }
+
+            cards = cards
+                .GroupBy(i => i.Id)
+                .Select(i =>
+                {
+                    var items = i
+                            .SelectMany(j => j.Items)
+                            .OrderBy(j => j.Position)
+                            .ToList();
+                    var c = i.First();
+                    c.Items = items;
+                    return c;
+                });
+
+            return cards;
+        }
+
+        // PUT: /api/exercises/user_card/ielts/writing/2a
+        [Route("user_card/{exam}/{test}/{part}/{id:int}")]
+        public async Task<IHttpActionResult> PutUserCard(string exam, string test, string part, int id)
+        {
+            var sql = @"
+merge dbo.exeUserCards as Trg
+using (values(@UserId, @Type)) as Src (UserId, [Type])
+	on Trg.UserId = Src.UserId and Trg.[Type] = Src.[Type]
+when matched then
+	update set 
+		CardId = @CardId
+when not matched then
+	insert (UserId, [Type], CardId)
+		values (@UserId, @Type, @CardId);
+";
+            var rowsAffected = await DapperHelper.ExecuteResilientlyAsync(sql, new
+            {
+                UserId = this.GetUserId(),
+                Type = MapCardType(exam, test, part),
+                CardId = id,
+            });
+            return StatusCode(rowsAffected > 0 ? HttpStatusCode.NoContent : HttpStatusCode.BadRequest);
         }
 
         // PUT /api/exercises/12345/title
@@ -176,6 +267,37 @@ where UserId = @UserId
             }
 
             return Ok(new { ExerciseId = exerciseId });
+        }
+
+        private string MapCardType(string exam, string test, string part)
+        {
+            // Type corresponds to dbo.appTypes
+            var path = exam + test + part;
+            string type = null;
+            switch (path)
+            {
+                case "ieltswriting1a":
+                    type = "TSIW1A";
+                    break;
+                case "ieltswriting1g":
+                    type = "TSIW1G";
+                    break;
+                case "ieltswriting2a":
+                    type = "TSIW2A";
+                    break;
+                case "ieltswriting2g":
+                    type = "TSIW2G";
+                    break;
+                case "ieltsspeaking1":
+                    type = "TSIS1_";
+                    break;
+                case "ieltsspeaking23":
+                    type = "TSIS23";
+                    break;
+                default:
+                    throw new ArgumentException(path);
+            }
+            return type;
         }
 
     }

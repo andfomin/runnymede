@@ -263,8 +263,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\account\edit-logins.html" />
+    <Content Include="app\account\edit-personal0.html" />
     <Content Include="app\account\edit-teacher.html" />
     <Content Include="app\account\edit-personal.html" />
+    <Content Include="app\exercises\chooseCardModal.html" />
     <Content Include="app\exercises\createReviewRequestModal.html" />
     <Content Include="app\exercises\reviewStatusChangedModal.html" />
     <Content Include="app\reviews\deleteRemarkModal.html" />
@@ -278,6 +280,7 @@
     <Content Include="bower_installer\angular-bootstrap\ui-bootstrap-tpls.min.js" />
     <Content Include="bower_installer\angular-loading-bar\loading-bar.min.css" />
     <Content Include="bower_installer\angular-loading-bar\loading-bar.min.js" />
+    <Content Include="bower_installer\angular-sanitize\angular-sanitize.min.js" />
     <Content Include="bower_installer\angular-touch\angular-touch.min.js" />
     <Content Include="bower_installer\angular-ui-calendar\calendar.js" />
     <Content Include="bower_installer\angular-ui-router\angular-ui-router.min.js" />
@@ -429,6 +432,7 @@
     <Compile Include="Controllers\Mvc\ConversationsController.cs" />
     <Compile Include="Controllers\Mvc\ExercisesController.cs" />
     <Compile Include="Controllers\Mvc\HomeController.cs" />
+    <Compile Include="Controllers\Mvc\IeltsController.cs" />
     <Compile Include="Controllers\Mvc\InfoController.cs" />
     <Compile Include="Controllers\Mvc\LibraryController.cs" />
     <Compile Include="Controllers\Mvc\GamesController.cs" />
@@ -485,7 +489,7 @@
     <Content Include="Views\Exercises\RecordSpeech.cshtml" />
     <Content Include="Views\Reviews\Index.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Account\AddMoney.cshtml" />
+    <Content Include="Views\Account\BuyReviews.cshtml" />
     <Content Include="Views\Account\Balance.cshtml" />
     <Content Include="Views\Info\PrivacyPolicy.cshtml" />
     <Content Include="Views\Info\~Template.cshtml" />
@@ -539,6 +543,11 @@
     <Content Include="Views\Shared\_ClockWrongPartial.cshtml" />
     <Content Include="Views\Sessions\Teacher.cshtml" />
     <Content Include="Views\Sessions\Index.cshtml" />
+    <Content Include="Views\Ielts\Writing.cshtml" />
+    <Content Include="Views\Ielts\Exercises.cshtml" />
+    <Content Include="Views\Ielts\SpeakingDesktop.cshtml" />
+    <Content Include="Views\Account\TransactionsReviews.cshtml" />
+    <Content Include="Views\Home\Index0.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -548,6 +557,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="app\account\transactionsReviews.ts" />
     <TypeScriptCompile Include="app\account\balance.ts" />
     <TypeScriptCompile Include="app\account\signup.ts" />
     <TypeScriptCompile Include="app\account\edit-app.ts" />
@@ -568,6 +578,10 @@
     <TypeScriptCompile Include="app\games\copycat.ts" />
     <TypeScriptCompile Include="app\games\copycatAdd.ts" />
     <TypeScriptCompile Include="app\games\pickapic.ts" />
+    <TypeScriptCompile Include="app\ielts\exercises.ts" />
+    <TypeScriptCompile Include="app\ielts\speakingDesktop.ts" />
+    <TypeScriptCompile Include="app\ielts\utils.ts" />
+    <TypeScriptCompile Include="app\ielts\writing.ts" />
     <TypeScriptCompile Include="app\library\friend.ts" />
     <TypeScriptCompile Include="app\library\history.ts" />
     <TypeScriptCompile Include="app\library\index.ts" />

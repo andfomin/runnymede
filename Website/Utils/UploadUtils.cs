@@ -43,12 +43,12 @@ namespace Runnymede.Website.Utils
             return exerciseId;
         }
 
-        public static async Task<int> CreateExercise(string artifact, int userId, string exerciseType, int length, string title = null)
+        public static async Task<int> CreateExercise(string artifact, int userId, string exerciseType, int length, string title = null, int? cardId = null)
         {
             const string sql = @"
-insert dbo.exeExercises (Id, UserId, [Type], Artifact, [Length], Title)
+insert dbo.exeExercises (Id, UserId, [Type], Artifact, [Length], Title, CardId)
 output inserted.Id
-values (dbo.exeGetNewExerciseId(), @UserId, @Type, @Artifact, @Length, @Title);
+values (dbo.exeGetNewExerciseId(), @UserId, @Type, @Artifact, @Length, @Title, @CardId);
 ";
             var exerciseId = (await DapperHelper.QueryResilientlyAsync<int>(sql,
                 new
@@ -58,6 +58,7 @@ values (dbo.exeGetNewExerciseId(), @UserId, @Type, @Artifact, @Length, @Title);
                     Artifact = artifact,
                     Length = length,
                     Title = NormalizeExerciseTitle(title),
+                    CardId = cardId,
                 }))
                 .Single();
 

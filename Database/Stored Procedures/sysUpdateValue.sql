@@ -1,10 +1,10 @@
 ﻿
 
 
-CREATE PROCEDURE [dbo].[sysUpdateFeeRate]
+CREATE PROCEDURE [dbo].[sysUpdateValue]
 	@Type char(6),
 	@Start smalldatetime,
-	@FeeRates xml
+	@Value nvarchar(max)
 AS
 BEGIN
 SET NOCOUNT ON;
@@ -21,9 +21,13 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
-		update dbo.appFeeRates set [End] = @Start where [Type] =  @Type and [End] is null;
+		update dbo.appValues 
+		set [End] = @Start 
+		where [Type] =  @Type 
+			and [End] is null;
 		
-		insert appFeeRates ([Type], Start, PreviousEnd, FeeRates) values (@Type, @Start, @Start, @FeeRates);
+		insert appValues ([Type], Start, PreviousEnd, Value) 
+		values (@Type, @Start, @Start, @Value);
 
 	if @ExternalTran = 0
 		commit;

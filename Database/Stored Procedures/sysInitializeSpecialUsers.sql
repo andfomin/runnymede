@@ -33,6 +33,14 @@ insert dbo.appConstants (Name, Value, Comment)
 	where AA.UserId = @ServiceUserId
 		and AA.[Type] = 'ACSREV';
 
+execute dbo.accCreateAccount @ServiceUserId, 'ACRQRV';
+
+insert dbo.appConstants (Name, Value, Comment)
+	select 'Account.$Service.RequestedReviews', AA.Id, @Comment
+	from dbo.accAccounts AA
+	where AA.UserId = @ServiceUserId
+		and AA.[Type] = 'ACRQRV';
+
 execute dbo.accCreateAccount @ServiceUserId, 'ACPPCA';
 
 insert dbo.appConstants (Name, Value, Comment)

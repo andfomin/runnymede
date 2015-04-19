@@ -94,11 +94,9 @@
                 <div id="myList">
                     <ul>
                         <li class="my-indicator active" onclick="mySlideTo(0);">Watch hundreds of lessons <span class="app-appyellow my-shadow">for&nbsp;free</span></li>
-                        <li class="my-indicator" onclick="mySlideTo(1);">Find speaking partners or practice individually <span class="app-appyellow my-shadow">for&nbsp;free</span></li>
-                        <li class="my-indicator" onclick="mySlideTo(2);">Have fun by playing games with friends or alone <span class="app-appyellow my-shadow">for&nbsp;free</span></li>
-                        <li class="my-indicator" onclick="mySlideTo(3);">Get your speaking exercises reviewed by teachers</li>
-                        <li class="my-indicator" onclick="mySlideTo(4);"><span class="app-appyellow my-shadow">New<span style="margin-left:1px;">!</span></span> Have your <em>handwritten</em> texts reviewed by teachers</li>
-                        <li class="my-indicator" onclick="mySlideTo(5);">Let qualified teachers guide your exam preparation</li>
+                        <li class="my-indicator" onclick="mySlideTo(1);">Get your speaking exercises reviewed by teachers</li>
+                        <li class="my-indicator" onclick="mySlideTo(2);"><span class="app-appyellow my-shadow">New<span style="margin-left:1px;">!</span></span> Have your <em>handwritten</em> texts reviewed by teachers</li>
+                        <li class="my-indicator" onclick="mySlideTo(3);">Let qualified teachers guide your IELTS preparation</li>
                     </ul>
                 </div>
                 @if (!isAuthenticated)
@@ -126,30 +124,10 @@
                     <div class="item">
                         <div class="row">
                             <div class="col-sm-offset-1 col-sm-5 my-screenshot">
-                                <img class="img-responsive" src="/content/images/happy-learner.jpg">
+                                <img class="img-responsive" src="~/content/images/learner-teddybear.jpg">
                             </div>
                             <div class="col-sm-4 my-description">
-                                Start practicing by retelling stories and record as many attempts as you wish. Then join other learners who want to communicate and cooperate on Skype.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="row">
-                            <div class="col-sm-offset-1 col-sm-5 my-screenshot">
-                                <img class="img-responsive" src="/content/images/cooperation-240.jpg">
-                            </div>
-                            <div class="col-sm-4 my-description">
-                                You will enjoy playing the games regardless of whether you are a beginner or an advanced speaker.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="row">
-                            <div class="col-sm-offset-1 col-sm-5 my-screenshot">
-                                <img class="img-responsive" src="~/content/images/teacher.jpg">
-                            </div>
-                            <div class="col-sm-4 my-description">
-                                You will progress faster if you get professional feedback about your exercises. You can get it any time you need it.
+                                You will progress faster if you get professional feedback about your speaking. You can get it any time you need&nbsp;it.
                             </div>
                         </div>
                     </div>
@@ -167,7 +145,7 @@
                         <div class="row">
                             <div class="col-sm-offset-1 col-sm-5 my-screenshot">
                                 <a href='@Url.Action("Ielts", "Info")'>
-                                    <img class="img-responsive" src="/content/images/ielts-test-240.jpg">
+                                    <img class="img-responsive" src="/content/images/teacher.jpg">
                                 </a>
                             </div>
                             <div class="col-sm-4 my-description">
@@ -206,7 +184,22 @@
 <div id="myCopy">
     <div class="row app-margin-bottom">
         <div class="col-md-offset-1 col-lg-offset-2 col-sm-10">
-            <h3 class="app-appred">The easiest way to start speaking</h3>
+            <h3 class="app-margin-top-none app-appred">Prepare for IELTS Speaking and Writing tests</h3>
+        </div>
+    </div>
+    <div class="row app-margin-bottom">
+        <div class="col-sm-5 col-sm-push-6 text-center app-margin-bottom">
+            <img src="~/content/images/ielts-test-240.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+        </div>
+        <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
+            <p>Simulate speaking tests and record your exercises with a voice recorder. Ask competent teachers to review recordings of your simulated tests and find your difficulties.</p>
+            <p>Simulate writing tests, upload your handwritten texts using a smartphone, then ask teachers to review them and suggest ways to improve your results.</p>
+            <p>Use the library to find learning resources which will help you to prepare for an IELTS test.</p>
+        </div>
+    </div>
+    <div class="row app-margin-top app-margin-bottom">
+        <div class="col-md-offset-1 col-lg-offset-2 col-sm-10">
+            <h3 class="app-appred">The easiest way to practice speaking</h3>
         </div>
     </div>
     <div class="row">
@@ -229,10 +222,6 @@
             <p>
                 There is an idea about how to learn speaking English more comfortably. A teacher can provide feedback to a learner’s speech after it is done, for example, by annotating a record of the speech. This way, we avoid embarrassing the learner.
             </p>
-            @*<p>
-                    Professor Orlando&nbsp;R.&nbsp;Kelm has written a <a href="https://orkelm.wordpress.com/2014/01/07/correct-me-please/" target="_blank">good description</a> of such approach:
-                    "Here’s my strategy. There are two parts: First, I like to have a correction guru, somebody who becomes my go-to person who can tell me what I’m saying wrong. Second part, I like to ask my correction guru to simply listen to my speech, jot a few notes down, and then at a separate time we sit down together to review notes."
-                </p>*@
             <p>
                 This approach is based on the idea <a href="https://orkelm.wordpress.com/2014/01/07/correct-me-please/" target="_blank">described</a> by Professor Orlando&nbsp;R.&nbsp;Kelm:
                 &quot;Here's my strategy. There are two parts: First, I like to have a correction guru, somebody who becomes my go-to person who can tell me what I'm saying wrong. Second part, I like to ask my correction guru to simply listen to my speech, jot a few notes down, and then at a separate time we sit down together to review notes.&quot;
@@ -246,34 +235,8 @@
                 <img src="/content/images/shy-learner.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
             </p>
             <p>
-                <img src="/content/images/learner-teddybear.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
+                <img src="/content/images/happy-learner.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
             </p>
-        </div>
-    </div>
-    @*<div class="row app-margin-bottom">
-            <div class="col-md-offset-1 col-lg-offset-2 col-sm-10">
-                <h3 class="app-margin-top-none app-appred">The more you speak, the better you speak</h3>
-            </div>
-        </div>
-        <div class="row app-margin-bottom">
-            <div class="col-sm-5 col-sm-push-6 text-center app-margin-bottom">
-                <img src="/content/images/skype-together.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
-            </div>
-            <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
-                Although Skype is an awesome communication medium, scheduling sessions with parties scattered around different time zones is a cumbersome process. Now you have got a schedule tool to easily arrange and manage multiple speaking sessions with other learners and teachers. There is no more excuse for not playing the speaking games.
-            </div>
-        </div>*@
-    <div class="row app-margin-top app-margin-bottom">
-        <div class="col-md-offset-1 col-lg-offset-2 col-sm-10">
-            <h3 class="app-margin-top-none app-appred">Start speaking today</h3>
-        </div>
-    </div>
-    <div class="row app-margin-bottom">
-        <div class="col-sm-5 col-sm-push-6 text-center app-margin-bottom">
-            <img src="~/content/images/conversation-three-240.jpg" class="img-responsive img-thumbnail" width="250" height="170" />
-        </div>
-        <div class="col-md-offset-1 col-lg-offset-2 col-sm-6 col-md-5 col-lg-4 col-sm-pull-5">
-            The main goal of Englisharium is to provide learners of English with all possible options to practice speaking. Whether you are a beginner or an advanced speaker, you will find here a number of activities appropriate for your level. If you are ready to do something new, simply explore the menu items at the top of the page.
         </div>
     </div>
     @if (!isAuthenticated)

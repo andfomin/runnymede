@@ -8,15 +8,11 @@
             <div class="col-sm-offset-1 col-sm-10">
                 <p>
                     You are requesting a review of the exercise &quot;<strong>{{vm.exercise.title}}</strong>&quot;
-                    which was created <strong>{{vm.exercise.createTime | appDateHuman}}</strong>
-                    and has length <strong>{{vm.exercise.length | appLength : vm.exercise.type}}</strong>.
-                </p>
-                <p>
-                    The review price is <strong>{{vm.price | number:2}}</strong>&nbsp;dollars.
+                    which was created <strong>{{vm.exercise.creationTime | appDateHuman}}</strong>
                 </p>
                 <p ng-show="vm.price > vm.balance">
-                    Your account balance is currently <strong>{{vm.balance | number:2}}</strong>&nbsp;dollars.
-                    <a class="btn btn-primary btn-sm app-2px-up" ng-href="{{vm.getAddLink()}}">Add money to account</a>
+                    Your available review limit is <strong>{{vm.balance | number:0}}</strong>.
+                    <a class="btn btn-primary btn-sm app-2px-up app-margin-left" ng-href="{{vm.getBuyLink()}}">Buy reviews</a>
                 </p>
             </div>
         </div>

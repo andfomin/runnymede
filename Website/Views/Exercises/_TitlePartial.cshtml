@@ -1,8 +1,8 @@
 ﻿<div class="row" ng-cloak>
     <div class="col-sm-3 col-sm-push-9 text-center">
-        <button class="btn btn-primary" ng-click="vm.showCreateRequestModal()">Request&nbsp;review</button>
+        <button class="btn btn-primary" ng-click="vm.showCreateRequestModal()" ng-show="!vm.exercise.reviews.length">Request&nbsp;review</button>
     </div>
-    <div class="visible-xs-block">&nbsp;</div>
+    <div class="visible-xs-block" ng-show="!vm.exercise.reviews.length">&nbsp;</div>
     <div class="col-sm-9 col-sm-pull-3">
         <div class="input-group">
             <span class="input-group-addon"><strong>Title</strong></span>

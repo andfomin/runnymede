@@ -94,10 +94,14 @@ insert into dbo.libSources (Id, Name, HomePage, IconUrl) values ('BCEG', 'Britis
 --insert into dbo.friContactTypes (Id, Name) values ('SU', 'Skype session requested by the user/guest is confirmed by the friend/host.');--T
 --insert into dbo.friContactTypes (Id, Name) values ('SF', 'Skype session requested by the friend/guest is confirmed by the user/host.');--T
 
-insert dbo.appFeeRates ([Type], Start, FeeRates) values ('EXAREC', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="9.99">0.29</FeeRate><FeeRate priceRateFrom="10.00" priceRateTo="999999.99">0.28</FeeRate></FeeRates>');
-insert dbo.appFeeRates ([Type], Start, FeeRates) values ('EXWRPH', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="9.99">0.3</FeeRate><FeeRate priceRateFrom="10.00" priceRateTo="999999.99">0.2</FeeRate></FeeRates>');
-insert dbo.appFeeRates ([Type], Start, FeeRates) values ('TRIPFD', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="999999.99">0.33</FeeRate></FeeRates>');
-insert dbo.appFeeRates ([Type], Start, FeeRates) values ('TRSSFD', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="999999.99">0.33</FeeRate></FeeRates>');
+--insert dbo.appValues ([Type], Start, Value) values ('EXAREC', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="9.99">0.29</FeeRate><FeeRate priceRateFrom="10.00" priceRateTo="999999.99">0.28</FeeRate></FeeRates>');
+--insert dbo.appValues ([Type], Start, Value) values ('EXWRPH', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="9.99">0.3</FeeRate><FeeRate priceRateFrom="10.00" priceRateTo="999999.99">0.2</FeeRate></FeeRates>');
+--insert dbo.appValues ([Type], Start, Value) values ('TRIPFD', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="999999.99">0.33</FeeRate></FeeRates>');
+--insert dbo.appValues ([Type], Start, Value) values ('TRSSFD', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="999999.99">0.33</FeeRate></FeeRates>');
+-- Added 20150417
+insert dbo.appValues ([Type], Start, Value) values ('VLRVPK', '1900-01-01 00:00:00', '<Packs><Pack quantity="1" totalPrice="10" /><Pack quantity="2" totalPrice="19" /><Pack quantity="3" totalPrice="28" /><Pack quantity="4" totalPrice="36" /><Pack quantity="5" totalPrice="42" /><Pack quantity="10" totalPrice="75" /></Packs>');
+
+
 
 	if @ExternalTran = 0
 		commit;

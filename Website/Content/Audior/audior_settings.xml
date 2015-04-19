@@ -1,5 +1,5 @@
 <AudiorSettings>
-  <maxTimeLimit>300</maxTimeLimit>
+  <maxTimeLimit>480</maxTimeLimit>
   <recordName>0</recordName>
   <!-- Do not capitalize letters in the route to prevent get dashes inserted. -->
   <uploadURL>/exercises/save-recording</uploadURL>

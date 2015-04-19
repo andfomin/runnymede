@@ -23,20 +23,16 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @ExerciseType char(6), @ExerciseLength int,	@ReviewId int, @Attribute nvarchar(100), @Now datetime2(2);
+	declare @ReviewId int, @Attribute nvarchar(100), @Now datetime2(2);
 
 	-- Only the owner of the exercise can request a review. 
-	select @ExerciseType = [Type], @ExerciseLength = [Length] 
-	from dbo.exeExercises 
-	where Id = @ExerciseId 
-		and UserId = @UserId;
-	
-	-- Type is non-nullable.
-	if (@ExerciseType is null)
+	if not exists (
+		select * 
+		from dbo.exeExercises 
+		where Id = @ExerciseId 
+			and UserId = @UserId
+	)
 		raiserror('%s,%d,%d:: The user cannot request a review of the exercise.', 16, 1, @ProcName, @UserId, @ExerciseId);
-
-   if (@Price <> dbo.exeCalculateReviewPrice(@ExerciseType, @ExerciseLength))
-		raiserror('%s,%d,%d:: The price is wrong.', 16, 1, @ProcName, @UserId, @ExerciseId);
 
 	select @ReviewId = dbo.exeGetNewReviewId();
 
@@ -45,7 +41,7 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
-		exec dbo.accPostRevenue @UserId = @UserId, @Amount = @Price, @TransactionType = 'TRRVRQ', @Attribute = @Attribute, @Now = @Now output;
+		exec dbo.accRequestReview @UserId = @UserId, @Attribute = @Attribute, @Now = @Now output;
 
 		insert dbo.exeReviews (Id, ExerciseId, Price, RequestTime)
 			values (@ReviewId, @ExerciseId, @Price, @Now);		
