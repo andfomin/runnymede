@@ -314,6 +314,7 @@
     <Content Include="content\images\happy-learner.jpg" />
     <Content Include="content\images\ielts-banner.jpg" />
     <Content Include="content\images\ielts-test-240.jpg" />
+    <Content Include="content\images\ielts-writing-sheet.png" />
     <Content Include="content\images\learner-teddybear.jpg" />
     <Content Include="content\images\payment-logos.png" />
     <Content Include="content\images\shy-learner.jpg" />

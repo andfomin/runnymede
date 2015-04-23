@@ -5,7 +5,7 @@
     <accordion close-others="vm">
         <accordion-group is-open="c.open" ng-repeat="c in vm.cards">
             <accordion-heading>
-                <span class="app-appblue">{{c.title}}</span>
+                <span class="app-appblue" ng-style="c.open ? {'font-weight':'bolder'} : {}">{{c.title}}</span>
             </accordion-heading>
             <div ng-repeat="i in c.items" >
                 <div ng-bind-html="i.contents"></div>

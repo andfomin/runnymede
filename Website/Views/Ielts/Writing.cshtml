@@ -18,25 +18,9 @@
 
     <h3 class="page-header app">Practice IELTS <small>{{vm.getSecondaryTitle()}}</small></h3>
 
-    @*<div class="row">
-        <div class="col-md-offset-1 col-lg-offset-2 col-md-10 col-lg-8">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-2 app-margin-bottom">
-                            <button class="btn" ng-class="vm.card ? 'btn-default' : 'btn-primary'" ng-click="vm.showChooseCardModal()">Choose card</button>
-                        </div>
-                        <div class="col-md-10">
-                            <div ng-bind-html="vm.card.contents"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>*@
-    
+
     <div class="row">
-        <div class="col-md-offset-1 col-lg-offset-2 col-md-10 col-lg-8">
+        <div class="col-lg-offset-1 col-sm-9 col-lg-7">
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="text-center">
@@ -44,13 +28,18 @@
                     </div>
                     <div class="row app-margin-top app-margin-bottom">
                         <div class="col-md-offset-1 col-md-10">
-                            <div ng-repeat="i in vm.card.items" ng-class="{'my-muted': $index != vm.currentItem}">
+                            <div ng-repeat="i in vm.card.items">
                                 <p ng-bind-html="i.contents"></p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="col-sm-3 text-center">
+            <a href="http://englmdata.blob.core.windows.net/content/ielts/IELTS_writing_answer_sheet.pdf" target="_blank">
+                <img src="~/content/images/ielts-writing-sheet.png" /><br />Print answer sheet
+            </a>
         </div>
     </div>
 

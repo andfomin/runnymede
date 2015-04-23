@@ -20,7 +20,7 @@
     }
 </style>
 
-<div ng-controller="ResourceList" class="ng-hide app-hide-position app-margin-bottom" ng-show="vm.resources">    
+<div ng-controller="ResourceList" class="ng-hide app-hide-position app-margin-bottom" ng-show="vm.resources">
 
     <div ng-repeat="r in vm.getUpperList()">
         <a href="" ng-click="vm.select(r)">{{r.title}}</a>
@@ -45,7 +45,8 @@
         </div>
     </div>
 
-    <div data-collapse="!vm.exponents">
+    @*<div data-collapse="!vm.exponents"> Animation doesn't work in FF *@
+    <div ng-show="vm.exponents">
         <div ng-repeat="e in vm.exponents">
             <ul>
                 <li ng-repeat="l in e.lines">{{l}}</li>
