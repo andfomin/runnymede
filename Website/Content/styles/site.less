@@ -98,7 +98,7 @@ p.app-pre-line, span.app-pre-line {
     white-space: pre-line;
 }
 
-textarea.form-control.app {
+.app-textarea {
     width: 100%;
     resize: vertical;
 }
@@ -239,6 +239,10 @@ i.fa {
     button.btn > & {
         font-size: 14px;
     }
+
+    button.btn-lg > &.fa-lg {
+        font-size: 21px;
+    }
     /*button.btn.btn-xs > & {
         position: relative;
         top: 1px;
@@ -342,23 +346,27 @@ a.fc-event.app-session {
     background-color: @well-bg;
     border-color: @well-bg;
     color: black;
+    cursor: pointer;
 
-    &.app-session-proposed {
+    &.app-session-offered {
         background-color: @appBlue;
         border-color: @appBlue;
         color: @appWhite;
-        cursor: pointer;
-    }
-
-    &.app-session-accepted {
-        background-color: @state-success-bg;
-        border-color: @state-success-bg;
     }
 
     &.app-session-booked {
+        background-color: @appYellow;
+        border-color: @appYellow;
+    }
+
+    &.app-session-confirmed {
         background-color: @brand-success;
         border-color: @brand-success;
-        cursor: pointer;
+    }
+
+    &.app-session-cancelled {
+        background-color: @state-danger-text;
+        border-color: @state-danger-text;
     }
 }
 
@@ -378,87 +386,5 @@ tags-input.ti-input-sm .tags .tag-item {
 
 /*#endregion*/
 
-/* #region columns of same height styles ----------- */
 /* +http://www.minimit.com/articles/solutions-tutorials/bootstrap-3-responsive-columns-of-same-height */
-
-.container-xs-height {
-    display: table;
-    padding-left: 0px;
-    padding-right: 0px;
-}
-
-.row-xs-height {
-    display: table-row;
-}
-
-.col-xs-height {
-    display: table-cell;
-    float: none;
-}
-
-@media (min-width: 768px) {
-    .container-sm-height {
-        display: table;
-        padding-left: 0px;
-        padding-right: 0px;
-    }
-
-    .row-sm-height {
-        display: table-row;
-    }
-
-    .col-sm-height {
-        display: table-cell;
-        float: none;
-    }
-}
-
-@media (min-width: 992px) {
-    .container-md-height {
-        display: table;
-        padding-left: 0px;
-        padding-right: 0px;
-    }
-
-    .row-md-height {
-        display: table-row;
-    }
-
-    .col-md-height {
-        display: table-cell;
-        float: none;
-    }
-}
-
-@media (min-width: 1200px) {
-    .container-lg-height {
-        display: table;
-        padding-left: 0px;
-        padding-right: 0px;
-    }
-
-    .row-lg-height {
-        display: table-row;
-    }
-
-    .col-lg-height {
-        display: table-cell;
-        float: none;
-    }
-}
-
-/* vertical alignment styles */
-.col-top {
-    vertical-align: top;
-}
-
-.col-middle {
-    vertical-align: middle;
-}
-
-.col-bottom {
-    vertical-align: bottom;
-}
-
-/*#endregion*/
 

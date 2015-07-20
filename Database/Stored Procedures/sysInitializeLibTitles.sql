@@ -5,7 +5,7 @@ SET NOCOUNT ON;
 
 /*
 select
-'insert dbo.libTitles ([Title]) values (N''' + replace(Title, '''', '''''') +  ''');'
+'insert dbo.libTitles ([Title]) values (N''' + replace(T.Title, '''', '''''') +  ''');'
 from dbo.libTitles T
 	inner join dbo.libDescriptions D on T.Id = D.TitleId
 where D.SourceId in ('BCEQ', 'BCEG');
@@ -258,7 +258,7 @@ insert dbo.libTitles ([Title]) values (N'Functions. Telling the time');
 insert dbo.libTitles ([Title]) values (N'Reflexive and ergative verbs');
 insert dbo.libTitles ([Title]) values (N'Verbs: Perfective aspect');
 insert dbo.libTitles ([Title]) values (N'Verbs: Future. Future time (will, going to) (Prediction)');
-insert dbo.libTitles ([Title]) values (N'Personal Pronouns');
+insert dbo.libTitles ([Title]) values (N'Personal pronouns');
 insert dbo.libTitles ([Title]) values (N'Discourse Functions. Inviting another speaker to come in in one-to-one interaction');
 insert dbo.libTitles ([Title]) values (N'Possessives');
 insert dbo.libTitles ([Title]) values (N'Modals: Possibility. Possibly, probably, perhaps');

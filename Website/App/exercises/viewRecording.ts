@@ -1,6 +1,6 @@
 ﻿module app.exercises {
 
-    angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar', 'vr.directives.slider', 'ngTagsInput'])
+    angular.module(app.myAppName, [app.utilsNg, 'ngSanitize', 'ui.bootstrap', 'angular-loading-bar', 'vr.directives.slider', 'ngTagsInput'])
         .config(app.library.TagsInputConfig)
         .constant(app.ngNames.$appRemarksComparer, app.exercises.RecordingsComparer)
         .constant(app.ngNames.jQuery, $)

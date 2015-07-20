@@ -19,22 +19,68 @@ module app {
     export function reviewsApiUrl(path?: string) { return '/api/reviews/' + (path || ''); };
     export function sessionsApiUrl(path?: string) { return '/api/sessions/' + (path || ''); };
 
-    // Corresponds to dbo.appTypes ('EX....') and Runnymede.Website.Models.ExerciseType (in ExerciseModels.cs)
-    export class ExerciseType {
-        static AudioRecording = 'EXAREC';
-        static WritingPhoto = 'EXWRPH';
+    // Corresponds to dbo.appTypes ('AR....') and Runnymede.Common.Models.ArtifactType (in ExerciseModels.cs)
+    export class ArtifactType {
+        static Mp3 = 'ARMP3_';
+        static Jpeg = 'ARJPEG';
 
-        public static formatLength = (length: number, type: string) => {
-            switch (type) {
-                case ExerciseType.AudioRecording:
+        public static formatLength = (length: number, artifactType: string) => {
+            switch (artifactType) {
+                case ArtifactType.Mp3:
                     return app.formatMsec(length) + ' min:sec';
                     break;
-                case ExerciseType.WritingPhoto:
+                case ArtifactType.Jpeg:
                     return '' + length + ' words';
                     break;
                 default:
                     return '' + length;
             };
+        };
+    }
+
+    // Corresponds to dbo.appTypes ('SV....') and Runnymede.Common.Models.ServiceType (in ExerciseModels.cs)
+    export class ServiceType {
+        static IeltsWritingTask1 = 'SVRIW1';
+        static IeltsWritingTask2 = 'SVRIW2';
+        static IeltsSpeaking = 'SVRIS_';
+        static IeltsReading = 'SVRIR_';
+        static IeltsListening = 'SVRIL_';
+
+        public static getIcon = (serviceType: string) => {
+            switch (serviceType) {
+                case ServiceType.IeltsWritingTask1:
+                    return {
+                        name: 'fa-pencil-square-o',
+                        title: 'IELTS Writing Task 1'
+                    }
+                    break;
+                case ServiceType.IeltsWritingTask2:
+                    return {
+                        name: 'fa-pencil',
+                        title: 'IELTS Writing Task 2'
+                    }
+                    break;
+                case ServiceType.IeltsSpeaking:
+                    return {
+                        name: 'fa-comment-o',
+                        title: 'IELTS Speaking'
+                    }
+                    break;
+                case ServiceType.IeltsReading:
+                    return {
+                        name: 'fa-newspaper-o',
+                        title: 'IELTS Reading'
+                    }
+                    break;
+                case ServiceType.IeltsListening:
+                    return {
+                        name: 'fa-volume-up',
+                        title: 'IELTS Listening'
+                    }
+                    break;
+                default:
+                    return null;
+            }
         };
     }
 
@@ -53,15 +99,22 @@ module app {
         return 'https://' + window.document.location.hostname + '/account/login';
     }
 
+    function isMobile() {
+        return navigator.userAgent.toLowerCase().indexOf("mobile") >= 0;
+    }
+
     export function isMobileDevice() {
         var ver = window.navigator.appVersion;
         var ua = window.navigator.userAgent.toLowerCase();
-        var mobile = (ver.indexOf("iPad") != -1)
-            || (ver.indexOf("iPhone") != -1)
-            || (ua.indexOf("android") != -1)
-            || (ua.indexOf("ipod") != -1)
-            || (ua.indexOf("windows ce") != -1)
-            || (ua.indexOf("windows phone") != -1);
+        var mobile =
+            (ua.indexOf("android") >= 0)
+            || (ver.indexOf("iphone") >= 0)
+            || (ver.indexOf("ipad") >= 0)
+            || (ua.indexOf("ipod") >= 0)
+            //|| (ua.indexOf("windows ce") >= 0)
+            || (ua.indexOf("windows phone") >= 0)
+            || (ua.indexOf("mobile") >= 0)
+            ;
         return !!mobile;
     }
 
@@ -210,7 +263,7 @@ module app {
     }
 
     // +http://codereview.stackexchange.com/questions/37028/grouping-elements-in-array-by-multiple-properties
-    export function arrGroupBy<T>(arr: T[], keySelector: (T) => any) {
+    export function arrGroupBy<T>(arr: T[], keySelector: (item: T) => any) {
         var groups = {};
         arr.forEach((i) => {
             var group = JSON.stringify(keySelector(i));
@@ -264,9 +317,30 @@ module app {
         return getBlobUrl('user-avatars-large', app.intToKey(id));
     }
 
-    export function beep() {
+    export function soundBeep() {
         var sound = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");
         sound.play();
-    };    
+    };
+
+    export function soundHit() {
+        var a = new Audio("data:audio/wav;base64,UklGRtQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YbAAAACLVqdX91Y/VHpQnkzxSDdFeUEjPgg8yztGPXA/N0F0QglE90Z5S/tQKlZcWhpeX2IqZyVrZm0LbuJtDW1ba4hoa2SdXmRXw09MSbREhkGnPs87GjqjOg09UT8FQLc/6z9IQdZC70L1P4k5zjDIJ14fiRbrCxIAz/Uc8KrvH/J58yfxR+sH5HzdU9hr1G/RNc/pzUrNaswbysjGuMR8xhbMA9MT2APa49nS2aXaRttD2g==");
+        a.play();
+    }
+
+    //export function sound2() {
+    //    var track = '';
+    //    for (var i = 0; i < 8;) {
+    //        i++;
+    //        var k, l;
+    //        for (k = l = 11025; k--;) {
+    //            track += String.fromCharCode(
+    //                Math.sin(k / 44100 * 2 * Math.PI * 587.33)
+    //                * Math.min((l - k) / 83, k / l)
+    //                * (i % 2 && i % 8 - 3 ? 99 : 33) + 128);
+    //        }
+    //    }
+    //    var player = new Audio('data:audio/wav;base64,UklGRkRiBQBXQVZFZm10IBAAAAA\BAAEARKwAAESsAAABAAgAZGF0YSBi' + btoa('\5\0' + track));
+    //    player.play();
+    //}
 
 }

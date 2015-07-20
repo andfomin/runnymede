@@ -73,8 +73,7 @@
 
 
 @section BottomScripts {
-    <script type="text/javascript">
-        var app = app || {};
+    <script>
         app.hostPageParam = 'HostPage_History';
         app.daysParam = @JavaScriptConvert.Serialize(ViewBag.DaysParam);
     </script>
@@ -83,7 +82,7 @@
 "~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
-
+"~/app/shared/utils-youtube.js",
 "~/app/shared/library.js",
 "~/app/library/history.js"
 )

@@ -5,7 +5,6 @@ using System.Web;
 using Microsoft.AspNet.SignalR;
 using Runnymede.Website.Models;
 using System.Threading.Tasks;
-using Runnymede.Website.Utils;
 using Runnymede.Common.Utils;
 
 namespace Runnymede.Website.Controllers.Hubs

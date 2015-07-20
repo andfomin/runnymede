@@ -19,12 +19,12 @@ where UserId = @UserId
 
 if (@ReviewId is not null) begin
 
-	select @ReviewId as Id, N'unfinished' as ExerciseType;
+	select @ReviewId as Id, N'unfinished' as ServiceType;
 
 end
 else begin
 
-	select R.Id, E.[Type] as ExerciseType, E.[Length] as ExerciseLength
+	select R.Id, E.ServiceType
 	from dbo.exeReviews R
 		inner join dbo.exeExercises E on R.ExerciseId = E.Id
 	where R.UserId is null;

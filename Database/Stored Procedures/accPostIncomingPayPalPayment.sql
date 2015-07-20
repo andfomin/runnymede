@@ -1,7 +1,8 @@
 ﻿
 
 CREATE PROCEDURE [dbo].[accPostIncomingPayPalPayment]
-	@UserName nvarchar(200) = null,
+	--@UserName nvarchar(200) = null,
+	@UserId int = null,
 	@ExtId nvarchar(50), -- PayPal's Transaction ID a.k.a. Tx
 	@Amount decimal(9, 2),
 	@Fee decimal(9, 2), 
@@ -28,43 +29,34 @@ begin try
 
 	declare @PaymentTransactionId int, @TaxTransactionId int;
 
-	declare @UserId int = dbo.appGetUserId(@UserName);
-
 	-- The real user not found.
-	if (@UserId is null)
+	if (coalesce(@UserId, 0) = 0)
 		set @UserId = dbo.appGetUserId('$UnknownPayPalPayer');
 
-	declare @UserAccountId int = dbo.accGetPersonalAccount(@UserId);
-	declare @CashAccountId int = dbo.appGetConstantAsInt('Account.$Service.PayPalCash');
+	exec dbo.accCreateAccountsIfNotExist @UserId = @UserId, @Types = N'<Types><Type>ACUCSH</Type><Type>ACUESC</Type></Types>';
+
+	declare @UserAccountId int =  dbo.accGetUserCashAccount(@UserId);
+	declare @PayPalAccountId int = dbo.appGetConstantAsInt('Account.$Service.PayPalCash');
 	declare @FeeAccountId int = dbo.appGetConstantAsInt('Account.$Service.IncomingPayPalPaymentFee');
-	declare @TaxAccountId int = dbo.appGetConstantAsInt('Account.$Service.IncomingPayPalPaymentTax');
+	declare @TaxAccountId int = dbo.appGetConstantAsInt('Account.$Service.IncomingPayPalPaymentSalesTax');
+
+	-- Do not rely on the FK check. Otherwise we can lose an autoinc PK value in dbo.accTransactions on a rollback.
+	if (@UserAccountId is null) or (@PayPalAccountId is null) or (@FeeAccountId is null) or (@TaxAccountId is null)
+	begin
+		raiserror('%s,%d:: Account not found.', 16, 1, @ProcName, @UserId);  
+	end;
 
 	if @ExternalTran = 0
 		begin transaction;
 
-		-- We postpone creation of a user account until it is really needed.
-		if (@UserAccountId is null) begin
-		
-			exec dbo.accCreateUserAccounts @UserId = @UserId;
-
-			set @UserAccountId = dbo.accGetPersonalAccount(@UserId);
-
-		end
-
-		-- Do not rely on the FK check. Otherwise we can lose an autoinc PK value in dbo.accTransactions on a rollback.
-		if (@UserAccountId is null) or (@CashAccountId is null) or (@FeeAccountId is null) or (@TaxAccountId is null)
-		begin
-			raiserror('%s,%s:: Account not found.', 16, 1, @ProcName, @UserName);  
-		end;
-
 		-- ExtId is a PK. We use it as a guardian to avoid duplicate payment posting.
 		insert dbo.accPostedPayPalPayments (ExtId)
-			values (@ExtId);
+		values (@ExtId);
 
 		declare @Now datetime2(2) = sysutcdatetime();
 
 		insert dbo.accTransactions ([Type], ObservedTime, Attribute, Details)
-			values ('TRPPIP', @Now, @ExtId, @Details);
+		values ('TRPPIP', @Now, @ExtId, @Details);
 
 		select @PaymentTransactionId = scope_identity() where @@rowcount != 0;
 
@@ -72,17 +64,19 @@ begin try
 		if (coalesce(@Tax, 0) != 0) begin
 
 			insert dbo.accTransactions ([Type], ObservedTime, Attribute)
-				values ('TRPPIT', @Now, @ExtId);
+			values ('TRPPIT', @Now, @ExtId);
 
 			select @TaxTransactionId = scope_identity() where @@rowcount != 0;
 
 		end
 
+		set transaction isolation level serializable;
+
 		-- Debit the cash account with the net amount
 		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select @PaymentTransactionId, @CashAccountId, @Amount - @Fee, null, Balance + @Amount - @Fee
+			select @PaymentTransactionId, @PayPalAccountId, @Amount - @Fee, null, Balance + @Amount - @Fee
 			from dbo.accEntries
-			where Id = (select max(Id) from dbo.accEntries where AccountId = @CashAccountId);
+			where Id = (select max(Id) from dbo.accEntries where AccountId = @PayPalAccountId);
 	
 		-- Credit the user account with the gross amount the user paid
 		insert dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)

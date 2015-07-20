@@ -8,6 +8,6 @@ RETURNS bit
 AS
 BEGIN
 
-return iif(@Type = 'EXWRPH', 1, 0);
+return iif(@Type = 'ARJPEG', 1, 0);
 
 END

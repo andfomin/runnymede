@@ -7,7 +7,7 @@ AS
 BEGIN
 SET NOCOUNT ON;
 
-declare @AccountId int = dbo.accGetPersonalAccount(@UserId);
+declare @AccountId int = dbo.accGetUserCashAccount(@UserId);
 
 declare @TotalCount int;
 

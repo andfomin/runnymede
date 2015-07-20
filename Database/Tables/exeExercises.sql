@@ -1,18 +1,29 @@
 ﻿CREATE TABLE [dbo].[exeExercises] (
-    [Id]           INT             NOT NULL,
-    [UserId]       INT             NOT NULL,
-    [CreationTime] DATETIME2 (2)   CONSTRAINT [DF_exeExercises_CreateTime] DEFAULT (sysutcdatetime()) NOT NULL,
-    [Type]         CHAR (6)        NOT NULL,
-    [Artifact]     NVARCHAR (1000) NULL,
-    [Length]       INT             NULL,
-    [Title]        NVARCHAR (200)  NULL,
-    [CardId]       INT             NULL,
+    [Id]           INT              NOT NULL,
+    [UserId]       INT              NOT NULL,
+    [CreationTime] DATETIME2 (2)    CONSTRAINT [DF_exeExercises_CreationTime] DEFAULT (sysutcdatetime()) NOT NULL,
+    [ServiceType]  CHAR (6)         NULL,
+    [ArtifactType] CHAR (6)         NOT NULL,
+    [Artifact]     NVARCHAR (1000)  NULL,
+    [Length]       INT              NULL,
+    [Title]        NVARCHAR (200)   NULL,
+    [CardId]       UNIQUEIDENTIFIER NULL,
+    [Comment]      NVARCHAR (1000)  NULL,
     CONSTRAINT [PK_exeExercises] PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [CK_exeExercises_Type] CHECK (substring([Type],(1),(2))='EX'),
-    CONSTRAINT [FK_exeExercises_appTypes] FOREIGN KEY ([Type]) REFERENCES [dbo].[appTypes] ([Id]),
+    CONSTRAINT [CK_exeExercises_ArtifactType] CHECK (substring([ArtifactType],(1),(2))='AR'),
+    CONSTRAINT [FK_exeExercises_appTypes] FOREIGN KEY ([ArtifactType]) REFERENCES [dbo].[appTypes] ([Id]),
+    CONSTRAINT [FK_exeExercises_appTypes1] FOREIGN KEY ([ServiceType]) REFERENCES [dbo].[appTypes] ([Id]),
     CONSTRAINT [FK_exeExercises_appUsers] FOREIGN KEY ([UserId]) REFERENCES [dbo].[appUsers] ([Id]),
     CONSTRAINT [FK_exeExercises_exeCards] FOREIGN KEY ([CardId]) REFERENCES [dbo].[exeCards] ([Id])
 );
+
+
+
+
+
+
+
+
 
 
 
@@ -72,5 +83,13 @@ GRANT UPDATE
 GO
 CREATE NONCLUSTERED INDEX [CX_UserId_Type]
     ON [dbo].[exeExercises]([UserId] ASC)
-    INCLUDE([Type]);
+    INCLUDE([ArtifactType]);
+
+
+
+
+GO
+GRANT UPDATE
+    ON [dbo].[exeExercises] ([CardId]) TO [websiterole]
+    AS [dbo];
 

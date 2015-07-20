@@ -35,9 +35,11 @@ insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.BookingAdv
 --insert into dbo.appConstants (Name, Value, Comment) values ('AnyTeacher.ReviewRate.EXAREC', '2.5', 'Anonymous teacher recordings review rate');
 --insert into dbo.appConstants (Name, Value, Comment) values ('AnyTeacher.ReviewRate.EXWRPH', '3.0', 'Anonymous teacher writings review rate');
 insert into dbo.appConstants (Name, Value, Comment) values ('Sessions.ClosingDelay.Minutes', '60', 'The learner has an opportunity to dispute a session until it is closed programmatically.');
-insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRate.EXAREC', '1.0', 'Review rate for recordings, $/1minute');
-insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRate.EXWRPH', '1.0', 'Review rate for writings, $/100words');
+--insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRate.EXAREC', '1.0', 'Review rate for recordings, $/1minute');
+--insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRate.EXWRPH', '1.0', 'Review rate for writings, $/100words');
 -- end 20150313
+-- 20150528
+insert into dbo.appConstants (Name, Value, Comment) values ('UserId.$Company', '1', 'The special user associated with the Company.');
 
 --insert dbo.appAttributeTypes (Id, Name, [Description]) values ('SCEV', 'dbo.sesScheduleEvents', null);
 --insert dbo.appAttributeTypes (Id, Name, [Description]) values ('SSSN', 'dbo.sesSessions', null);--T
@@ -65,9 +67,6 @@ insert into dbo.appConstants (Name, Value, Comment) values ('Exercises.ReviewRat
 --insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('SSFN', 'Session finished', 'SSSN');--T
 --insert into dbo.accTransactionTypes (Id, [Description], AttributeType) values ('SSFD', 'Service fee deducted from session payment', 'SSSN');--T
 
---insert into dbo.exeExerciseTypes (Id, [Description]) values ('AREC', 'Audio Recording MP3');--T
---insert into dbo.exeExerciseTypes (Id, [Description]) values ('WRPH', 'Writing Photo JPEG');--T
-
 --insert dbo.sesScheduleEventTypes (Id, Name, [Description], AttributeType) values ('S_VT', 'Session._.VacantTime', 'Announced period of availability for sessions', null);--T
 --insert dbo.sesScheduleEventTypes (Id, Name, [Description], AttributeType) values ('SSRQ', 'Session.Skype.Requested', 'Skype session request', 'SSSN');--T
 --insert dbo.sesScheduleEventTypes (Id, Name, [Description], AttributeType) values ('SSCF', 'Session.Skype.Confirmed', 'Confirmed session', 'SSSN');--T
@@ -87,21 +86,6 @@ insert into dbo.libSources (Id, Name, HomePage, IconUrl) values ('BCEG', 'Britis
 
 --insert into dbo.libFormats (Id, Name) values ('CIEX', 'Core Inventory exponents');--T
 --insert into dbo.libFormats (Id, Name) values ('YTVD', 'YouTube Video');--T
-
---insert into dbo.friContactTypes (Id, Name) values ('AE', 'Added with email');--T
---insert into dbo.friContactTypes (Id, Name) values ('RR', 'Exercise review requested');--T
---insert into dbo.friContactTypes (Id, Name) values ('RS', 'Exercise review started');--T
---insert into dbo.friContactTypes (Id, Name) values ('SU', 'Skype session requested by the user/guest is confirmed by the friend/host.');--T
---insert into dbo.friContactTypes (Id, Name) values ('SF', 'Skype session requested by the friend/guest is confirmed by the user/host.');--T
-
---insert dbo.appValues ([Type], Start, Value) values ('EXAREC', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="9.99">0.29</FeeRate><FeeRate priceRateFrom="10.00" priceRateTo="999999.99">0.28</FeeRate></FeeRates>');
---insert dbo.appValues ([Type], Start, Value) values ('EXWRPH', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="9.99">0.3</FeeRate><FeeRate priceRateFrom="10.00" priceRateTo="999999.99">0.2</FeeRate></FeeRates>');
---insert dbo.appValues ([Type], Start, Value) values ('TRIPFD', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="999999.99">0.33</FeeRate></FeeRates>');
---insert dbo.appValues ([Type], Start, Value) values ('TRSSFD', '1900-01-01 00:00:00', '<FeeRates><FeeRate priceRateFrom="0.00" priceRateTo="999999.99">0.33</FeeRate></FeeRates>');
--- Added 20150417
-insert dbo.appValues ([Type], Start, Value) values ('VLRVPK', '1900-01-01 00:00:00', '<Packs><Pack quantity="1" totalPrice="10" /><Pack quantity="2" totalPrice="19" /><Pack quantity="3" totalPrice="28" /><Pack quantity="4" totalPrice="36" /><Pack quantity="5" totalPrice="42" /><Pack quantity="10" totalPrice="75" /></Packs>');
-
-
 
 	if @ExternalTran = 0
 		commit;

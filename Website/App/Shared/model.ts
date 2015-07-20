@@ -20,7 +20,8 @@ module app {
     export interface IExercise {
         id: number;
         creationTime: string;
-        type: string;
+        serviceType: string;
+        artifactType: string;
         artifact: string;
         title: string;
         length: number;
@@ -30,23 +31,26 @@ module app {
     export interface IReview {
         id: number;
         exerciseId: number;
-        price: number;
         userId: number;
         requestTime: string; // Date;
         startTime: string; // Date;
         finishTime: string; // Date;
-        exerciseType: string;
-        exerciseLength: number;
+        serviceType: string;
+        artifactType: string;
+        title: string;
+        //exerciseLength: number;
         reviewerName: string;
+        performance: IPerformance;
         comment: IComment;
+        video: IVideoComment;
         suggestions: ISuggestion[];
     };
 
-    // Review piece, the base interface for IRemark, ISuggestion, IComment.
+    // Review piece, the base interface for IRemark, ISuggestion, IComment, IVideoComment.
     export interface IPiece {
         id: number; // The number means milliseconds passed from the start of the review. It is an uniquefier, not a meaningful time.
         reviewId: number;
-        type: string; // Constants are declared in app.exercises.PieceTypes in exercises.ts
+        type: string; // Constants are declared in app.exercises.PieceTypes in shared\exercises.ts
         dirtyTime: Date; // Invalidate the item.
     };
 
@@ -62,6 +66,10 @@ module app {
         like: boolean;
     };
 
+    export interface IPerformance extends IPiece {
+        bands: any; // this object is used as a dictionary to hold key-value pairs { group: band }
+    };
+
     export interface ISuggestion extends IPiece {
         suggestion: string;
         keywords: string;
@@ -70,6 +78,11 @@ module app {
 
     export interface IComment extends IPiece {
         comment: string;
+    };
+
+    export interface IVideoComment extends IPiece {
+        url: string;
+        //videoId: string;
     };
 
     // TODO. Deprecated
@@ -127,11 +140,15 @@ module app {
         localTime: string; // for History
     }
 
+    export interface ICardItem {
+        position: string;
+    }
+
     export interface ICard {
-        id: number;
+        id: string; // guid
         type: string;
         title: string;
-        items: any[];
+        items: ICardItem[];
     }
 
 }

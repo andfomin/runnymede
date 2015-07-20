@@ -1,0 +1,28 @@
+﻿<div class="my-well app-margin-bottom">
+    <span class="app-1px-down">Choose version</span>
+    <label class="radio-inline app-margin-left-half app-appblue">
+        <input type="radio" value="@CardType.IeltsWritingTask1Academic" ng-model="vm.cardType" ng-change="vm.card = null" />Academic
+    </label>
+    <label class="radio-inline app-appblue">
+        <input type="radio" value="@CardType.IeltsWritingTask1General" ng-model="vm.cardType" ng-change="vm.card = null" />General Training
+    </label>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="text-center">
+            <button class="btn app-margin-left app-btn-disablable" ng-class="vm.card ? 'btn-default btn-xs' : 'btn-primary'" ng-click="vm.showChooseCardModal()" ng-disabled="!vm.cardType">
+                Choose questions
+            </button>
+        </div>
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10">
+                <div ng-repeat="i in vm.card.items">
+                    @* Include ngSanitize for using ng-bind-html *@
+                    <div ng-bind-html="i.contents"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

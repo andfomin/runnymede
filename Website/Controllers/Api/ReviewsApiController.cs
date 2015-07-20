@@ -2,6 +2,7 @@
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json.Linq;
+using Runnymede.Common.Models;
 using Runnymede.Common.Utils;
 using Runnymede.Website.Controllers.Hubs;
 using Runnymede.Website.Models;
@@ -66,14 +67,14 @@ namespace Runnymede.Website.Controllers.Api
         [Route("")]
         public async Task<IHttpActionResult> GetReviews(int offset, int limit)
         {
-            return Ok(await DapperHelper.QueryPageItems<ReviewDto>("dbo.exeGetReviews",
+            var items = await DapperHelper.QueryPageItems<ReviewDto>("dbo.exeGetReviews",
                 new
                 {
                     UserId = this.GetUserId(),
                     RowOffset = offset,
                     RowLimit = limit
-                }
-                ));
+                });
+            return Ok(items);
         }
 
         // GET api/reviews/Exercise/12345/Pieces
@@ -158,7 +159,6 @@ namespace Runnymede.Website.Controllers.Api
                 {
                     UserId = this.GetUserId(),
                     ExerciseId = (int)value["exerciseId"],
-                    Price = (decimal)value["price"],
                 },
                 CommandType.StoredProcedure
                 ))

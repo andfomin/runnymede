@@ -67,6 +67,7 @@
         </div>
 
     </div><!-- /ng-controller="AudioPlayer" -->
+
     @Html.Partial("_BottomPartial")
 
 </div><!-- /ng-controller="Viewer" -->
@@ -81,8 +82,7 @@
         </ul>
     }*@
 @section BottomScripts {
-    <script type="text/javascript">
-        var app = app || {};
+    <script>
         app.exerciseParam = @JavaScriptConvert.Serialize(ViewBag.ExerciseParam);
         app.hostPageParam = 'HostPage_ViewRecording';
     </script>
@@ -96,10 +96,12 @@
 "~/bower_installer/venturocket-angular-slider/angular-slider.min.js",
 "~/bower_installer/ng-tags-input/ng-tags-input.min.js",
 "~/bower_installer/signalr/jquery.signalR.min.js",
+"~/app/shared/utils-youtube.js",
 "~/app/shared/library-data.js",
 "~/app/shared/library.js",
 "~/app/shared/exercises.js",
 "~/app/shared/exercises-recording.js",
+"~/app/exercisesIelts/utils-data.js",
 "~/app/exercises/utils.js",
 "~/app/exercises/utils-viewCtrlBase.js",
 "~/app/exercises/viewRecording.js"

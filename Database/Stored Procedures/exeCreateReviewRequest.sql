@@ -3,8 +3,7 @@
 
 CREATE PROCEDURE [dbo].[exeCreateReviewRequest]
 	@UserId int,
-	@ExerciseId int,
-	@Price decimal(9,2)
+	@ExerciseId int
 AS
 BEGIN
 /*
@@ -23,15 +22,15 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @ReviewId int, @Attribute nvarchar(100), @Now datetime2(2);
+	declare @Price decimal(9,2), @ServiceType1 char(6), @Attribute nvarchar(100), @ReviewId int, @Now datetime2(2);
 
 	-- Only the owner of the exercise can request a review. 
-	if not exists (
-		select * 
-		from dbo.exeExercises 
-		where Id = @ExerciseId 
-			and UserId = @UserId
-	)
+	select @Price = dbo.appGetServicePrice(ServiceType)
+	from dbo.exeExercises 
+	where Id = @ExerciseId 
+		and UserId = @UserId;
+
+	if (@Price is null)
 		raiserror('%s,%d,%d:: The user cannot request a review of the exercise.', 16, 1, @ProcName, @UserId, @ExerciseId);
 
 	select @ReviewId = dbo.exeGetNewReviewId();
@@ -41,15 +40,15 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
-		exec dbo.accRequestReview @UserId = @UserId, @Attribute = @Attribute, @Now = @Now output;
+		exec dbo.accChangeEscrow @UserId = @UserId, @Amount = @Price, @TransactionType = 'TRRVRQ', @Attribute = @Attribute, @Details = null, @Now = @Now output;
 
-		insert dbo.exeReviews (Id, ExerciseId, Price, RequestTime)
-			values (@ReviewId, @ExerciseId, @Price, @Now);		
+		insert dbo.exeReviews (Id, ExerciseId, RequestTime)
+			values (@ReviewId, @ExerciseId, @Now);		
 
 	if @ExternalTran = 0
 		commit;
 
-	select @ReviewId as Id, @ExerciseId as ExerciseId, @Price as Price, @Now as RequestTime;
+	select @ReviewId as Id, @ExerciseId as ExerciseId, @Now as RequestTime;
 
 end try
 begin catch

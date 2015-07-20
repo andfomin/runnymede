@@ -20,22 +20,11 @@ module app.exercises {
             );
     };
 
-    export function showChooseCardModal($modal: angular.ui.bootstrap.IModalService, successCallback: (any) => void) {
-        app.Modal.openModal($modal,
-            '/app/exercises/chooseCardModal.html',
-            ChooseCardModal,
-            null,
-            successCallback,
-            true,
-            'lg'
-            );
-    };
-
     class CreateReviewRequestModal extends app.Modal {
 
         exercise: app.IExercise;
-        price: number;
         balance: number;
+        price: number;
 
         constructor(
             $http: angular.IHttpService,
@@ -50,26 +39,22 @@ module app.exercises {
 
         getConditions = () => {
             app.ngHttpGet(this.$http,
-                app.exercisesApiUrl('review_conditions'),
-                {
-                    exerciseType: this.exercise.type,
-                    length: this.exercise.length,
-                },
+                app.exercisesApiUrl(this.exercise.id + '/review_conditions'),
+                null,
                 (data) => {
-                    this.price = data.price;
-                    this.balance = data.balance ? data.balance : 0;
+                    if (data) {
+                        this.balance = data.balance || 0;
+                        this.price = data.price;
+                    }
                 });
         };
 
         getBuyLink = () => {
-            return 'https://' + window.document.location.hostname + '/account/buy-reviews';
+            return 'https://' + window.document.location.hostname + '/account/buy-services';
         }
 
         canOk = () => {
-            return !this.busy
-                && angular.isNumber(this.price)
-                && angular.isNumber(this.balance)
-                && (this.price <= this.balance);
+            return !this.busy && (this.balance > this.price);
         }
 
         internalOk = () => {
@@ -77,12 +62,25 @@ module app.exercises {
                 app.reviewsApiUrl(),
                 {
                     exerciseId: this.exercise.id,
-                    price: this.price,
                 },
                 () => { toastr.success('Thank you for requesting review'); }
                 );
         };
     }; // end of class CreateReviewRequestModal
+
+    export function showChooseCardModal($modal: angular.ui.bootstrap.IModalService, serviceType: string, cardType: string, successCallback: (any) => void) {
+        app.Modal.openModal($modal,
+            '/app/exercises/chooseCardModal.html',
+            ChooseCardModal,
+            {
+                serviceType: serviceType,
+                cardType: cardType
+            },
+            successCallback,
+            true,
+            'lg'
+            );
+    };
 
     class ChooseCardModal extends app.Modal {
 
@@ -98,31 +96,29 @@ module app.exercises {
             modalParams: any
             ) {
             super($http, $modalInstance, $scope, modalParams);
-            this.getCards();
+            this.getCards(modalParams.serviceType,  modalParams.cardType);
         } // ctor
 
-        getCards = () => {
+        getCards = (serviceType, cardType) => {
             app.ngHttpGet(this.$http,
-                app.exercisesApiUrl('cards' + location.pathname),
+                app.exercisesApiUrl('cards/' + serviceType + '/' + (cardType || '_null_')),
                 null,
-                (data) => {
-                    this.cards = data;
-                }
+                (data) => { this.cards = data; }
                 );
         };
 
-        findOpenCard = () => {
+        findOpenedCard = () => {
             return app.arrFind(this.cards,(i) => { return i['open']; });
         };
 
         canOk = () => {
-            return !!this.findOpenCard();
+            return !!this.findOpenedCard();
         };
 
         internalOk = () => {
             var deferred = this.$q.defer();
             var promise = deferred.promise;
-            deferred.resolve(this.findOpenCard());
+            deferred.resolve(this.findOpenedCard());
             return promise;
         };
 

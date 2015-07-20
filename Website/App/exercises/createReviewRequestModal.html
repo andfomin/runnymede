@@ -10,9 +10,12 @@
                     You are requesting a review of the exercise &quot;<strong>{{vm.exercise.title}}</strong>&quot;
                     which was created <strong>{{vm.exercise.creationTime | appDateHuman}}</strong>
                 </p>
-                <p ng-show="vm.price > vm.balance">
-                    Your available review limit is <strong>{{vm.balance | number:0}}</strong>.
-                    <a class="btn btn-primary btn-sm app-2px-up app-margin-left" ng-href="{{vm.getBuyLink()}}">Buy reviews</a>
+                <p>
+                    The price of the review is <strong>{{vm.price | number:2}}</strong> dollars.
+</p>
+                <p ng-show="vm.balance < vm.price">
+                    You need to buy a review.
+                    <a class="btn btn-primary btn-sm app-2px-up app-margin-left" ng-href="{{vm.getBuyLink()}}">Buy review</a>
                 </p>
             </div>
         </div>

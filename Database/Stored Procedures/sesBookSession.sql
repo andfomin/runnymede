@@ -5,7 +5,8 @@ CREATE PROCEDURE [dbo].[sesBookSession]
 	@Start smalldatetime,
 	@End smalldatetime,
 	@Price decimal(9,2),
-	@TeacherUserId int
+	@TeacherUserId int,
+	@MessageExtId nchar(12) = null
 AS
 BEGIN
 /*
@@ -20,11 +21,7 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @t table (
-		SessionId int
-	);
-
-	declare @Attribute nvarchar(100);
+	declare @SessionId int, @Attribute nvarchar(100), @Now datetime2(2);
 
 	declare @Advance int = dbo.appGetConstantAsInt('Sessions.BookingAdvance.Minutes');
 
@@ -53,31 +50,29 @@ begin try
 		where Start < @End
 			and [End] > @Start
 			and LearnerUserId = @UserId
+			and CancellationTime is null
 	)
 		raiserror('%s,%d:: The user has another session at the time.', 16, 1, @ProcName, @UserId);
+
+	select @SessionId = dbo.sesGetNewSessionId();
+	
+	select @Attribute = cast(@SessionId as nvarchar(100));
 
 	if @ExternalTran = 0
 		begin transaction;
 			
-			update dbo.sesSessions
-				set LearnerUserId = @UserId, BookingTime = sysutcdatetime()
-			output inserted.Id
-				into @t 
-			where Id = (
-				select top (1) Id
-				from dbo.sesSessions S
-				where S.Start = @Start
-					and S.[End] = @End
-					and S.Price = @Price
-					and nullif(@TeacherUserId, S.TeacherUserId) is null			
-			);
+			exec dbo.accChangeEscrow @UserId = @UserId, @Amount = @Price, @TransactionType = 'TRSSRQ', @Attribute = @Attribute, @Details = null, @Now = @Now output;
+
+			insert dbo.sesSessions (Id, Start, [End], LearnerUserId, TeacherUserId, Price, BookingTime)
+			values (@SessionId, @Start, @End, @UserId, @TeacherUserId, @Price, @Now)
 
 			if @@rowcount = 0
-				raiserror('%s,%d:: Session not found.', 16, 1, @ProcName, @UserId);
+				raiserror('%s,%d:: Failed to book the session.', 16, 1, @ProcName, @UserId);
 
-			select @Attribute = cast(SessionId as nvarchar(100)) from @t;
-
-			exec dbo.accChangeEscrow @UserId, @Price, 'TRSSRQ', @Attribute, null;
+			if (@MessageExtId is not null) begin
+				exec dbo.appPostMessage	
+					@SenderUserId = @UserId, @RecipientUserId = @TeacherUserId, @Type = 'MSSSRQ', @Attribute = @Attribute, @ExtId = @MessageExtId;
+			end
 
 	if @ExternalTran = 0
 		commit;

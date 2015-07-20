@@ -57,7 +57,7 @@ module app.exercises {
                         this.repaint();
                     };
                 }
-                image.src = app.getBlobUrl('writing-photos', i);
+                image.src = app.getBlobUrl('artifacts', i);
             });
         };
 

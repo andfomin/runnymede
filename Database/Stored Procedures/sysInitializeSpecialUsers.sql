@@ -5,7 +5,6 @@ BEGIN
 
 declare @ExternalTran int, @ProcName sysname, @XState int;
 select @ExternalTran = @@trancount, @ProcName = object_name(@@procid);
---raiserror('%s: ', 16, 1, @ProcName);
 
 begin try
 	if @ExternalTran > 0
@@ -14,86 +13,85 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 
-declare @Comment nvarchar(100) = 'Special account';
+	declare @Comment nvarchar(100) = 'Special account';
 
---------------------- $Service
+	--------------------- $Service
 
-declare @ServiceUserId int = 1;
-declare @ServiceUserName nvarchar(100) = N'$Service';
+	declare @CompanyUserName nvarchar(100) = N'$Service';
+	declare @CompanyUserId int =  dbo.appGetConstantAsInt('UserId.$Company');
 
-insert dbo.aspnetUsers (Id, UserName) values (@ServiceUserId, @ServiceUserName);
+	insert dbo.aspnetUsers (Id, UserName) values (@CompanyUserId, @CompanyUserName);
 
-insert dbo.appUsers (Id, DisplayName) values (@ServiceUserId, @ServiceUserName);
+	insert dbo.appUsers (Id, DisplayName) values (@CompanyUserId, @CompanyUserName);
 
-execute dbo.accCreateAccount @ServiceUserId, 'ACSREV';
+	declare @Types xml = 
+		N'<Types>
+			<Type>ACSREV</Type>
+			<Type>ACPPCA</Type>
+			<Type>ACPPIF</Type>
+			<Type>ACPPIT</Type>
+		</Types>';
 
-insert dbo.appConstants (Name, Value, Comment)
-	select 'Account.$Service.ServiceRevenue', AA.Id, @Comment
-	from dbo.accAccounts AA
-	where AA.UserId = @ServiceUserId
-		and AA.[Type] = 'ACSREV';
+	exec dbo.accCreateAccountsIfNotExist @UserId = @CompanyUserId, @Types = @Types;
 
-execute dbo.accCreateAccount @ServiceUserId, 'ACRQRV';
+	insert dbo.appConstants (Name, Value, Comment)
+		select 'Account.$Service.ServiceRevenue', Id, @Comment
+		from dbo.accAccounts
+		where UserId = @CompanyUserId 
+			and [Type] = 'ACSREV';
 
-insert dbo.appConstants (Name, Value, Comment)
-	select 'Account.$Service.RequestedReviews', AA.Id, @Comment
-	from dbo.accAccounts AA
-	where AA.UserId = @ServiceUserId
-		and AA.[Type] = 'ACRQRV';
+	insert dbo.appConstants (Name, Value, Comment)
+		select 'Account.$Service.PayPalCash', Id, @Comment
+		from dbo.accAccounts
+		where UserId = @CompanyUserId 
+			and [Type] = 'ACPPCA';
 
-execute dbo.accCreateAccount @ServiceUserId, 'ACPPCA';
+	insert dbo.appConstants (Name, Value, Comment)
+		select 'Account.$Service.IncomingPayPalPaymentFee', Id, @Comment
+		from dbo.accAccounts
+		where UserId = @CompanyUserId 
+			and [Type] = 'ACPPIF';
 
-insert dbo.appConstants (Name, Value, Comment)
-	select 'Account.$Service.PayPalCash', AA.Id, @Comment
-	from dbo.accAccounts AA
-	where AA.UserId = @ServiceUserId
-		and AA.[Type] = 'ACPPCA';
+	insert dbo.appConstants (Name, Value, Comment)
+		select 'Account.$Service.IncomingPayPalPaymentSalesTax', Id, @Comment
+		from dbo.accAccounts
+		where UserId = @CompanyUserId 
+			and [Type] = 'ACPPIT';
 
-execute dbo.accCreateAccount @ServiceUserId, 'ACPPIF';
+	-- We do not use constants with these accounts
+	--declare @AccountTypes xml = (
+	--	select [Type] 
+	--	from (
+	--		select 'ACCDSE' as [Type]
+	--		union
+	--		select 'ACCDSF' as [Type]
+	--	) q
+	--	for xml path(''), root('Types')
+	--);
 
-insert dbo.appConstants (Name, Value, Comment)
-	select 'Account.$Service.IncomingPayPalPaymentFee', AA.Id, @Comment
-	from dbo.accAccounts AA
-	where AA.UserId = @ServiceUserId
-		and AA.[Type] = 'ACPPIF';
+	--------------------- $UnknownPayPalPayer
 
-execute dbo.accCreateAccount @ServiceUserId, 'ACPPIT';
+	declare @PayerUserId int = 2;
+	declare @PayerUserName nvarchar(100) = N'$UnknownPayPalPayer';
 
-insert dbo.appConstants (Name, Value, Comment)
-	select 'Account.$Service.IncomingPayPalPaymentTax', AA.Id, @Comment
-	from dbo.accAccounts AA
-	where AA.UserId = @ServiceUserId
-		and AA.[Type] = 'ACPPIT';
+	insert dbo.aspnetUsers (Id, UserName) values (@PayerUserId, @PayerUserName);
 
---------------------- $UnknownPayPalPayer
+	insert dbo.appUsers (Id, DisplayName) values (@PayerUserId, @PayerUserName);
 
-declare @PayerUserId int = 2;
-declare @PayerUserName nvarchar(100) = N'$UnknownPayPalPayer';
+	set @Types = 
+		N'<Types>
+			<Type>ACUCSH</Type>
+		</Types>';
 
-insert dbo.aspnetUsers (Id, UserName) values (@PayerUserId, @PayerUserName);
+	exec dbo.accCreateAccountsIfNotExist @UserId = @PayerUserId, @Types = @Types;
 
-insert dbo.appUsers (Id, DisplayName) values (@PayerUserId, @PayerUserName);
+	insert dbo.appConstants (Name, Value, Comment)
+		select 'Account.$UnknownPayPalPayer.Personal', Id, @Comment
+		from dbo.accAccounts
+		where UserId = @PayerUserId 
+			and [Type] = 'ACUCSH';
 
-execute dbo.accCreateAccount @PayerUserId, 'ACPERS';
-
-insert dbo.appConstants (Name, Value, Comment)
-	select 'Account.$UnknownPayPalPayer.Personal', AA.Id, @Comment
-	from dbo.accAccounts AA
-	where AA.UserId = @PayerUserId
-		and AA.[Type] = 'ACPERS';
-
---------------------- $AnyTeacher
-
-declare @AnyTeacherUserId int = 3; -- Hardcoded in app.AnyTeacherId
-declare @AnyTeacherUserName nvarchar(100) = N'$AnyTeacher';
-
-insert dbo.aspnetUsers (Id, UserName) values (@AnyTeacherUserId, @AnyTeacherUserName);
-
-insert dbo.appUsers (Id, DisplayName) values (@AnyTeacherUserId, @AnyTeacherUserName);
-
-execute dbo.accCreateAccount @AnyTeacherUserId, 'ACPERS';
-
----------------------
+	---------------------
 
 	if @ExternalTran = 0
 		commit;

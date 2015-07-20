@@ -1,7 +1,7 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json.Linq;
 using Runnymede.Website.Models;
-using Runnymede.Website.Utils;
+using Runnymede.Common.Utils;
 using System;
 using System.Configuration;
 using System.Linq;

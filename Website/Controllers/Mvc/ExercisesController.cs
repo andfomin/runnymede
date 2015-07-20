@@ -1,15 +1,13 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage.Table;
+﻿using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json.Linq;
-using Runnymede.Website.Models;
-using Runnymede.Website.Utils;
+using Runnymede.Common.Models;
+using Runnymede.Common.Utils;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
-using System.Data.Entity;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -17,14 +15,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Security;
 using System.Xml.Linq;
-using Dapper;
-using Runnymede.Common.Utils;
-using System.Windows.Media.Imaging;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Configuration;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
@@ -53,10 +44,10 @@ namespace Runnymede.Website.Controllers.Mvc
         }
 
         // GET: /view/2000000001 by ExerciseId
-        [ActionName("View")] // Be carefull, the term "View" has a special meaning in ASP.NET MVC. There is method View() in the base class.
+        [ActionName("View")] // Be carefull, the term "View" has a special meaning in ASP.NET MVC. There is the method View() in the base class.
         public async Task<ActionResult> ViewExercise(int id)
         {
-            var exercises = await ReviewsController.QueryExerciseReviews("dbo.exeGetExerciseWithReviews", this.GetUserId(), id);
+            var exercises = await ExerciseUtils.GetExerciseWithReviews("dbo.exeGetExerciseWithReviews", new { UserId = this.GetUserId(), Id = id, });
 
             // We got a few rows of the same Exercise, joined with different Reviews. Group them into a single Exercise.               
             var reviews = exercises
@@ -70,14 +61,19 @@ namespace Runnymede.Website.Controllers.Mvc
 
             ViewBag.ExerciseParam = exercise;
 
-            switch (exercise.Type)
+            if (exercise.CardId.HasValue)
             {
-                case ExerciseType.WritingPhoto:
-                    return View("ViewWriting");
-                case ExerciseType.AudioRecording:
+                ViewBag.cardParam = await ExerciseUtils.GetCardWithItems(exercise.CardId.Value);
+            }
+
+            switch (exercise.ArtifactType)
+            {
+                case ArtifactType.Jpeg:
+                    return View("ViewPhoto");
+                case ArtifactType.Mp3:
                     return View("ViewRecording");
                 default:
-                    return HttpNotFound(exercise.Type);
+                    return HttpNotFound(exercise.ArtifactType);
             }
         }
 
@@ -92,24 +88,24 @@ namespace Runnymede.Website.Controllers.Mvc
 
         // The action name corresponds to the path in audior_settings.xml.
         // Audior hardcodes the path prefix, so routing has limited options.
-        // POST: /exercises/save-recording
+        // POST: /exercises/save-audior-recording
         [HttpPost]
-        public async Task<string> SaveRecording(double duration, string recorderId = null)
+        public async Task<string> SaveAudiorRecording(string recorderId, string recordName, double duration)
         {
             bool success = false;
             try
             {
+                var userId = this.GetUserId();
+                // recorderId comes from Audior, 13 digits, milliseconds, current Date in the browser. It is part of Artifact and will be used to update Title with the real title after upload is done.
+                var blobName = UploadUtils.ConstractArtifactBlobName(userId, recorderId, recordName);
+
                 using (var stream = Request.InputStream)
                 {
-                    await UploadUtils.SaveRecording(
-                        stream,
-                        this.GetUserId(),
-                        ExerciseType.AudioRecording,
-                        UploadUtils.DurationToLength(duration),
-                        null,
-                        recorderId // recorderId comes from Audior, 13 digits, milliseconds, current Date in the browser. It is part of Artifact and will be used to update Title with the real title after upload is done.
-                    );
+                    await AzureStorageUtils.UploadBlobAsync(stream, AzureStorageUtils.ContainerNames.Artifacts, blobName, MediaType.Mp3);
                 }
+
+                var length = UploadUtils.DurationToLength(duration);
+                await UploadUtils.CreateExercise(blobName, userId, ServiceType.IeltsSpeaking, ArtifactType.Mp3, length, null);
                 success = true;
             }
             catch (Exception ex)
@@ -193,7 +189,7 @@ namespace Runnymede.Website.Controllers.Mvc
                 }
             }
             // 4. Create a database record.
-            var exerciseId = await UploadUtils.CreateExercise(outputBlobName, userId, ExerciseType.AudioRecording, durationMsec, recordingTitle);
+            var exerciseId = await UploadUtils.CreateExercise(outputBlobName, userId, ServiceType.IeltsSpeaking, ArtifactType.Mp3, durationMsec, recordingTitle);
             // 5. Redirect to the exercise page.
             return RedirectToAction("View", new { Id = exerciseId });
         }
@@ -226,7 +222,8 @@ namespace Runnymede.Website.Controllers.Mvc
                             exerciseId = await UploadUtils.SaveRecording(
                                 stream,
                                 userId,
-                                ExerciseType.AudioRecording,
+                                ArtifactType.Mp3,
+                                ServiceType.IeltsSpeaking,
                                 durationMsec,
                                 recordingTitle
                                 );
@@ -370,87 +367,6 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         } // end of Upload()
 
-        // POST: /exercises/save-writing-photos
-        [HttpPost]
-        public async Task<ActionResult> SaveWritingPhotos(IEnumerable<HttpPostedFileBase> files, IEnumerable<int> rotations, string title, string wordCount)
-        {
-            if (files == null)
-            {
-                return RedirectToAction("PhotographWriting", new { error = "no_file" });
-            }
-            if (files.Count() != rotations.Count())
-            {
-                return RedirectToAction("PhotographWriting", new { error = "wrong_rotations" });
-            }
-
-            var items = files
-                .Select((i, idx) => new { File = i, Rotation = rotations.ElementAt(idx) })
-                // There may be empty form parts from input elements with no file selected.
-                .Where(i => i.File != null)
-                .Where(i => i.File.ContentType == MediaType.Jpeg);
-
-            var userId = this.GetUserId();
-            var userKey = KeyUtils.IntToKey(userId);
-            var timeKey = KeyUtils.GetTimeAsBase32();
-            var page = 1; // Pages start counting from 1.
-            var blobNames = new List<string>();
-
-            foreach (var item in items)
-            {
-                using (var inputStream = item.File.InputStream)
-                {
-                    var blobName = String.Format("{0}/{1}/{2}.original.jpg", userKey, timeKey, page);
-                    await AzureStorageUtils.UploadBlobAsync(inputStream, AzureStorageUtils.ContainerNames.WritingPhotos, blobName, MediaType.Jpeg);
-
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        /* I am not sure about using JpegBitmapDecoder. Because of the native code dependencies, the PresentationCore and WindowsBase assemblies need to be distributed as x86 and x64, so AnyCPU may be not possible? */
-                        inputStream.Seek(0, SeekOrigin.Begin);
-                        using (var image = Image.FromStream(inputStream))
-                        {
-                            RotateFlipType rotateFlipType = RotateFlipType.RotateNoneFlipNone;
-                            switch (item.Rotation)
-                            {
-                                case -1:
-                                    rotateFlipType = RotateFlipType.Rotate270FlipNone;
-                                    break;
-                                case 1:
-                                    rotateFlipType = RotateFlipType.Rotate90FlipNone;
-                                    break;
-                                default:
-                                    break;
-                            };
-                            if (rotateFlipType != RotateFlipType.RotateNoneFlipNone)
-                            {
-                                image.RotateFlip(rotateFlipType);
-                            }
-                            // We re-encode the image to decrease the size.
-                            var codec = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                            var encoderParams = new EncoderParameters(1);
-                            int quality = 50; // Do not pass inline. This parameter is passed via pointer and it has to be strongly typed. Highest quality is 100.
-                            encoderParams.Param[0] = new EncoderParameter(Encoder.Quality, quality);
-                            image.Save(memoryStream, codec, encoderParams);
-                            //image.Save(memoryStream, ImageFormat.Jpeg);
-                        }
-
-                        memoryStream.Seek(0, SeekOrigin.Begin);
-                        blobName = String.Format("{0}/{1}/{2}.jpg", userKey, timeKey, page);
-                        await AzureStorageUtils.UploadBlobAsync(memoryStream, AzureStorageUtils.ContainerNames.WritingPhotos, blobName, MediaType.Jpeg);
-                        blobNames.Add(blobName);
-                    }
-
-                    page++;
-                }
-            }
-
-            var artifact = String.Join(",", blobNames);
-            int length;
-            Int32.TryParse(wordCount, out length); // Assigns 0 if failed.
-
-            var exerciseId = await UploadUtils.CreateExercise(artifact, userId, ExerciseType.WritingPhoto, length, title);
-
-            return RedirectToAction("View", new { Id = exerciseId });
-        }
 
     }
 }

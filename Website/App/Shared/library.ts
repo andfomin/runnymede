@@ -58,8 +58,8 @@ module app.library {
             ) {
             $scope.vm = this;
 
-            $scope.$on(ResourceList.Clear, () => { this.clear(); });
-            $scope.$on(ResourceList.Display, (event, args) => { this.displayResources(args.resources); });
+            $scope.$on(ResourceList.Clear,() => { this.clear(); });
+            $scope.$on(ResourceList.Display,(event, args) => { this.displayResources(args.resources); });
 
             createYouTubePlayer(this.$window, 420, 420, 'toBeReplacedByYoutubeIframe',
                 (event: YT.EventArgs) => { this.player = event.target; },
@@ -127,11 +127,11 @@ module app.library {
             if (isExponent(this.selection)) {
                 this.$http.get(app.libraryApiUrl('category/' + this.selection.categoryIds + '/exponents'))
                     .success((data: any) => {
-                        this.exponents = data;
-                        this.exponents.forEach((i) => {
-                            i.lines = i.text.split('\n\n');
-                        });
-                    }
+                    this.exponents = data;
+                    this.exponents.forEach((i) => {
+                        i.lines = i.text.split('\n\n');
+                    });
+                }
                     );
             }
         };
@@ -167,9 +167,9 @@ module app.library {
                     }
                     )
                     .catch(() => {
-                        this.levelRating = null;
-                        this.levelRatingKnownValue = null;
-                    }
+                    this.levelRating = null;
+                    this.levelRatingKnownValue = null;
+                }
                     );
             }
         };
@@ -399,15 +399,23 @@ module app.library {
                 .split(' ')
                 .filter((i) => { return i.length > 0; })
                 .forEach((i) => {
-                    var sel = {};
-                    var catId = i;
-                    while (catId) {
-                        var cat = app.arrFind(Categories, (j) => { return j.id === catId; });
+                var sel = {};
+                var catId = i;
+                while (catId) {
+                    var cat = app.arrFind(Categories,(j) => { return j.id === catId; });
+                    // There may be a case when a category assigned to the item was then removed from the main Categories list. It will not be found here.
+                    if (cat) {
                         sel['level' + cat.level] = catId;
-                        catId = cat.parentId;
-                    };
+                    }
+                    else {
+                        sel = null;
+                    }
+                    catId = cat && cat.parentId;
+                };
+                if (sel) {
                     this.selections.push(<ICategorySelection>sel);
-                });
+                }
+            });
 
             this.tags = (this.resource.tags || '')
                 .split(' ')
@@ -566,64 +574,5 @@ module app.library {
             }
             );
     };
-
-    export function createYouTubePlayer($window: angular.IWindowService, width: number, height: number, idOfElementToReplace: string,
-        onReadyCallback: (event: YT.EventArgs) => void,
-        onErrorCallback?: (event: YT.EventArgs) => void,
-        onStateChangeCallback?: (event: YT.EventArgs) => void
-        ) {
-        // Event handler which will be called by the YouTube script after the script is loaded.
-        var onReady = () => {
-            var origin = $window.location.protocol + '//' + $window.location.hostname;
-
-            var playerVars: YT.PlayerVars = {
-                enablejsapi: 1,
-                iv_load_policy: 3,
-                modestbranding: 1,
-                origin: origin,
-                rel: 0,
-                showinfo: 0,
-                theme: 'light'
-            };
-
-            var events = <YT.Events>{
-                onReady: (event) => {
-                    onReadyCallback(event);
-                },
-                onStateChange: (event) => {
-                    (onStateChangeCallback || angular.noop)(event);
-                },
-                onError: (event) => {
-                    (onErrorCallback || angular.noop)(event);
-                },
-            };
-
-            var playerOptions: YT.PlayerOptions = {
-                width: width,
-                height: height, // ratio 4:3 + 35px for the toolbar
-                videoId: null,
-                playerVars: playerVars,
-                events: events
-            };
-
-            new YT.Player(idOfElementToReplace, playerOptions);
-        }
-
-         // onYouTubeIframeAPIReady() is called by the YouTube script after the script is loaded.
-        (<any>$window).onYouTubeIframeAPIReady = onReady;
-
-        if ((<any>$window).YT === undefined) {
-            var document = $window.document;
-            // As in the example on +https://developers.google.com/youtube/iframe_api_reference
-            var tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            var firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        }
-        else {
-            onReady();
-        }
-    }
-
 
 } // end of module app.library

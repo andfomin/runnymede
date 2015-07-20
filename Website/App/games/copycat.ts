@@ -41,14 +41,14 @@
             /* ----- Constructor  ----- */
             super($scope);
 
-            app.library.createYouTubePlayer($window, 240, 240, 'toBeReplacedByYoutubeIframe',
+            app.createYouTubePlayer($window, 240, 240, 'toBeReplacedByYoutubeIframe',
                 (event: YT.EventArgs) => { this.player = event.target; },
                 (event: YT.EventArgs) => { toastr.error('Player error ' + event.data); },
                 (event: YT.EventArgs) => { this.onPlayerStateChange(event.data); }
                 );
 
             // pagingSession is used for maintaining a repeatable random order.
-            this.pagingSession = new Date().getTime() % 1000;
+            this.pagingSession = Date.now() % 1000;
 
             this.selectKind(this.authenticated ? this.KindViewed : this.KindNotViewed);
             /* ----- End of constructor  ----- */

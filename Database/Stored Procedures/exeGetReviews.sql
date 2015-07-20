@@ -14,7 +14,7 @@ SET NOCOUNT ON;
 	from dbo.exeReviews 
 	where UserId = @UserId;
 
-	select R.Id, R.StartTime, R.FinishTime, E.[Type] as ExerciseType, E.[Length] as ExerciseLength
+	select R.Id, R.StartTime, R.FinishTime, E.ServiceType, E.ArtifactType, E.Title
 	from dbo.exeReviews R
 		inner join dbo.exeExercises E on R.ExerciseId = E.Id
 	where R.UserId = @UserId

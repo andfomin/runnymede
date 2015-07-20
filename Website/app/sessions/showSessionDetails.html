@@ -6,21 +6,32 @@
         <div class="col-sm-offset-1 col-sm-10">
             <p>Start: {{vm.session.start.toDate() | appDate}}</p>
             <p>End: {{vm.session.end.toDate() | appDate}}</p>
-            <p>Partner: <img class="img-circle" width="24" height="24" ng-src="{{vm.otherUser.id | appAvatarSmall}}" /> <strong>{{vm.otherUser.displayName}}</strong></p>
+            <p ng-show="vm.otherUser">
+                <span>{{vm.selfUser.isTeacher ? 'Learner' : 'Teacher'}}:</span>
+                <img class="img-circle" width="24" height="24" ng-src="{{vm.otherUser.id | appAvatarSmall}}" /> <strong>{{vm.otherUser.displayName}}</strong>
+            </p>
+            <p ng-show="vm.session.confirmationTime">Confirmed: {{vm.session.confirmationTime | appDate}}</p>
+            <p ng-show="!vm.session.confirmationTime && !vm.session.cancellationTime && !vm.selfUser.isTeacher">To be confirmed</p>
+            <p class="text-danger" ng-show="vm.session.cancellationTime">Cancelled: {{vm.session.cancellationTime | appDate}}</p>
+            <p ng-show="vm.canConfirm()">
+                <button class="btn btn-primary btn-sm" ng-click="vm.confirmSession()">Confirm session</button>
+                <button class="btn btn-default btn-sm" ng-click="vm.cancelSession()">Cancel session</button>
+            </p>
             <p>
-                <img class="app-2px-up" src="http://www.skypeassets.com/i/scom/images/skype-buttons/Skypeicon_24px.png" width="24" height="24" />
+                <img src="http://www.skypeassets.com/i/scom/images/skype-buttons/Skypeicon_24px.png" width="24" height="24" />
                 <span ng-show="vm.otherUser.skypeName">
                     The Skype Name of the partner is
                     <!-- Skype Button is a bloatware, it is essentially a wrapper around Skype URI anyway, and it does not support the 'add' method -->
                     <a href="skype:{{vm.otherUser.skypeName}}?add"><strong>{{vm.otherUser.skypeName}}</strong></a>
                 </span>
                 <span ng-show="!vm.otherUser.skypeName">
-                    The Skype Name of the partner is shown here during the session time
+                    The Skype Name of the {{vm.selfUser.isTeacher ? 'learner' : 'teacher'}} will be shown here during the session time
                 </span>
             </p>
         </div>
     </div>
-    <div class="panel panel-default" ng-show="vm.showMessages()">
+    <!--<div class="panel panel-default" ng-show="vm.showMessages()">-->
+    <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Messages</h3>
         </div>
@@ -39,12 +50,12 @@
             <div>
                 <hr />
                 <h3 class="panel-title" style="">Write a new message</h3>
-                <textarea class="form-control app" style="margin:10px 0;" id="messageTextarea" ng-model="vm.message" maxlength="1000" />
+                <textarea class="form-control app-textarea" style="margin:10px 0;" id="messageTextarea" ng-model="vm.message" maxlength="1000" />
                 <button class="btn btn-default btn-sm app-btn-disablable" ng-click="vm.sendMessage()" ng-disabled="!vm.canSend()">Send message</button>
             </div>
         </div>
     </div>
-    <div class="panel panel-default app-margin-bottom-none" ng-show="vm.showSatisfaction()">
+    <div class="panel panel-default" ng-show="vm.showSatisfaction()">
         <div class="panel-body bg-info text-center">
             <h4>Tell us how good was the session <span class="text-muted small">(The teacher will not see this rating.)</span></h4>
             Select the number of stars according to your satisfaction

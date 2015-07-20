@@ -1,0 +1,16 @@
+﻿<div class="row">
+    <div class="col-md-2">
+        <button class="btn btn-default btn-sm" ng-click="showQuestions = !showQuestions">{{showQuestions ? '&nbsp;Hide' : 'Show'}}&nbsp;questions</button>
+    </div>
+    <div class="visible-sm-block">&nbsp;</div>
+    <div class="col-md-8">
+        <div class="well app-margin-bottom-none" collapse="!showQuestions">
+            <div ng-repeat="i in vm.card.items">
+                @* Include ngSanitize for using ng-bind-html *@
+                <p ng-bind-html="i.contents"></p>
+            </div>
+        </div>
+    </div>
+</div>
+<hr/>
+

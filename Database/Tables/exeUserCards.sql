@@ -1,12 +1,17 @@
 ﻿CREATE TABLE [dbo].[exeUserCards] (
-    [UserId] INT      NOT NULL,
-    [Type]   CHAR (6) NOT NULL,
-    [CardId] INT      NOT NULL,
-    CONSTRAINT [PK_exeUserCards_1] PRIMARY KEY CLUSTERED ([UserId] ASC, [Type] ASC),
-    CONSTRAINT [FK_exeUserCards_appTypes] FOREIGN KEY ([Type]) REFERENCES [dbo].[appTypes] ([Id]),
+    [UserId]      INT              NOT NULL,
+    [ServiceType] CHAR (6)         NOT NULL,
+    [CardId]      UNIQUEIDENTIFIER NOT NULL,
+    CONSTRAINT [PK_exeUserCards] PRIMARY KEY CLUSTERED ([UserId] ASC, [ServiceType] ASC),
+    CONSTRAINT [CK_exeUserCards] CHECK (substring([ServiceType],(1),(2))='SV'),
+    CONSTRAINT [FK_exeUserCards_appTypes] FOREIGN KEY ([ServiceType]) REFERENCES [dbo].[appTypes] ([Id]),
     CONSTRAINT [FK_exeUserCards_appUsers] FOREIGN KEY ([UserId]) REFERENCES [dbo].[appUsers] ([Id]),
     CONSTRAINT [FK_exeUserCards_exeCards] FOREIGN KEY ([CardId]) REFERENCES [dbo].[exeCards] ([Id])
 );
+
+
+
+
 
 
 GO

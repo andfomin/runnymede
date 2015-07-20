@@ -63,11 +63,11 @@ module app.exercises {
         }
 
         isStateSpeaking = () => {
-            return this.$state.current.name === ExerciseType.AudioRecording;
+            return this.$state.current.name === ArtifactType.Mp3;
         };
 
         isStateWriting = () => {
-            return this.$state.current.name === ExerciseType.WritingPhoto;
+            return this.$state.current.name === ArtifactType.Jpeg;
         };
 
         showCreateRequestModal = (exercise: app.IExercise) => {
@@ -88,8 +88,8 @@ module app.exercises {
                 };
             };
             // The state names are used as URL path in pgLoad(). They correspond to routes in Runnymede.Website.Controllers.Api.LibraryApiController
-            var speaking: ng.ui.IState = makeState(ExerciseType.AudioRecording, 'speaking', 'Audio recordings of speeches and conversations');
-            var writing: ng.ui.IState = makeState(ExerciseType.WritingPhoto, 'writing', 'Photos of handwritten essays');
+            var speaking: ng.ui.IState = makeState(ArtifactType.Mp3, 'speaking', 'Audio recordings of speeches and conversations');
+            var writing: ng.ui.IState = makeState(ArtifactType.Jpeg, 'writing', 'Photos of handwritten essays');
             $stateProvider
                 .state(speaking)
                 .state(writing)

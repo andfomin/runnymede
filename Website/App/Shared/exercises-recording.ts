@@ -43,7 +43,7 @@ module app.exercises {
 
             this.sound = sm.createSound({
                 id: 'mySound',
-                url: app.getBlobUrl('recordings', this.exercise.artifact),
+                url: app.getBlobUrl('artifacts', this.exercise.artifact),
                 autoLoad: this.autoLoad, // Should be explicitly false for iOS. Mobile browsers permit downloading only on a user action.
                 multiShot: false,
 

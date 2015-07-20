@@ -7,7 +7,8 @@ CREATE PROCEDURE [dbo].[accChangeEscrow]
 	@Amount decimal(9, 2), -- The sign of @Amount determines the direction of the transfer. A negative amount means refund.
 	@TransactionType char(6),
 	@Attribute nvarchar(100) = null,
-	@Details xml = null
+	@Details xml = null,
+	@Now datetime2(2) output
 AS
 BEGIN
 /*
@@ -32,8 +33,8 @@ begin try
 		@TransactionId int, @Balance decimal(18,2);
 
 	select 
-		@PersonalAccountId = max(iif([Type] = 'ACPERS', Id, 0)),
-		@EscrowAccountId = max(iif([Type] = 'ACESCR',Id, 0))
+		@PersonalAccountId = max(iif([Type] = 'ACUCSH', Id, 0)),
+		@EscrowAccountId = max(iif([Type] = 'ACUESC',Id, 0))
 	from dbo.accAccounts
 	where UserId = @UserId;
 
@@ -55,12 +56,14 @@ begin try
 
 	if coalesce(@Balance, 0) < abs(@Amount) 
 		raiserror('%s,%d:: Non-sufficient funds.', 16, 1, @ProcName, @UserId); 
+
+	set @Now = sysutcdatetime();
 			 
 	if @ExternalTran = 0
 		begin transaction;
 
 		insert into dbo.accTransactions ([Type], ObservedTime, Attribute, Details)
-			values (@TransactionType, sysutcdatetime(), @Attribute, @Details);
+			values (@TransactionType, @Now, @Attribute, @Details);
 
 		select @TransactionId = scope_identity() where @@rowcount != 0;
 

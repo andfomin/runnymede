@@ -1,42 +1,75 @@
 module app.exercises {
 
     export class PieceTypes {
-        // "E" editor user, "V" viewer user. Corresponds to Runnymede.Website.Models.ReviewPiece.PieceTypes
+        // Corresponds to Runnymede.Website.Models.ReviewPiece.PieceTypes in Runnymede\Common\Models\ExerciseModels.cs
+        // "E" - editor user, "V" - viewer user.
         public static Remark = 'R';
+        public static Performance = 'P';
         public static Suggestion = 'S';
         public static Comment = 'C';
+        public static Video = 'Y';
     }
 
     export class CtrlBase {
 
         exercise: app.IExercise;
+        card: app.ICard;
         reviews: app.IReview[];
+        descGroups: app.exercisesIelts.IDescriptor[][][]; // criterion area / descriptor group / descriptor 
+
+        static PiecesLoaded = 'piecesLoaded';
 
         constructor(
             public $appRemarks: app.exercises.IRemarksService,
             public $http: angular.IHttpService,
+            public $rootScope: angular.IRootScopeService,
             public $scope: app.IScopeWithViewModel
             )
         /* ----- Constructor  ------------ */ {
             $scope.vm = this;
 
             this.exercise = app['exerciseParam'];
+            this.card = app['cardParam'];
             this.reviews = this.exercise.reviews;
 
-            // Dummy pieces will be replaced as the real ones are loaded.
+            // Performance descriptors. Flat array filtered by serviceType.
+            var descs: app.exercisesIelts.IDescriptor[] =
+                []
+                    .concat(app.exercisesIelts.descsW1, app.exercisesIelts.descsW2, app.exercisesIelts.descsS_)
+                    .filter((i) => { return i.path.substr(0, 6) === this.exercise.serviceType; });
+            // Parse path.
+            descs.forEach((i) => {
+                i.group = i.path.substr(0, 11);
+                i.band = +i.path.substr(12, 1);
+            });
+            // First group by criterion area
+            var groups: app.exercisesIelts.IDescriptor[][] = app.arrGroupBy(descs,(i) => { return i.path.substr(0, 9); });
+            // Then group by descriptor group
+            this.descGroups = groups.map((i) => {
+                return app.arrGroupBy(i,(j) => { return j.group; });
+            });
+
+            // The dummy pieces will be replaced as the real ones have been loaded.
             this.reviews.forEach((i) => {
+                i.performance = this.createPiece(i.id, PieceTypes.Performance);
                 i.suggestions = [];
-                i.comment = <any>{
-                    reviewId: i.id,
-                    type: PieceTypes.Comment,
-                    id: 1,
-                    dirtyTime: null,
-                };
+                i.comment = this.createPiece(i.id, PieceTypes.Comment);
+                i.video = this.createPiece(i.id, PieceTypes.Video);
             });
 
             this.loadPieces();
         }
         /* ----- End of constructor  ----- */
+
+        // RowKey includes the piece's Type. We can use the same id with different types.
+        private createPiece = (reviewId: number, type: string) => {
+            return <any>{
+                reviewId: reviewId,
+                type: type,
+                id: 1,
+                dirtyTime: null,
+            };
+        };
 
         loadPieces = () => {
             if (this.reviews.length > 0) {
@@ -47,7 +80,10 @@ module app.exercises {
                 app.ngHttpGet(this.$http,
                     app.reviewsApiUrl(route),
                     null,
-                    (data) => { this.updatePieces(data); });
+                    (data) => {
+                        this.updatePieces(data);
+                        this.$rootScope.$broadcast(CtrlBase.PiecesLoaded);
+                    });
             }
         };
 
@@ -65,6 +101,9 @@ module app.exercises {
                             case PieceTypes.Remark:
                                 remarks.push(i);
                                 break;
+                            case PieceTypes.Performance:
+                                review.performance = <any>i;
+                                break;
                             case PieceTypes.Suggestion:
                                 var ss = review.suggestions;
                                 var s = app.arrFind(ss,(j) => { return j.id === i.id; });
@@ -78,12 +117,19 @@ module app.exercises {
                             case PieceTypes.Comment:
                                 review.comment = <any>i;
                                 break;
+                            case PieceTypes.Video:
+                                review.video = <any>i;                                
+                                break;
                         }
                     }
                 });
 
                 this.$appRemarks.upsertRemarks(remarks);
             }
+        };
+
+        getCriterionAreaTitle = (d: app.exercisesIelts.IDescriptor) => {
+            return app.exercisesIelts.criterionAreaTitles[d.path.substr(0, 9)];
         };
 
     } // end of class CtrlBase
@@ -147,6 +193,5 @@ module app.exercises {
         };
 
     } // end of class RemarksService
-
 
 } // end of module app.exercises

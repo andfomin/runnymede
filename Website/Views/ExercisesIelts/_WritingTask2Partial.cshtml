@@ -1,0 +1,17 @@
+﻿<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="text-center">
+            <button class="btn app-margin-left app-btn-disablable" ng-class="vm.card ? 'btn-default btn-xs' : 'btn-primary'" ng-click="vm.showChooseCardModal()">
+                Choose questions
+            </button>
+        </div>
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10">
+                <div ng-repeat="i in vm.card.items">
+                    @* Include ngSanitize for using ng-bind-html *@
+                    <div ng-bind-html="i.contents"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

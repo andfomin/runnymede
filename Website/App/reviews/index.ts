@@ -31,14 +31,18 @@ module app.reviews {
                     null,
                     (data) => {
                         this.requests = data || [];
-                        // If the user has an unfinished review, do not show them requests. We return the review with exerciseType set to 'unfinished' to indicate that case.
-                        this.unfinishedReviewId = (this.requests.length === 1) && (this.requests[0].exerciseType == 'unfinished' ? this.requests[0].id : null);
+                        // If the user has an unfinished review, do not show them requests. We return the review with serviceType set to 'unfinished' to indicate that case.
+                        this.unfinishedReviewId = (this.requests.length === 1) && (this.requests[0].serviceType === 'unfinished' ? this.requests[0].id : null);
                     });
             }
         }
 
         unfinishedUrl = () => {
             return this.unfinishedReviewId ? getEditUrl(this.unfinishedReviewId) : null;
+        };
+
+        getIcon = (serviceType: string) => {
+            return app.ServiceType.getIcon(serviceType);
         };
 
         showStartReviewModal = (request) => {
@@ -97,7 +101,11 @@ module app.reviews {
             return getEditUrl(r.id);
         }
 
-    } // end of class Index_Reviews
+        getIcon = (serviceType: string) => {
+            return app.ServiceType.getIcon(serviceType);
+        };
+
+    } // end of class Reviews
 
     export class StartReviewModal extends app.Modal {
 

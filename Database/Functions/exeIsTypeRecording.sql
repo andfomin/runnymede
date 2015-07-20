@@ -8,6 +8,6 @@ RETURNS bit
 AS
 BEGIN
 
-return iif(@Type = 'EXAREC', 1, 0);
+return iif(@Type = 'ARMP3_', 1, 0);
 
 END

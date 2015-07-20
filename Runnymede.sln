@@ -27,6 +27,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{40CECF
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PublishScripts", "PublishScripts", "{01A43F1A-E5CE-4E81-9E6B-D546EEA98694}"
+	ProjectSection(SolutionItems) = preProject
+		PublishScripts\AzureWebsitePublishModule.psm1 = PublishScripts\AzureWebsitePublishModule.psm1
+		PublishScripts\Publish-WebApplicationWebsite.ps1 = PublishScripts\Publish-WebApplicationWebsite.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configurations", "{5C55E4FF-4EDA-47C3-B7E8-3CCEDF54B92E}"
+	ProjectSection(SolutionItems) = preProject
+		PublishScripts\Configurations\WhiteLabel-WAWS-dev.json = PublishScripts\Configurations\WhiteLabel-WAWS-dev.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,5 +69,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5C55E4FF-4EDA-47C3-B7E8-3CCEDF54B92E} = {01A43F1A-E5CE-4E81-9E6B-D546EEA98694}
 	EndGlobalSection
 EndGlobal

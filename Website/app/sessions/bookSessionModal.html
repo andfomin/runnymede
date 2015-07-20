@@ -4,13 +4,22 @@
 <div class="modal-body">
     <div class="row">
         <div class="col-sm-offset-1 col-sm-10">
-            <p>Start time: {{vm.session.start.toDate() | appDate}}</p>
-            <p>Duration: {{vm.duration}} minutes</p>
-            <p>Price: {{vm.session.price | currency:'$'}}</p>
+            <p class="text-nowrap">Start time: <strong>{{vm.session.start | appDate}}</strong></p>
+            <p class="text-nowrap">Duration: <strong>{{vm.session.duration}}</strong> minutes</p>
+            <p class="text-nowrap">Price: <strong>{{vm.session.price | currency:'$'}}</strong></p>
+            <p class="text-nowrap">
+                Teacher: <img class="img-circle app-avatar" width="32" height="32" ng-src="{{vm.session.teacherUserId | appAvatarSmall}}" /><strong>{{vm.session.displayName}}</strong>
+            </p>
+            <div>
+                <h3 class="panel-title" style="">Write a message</h3>
+                <textarea class="form-control app-textarea" style="margin:10px 0;" id="messageTextarea" ng-model="vm.message" maxlength="1000" />
+            </div>
         </div>
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="vm.busy">OK</button>
+    <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="vm.busy">
+        <i class="fa app-1px-up" ng-class="{'fa-spinner fa-fw fa-spin':vm.busy}"></i> OK
+    </button>
     <a href="" class="app-close" ng-click="vm.cancel()">Close</a>
 </div>

@@ -78,7 +78,7 @@ module app.reviews {
 
     } // end of class CanvasEditor
 
-    angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar'])
+    angular.module(app.myAppName, [app.utilsNg, 'ngSanitize', 'ui.bootstrap', 'angular-loading-bar'])
         .value(app.ngNames.$appRemarksComparer, app.exercises.WritingsComparer)
         .service(app.ngNames.$appRemarks, app.exercises.RemarksService)
         .controller('Canvas', app.reviews.CanvasEditor) // vma

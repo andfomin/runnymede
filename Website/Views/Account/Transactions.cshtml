@@ -1,0 +1,89 @@
+﻿@using Runnymede.Website.Controllers.Mvc
+@model AccountController.PayPalPaymentResult
+@{
+    ViewBag.Title = "Account transactions";
+    ViewBag.NavItem = "Account";
+    var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
+
+    string alertText = null;
+    string alertStyle = null;
+    switch (Model)
+    {
+        case AccountController.PayPalPaymentResult.Success:
+            alertText = "Thank you for your purchase!";
+            alertStyle = "alert-success";
+            break;
+        case AccountController.PayPalPaymentResult.Canceled:
+            alertText = "Payment canceled.";
+            alertStyle = "alert-warning";
+            break;
+        default:
+            break;
+    }
+}
+<div ng-app="myApp" ng-controller="Transactions">
+    @if (!String.IsNullOrEmpty(alertText))
+    {
+        <div class="row">
+            <div class="col-sm-offset-4 col-sm-4 alert text-center @alertStyle">
+                @alertText
+            </div>
+        </div>
+    }
+    <div class="row" ng-cloak>
+        @*<div class="col-sm-3">
+            <h4 class="text-center app-margin-top-none">Account</h4>
+            <tabset vertical="true" type="pills">
+                <tab select="vm.select(i)" heading="{{i.title}}" ng-repeat="i in vm.accounts"></tab>
+            </tabset>
+        </div>*@
+        <div class="col-md-offset-2 col-md-8">
+            <h4 class="text-center app-margin-top-none">Transaction history</h4>
+            <table class="table table-condensed table-bordered app-margin-bottom-none" ng-show="vm.pgTotal">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Description</th>
+                        <th class="text-right">Change, USD</th>
+                        <th class="text-right">Balance, USD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="e in vm.entries">
+                        <td>
+                            {{e.observedTime | appDateTime}}
+                        </td>
+                        <td>
+                            {{e.description}}
+                        </td>
+                        <td class="text-right">
+                            {{e.credit - e.debit | number:2}}
+                        </td>
+                        <td class="text-right">
+                            {{e.balance | number:2}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination-sm app-margin-bottom-none" data-pagination data-total-items="vm.pgTotal" data-items-per-page="vm.pgLimit" data-max-size="10" data-boundary-links="true" data-rotate="false"
+                 ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.pgLoad()"></div>
+        </div>
+    </div>
+    <p class="text-center text-muted" ng-show="!vm.pgTotal">
+        There have been no transactions
+    </p>
+    <hr />
+    <div class="text-center">
+        <a href="@Url.Action("BuyServices")" class="btn btn-primary btn-lg">Buy services</a>
+    </div>
+</div>
+
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/account/transactions.js"
+    )
+}

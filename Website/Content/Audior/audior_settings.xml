@@ -1,8 +1,8 @@
 <AudiorSettings>
-  <maxTimeLimit>480</maxTimeLimit>
+  <maxTimeLimit>840</maxTimeLimit>
   <recordName>0</recordName>
-  <!-- Do not capitalize letters in the route to prevent get dashes inserted. -->
-  <uploadURL>/exercises/save-recording</uploadURL>
+  <!-- Do not capitalize letters in the route to prevent dashes inserted. -->
+  <uploadURL>/exercises/save-audior-recording</uploadURL>
   <canDownload>0</canDownload>
   <showSoundWave>1</showSoundWave>
   <markerDistance>0</markerDistance>
@@ -12,8 +12,8 @@
   <disableRecordAgainButton>1</disableRecordAgainButton>
   <bgCornerRadius>8</bgCornerRadius>
   <bgColor>0xffffff</bgColor>
-  <borderColor>0xeeeeee</borderColor>
+  <borderColor>0xdddddd</borderColor>
   <borderWidth>1</borderWidth>
   <soundWaveColor>0xac1f28</soundWaveColor>
-  <playBackFillColor>0xFA5223</playBackFillColor>
+  <playBackFillColor>0x3c7630</playBackFillColor>
 </AudiorSettings>

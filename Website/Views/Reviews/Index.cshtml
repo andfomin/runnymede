@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Reviews of exercises";
-    ViewBag.NavItem = "Exercises";
+    ViewBag.NavItem = "Reviews";
 }
 <div ng-app="myApp" ng-cloak>
     <div class="row">
@@ -8,7 +8,7 @@
     </div>
     <div ng-controller="Requests">
         <div class="row">
-            <div class="col-md-offset-3 col-md-6">
+            <div class="col-sm-offset-3 col-sm-6">
                 <div class="alert alert-warning app-margin-bottom-none" ng-show="vm.unfinishedReviewId">
                     <p class="text-center">
                         You have an <a href="" ng-href="{{vm.unfinishedUrl()}}">unfinished review</a>.
@@ -17,17 +17,17 @@
                 <div ng-show="!vm.unfinishedReviewId">
                     <h4 class="text-center">Requests for reviewing exercises</h4>
                     <table class="table app-margin-bottom-none">
-                        @*<table class="table table-condensed app-margin-bottom-none">*@
                         <thead>
                             <tr>
-                                <th class="text-right">Length</th>
+                                <th></th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="r in vm.requests" ng-class="{'app-last-row':$last}">
-                                <td class="text-right">
-                                    {{r.exerciseLength | appLength : r.exerciseType}}
+                            <tr ng-class="{'app-last-row':$last}" ng-repeat="r in vm.requests">
+                                <td>
+                                    <i class="fa fa-fw" ng-class="vm.getIcon(r.serviceType).name" title="{{vm.getIcon(r.serviceType).title}}"></i>
+                                    {{vm.getIcon(r.serviceType).title}}
                                 </td>
                                 <td>
                                     <button class="btn btn-primary btn-xs app-margin-left" ng-click="vm.showStartReviewModal(r)">Start</button>
@@ -36,7 +36,7 @@
                         </tbody>
                     </table>
                     <p class="text-muted text-center" style="margin-top:19px;" ng-show="vm.requests.length === 0" ng-cloak>
-                        There is no request for reviewing
+                        There are no requests for reviewing
                     </p>
                 </div>
             </div>
@@ -45,26 +45,29 @@
     <hr />
     <div class="row" ng-controller="Reviews">
         <h4 class="text-center">Reviews</h4>
-        <div class="col-md-offset-2 col-md-8">
-            <table class="table table-condensed">
+        <div class="col-lg-offset-2 col-lg-8">
+            <table class="table table-condensed app-margin-bottom-none">
                 <thead>
                     <tr>
+                        <th></th>
+                        <th>Title</th>
                         <th>Started</th>
                         <th>Finished</th>
-                        <th class="text-right">Length</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="r in vm.reviews" ng-class="{'app-last-row':$last}">
                         <td>
-                            <span ng-show="r.finishTime">{{r.startTime | appDateTime}}</span>
-                            <a ng-href="{{vm.getEditUrl(r)}}" ng-show="!r.finishTime">{{r.startTime | appDateTime}}</a>
+                            <i class="fa fa-fw" ng-class="vm.getIcon(r.serviceType).name" title="{{vm.getIcon(r.serviceType).title}}"></i>
                         </td>
                         <td>
-                            <a ng-href="{{vm.getEditUrl(r)}}" ng-show="r.finishTime">{{r.finishTime | appDateTime}}</a>
+                            <a ng-href="{{vm.getEditUrl(r)}}">{{r.title}}</a>
                         </td>
-                        <td class="text-right">
-                            {{r.exerciseLength | appLength : r.exerciseType}}
+                        <td>
+                            {{r.startTime | appDateTime}}
+                        </td>
+                        <td>
+                            {{r.finishTime | appDateTime}}
                         </td>
                     </tr>
                 </tbody>

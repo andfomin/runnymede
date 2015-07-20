@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Bing;
+using Dapper;
+using Runnymede.Common.Utils;
+using Runnymede.Website.Utils;
+using System;
 using System.Collections.Generic;
+using System.Data.Services.Client;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using Bing;
-using System.Net;
-using Runnymede.Website.Utils;
-using Dapper;
-using System.Threading.Tasks;
-using System.Data.Services.Client;
-using Runnymede.Website.Models;
 
 namespace Runnymede.Website.Controllers.Mvc
 {

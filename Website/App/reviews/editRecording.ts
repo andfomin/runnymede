@@ -106,7 +106,7 @@
 
     } // end of class AudioPlayerEditor
 
-    angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar', 'vr.directives.slider'])
+    angular.module(app.myAppName, [app.utilsNg, 'ngSanitize', 'ui.bootstrap', 'angular-loading-bar', 'vr.directives.slider'])
         .value(app.ngNames.$appRemarksComparer, app.exercises.RecordingsComparer)
         .service(app.ngNames.$appRemarks, app.exercises.RemarksService)
         .controller('AudioPlayer', app.reviews.AudioPlayerEditor) // vma

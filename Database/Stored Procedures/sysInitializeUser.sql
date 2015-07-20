@@ -28,6 +28,8 @@ begin try
 
 	insert dbo.appUsers (Id, DisplayName, IsTeacher) values (@UserId, @DisplayName, iif(@IsTeacher = 1, 1, null));
 
+	-- We create user accounts as needed, on the fly.
+
 	if @ExternalTran = 0
 		commit;
 end try

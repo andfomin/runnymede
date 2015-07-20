@@ -1,8 +1,8 @@
 ﻿
-create PROCEDURE [dbo].[accPostRevenue]
+CREATE PROCEDURE [dbo].[accPostRevenue]
 	@UserId int,
 	@Amount decimal(9,2),
-	@TransactionType nchar(6),
+	@TransactionType char(6),
 	@Attribute nvarchar(100),
 	@Now datetime2(2) output
 AS
@@ -20,13 +20,16 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @UserAccountId int, @RevenueAccountId int, @TransactionId int;
+	declare @EscrowAccountId int, @RevenueAccountId int, @TransactionId int;
 
-	set @UserAccountId = dbo.accGetPersonalAccount(@UserId);
+	select @EscrowAccountId = Id 
+	from dbo.accAccounts
+	where UserId = @UserId 
+		and [Type] = 'ACUESC';
 
 	set @RevenueAccountId = dbo.appGetConstantAsInt('Account.$Service.ServiceRevenue');
 
-	if (@UserAccountId is null) or (@RevenueAccountId is null)
+	if (@EscrowAccountId is null) or (@RevenueAccountId is null)
 		raiserror('%s,%d:: Account not found.', 16, 1, @ProcName, @UserId);
 
 	set @Now = sysutcdatetime();
@@ -41,11 +44,15 @@ begin try
 
 		set transaction isolation level serializable;
 
-		-- Debit the user's account.
+		-- Debit the user's escrow account.
 		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)
-			select @TransactionId, @UserAccountId, @Amount, null, Balance - @Amount
+			select @TransactionId, @EscrowAccountId, @Amount, null, Balance - @Amount
 			from dbo.accEntries
-			where Id = (select max(Id) from dbo.accEntries where AccountId = @UserAccountId);
+			where Id = (select max(Id) from dbo.accEntries where AccountId = @EscrowAccountId)
+				and Balance >= @Amount;
+
+		if @@rowcount = 0
+			raiserror('%s,%d:: Non sufficient funds.', 16, 1, @ProcName, @EscrowAccountId);
 
 		-- Credit the service revenue.
 		insert into dbo.accEntries (TransactionId, AccountId, Debit, Credit, Balance)

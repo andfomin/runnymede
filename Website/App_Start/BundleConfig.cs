@@ -73,7 +73,8 @@ namespace Runnymede.Website
 
             bundles.Add(new ScriptBundle("~/bundles/app-utils").Include(
                 "~/app/shared/utils.js",
-                "~/app/shared/utils-ng.js"
+                "~/app/shared/utils-ng.js",
+                "~/app/shared/utils-signalR.js"
                 ));
 
         }

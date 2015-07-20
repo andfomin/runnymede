@@ -1,0 +1,96 @@
+﻿@{
+    ViewBag.Title = "Buy services";
+    ViewBag.NavItem = "Account";
+    var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
+    // Protect userName from tampering with.
+    var timestampedUserId = Runnymede.Website.Utils.PayPalHelper.UserIdToTimestampedUserId(pageViewModel.UserId, DateTime.UtcNow);
+    var isDebug = HtmlHelperExtensions.IsDebug(null);
+    //var imgSrc = isDebug ? "https://www.sandbox.paypal.com/en_US/i/scr/pixel.gif" : "https://www.paypalobjects.com/en_US/i/scr/pixel.gif";
+    var formAction = Runnymede.Website.Utils.PayPalHelper.PayPalAddress;
+    var businessEmail = Runnymede.Website.Utils.PayPalHelper.ReceiverEmail;
+    // Payer: paypal-test-buyer-jp@englisharium.com // Password: 12345678
+}
+@section HeadScripts {
+    <style>
+        .my-table {
+            margin: 0 auto;
+        }
+
+            .my-table th, .my-table td {
+                padding: 10px 20px;
+            }
+    </style>
+}
+
+<div ng-app="myApp" ng-controller="BuyServices" ng-cloak>
+    <div>
+        <p class="text-center">Choose how many exercises you are going to do.</p>
+
+        <table class="my-table">
+            <thead>
+                <tr>
+                    <th>Service name</th>
+                    <th class="text-right">Price, $</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tr ng-repeat="i in vm.pricelist">
+                <td>{{i.title}}</td>
+                <td class="text-right">{{i.price | number:2}}</td>
+                <td><input type="number" class="form-control input-sm" name="qty" min="0" max="10" ng-model="i.quantity" /></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="app-margin-top app-margin-bottom">
+        <div class="row">
+            <div class="col-xs-6 text-right"><strong>Total</strong></div>
+            <div class="col-xs-3 col-sm-2 col-md-1 text-right"><strong>{{vm.getTotal() | number:2}}</strong></div>
+        </div>
+    </div>
+
+    <form action="@formAction" method="post" target="_top" role="form" ng-submit="vm.onSubmit()">
+        <input type="hidden" name="cmd" value="_xclick">
+        <input type="hidden" name="currency_code" value="USD">
+        <input type="hidden" name="business" value="@businessEmail">
+        <input type="hidden" name="custom" value="@timestampedUserId">
+        <input type="hidden" name="item_name" value="Prepayment for services">
+        <input type="hidden" name="amount" ng-value="vm.getTotal() | number:2">
+        <input type="hidden" name="no_note" value="1">
+
+        <div class="text-center app-margin-top">
+            @Html.Partial("_NotAuthenticatedSpanPartial")
+            <button type="submit" class="btn btn-primary btn-lg app-btn-disablable" ng-disabled="!vm.canSubmit()">
+                <i class="fa app-1px-up" ng-class="{'fa-spinner fa-fw fa-spin':vm.busy}"></i> Make payment &raquo;
+            </button>
+        </div>
+        @* Is it needed? <img src="@imgSrc" width="1" height="1" alt="" border="0">*@
+    </form>
+
+</div><!-- ng-app -->
+<div class="row">
+    <div class="col-md-offset-2 col-md-8">
+        <hr />
+        <img class="img-responsive center-block app-margin-bottom" src="~/content/images/payment-logos.png" width="352" height="38" alt="Payment methods" />
+        <ul>
+            @*<li>The more you pay, the bigger discount.</li>*@
+            <li>We use PayPal as a payment processor. If you do not have a PayPal account, you can pay with a credit or debit card.</li>
+            <li>All amounts are shown in US dollars.</li>
+        </ul>
+    </div>
+</div>
+
+@section BottomScripts {
+    <script>
+        app.pricelistParam = @JavaScriptConvert.Serialize(ViewBag.Pricelist);
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/account/buyServices.js"
+    )
+}
+
+

@@ -47,16 +47,16 @@ module app.account_edit {
                 null,
                 (data) => {
                     this.profile = data;
-                    this.refreshAvatarUrls();
+                    //this.refreshAvatarUrls();
                     //this.newEmail = this.profile.email;
-                    this.loadPresentation();
+                    //this.loadPresentation();
                     //(<any>this.$scope).anntForm.$setPristine(); //  IE considers a placeholder as plain content and causes the form to become dirty from the very beginning.
                 });
         }
 
-        private loadPresentation = () => {
-            app.getUserPresentation(this.$http, this.profile.id, (data) => { this.profile.presentation = data; });
-        };
+        //private loadPresentation = () => {
+        //    app.getUserPresentation(this.$http, this.profile.id, (data) => { this.profile.presentation = data; });
+        //};
 
         saveMain = (form: angular.IFormController) => {
             if (form.$valid) {

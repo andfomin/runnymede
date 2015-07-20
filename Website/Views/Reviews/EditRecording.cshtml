@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.Title = "Review audio recording";
+    ViewBag.NavItem = "Reviews";
 }
 @section HeadScripts {
     @* SoundManager must be loaded as early as possible. Otherwise browser security may block Flash <-> JS communication after certain JQuery DOM manipulations by a third-party code. *@
@@ -9,6 +10,8 @@
     <div ng-controller="EditRecording">
 
         @Html.Partial("_TopSaveButtonPartial")
+
+        @Html.Partial("_TopCardPartial")
 
         <div ng-controller="AudioPlayer">
 
@@ -87,6 +90,7 @@
             </div>
 
         </div><!-- ng-controller="AudioPlayer" -->
+
         @Html.Partial("_BottomPartial")
 
     </div><!-- /ng-controller="EditRecording" -->
@@ -99,8 +103,7 @@
         </ul>
     }*@
 @section BottomScripts {
-    <script type="text/javascript">
-        var app = app || {};
+    <script>
         app.exerciseParam = @JavaScriptConvert.Serialize(ViewBag.ExerciseParam);
     </script>
     @Scripts.Render(
@@ -115,6 +118,7 @@
 "~/app/shared/library-data.js",
 "~/app/shared/exercises.js",
 "~/app/shared/exercises-recording.js",
+"~/app/exercisesIelts/utils-data.js",
 "~/app/reviews/utils-EditCtrlBase.js",
 "~/app/reviews/editRecording.js"
 )

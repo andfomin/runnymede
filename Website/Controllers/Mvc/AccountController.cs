@@ -5,6 +5,7 @@ using Runnymede.Common.Utils;
 using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Net;
 using System.Security.Cryptography;
@@ -12,6 +13,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Linq;
+using System.Xml.Linq;
+using System.Data;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
@@ -245,18 +249,61 @@ namespace Runnymede.Website.Controllers.Mvc
             return View(payPalPaymentResult);
         }
 
-        // GET: /account/transactions-reviews
+        // GET: /account/transactions
         [RequireHttps]
-        public ActionResult TransactionsReviews(PayPalPaymentResult payPalPaymentResult = PayPalPaymentResult.None)
+        public ActionResult Transactions(PayPalPaymentResult payPalPaymentResult = PayPalPaymentResult.None)
         {
             return View(payPalPaymentResult);
         }
 
-        // GET: /account/buy-reviews
+        //        // GET: /account/buy-reviews
+        //        [RequireHttps]
+        //        [AllowAnonymous]
+        //        public async Task<ActionResult> BuyReviews()
+        //        {
+        //            var sql = @"
+        //select Title, Price from dbo.appGetPricelistItems() order by Position;
+        //select dbo.appGetValue('PLDSCT');
+        //";
+        //            dynamic pricelist = null;
+        //            await DapperHelper.QueryMultipleResilientlyAsync(sql, null, CommandType.Text,
+        //                (Dapper.SqlMapper.GridReader reader) =>
+        //                {
+        //                    var items = reader.Read<dynamic>();
+
+        //                    var value = reader.Read<string>().Single();
+        //                    // Convert XML to JSON and pass to the client only a subset of data. There may be sensitive data in XML.
+        //                    var discounts = XElement.Parse(value)
+        //                        .Elements("Percent")
+        //                        .Select(i => new
+        //                        {
+        //                            amountFrom = Convert.ToDecimal(i.Attribute("amountFrom").Value),
+        //                            amountTo = Convert.ToDecimal(i.Attribute("amountTo").Value),
+        //                            percent = Convert.ToDecimal(i.Value),
+        //                        })
+        //                        ;
+
+        //                    pricelist = new
+        //                    {
+        //                        Items = items,
+        //                        Discounts = discounts,
+        //                    };
+        //                });
+
+        //            ViewBag.Pricelist = pricelist;
+        //            return View();
+        //        }
+
+        // GET: /account/buy-services
         [RequireHttps]
-        public async Task<ActionResult> BuyReviews()
+        [AllowAnonymous]
+        public async Task<ActionResult> BuyServices()
         {
-            ViewBag.IsEmailConfirmed = await this.OwinUserManager.IsEmailConfirmedAsync(this.GetUserId());
+            var sql = @"
+select Title, Price from dbo.appGetPricelistItems() order by Position;
+";
+            var items = await DapperHelper.QueryResilientlyAsync<dynamic>(sql);
+            ViewBag.Pricelist = items;
             return View();
         }
 
@@ -301,6 +348,8 @@ namespace Runnymede.Website.Controllers.Mvc
 
             if (!String.IsNullOrEmpty(tx))
             {
+                tx = tx.ToUpper(); // tx in PDT from Sandbox is upper-case on automatic return and lower-case on manual return. But a PDT request returns error 4002 if given a low-case tx.
+
                 var helper = new PayPalHelper();
 
                 helper.WriteLog(PayPalLogEntity.NotificationKind.PDT, tx, Request.Url.Query);
@@ -317,11 +366,11 @@ namespace Runnymede.Website.Controllers.Mvc
                 if (helper.PostIncomingPayPalPayment(payment, logRowKey))
                 {
                     result = PayPalPaymentResult.Success;
-                    helper.BuyReviewsOnIncomingPayPalPayment(payment);
+                    //helper.PurchaseOnIncomingPayPalPayment(payment);
                 }
             }
 
-            return RedirectToAction("TransactionsReviews", new { PayPalPaymentResult = result });
+            return RedirectToAction("Transactions", new { PayPalPaymentResult = result });
         }
 
         // GET: /account/paypal-ipn
@@ -348,7 +397,7 @@ namespace Runnymede.Website.Controllers.Mvc
             {
                 if (helper.PostIncomingPayPalPayment(payment, logRowKey))
                 {
-                    helper.BuyReviewsOnIncomingPayPalPayment(payment);
+                    //helper.PurchaseOnIncomingPayPalPayment(payment);
                 }
             }
 
@@ -356,22 +405,22 @@ namespace Runnymede.Website.Controllers.Mvc
         }
 
         // POST: /account/upload-avatar
-        [RequireHttps] // Called from the Edit page which is loaded over HTTPS
-        [HttpPost]
-        public async Task<ActionResult> UploadAvatar(HttpPostedFileBase fileInput)
-        {
-            if (fileInput != null && fileInput.ContentLength > 0)
-            {
-                // ResizeAndSaveAvatar() will rewind the stream to the beginning. Do not parallelize the processing with Task.WhenAll().
-                var stream = fileInput.InputStream;
-                var blobName = KeyUtils.IntToKey(this.GetUserId());
-                await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarSmallSize, AzureStorageUtils.ContainerNames.AvatarsSmall, blobName);
-                await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarLargeSize, AzureStorageUtils.ContainerNames.AvatarsLarge, blobName);
-            }
-            //return new HttpStatusCodeResult(HttpStatusCode.NoContent); // ngUpload misses the end event until it has received a content back.
-            // IE wants text/html not application/json. However ngUpload passes it to ng-upload as a parsed JSON, i.e. Object {}.
-            return Content("{}", "text/html");
-        }
+        //[RequireHttps] // Called from the Edit page which is loaded over HTTPS
+        //[HttpPost]
+        //public async Task<ActionResult> UploadAvatar(HttpPostedFileBase fileInput)
+        //{
+        //    if (fileInput != null && fileInput.ContentLength > 0)
+        //    {
+        //        // ResizeAndSaveAvatar() will rewind the stream to the beginning. Do not parallelize the processing with Task.WhenAll().
+        //        var stream = fileInput.InputStream;
+        //        var blobName = KeyUtils.IntToKey(this.GetUserId());
+        //        await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarSmallSize, AzureStorageUtils.ContainerNames.AvatarsSmall, blobName);
+        //        await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarLargeSize, AzureStorageUtils.ContainerNames.AvatarsLarge, blobName);
+        //    }
+        //    //return new HttpStatusCodeResult(HttpStatusCode.NoContent); // ngUpload misses the end event until it has received a content back.
+        //    // IE wants text/html not application/json. However ngUpload passes it to ng-upload as a parsed JSON, i.e. Object {}.
+        //    return Content("{}", "text/html");
+        //}
 
         // POST: /account/link-login
         [RequireHttps]

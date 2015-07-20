@@ -27,7 +27,7 @@ module app.account_edit {
                 reloadOnSearch: false,
                 data: {
                     title: title,
-                    secondaryTitle: 'Manage logins',
+                    secondaryTitle: 'Manage how you log in',
                 },
             };
             var teacher: ng.ui.IState = {
@@ -45,7 +45,7 @@ module app.account_edit {
                 .state(logins)
                 .state(teacher)
             ;
-            $urlRouterProvider.otherwise(personal.url);
+            $urlRouterProvider.otherwise('/logins'); // not logins.url because it passes 'error'=true as param
         }
     };
 

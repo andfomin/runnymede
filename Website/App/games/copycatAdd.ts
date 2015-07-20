@@ -21,7 +21,7 @@ module app.games {
             super($scope);
 
             if (this.authenticated) {
-                app.library.createYouTubePlayer($window, 240, 240, 'toBeReplacedByYoutubeIframe',
+                app.createYouTubePlayer($window, 240, 240, 'toBeReplacedByYoutubeIframe',
                     (event: YT.EventArgs) => { this.player = event.target; },
                     (event: YT.EventArgs) => { toastr.error('Player error ' + event.data); }
                     );

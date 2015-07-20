@@ -68,16 +68,15 @@
     <!-- /Templates -->
 </div><!-- /app -->
 @*@using (Html.BeginInstructionsContainer())
-{
-    <ul>
-        <li>To find out the resources recently viewed by your friend, enter the friend's name and then press the "View history" button.</li>
-        <li>The friendship realationship must be active from both sides. You can check the particular friendship status on the @Html.ActionLink("Friends", "Index", "Friends") page.</li>
-        <li>Only last ten resources viewed during the last hour will be shown.</li>
-    </ul>
-}*@
+    {
+        <ul>
+            <li>To find out the resources recently viewed by your friend, enter the friend's name and then press the "View history" button.</li>
+            <li>The friendship realationship must be active from both sides. You can check the particular friendship status on the @Html.ActionLink("Friends", "Index", "Friends") page.</li>
+            <li>Only last ten resources viewed during the last hour will be shown.</li>
+        </ul>
+    }*@
 @section BottomScripts {
-    <script type="text/javascript">
-        var app = app || {};
+    <script>
         app.hostPageParam = 'HostPage_Friend';
     </script>
     @Scripts.Render(
@@ -85,7 +84,7 @@
 "~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
-
+"~/app/shared/utils-youtube.js",
 "~/app/shared/library.js",
 "~/app/library/friend.js"
 )

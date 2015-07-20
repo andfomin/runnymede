@@ -17,12 +17,12 @@ module app.reviews {
             public $interval: angular.IIntervalService,
             private $modal: angular.ui.bootstrap.IModalService,
             private $q: angular.IQService,
-            private $rootScope: angular.IRootScopeService,
+            $rootScope: angular.IRootScopeService,
             $scope: app.IScopeWithViewModel,
             public $window: angular.IWindowService
             )
         /* ----- Constructor  ------------ */ {
-            super($appRemarks, $http, $scope);
+            super($appRemarks, $http, $rootScope, $scope);
 
             this.review = this.exercise.reviews[0];
 
@@ -42,10 +42,28 @@ module app.reviews {
             $scope.$on(app.exercises.RemarksService.remarksChanged,() => { this.autoSaved = false; });
 
             this.categories = app.library.Categories
-                .filter((i) => { return i.pathIds.indexOf(app.library.ID_OF_PROGRAMS_CATEGORY) === -1; }) // Filter out everything under "Programs"
+                .filter((i) => { return i.pathIds.indexOf(app.library.ID_OF_MEDIA_CATEGORY) === -1; }) // Filter out everything under "Media"
                 .map((i) => { return { id: i.id, name: i.name } });
+
         }
         /* ----- End of constructor  ----- */
+
+        getTypeaheadHits = (value: string) => {
+            var maxLength = 90;
+
+            var withParent = (id: string) => {
+                var category = app.arrFind(app.library.Categories,(i) => { return i.id === id; });
+                var parent = app.arrFind(app.library.Categories,(i) => { return i.id === category.parentId; });
+                var parName = (parent && parent.name) || '';
+                var length = Math.max(maxLength - category.name.length, 0);
+                var prefix = parName.length > length ? parName.substr(0, length - 1) + '&hellip;' : parName;
+                return prefix + ' | ' + category.name;
+            };
+
+            return this.categories
+                .filter((i) => { return i.name.indexOf(value) !== -1; })
+                .map((i) => { return { name: i.name, label: withParent(i.id) } });
+        };
 
         setupOnBeforeUnload = () => {
             this.$window.onbeforeunload = (event) => {
@@ -102,9 +120,11 @@ module app.reviews {
 
         canSave = () => {
             var remarkDirty = this.$appRemarks.remarks.some((i) => { return !!i.dirtyTime; });
+            var performanceDirty = !!this.review.performance.dirtyTime;
             var suggestionDirty = this.review.suggestions.some((i) => { return !!i.dirtyTime; });
             var commentDirty = !!this.review.comment.dirtyTime;
-            return (remarkDirty || suggestionDirty || commentDirty) && !this.isSaving;
+            var videoDirty = !!this.review.video.dirtyTime;
+            return (remarkDirty || performanceDirty || suggestionDirty || commentDirty || videoDirty) && !this.isSaving;
         };
 
         save = () => {
@@ -129,6 +149,8 @@ module app.reviews {
 
             var remarks = this.$appRemarks.remarks.filter((i) => { return !!i.dirtyTime; });
 
+            var performance = this.review.performance.dirtyTime ? [this.review.performance] : [];
+
             var suggestions = this.review.suggestions.filter((i) => { return !!i.dirtyTime; });
             // Try to assign categoryId. Although we expect a category, ISuggestion.keywords may be any text. 
             suggestions.forEach((i: app.ISuggestion) => {
@@ -139,7 +161,9 @@ module app.reviews {
 
             var comments = this.review.comment.dirtyTime ? [this.review.comment] : [];
 
-            var pieces: app.IPiece[] = [].concat(remarks, suggestions, comments);
+            var videos = this.review.video.dirtyTime ? [this.review.video] : [];
+
+            var pieces: app.IPiece[] = [].concat(remarks, performance, suggestions, comments, videos);
 
             var promise: angular.IPromise<any> = null;
 
@@ -266,7 +290,7 @@ module app.reviews {
     export function getPieceId(review: IReview) {
         // The number means milliseconds passed from the start of the review. It is an uniquefier, not a meaningful time.
         return Date.now() - new Date(review.startTime).getTime();
-    }
+    };
 
     export function getPiecePartitionKey(exercise: IExercise) {
         // Corresponds to ReviewPiece.GetPartitionKey()

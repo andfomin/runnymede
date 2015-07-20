@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using Runnymede.Website.Utils;
+using Runnymede.Common.Utils;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
@@ -44,5 +44,16 @@ namespace Runnymede.Website.Controllers.Mvc
             //    return View();
             //}
         }
+
+        public ActionResult IeltsSpeaking()
+        {
+            return View("Index");
+        }
+
+        public ActionResult Ielts()
+        {
+            return View("Index");
+        }
+
     }
 }

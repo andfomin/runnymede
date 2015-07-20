@@ -8,18 +8,21 @@ module app.exercises {
         private reviewerNames: any = {};
         private busy: boolean;
 
-        static $inject = [app.ngNames.$appRemarks, app.ngNames.$http, app.ngNames.$modal, app.ngNames.$rootScope, app.ngNames.$scope, app.ngNames.$signalRService];
+        static $inject = [app.ngNames.$appRemarks, app.ngNames.$http, app.ngNames.$modal, app.ngNames.$rootScope, app.ngNames.$scope, app.ngNames.$signalRService,
+            app.ngNames.$timeout, app.ngNames.$window];
 
         constructor(
             $appRemarks: app.exercises.IRemarksService,
             $http: angular.IHttpService,
             private $modal: angular.ui.bootstrap.IModalService,
-            private $rootScope: angular.IRootScopeService,
+            $rootScope: angular.IRootScopeService,
             public $scope: app.IScopeWithViewModel,
-            public $signalRService: app.ISignalRService
+            public $signalRService: app.ISignalRService,
+            $timeout: angular.ITimeoutService,
+            $window: angular.IWindowService
             )
         /* ----- Constructor  ------------ */ {
-            super($appRemarks, $http, $scope);
+            super($appRemarks, $http, $rootScope, $scope);
 
             this.originalTitle = this.exercise.title;
             this.originalLength = this.exercise.length;
@@ -27,6 +30,26 @@ module app.exercises {
             // Create a dictionary object for fast lookup of reviewerNames.
             this.reviews.forEach((i) => {
                 this.reviewerNames[i.id.toString()] = i.reviewerName;
+            });
+
+            $scope.$on(CtrlBase.PiecesLoaded,() => {
+                // Wait until Angular inserts new elements in DOM.
+                $timeout(() => {
+                    this.reviews
+                        .filter((i) => { return !!(i.video && i.video.url); })
+                        .forEach((i) => {
+                        var tagId = 'toBeReplacedByYoutubeIframe-' + i.id;
+                        var elem = $window.document.getElementById(tagId);
+                        // The Youtube script will replace DIV with IFRAME
+                        if (elem.tagName === 'DIV') {
+                            var videoId = app.getYtVideoId(i.video.url);
+                            app.createYouTubePlayer($window, 960, 720, tagId,
+                                (event: YT.EventArgs) => { event.target.cueVideoById(videoId); },
+                                (event: YT.EventArgs) => { toastr.error('Player error ' + event.data); }
+                                );
+                        }
+                    });
+                }, 200);
             });
 
             this.$signalRService.setEventHandlers('reviewHub', [
@@ -83,7 +106,7 @@ module app.exercises {
         }
 
         canEditLength = () => {
-            return this.reviews.every((i) => { return !i.startTime; });
+            return (this.exercise.artifactType === ArtifactType.Jpeg) && this.reviews.every((i) => { return !i.startTime; });
         }
 
         isLengthDirty = () => {
@@ -121,6 +144,10 @@ module app.exercises {
 
         startedReviews = () => {
             return this.reviews.filter((i) => { return !!i.startTime; });
+        };
+
+        hasVideo = (r: IReview) => {
+            return r.video && app.getYtVideoId(r.video.url);
         };
 
         selectSuggestion = (suggestion: app.ISuggestion) => {
@@ -216,11 +243,11 @@ module app.exercises {
         };
 
         private showReviewStatusChangedModal = (started: boolean) => {
-                this.$modal.open({
-                    templateUrl: '/app/exercises/reviewStatusChangedModal.html',
-                    size: 'sm',
-                    windowClass: started ? 'my-started' : 'my-finished',
-                });
+            this.$modal.open({
+                templateUrl: '/app/exercises/reviewStatusChangedModal.html',
+                size: 'sm',
+                windowClass: started ? 'my-started' : 'my-finished',
+            });
         };
 
     } // end of class ViewCtrlBase

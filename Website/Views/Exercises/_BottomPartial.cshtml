@@ -5,6 +5,36 @@
     }
 </style>
 <div ng-cloak>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Performance evaluation</h3>
+        </div>
+        <div class="panel-body">
+            <div ng-repeat="r in vm.startedReviews()">
+                <h4 ng-show="vm.manyReviews()">{{r.reviewerName}}</h4>
+                <div class="row">
+                    @* criterion area / descriptor group / descriptor  *@
+                    <div class="col-md-6 col-lg-3" ng-repeat-start="g1 in vm.descGroups">
+                        <h5><strong>{{vm.getCriterionAreaTitle(g1[0][0])}}</strong></h5>
+                        <hr />
+                        <div ng-repeat="g2 in g1">
+                            <label class="radio" style="font-weight: normal;padding-left:20px;" ng-repeat="d in g2"
+                                   ng-class="{'text-muted': r.performance.bands[d.group] !== d.band, 'app-margin-bottom-none': $last}">
+                                <input type="radio" ng-model="r.performance.bands[d.group]" ng-value="d.band" ng-disabled="r.performance.bands[d.group] !== d.band" />
+                                {{d.band}} - {{d.text}}
+                            </label>
+                            <hr />
+                        </div>
+                    </div>
+                    @* Add the extra clearfix for only the required layout. *@
+                    <div class="clearfix visible-md-block" ng-if="$odd"></div>
+                    <div ng-repeat-end></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Suggestions for Learning and Practicing</h3>
@@ -14,7 +44,7 @@
                 <div class="col-md-6">
                     <div ng-repeat="r in vm.startedReviews()">
                         <h4 ng-show="vm.manyReviews()">{{r.reviewerName}}</h4>
-                        <div class="list-group">
+                        <div class="list-group app-margin-bottom-none">
                             <a href="" class="list-group-item" ng-repeat="s in r.suggestions" ng-class="{active: s === vm.selectedSuggestion}" ng-click="vm.selectSuggestion(s)">
                                 <span>{{s.suggestion}}</span>
                                 <span class="app-appblue app-margin-left-half">{{s.keywords}}</span>
@@ -31,16 +61,26 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-offset-2 col-md-8">
-            <div class="panel panel-default app-margin-bottom-none">
-                <div class="panel-heading">
-                    <h4 class="panel-title">General comments</h4>
-                </div>
-                <div class="panel-body">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Comments</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-4 app-margin-bottom">
                     <div ng-repeat="r in vm.startedReviews()">
                         <h4 ng-show="vm.manyReviews()">{{r.reviewerName}}</h4>
                         <span class="app-pre-line">{{r.comment.comment}}</span>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div ng-repeat="r in vm.startedReviews()">
+                        <h4 ng-show="vm.manyReviews()">{{r.reviewerName}}</h4>
+                        <div class="embed-responsive embed-responsive-4by3" ng-if="r.video.url">
+                            @*<div class="embed-responsive embed-responsive-4by3">*@
+                            @* Do not hide the player! See the comments in Shared/_ResourceListPartial.shtml *@
+                            <div id="{{'toBeReplacedByYoutubeIframe-' + r.id}}"></div>
+                        </div>
                     </div>
                 </div>
             </div>

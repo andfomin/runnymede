@@ -1,0 +1,138 @@
+﻿@model System.String
+@{
+    ViewBag.NavItem = "IeltsExercises";
+    ViewBag.Title = ServiceType.GetTitle(Model);
+    ViewBag.SecondaryTitle = "Practice IELTS test";
+}
+@section HeadScripts {
+    <style>
+        label.my-file-label input[type="file"] {
+            position: fixed;
+            top: -1000px;
+            left: -1000px;
+        }
+
+        .my-radios label.radio {
+            font-weight: normal;
+        }
+
+        .my-well {
+            display: inline-block;
+            border: 1px solid #e3e3e3;
+            border-radius: 3px;
+            padding: 6px 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+}
+<div ng-app="myApp" ng-controller="Writing" ng-cloak>
+    <div class="row">
+        <div class="col-lg-offset-1 col-sm-9 col-lg-7">
+            @if (Model == ServiceType.IeltsWritingTask1)
+            {
+                <div class="my-well">
+                    <span class="app-1px-down">Choose version</span>
+                    <label class="radio-inline app-margin-left-half app-appblue">
+                        <input type="radio" value="@CardType.IeltsWritingTask1Academic" ng-model="vm.cardType" ng-change="vm.card = null" />Academic
+                    </label>
+                    <label class="radio-inline app-appblue">
+                        <input type="radio" value="@CardType.IeltsWritingTask1General" ng-model="vm.cardType" ng-change="vm.card = null" />General Training
+                    </label>
+                </div>
+            }
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="text-center">
+                        <button class="btn app-margin-left app-btn-disablable" ng-class="vm.card ? 'btn-default btn-xs' : 'btn-primary'" ng-click="vm.showChooseCardModal()"
+                                @if (Model == ServiceType.IeltsWritingTask1) { <text> ng-disabled="!vm.cardType" </text> }>
+                            Choose questions
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-offset-1 col-md-10">
+                            <div ng-repeat="i in vm.card.items">
+                                @* Include ngSanitize for using ng-bind-html *@
+                                <div ng-bind-html="i.contents"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 text-center">
+            <a href="http://englmdata.blob.core.windows.net/content/ielts/IELTS_writing_answer_sheet.pdf" target="_blank">
+                <img src="~/content/images/ielts-writing-sheet.png" /><br />Print answer sheet
+            </a>
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-md-offset-1 col-lg-offset-2 col-md-10 col-lg-8">
+            <p>
+                To submit handwritten text, open this webpage on your smartphone or tablet and you will be able to use the built-in camera to upload images of the pages directly.
+            </p>
+            <div class="alert alert-warning" ng-show="!vm.supported">
+                <p>
+                    It seems that your browser does not support taking photos directly from a camera. This feature is usually supported on mobile devices.
+                    If you have photographed your pages by a camera or scanned them then you can upload the files here.
+                </p>
+            </div>
+        </div>
+    </div>
+    <form class="form-horizontal" role="form" method="post" name="writingForm" action="/exercises-ielts/save-writing-images" enctype="multipart/form-data" ng-submit="vm.onSubmit()">
+        <input type="hidden" name="serviceType" value="@Model" />
+        <input type="hidden" name="cardId" ng-value="vm.card.id" />
+        <input type="hidden" name="title" ng-value="vm.card.title" />
+        <div class="form-group" ng-repeat="i in vm.pages()">
+            <div class="col-md-offset-2 col-xs-4 col-md-3">
+                <p>
+                    <strong>Page&nbsp;{{1+i}}</strong>
+                </p>
+                <label class="my-file-label">
+                    @* The input name must be exactly "files[i]" to bind to "IEnumerable<HttpPostedFileBase> files". The first index must be 0. *@
+                    <input type="file" accept="image/jpeg" capture onchange="app.exercisesIelts.Writing.onFileChange(event, id)" id="{{'file'+i}}" name="{{'files['+i+']'}}" />
+                    <span class="btn btn-primary btn-lg" ng-bind="vm.supported ? 'Take photo' : 'Choose file'"></span>
+                </label>
+            </div>
+            <div class="col-xs-4 col-md-3" ng-show="vm.fileReady(i)">
+                <canvas class="app-margin-left-half" id="{{'canvasfile'+i}}" width="100" height="100" style="vertical-align:middle;"></canvas>
+            </div>
+            <div class="col-xs-4 col-md-3 my-radios" style="padding-top:6px;" ng-show="vm.fileReady(i)">
+                <label class="radio">
+                    <input type="radio" name="{{'rotations['+i+']'}}" value="-1" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" />
+                    <span class="text-nowrap">Rotate left<i class="fa fa-undo fa-fw"></i></span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="{{'rotations['+i+']'}}" value="0" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" />
+                    <span class="text-nowrap">Do not rotate</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="{{'rotations['+i+']'}}" value="1" ng-model="vm.rotations[i]" ng-change="vm.rotate(i)" />
+                    <span class="text-nowrap">Rotate right<i class="fa fa-repeat fa-fw"></i></span>
+                </label>
+            </div>
+        </div>
+        <div class="form-group text-center">
+            @Html.Partial("_NotAuthenticatedSpanPartial")
+            <button type="submit" class="btn btn-primary btn-lg app-btn-disablable" ng-disabled="!vm.canSubmit()">
+                <i class="fa app-1px-up" ng-class="{'fa-spinner fa-fw fa-spin':vm.uploading}"></i>
+                <span ng-bind="vm.supported ? 'Save photos' : 'Upload files'"></span>
+            </button>
+        </div>
+    </form>
+</div>
+@section BottomScripts {
+    <script>
+        app.serviceTypeParam = @JavaScriptConvert.Serialize(@Model);
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/exercises/utils.js",
+"~/app/exercisesIelts/utils.js",
+"~/app/exercisesIelts/writing.js"
+)}

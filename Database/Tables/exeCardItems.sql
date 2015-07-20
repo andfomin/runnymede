@@ -1,11 +1,16 @@
 ﻿CREATE TABLE [dbo].[exeCardItems] (
-    [Id]       INT            IDENTITY (1, 1) NOT NULL,
-    [CardId]   INT            NOT NULL,
-    [Position] NVARCHAR (10)  NOT NULL,
-    [Contents] NVARCHAR (MAX) NOT NULL,
-    CONSTRAINT [PK_exeCardItems_1] PRIMARY KEY CLUSTERED ([Id] ASC),
+    [CardId]   UNIQUEIDENTIFIER NOT NULL,
+    [Position] NVARCHAR (5)     NOT NULL,
+    [Contents] NVARCHAR (MAX)   NOT NULL,
+    CONSTRAINT [PK_exeCardItems] PRIMARY KEY CLUSTERED ([CardId] ASC, [Position] ASC),
     CONSTRAINT [FK_exeCardItems_exeCards] FOREIGN KEY ([CardId]) REFERENCES [dbo].[exeCards] ([Id])
 );
+
+
+
+
+
+
 
 
 GO

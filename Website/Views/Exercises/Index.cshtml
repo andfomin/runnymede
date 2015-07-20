@@ -16,10 +16,10 @@
             <div class="col-md-4 app-margin-bottom">
                 <ul class="nav nav-pills app-nav-pills">
                     <li data-ui-sref-active="active">
-                        <a href="" data-ui-sref="@Runnymede.Website.Models.ExerciseType.AudioRecording"><i class="fa fa-comment-o fa-fw app-appyellow"></i>&nbsp;Speaking</a>
+                        <a href="" data-ui-sref="@ArtifactType.Mp3"><i class="fa fa-comment-o fa-fw app-appyellow"></i>&nbsp;Speaking</a>
                     </li>
                     <li data-ui-sref-active="active">
-                        <a href="" data-ui-sref="@Runnymede.Website.Models.ExerciseType.WritingPhoto"><i class="fa fa-pencil fa-fw app-appyellow"></i>&nbsp;Writing</a>
+                        <a href="" data-ui-sref="@ArtifactType.Jpeg"><i class="fa fa-pencil fa-fw app-appyellow"></i>&nbsp;Writing</a>
                     </li>
                 </ul>
             </div>
@@ -36,17 +36,17 @@
         <hr />
         <div class="row">
             <div class="col-lg-offset-1 col-lg-10">
-                <table class="table table-condensed">
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Title</th>
                             <th class="app-text-right">Length</th>
                             <th>Created</th>
-                            <th>Reviews</th>
+                            <th>Review</th>
                         </tr>
                     </thead>
-                    <tbody ng-repeat="e in vm.exercises">
-                        <tr>
+                    <tbody>
+                        <tr ng-class="{'app-last-row':$last}" ng-repeat="e in vm.exercises">
                             <td>
                                 <a ng-href="{{vm.getViewUrl(e)}}">{{e.title}}</a>
                             </td>
