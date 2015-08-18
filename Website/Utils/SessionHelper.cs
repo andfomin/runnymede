@@ -20,39 +20,57 @@ namespace Runnymede.Website.Utils
         public static TimeSpan SessionDuration = TimeSpan.FromMinutes(60); // minutes;
         private static TimeSpan CacheDuration = TimeSpan.FromMinutes(5); // minutes
 
-        public static ItalkiTeacher[] ItalkiTeachers = new ItalkiTeacher[]  {
-#if DEBUG
-            new ItalkiTeacher {
-                UserId = 1449340898,
-                DisplayName = "John Smith",
-                ItalkiUserId = 1149255, // John
-                CourseId = 24905,
-                ScheduleUrl = "https://secure.italki.com/sessions/request.htm?cid=24905&stype=1&tlen=4",
-                Rate = 1.0m,
-                TestFilePath = @"C:\Users\Andrey\Desktop\ex01_John.html",
-            },
-            new ItalkiTeacher
+//        public static ItalkiTeacher[] ItalkiTeachers0 = new ItalkiTeacher[]  {
+//#if DEBUG
+            //new ItalkiTeacher
+            //{
+            //    UserId = 1449340898,
+            //    DisplayName = "01 test Tom",
+            //    ItalkiUserId = 658229, // Tom Emery
+            //    CourseId = 12030,
+            //    ScheduleUrl = "https://secure.italki.com/sessions/request.htm?cid=12030&stype=1&tlen=4",  
+            //    Rate = 17.0m,
+            //},
+            //new ItalkiTeacher
+            //{
+            //    UserId = 1282608589,
+            //    DisplayName = "03 test Neil",
+            //    ItalkiUserId = 1753811, // 
+            //    CourseId = 32836,
+            //    ScheduleUrl = "https://secure.italki.com/sessions/request.htm?cid=32836&stype=1&tlen=4",  
+            //    Rate = 17.0m,
+            //},
+//#else
+//            new ItalkiTeacher
+//            {
+//                UserId = 2024063771,
+//                DisplayName = "Tom",
+//                ItalkiUserId = 658229, // Tom Emery
+//                CourseId = 12030,
+//                ScheduleUrl = "https://secure.italki.com/sessions/request.htm?cid=12030&stype=1&tlen=4",
+//                Rate = 17.0m,
+//            },
+//#endif
+//        };
+
+        private static Lazy<IEnumerable<ItalkiTeacher>> lazyItalkiTeachers = new Lazy<IEnumerable<ItalkiTeacher>>(InitItalkiTeachers, true);
+
+        public static IEnumerable<ItalkiTeacher> ItalkiTeachers
+        {
+            get
             {
-                UserId = 1583803389,
-                DisplayName = "test_jude",
-                ItalkiUserId = 1179253, // Jude
-                CourseId = 29669,
-                ScheduleUrl = "https://secure.italki.com/sessions/request.htm?cid=29669&stype=1&tlen=4",
-                Rate = 2.0m,
-                TestFilePath =  @"C:\Users\Andrey\Desktop\ex01_Jude.html",
-            },
-#else
-            new ItalkiTeacher
-            {
-                UserId = 2024063771,
-                DisplayName = "Tom",
-                ItalkiUserId = 658229, // Tom Emery
-                CourseId = 12030,
-                ScheduleUrl = "https://secure.italki.com/sessions/request.htm?cid=12030&stype=1&tlen=4",
-                Rate = 17.0m,
-            },
-#endif
-        };
+                return lazyItalkiTeachers.Value;
+            }
+        }
+
+        private static IEnumerable<ItalkiTeacher> InitItalkiTeachers()
+        {
+            var sql = @"
+select UserId, DisplayName, ItalkiUserId, CourseId, ScheduleUrl, Rate 
+from dbo.sesGetItalkiTeachers();
+";
+            return DapperHelper.QueryResiliently<ItalkiTeacher>(sql);
+        }
 
         private static Lazy<MemoryCache> lazyItalkiSchedulesCache = new Lazy<MemoryCache>(() => new MemoryCache("ItalkiSchedules"), true);
 
@@ -76,16 +94,20 @@ namespace Runnymede.Website.Utils
             var tasks = ItalkiTeachers.Select(i => GetTeacherPeriods(i.UserId, forceRealTime));
             var teacherPeriodsArray = await Task.WhenAll(tasks);
 
-            // italki allows the user to book a session which starts at least in 24 hours. Round up to ItalkiTimeSlotDuration minutes;
-            long slotTicks = ItalkiHelper.ItalkiTimeSlotDuration.Ticks;
-            long ticks = (DateTime.UtcNow.Ticks + slotTicks - 1) / slotTicks;
-            var threshold = new DateTime(ticks * slotTicks).AddDays(1);
+            // italki does not allow booking in less than 24 hour.
+            var threshold = GetBookingTimeThreshold();
 
             var allPeriods = teacherPeriodsArray
                 // Flatten all lists
                 .SelectMany(i => i)
-                // Filter by parameter dates
-                .Where(i => (i.Start < endDate) && (i.End > startDate) && (i.End > threshold + SessionDuration))
+                // Filter 
+                .Where(i =>
+                    (i.Start < endDate) &&
+                    (i.End > startDate) &&
+                        // There may be 30-minute "left over" slots available. We filter them out. Our sessions are 60 minutes.
+                    (i.Duration >= SessionDuration) &&
+                    (i.End >= threshold + SessionDuration)
+                    )
                 ;
 
             // Merge all periods for display.
@@ -100,22 +122,6 @@ namespace Runnymede.Website.Utils
                     Start = i.Start >= threshold ? i.Start : threshold,
                     End = i.End,
                 });
-
-            //var periodsByRate = teacherPeriodsArray
-            //    // Flatten all periods
-            //    .SelectMany(i => i)
-            //    // Filter by parameter dates
-            //    .Where(i => (i.Start <= endDate) && (i.End >= startDate))
-            //    // Group by rate. 
-            //    .GroupBy(i => i.Rate)
-            //    // Merge periods with similar rates from all teachers. We show periods for all teachers in the week view.
-            //    .Select(i => {
-            //        periodCollection.Clear();
-            //        periodCollection.AddAll(i.Select(j => j));
-            //        return periodCombiner.CombinePeriods(periodCollection).Select(j => new SessionDto { Start = j.Start, End = j.End, Price = i.Key, });
-            //    })
-            //    .SelectMany(i => i)
-            //    ;
 
             return offeredSessions;
         }
@@ -133,7 +139,7 @@ namespace Runnymede.Website.Utils
                 // Shred every period to slots.
                 .SelectMany(i =>
                 {
-                    var slotCount = (int)Math.Floor((i.End - SessionDuration - i.Start).TotalMinutes / ItalkiHelper.ItalkiTimeSlotDuration.TotalMinutes);
+                    var slotCount = (int)Math.Floor((i.End - SessionDuration - i.Start).TotalMinutes / ItalkiHelper.ItalkiTimeSlotDuration.TotalMinutes) + 1;
                     return Enumerable.Range(0, slotCount)
                         .Select(j =>
                         {
@@ -156,10 +162,13 @@ namespace Runnymede.Website.Utils
         /// Get vacant time slots from Italki. Cache results for some time.
         /// </summary>
         /// <returns></returns>
-        public static async Task<IEnumerable<TeacherTimeRange>> GetTeacherPeriods(int userId, bool forceRealTime)
+        public static async Task<IEnumerable<TeacherTimeRange>> GetTeacherPeriods(int teacherUserId, bool forceRealTime)
         {
+            // Validate the teacherUserId;
+            var teacher = ItalkiTeachers.First(i => i.UserId == teacherUserId);         
+
             // First look up in the cache. If the cached data expired, request a fresh one.
-            var key = userId.ToString();
+            var key = teacherUserId.ToString();
 
             if (forceRealTime)
             {
@@ -167,32 +176,33 @@ namespace Runnymede.Website.Utils
             }
 
             var periods = ItalkiSchedulesCache.Get(key) as IEnumerable<TeacherTimeRange>;
+
             if (periods == null)
             {
                 // Awoid duplicate requests to italki. Block asynchronously.
-                var semaphore = Semaphores.GetOrAdd(userId, (i) => new SemaphoreSlim(1, 1));
+                var semaphore = Semaphores.GetOrAdd(teacherUserId, (i) => new SemaphoreSlim(1, 1));
                 await semaphore.WaitAsync();
                 try
                 {
                     periods = ItalkiSchedulesCache.Get(key) as IEnumerable<TeacherTimeRange>;
+
                     if (periods == null)
                     {
                         var helper = new ItalkiHelper();
 #if DEBUG
-                        var html = File.ReadAllText(ItalkiTeachers.First(i => i.UserId == userId).TestFilePath);
+                        var html = File.ReadAllText(String.Format(@"C:\Users\Andrey\Desktop\italki{0}.html", teacher.CourseId));
+                        //var html = await helper.LoadPage(teacher.ScheduleUrl);
 #else
                         var html = await helper.LoadPage(teacher.ScheduleUrl);
 #endif
                         var vacantPeriods = helper.GetVacantPeriods(html);
 
                         periods = vacantPeriods
-                            // There may be 30-minute "left over" slots available. We filter them out. Our sessions are 60 minutes.
-                             .Where(i => i.Duration >= SessionDuration)
                              .Select(i => new TeacherTimeRange
                              {
                                  Start = i.Start,
                                  End = i.End,
-                                 UserId = userId,
+                                 UserId = teacherUserId,
                              })
                              ;
 
@@ -216,8 +226,10 @@ namespace Runnymede.Website.Utils
         private static DateTime GetBookingTimeThreshold()
         {
             // italki allows the user to book a session which starts at least in 24 hours. Round up to ItalkiTimeSlotDuration minutes;
+            // Add an extra minute to avoid rejected requests from slaggish users.
+            var now = DateTime.UtcNow.AddMinutes(1); // new DateTime(2015, 07, 21, 16, 55, 00, DateTimeKind.Utc);
             long slotTicks = ItalkiHelper.ItalkiTimeSlotDuration.Ticks;
-            long ticks = (DateTime.UtcNow.Ticks + slotTicks - 1) / slotTicks;
+            long ticks = (now.Ticks + slotTicks - 1) / slotTicks;
             var threshold = new DateTime(ticks * slotTicks).AddDays(1);
             return threshold;
         }

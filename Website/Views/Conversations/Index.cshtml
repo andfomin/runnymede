@@ -4,9 +4,9 @@
 }
 <div ng-app="myApp" ng-cloak>
     <div ng-controller="Index">
-        <div class="row">
-            @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6 app-margin-bottom")
-        </div>
+
+        @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6 app-margin-bottom ng-cloak")
+
         <div class="row" ng-show="vm.authenticated && vm.offered === false">
             <div class="col-sm-3 text-center">
                 <button class="btn btn-primary app-btn-disablable" ng-click="vm.offer()" ng-disabled="vm.busy">Offer conversations</button>

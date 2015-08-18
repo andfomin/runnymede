@@ -8,6 +8,9 @@ using Runnymede.Website.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -16,8 +19,10 @@ using System.Net;
 using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Hosting;
 using System.Web.Http;
 using System.Xml.Linq;
+using Twilio;
 
 namespace Runnymede.Website.Controllers.Api
 {
@@ -60,12 +65,8 @@ namespace Runnymede.Website.Controllers.Api
             if (!isTeacher)
             {
                 var offeredSessions = await SessionHelper.GetOfferedSchedules(startDate, endDate, false);
-                // Combine proposals with sessions.
+                // Merge offers with sessions.
                 sessions.AddRange(offeredSessions);
-
-                // For test only
-                //var s = DateTime.UtcNow.AddMinutes(10);
-                //sessions.Add(new SessionDto { Start = s, End = s.AddHours(10), Price = 0.17m, });
             }
 
             return Ok(sessions);
@@ -118,6 +119,14 @@ namespace Runnymede.Website.Controllers.Api
             }
 
             return Ok(result);
+        }
+
+        // GET /api/sessions/conditions
+        [Route("conditions")]
+        public async Task<IHttpActionResult> GetConditions()
+        {
+            var data = await GetSessionConditions(this.GetUserId());
+            return Ok(data);
         }
 
         // GET api/sessions/12345/other_user
@@ -199,7 +208,6 @@ select dbo.sesGetMessageCount(@UserId, @SessionId);
 
         // POST /api/sessions/booking
         [Route("booking")]
-        //public async Task<IHttpActionResult> PostBooking([FromBody] JObject json)
         public async Task<IHttpActionResult> PostBooking([FromBody] JObject json)
         {
             TimeUtils.ThrowIfClientTimeIsAmbiguous((string)json["localTime"], (int)json["localTimezoneOffset"]);
@@ -209,37 +217,78 @@ select dbo.sesGetMessageCount(@UserId, @SessionId);
             var end = (DateTime)json["end"];
             var price = (decimal)json["price"];
 
+            var userId = this.GetUserId();
+
+            var teacher = SessionHelper.ItalkiTeachers.First(i => i.UserId == teacherUserId);
+
             var periods = await SessionHelper.GetTeacherPeriods(teacherUserId, true);
 
             var available = periods.Any(i => (i.Start <= start) && (i.End >= end));
 
             if (!available)
             {
-                throw new Exception("The time you are scheduling was taken by other learners. Please try another time.");
+                throw new Exception(ItalkiHelper.TimeSlotUnavailableError);
             }
 
-            var teacher = SessionHelper.ItalkiTeachers.First(i => i.UserId == teacherUserId);
+            /* Compensation is the mechanism by which previously completed work can be undone or compensated when a subsequent failure occurs. 
+             * The Compensation pattern is required in error situations when multiple atomic operations cannot be linked with classic transactions. 
+             */
 
-            var helper = new ItalkiHelper();
-            var ok = true; // await helper.BookSession(teacher.CourseId, start, teacher.ScheduleUrl);
-
-            // We cannot use a transaction in heterogeneous storage mediums. An orphaned message on Azure Table is not a problem. The main message metadata is in the database anyway.
+            // We cannot use a transaction in a heterogeneous storage mediums. An orphaned message on Azure Table is not a problem, we do not compensate it on error. The main message metadata is in the database anyway. 
             var message = (string)json["message"];
             var messageExtId = await SessionHelper.SaveMessageAndGetExtId(message);
 
-            if (ok)
+            var sessionId = (await DapperHelper.QueryResilientlyAsync<int>("dbo.sesBookSession", new
+             {
+                 UserId = userId, // who requests and pays
+                 Start = start,
+                 End = end,
+                 TeacherUserId = teacherUserId,
+                 Price = price,
+                 MessageExtId = messageExtId,
+             },
+             CommandType.StoredProcedure))
+             .Single();
+
+            // We will write to the log.
+            var partitionKey = KeyUtils.GetCurrentTimeKey();
+
+            // Book the session on Italki.
+            try
             {
-                await DapperHelper.ExecuteResilientlyAsync("dbo.sesBookSession", new
+                long? sessionExtId = null;
+#if DEBUG
+                sessionExtId = 0;
+#else
+                var helper = new ItalkiHelper();
+                sessionExtId = await helper.BookSession(teacher.CourseId, start, teacher.ScheduleUrl, partitionKey);
+#endif
+                if (sessionExtId.HasValue)
                 {
-                    UserId = this.GetUserId(), // who requests and pays
-                    Start = start,
-                    End = end,
-                    Price = price,
-                    TeacherUserId = teacherUserId,
-                    MessageExtId = messageExtId,
+                    await DapperHelper.ExecuteResilientlyAsync("dbo.sesUpdateSessionExtId", new
+                    {
+                        SessionId = sessionId,
+                        ExtId = sessionExtId,
+                    },
+                    CommandType.StoredProcedure);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Compensation on booking failure.
+                // Clean up the session.
+                DapperHelper.ExecuteResiliently("dbo.sesCancelSession", new
+                {
+                    UserId = userId,
+                    SessionId = sessionId,
+                    ClearUsers = true,
                 },
                 CommandType.StoredProcedure);
+
+                throw new UserAlertException("Failed to book session", ex);
             }
+
+            HostingEnvironment.QueueBackgroundWorkItem(async (ct) => await SendSmsMessage("Session request. Teacher " + teacherUserId.ToString(), partitionKey));
 
             return StatusCode(HttpStatusCode.NoContent);
         }
@@ -350,6 +399,72 @@ select dbo.sesGetMessageCount(@UserId, @SessionId);
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        // Mandrill does POST with Content-Type: application/x-www-form-urlencoded
+        public class InboundWebhookFormModel
+        {
+            public string mandrill_events { get; set; }
+        }
+
+        /// Notify about an email from italki. The email originally goes to GMail, forwarded by a filter to Mandrill, which calls this webhook.
+        // POST /api/sessions/inbound_webhook   // Content-Type:application/x-www-form-urlencoded
+        [AllowAnonymous]
+        [AcceptVerbs("POST", "HEAD")] // Mandrill uses a HEAD request to validate the webhook address during its creation.
+        [Route("inbound_webhook")]
+        public async Task<IHttpActionResult> InboundWebhook(InboundWebhookFormModel form)
+        {
+            // The form is empty on a HEAD request
+            if (form != null)
+            {
+                var mandrill_events = form.mandrill_events;
+                var partitionKey = KeyUtils.GetCurrentTimeKey();
+
+                var entity = new ExternalSessionLogEntity
+                {
+                    PartitionKey = partitionKey,
+                    RowKey = "InboundWebhook",
+                    Data = mandrill_events,
+                };
+                await AzureStorageUtils.InsertEntityAsync(AzureStorageUtils.TableNames.ExternalSessions, entity);
+
+                await SendSmsMessage("InboundWebhook " + partitionKey, partitionKey);
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        private async Task SendSmsMessage(string text, string tablePartitionKey)
+        {
+            // Send SMS
+            var accountSid = ConfigurationManager.AppSettings["Twilio.AccountSid"];
+            var authToken = ConfigurationManager.AppSettings["Twilio.AuthToken"];
+            var fromPhoneNumber = ConfigurationManager.AppSettings["Twilio.PhoneNumber.SMS"];
+            var twilio = new TwilioRestClient(accountSid, authToken);
+            var message = twilio.SendMessage(fromPhoneNumber, "+16477711715", text);
+
+            var entity = new ExternalSessionLogEntity
+             {
+                 PartitionKey = tablePartitionKey,
+                 RowKey = "TwilioMessage",
+                 Data = JsonUtils.SerializeAsJson(new { Message = message, }),
+             };
+            await AzureStorageUtils.InsertEntityAsync(AzureStorageUtils.TableNames.ExternalSessions, entity);
+        }
+
+        private async Task<dynamic> GetSessionConditions(int userId)
+        {
+            const string sql = @"
+select dbo.accGetBalance(@UserId) as Balance, dbo.appGetServicePrice(@ServiceType) as Price
+";
+            // Returns null for Balance the user has not created the account yet.
+            var data = (await DapperHelper.QueryResilientlyAsync<dynamic>(sql, new
+            {
+                UserId = userId,
+                ServiceType = ServiceType.Session,
+            }
+            )).Single();
+
+            return data;
+        }
 
     }
 }

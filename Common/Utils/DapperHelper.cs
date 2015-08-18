@@ -13,7 +13,8 @@ namespace Runnymede.Common.Utils
 {
     public static class DapperHelper
     {
-        public static string GetConnectionString() {
+        public static string GetConnectionString()
+        {
             return System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
         }
 
@@ -61,117 +62,86 @@ namespace Runnymede.Common.Utils
 
         /// <summary>
         /// Strip the beginning of the exception message which contains the name of the stored procedure and the argument values. We do not disclose the values to the client.
+        /// 20150724 AF. We strip the prefix in Runnymede.Website.Utils.CustomExceptionResult
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
-        public static Exception StripException(SqlException ex)
-        {
-            var index = ex.Message.IndexOf("::"); // The magic separator used within stored procedures. 
-            return (index > 0) ? new Exception(ex.Message.Substring(index + 2).Trim()/*, ex*/) : ex;
-        }
+        //public static Exception StripException(SqlException ex)
+        //{
+        //    var index = ex.Message.IndexOf("::"); // The magic separator used within stored procedures. 
+        //    return (index > 0) ? new Exception(ex.Message.Substring(index + 2).Trim(), ex) : ex;
+        //}
 
         public static int ExecuteResiliently(string sql, dynamic param = null, CommandType? commandType = null)
         {
             int rowsAffected = 0;
-            try
+            var executionStrategy = new SqlAzureExecutionStrategy();
+            executionStrategy.Execute(() =>
             {
-                var executionStrategy = new SqlAzureExecutionStrategy();
-                executionStrategy.Execute(() =>
+                using (var connection = GetOpenConnection())
                 {
-                    using (var connection = GetOpenConnection())
-                    {
-                        //  Outside-initiated user transactions are not supported. See Limitations with Retrying Execution Strategies (EF6 onwards) +http://msdn.microsoft.com/en-us/data/dn307226
-                        // +http://entityframework.codeplex.com/wikipage?title=Connection+Resiliency+Spec
-                        // To find a workaround, search for SqlAzureExecutionStrategy in the project code.
-                        rowsAffected = SqlMapper.Execute(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
-                    }
-                });
-            }
-            catch (SqlException ex)
-            {
-                throw StripException(ex);
-            }
+                    //  Outside-initiated user transactions are not supported. See Limitations with Retrying Execution Strategies (EF6 onwards) +http://msdn.microsoft.com/en-us/data/dn307226
+                    // +http://entityframework.codeplex.com/wikipage?title=Connection+Resiliency+Spec
+                    // To find a workaround, search for SqlAzureExecutionStrategy in the project code.
+                    rowsAffected = SqlMapper.Execute(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
+                }
+            });
             return rowsAffected;
         }
 
         public static async Task<int> ExecuteResilientlyAsync(string sql, dynamic param = null, CommandType? commandType = null)
         {
             int rowsAffected = 0;
-
-            try
+            var executionStrategy = new SqlAzureExecutionStrategy();
+            await executionStrategy.ExecuteAsync(
+            async () =>
             {
-                var executionStrategy = new SqlAzureExecutionStrategy();
-                await executionStrategy.ExecuteAsync(
-                async () =>
+                using (var connection = await GetOpenConnectionAsync())
                 {
-                    using (var connection = await GetOpenConnectionAsync())
-                    {
-                        //  Outside-initiated user transactions are not supported. See Limitations with Retrying Execution Strategies (EF6 onwards) +http://msdn.microsoft.com/en-us/data/dn307226
-                        // +http://entityframework.codeplex.com/wikipage?title=Connection+Resiliency+Spec
-                        // To find a workaround, search for SqlAzureExecutionStrategy in the project code.
-                        // Example of using ExecuteAsync(). +https://code.google.com/p/dapper-dot-net/source/browse/DapperTests%20NET45/Tests.cs
-                        rowsAffected = await SqlMapper.ExecuteAsync(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
-                    }
-                },
-                    // Apparently, CancellationToken is not used. See +https://github.com/Icehunter/entityframework/blob/master/src/EntityFramework.SqlServer/DefaultSqlExecutionStrategy.cs            
-                    CancellationToken.None
-                );
-            }
-            catch (SqlException ex)
-            {
-                throw StripException(ex);
-            }
-
+                    //  Outside-initiated user transactions are not supported. See Limitations with Retrying Execution Strategies (EF6 onwards) +http://msdn.microsoft.com/en-us/data/dn307226
+                    // +http://entityframework.codeplex.com/wikipage?title=Connection+Resiliency+Spec
+                    // To find a workaround, search for SqlAzureExecutionStrategy in the project code.
+                    // Example of using ExecuteAsync(). +https://code.google.com/p/dapper-dot-net/source/browse/DapperTests%20NET45/Tests.cs
+                    rowsAffected = await SqlMapper.ExecuteAsync(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
+                }
+            },
+                // Apparently, CancellationToken is not used. See +https://github.com/Icehunter/entityframework/blob/master/src/EntityFramework.SqlServer/DefaultSqlExecutionStrategy.cs            
+                CancellationToken.None
+            );
             return rowsAffected;
         }
 
         public static IEnumerable<T> QueryResiliently<T>(string sql, dynamic param = null, CommandType? commandType = null)
         {
             IEnumerable<T> result = null;
-            try
+            var executionStrategy = new SqlAzureExecutionStrategy();
+            executionStrategy.Execute(() =>
             {
-                var executionStrategy = new SqlAzureExecutionStrategy();
-                executionStrategy.Execute(() =>
+                using (var connection = GetOpenConnection())
                 {
-                    using (var connection = GetOpenConnection())
-                    {
-                        // QueryAsync is marked async in the source code, but is not in metadata. +https://code.google.com/p/dapper-dot-net/source/browse/Dapper+NET45/SqlMapperAsync.cs
-                        result = SqlMapper.Query<T>(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
-                    }
-                });
-            }
-            catch (SqlException ex)
-            {
-                throw StripException(ex);
-            }
+                    // QueryAsync is marked async in the source code, but is not in metadata. +https://code.google.com/p/dapper-dot-net/source/browse/Dapper+NET45/SqlMapperAsync.cs
+                    result = SqlMapper.Query<T>(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
+                }
+            });
             return result;
         }
 
         public static async Task<IEnumerable<T>> QueryResilientlyAsync<T>(string sql, dynamic param = null, CommandType? commandType = null)
         {
             IEnumerable<T> result = null;
-
-            try
-            {
-                var executionStrategy = new SqlAzureExecutionStrategy();
-                await executionStrategy.ExecuteAsync(
-                    async () =>
+            var executionStrategy = new SqlAzureExecutionStrategy();
+            await executionStrategy.ExecuteAsync(
+                async () =>
+                {
+                    using (var connection = await GetOpenConnectionAsync())
                     {
-                        using (var connection = await GetOpenConnectionAsync())
-                        {
-                            // QueryAsync is marked async in source code, but is not in metadata. +https://code.google.com/p/dapper-dot-net/source/browse/Dapper+NET45/SqlMapperAsync.cs
-                            result = await SqlMapper.QueryAsync<T>(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
-                        }
-                    },
-                    // Apparently, CancellationToken is not used. See +https://github.com/Icehunter/entityframework/blob/master/src/EntityFramework.SqlServer/DefaultSqlExecutionStrategy.cs            
-                    CancellationToken.None
-                );
-            }
-            catch (SqlException ex)
-            {
-                throw StripException(ex);
-            }
-
+                        // QueryAsync is marked async in source code, but is not in metadata. +https://code.google.com/p/dapper-dot-net/source/browse/Dapper+NET45/SqlMapperAsync.cs
+                        result = await SqlMapper.QueryAsync<T>(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
+                    }
+                },
+                // Apparently, CancellationToken is not used. See +https://github.com/Icehunter/entityframework/blob/master/src/EntityFramework.SqlServer/DefaultSqlExecutionStrategy.cs            
+                CancellationToken.None
+            );
             return result;
         }
 
@@ -201,29 +171,22 @@ namespace Runnymede.Common.Utils
 
         public static async Task QueryMultipleResilientlyAsync(string sql, dynamic param = null, CommandType? commandType = null, Action<Dapper.SqlMapper.GridReader> action = null)
         {
-            try
-            {
-                var executionStrategy = new SqlAzureExecutionStrategy();
-                await executionStrategy.ExecuteAsync(
-                    async () =>
+            var executionStrategy = new SqlAzureExecutionStrategy();
+            await executionStrategy.ExecuteAsync(
+                async () =>
+                {
+                    using (var connection = await GetOpenConnectionAsync())
                     {
-                        using (var connection = await GetOpenConnectionAsync())
-                        {
-                            var reader = await SqlMapper.QueryMultipleAsync(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
+                        var reader = await SqlMapper.QueryMultipleAsync(connection, sql, param: param, transaction: null, commandTimeout: null, commandType: commandType);
 
-                            if (action != null)
-                            {
-                                action(reader);
-                            }
+                        if (action != null)
+                        {
+                            action(reader);
                         }
-                    },
-                    CancellationToken.None
-                );
-            }
-            catch (SqlException ex)
-            {
-                throw StripException(ex);
-            }
+                    }
+                },
+                CancellationToken.None
+            );
         }
 
         public class PageItems<T>

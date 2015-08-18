@@ -90,7 +90,6 @@
             </div>
 
         </div><!-- ng-controller="AudioPlayer" -->
-
         @Html.Partial("_BottomPartial")
 
     </div><!-- /ng-controller="EditRecording" -->
@@ -105,6 +104,7 @@
 @section BottomScripts {
     <script>
         app.exerciseParam = @JavaScriptConvert.Serialize(ViewBag.ExerciseParam);
+        app.cardParam = @JavaScriptConvert.Serialize(ViewBag.cardParam);
     </script>
     @Scripts.Render(
 "~/bundles/angular",

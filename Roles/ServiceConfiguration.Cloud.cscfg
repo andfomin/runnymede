@@ -9,7 +9,7 @@
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2016-02-06T23:59:59.0000000-05:00" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="true" />
       <Setting name="StorageConnection" value="DefaultEndpointsProtocol=http;AccountName=englmdata;AccountKey=MA==" />
-      <Setting name="RecordingsBlobContainer" value="recordings" />
+      <Setting name="RecordingsBlobContainer" value="artifacts" />
     </ConfigurationSettings>
     <Certificates>
       <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="780EAECC5BA0E387C36B24576B9E297330B3CAE3" thumbprintAlgorithm="sha1" />

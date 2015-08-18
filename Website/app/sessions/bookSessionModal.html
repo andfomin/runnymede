@@ -1,5 +1,5 @@
 ﻿<div class="modal-header">
-    <h3>Book a session with a teacher</h3>
+    <h3>Book a session with the teacher</h3>
 </div>
 <div class="modal-body">
     <div class="row">
@@ -7,6 +7,12 @@
             <p class="text-nowrap">Start time: <strong>{{vm.session.start | appDate}}</strong></p>
             <p class="text-nowrap">Duration: <strong>{{vm.session.duration}}</strong> minutes</p>
             <p class="text-nowrap">Price: <strong>{{vm.session.price | currency:'$'}}</strong></p>
+            <p ng-show="vm.showBalance()">
+                Your account balance is <strong>{{vm.balance | currency:'$'}}</strong>.
+                <br />
+                Please add money to your account to pay for the session.
+                <a class="btn btn-primary btn-sm app-2px-up app-margin-left-half" ng-href="{{vm.getBuyLink()}}">Make payment</a>
+            </p>
             <p class="text-nowrap">
                 Teacher: <img class="img-circle app-avatar" width="32" height="32" ng-src="{{vm.session.teacherUserId | appAvatarSmall}}" /><strong>{{vm.session.displayName}}</strong>
             </p>
@@ -18,7 +24,7 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="vm.busy">
+    <button class="btn btn-primary app-btn-disablable" ng-click="vm.ok()" ng-disabled="!vm.canOk()">
         <i class="fa app-1px-up" ng-class="{'fa-spinner fa-fw fa-spin':vm.busy}"></i> OK
     </button>
     <a href="" class="app-close" ng-click="vm.cancel()">Close</a>

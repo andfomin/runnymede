@@ -99,7 +99,7 @@
     <div class="col-lg-offset-1 col-lg-10">
         <div class="jumbotron app-margin-top" id="myJumbotron">
             <div class="text-center" style="padding:0 10px;">
-                <h3 class="app-margin-top-none app-margin-bottom app-appyellow my-shadow">Learn&nbsp;English&nbsp;naturally. &nbsp;Pass&nbsp;exam&nbsp;easily.</h3>
+                <h3 class="app-margin-top-none app-margin-bottom app-appyellow my-shadow">Learn&nbsp;English&nbsp;naturally. &nbsp;Pass&nbsp;the&nbsp;exam&nbsp;easily.</h3>
             </div>
             <div class="row" id="myContainer">
                 <div class="my-space">&nbsp;</div>
@@ -130,7 +130,8 @@
                                 <img class="img-responsive" src="~/content/images/happy-learner.jpg">
                             </div>
                             <div class="col-xs-offset-1 col-sm-offset-0 col-xs-10 col-sm-5 col-md-4 my-description">
-                                You will progress faster if you get professional feedback about your speaking. You can get it any time you need&nbsp;it.
+                                @*You will progress faster if you get professional feedback about your speaking. You can get it any time you need&nbsp;it.*@
+                                Improve your speaking skills by receiving expert advice, any time you need it.
                             </div>
                         </div>
                     </div>
@@ -152,7 +153,8 @@
                                 </a>
                             </div>
                             <div class="col-xs-offset-1 col-sm-offset-0 col-xs-10 col-sm-5 col-md-4 my-description" style="padding-top:10px;">
-                                You will progress faster and achieve better results if you know what exactly you need to improve. Teachers can help you with setting priorities and correcting your learning plan.
+                                @*You will progress faster and achieve better results if you know what exactly you need to improve. Teachers can help you with setting priorities and correcting your learning plan.*@
+                                Our teachers can help you to progress faster by showing you exactly what you need to improve and how you can do it.
                             </div>
                         </div>
                     </div>
@@ -162,7 +164,8 @@
                                 <img class="img-responsive" src="/content/images/youtube-voa.jpg">
                             </div>
                             <div class="col-xs-offset-1 col-sm-offset-0 col-xs-10 col-sm-5 col-md-4 my-description">
-                                Although there are so many learning resources available, since they are all categorized and indexed, you can quickly find what you need and even compile your own collection.
+                                @*Although there are so many learning resources available, since they are all categorized and indexed, you can quickly find what you need and even compile your own collection.*@
+                                Gain access to our huge collection of articles, exercises and videos. All the learning resources are categorized and indexed, so you can quickly find what you need. 
                             </div>
                         </div>
                     </div>
@@ -178,8 +181,7 @@
                     <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
                     <span class="sr-only">Next</span>
                 </a>
-            </div>
-
+            </div><!-- id="myCarousel" -->
             @if (!isAuthenticated)
             {
                 <div class="visible-xs-block text-center app-margin-top">
@@ -193,54 +195,92 @@
 </div>
 <hr class="app-appred" />
 <div id="myCopy">
+
     <div class="text-center">
-        <h3 class="app-margin-top-none app-appred">You know the grammar. Are you ready for IELTS?</h3>
+        <h3 class="app-appred"><span class="text-nowrap">You know the grammar.</span> <span class="text-nowrap">Are you ready for IELTS?</span></h3>
     </div>
-    <div class="row app-margin-bottom">
-        <div class="col-sm-offset-1 col-md-offset-2 col-lg-offset-3 col-sm-10 col-md-8 col-lg-6">
+
+    <div class="row">
+        <div class="col-md-offset-1 col-md-5">
             <p>
-                You can prepare for IELTS by reading textbooks or watching videos. But being able to do well in the test is a special skill, distinct from simply being smart. You have to be able to perform according to the test format and under strict time constraints.
+                You can prepare for the IELTS test by reading textbooks or watching videos. But being able to do well in the test is a special skill, distinct from simply being smart. You have to be able to perform according to the test format and under strict time constraints.
             </p>
+        </div>
+        <div class="col-md-5">
             <p>
-                If you want to be good at taking IELTS, you must actually practice taking IELTS. You also need feedback to know how well you are doing and how you can improve your results.
-            </p>
-            <p>
-                The main goal of Englisharium is to provide learners with the best possible options to practice for the IELTS Writing and Speaking tests. Our online tests resemble the original test formats as close as possible. By receiving feedback from our experienced teachers you will know the areas you need to improve before your test day.
+                If you want to be good at taking IELTS, you must actually practice taking IELTS. You also need feedback to know how well you are doing and how you can improve your results. By receiving feedback from our experienced teachers you will know the areas you need to improve before your test day.
             </p>
         </div>
     </div>
-    <div class="app-margin-top app-margin-bottom text-center">
-        <h3 class="app-appred">No matter where you are in the world,<br /> you can quickly get advice from the best teachers.</h3>
+
+    <div class="text-center">
+        <h3 class="app-appred"><span class="text-nowrap">No matter where you are in the world,</span> <span class="text-nowrap">you can study with the best teachers.</span></h3>
     </div>
     <div class="row">
-        <div class="col-sm-offset-1 col-md-offset-2 col-lg-offset-3 col-sm-10 col-md-8 col-lg-6">
+        <div class="col-md-offset-1 col-md-5">
             <p>
-                Although Skype is an awesome teaching medium, scheduling sessions with parties scattered around the globe is a cumbersome process. Our goal is to allow you to ignore time zones and get help from experienced teachers as soon as possible. Our teachers use a rich set of online tools to provide you with comprehensive feedback and point you to relevant learning resources.
+                Although Skype is an awesome teaching medium, scheduling sessions with people scattered around the globe is a difficult process.
+                Now you have got a schedule tool to easily arrange and manage learning sessions with the teachers. Our teachers use a rich set of online tools to provide you with comprehensive feedback and guide you to relevant learning resources.
+            </p>
+        </div>
+        <div class="col-md-5">
+            <img class="img-circle" src="~/content/images/tom02_96.jpg" style="margin:10px;float:left;" width="96" height="96" />
+            <p>
+                Hello! My name is Tom, and I am from the UK. I have been teaching English for six years and five of those years were focused mainly on IELTS preparation.
+                I focus on the active skills, on speaking and writing. With the speaking, I will help you to improve your fluency, your accuracy, your confidence, and your pronunciation.
+                With the writing, I will help you to improve your grammar and vocabulary to help you to achieve your target band score.
             </p>
         </div>
     </div>
-    <div class="app-margin-top app-margin-bottom text-center">
-        <h3 class="app-appred">The best way to practice for the IELTS Speaking test</h3>
+
+    <div class="text-center">
+        <h3 class="app-appred"><span class="text-nowrap">We offer test takers the best possible options</span> <span class="text-nowrap">to practice for the IELTS tests.</span></h3>
     </div>
+
     <div class="row">
-        <div class="col-sm-offset-1 col-md-offset-2 col-lg-offset-3 col-sm-10 col-md-8 col-lg-6">
+        <div class="col-md-offset-1 col-md-5">
+            <div class="text-center">
+                <h4 class="app-appred"><span class="text-nowrap">The best way to practice for</span> <span class="text-nowrap">the IELTS <strong>Speaking</strong> test</span></h4>
+            </div>
             <p>
-                Simulate a speaking test and record your exercise with the online voice recorder. Our teacher will review the recording of your simulated test and give you advice.
-                <a href='@Url.Action("Speaking", "ExercisesIelts")' class="text-nowrap"><strong>Try now</strong><i class="fa fa-chevron-right fa-fw"></i></a>
+                You probably don't lile to make mistakes when speaking <span class="text-nowrap">
+    face-to-face</span>. To overcome the fear of speaking, simulate a speaking test alone and record your exercise with the online voice recorder provided. When you feel confident with your result, ask our teachers to review and evaluate the recording.
+    <a href='@Url.Action("Index", "ExercisesIelts")' class="text-nowrap"><strong>Try now</strong><i class="fa fa-chevron-right fa-fw"></i></a>
+</p>
+        </div>
+        <div class="col-md-5">
+            <div class="text-center">
+                <h4 class="app-appred"><span class="text-nowrap">The best way to practice for</span> <span class="text-nowrap">the IELTS <strong>Writing</strong> test</span></h4>
+            </div>
+            <p>
+                Practice a writing test on a real answer sheet, then easily upload your handwritten text. Our teachers will review it, mark mistakes, and suggest ways to improve your results.
+                <a href='@Url.Action("Index", "ExercisesIelts")' class="text-nowrap"><strong>Try now</strong><i class="fa fa-chevron-right fa-fw"></i></a>
             </p>
         </div>
     </div>
-    <div class="app-margin-top app-margin-bottom text-center">
-        <h3 class="app-appred">The best way to practice for the IELTS Writing test</h3>
-    </div>
+
     <div class="row">
-        <div class="col-sm-offset-1 col-md-offset-2 col-lg-offset-3 col-sm-10 col-md-8 col-lg-6">
+        <div class="col-md-offset-1 col-md-5">
+            <div class="text-center">
+                <h4 class="app-appred"><span class="text-nowrap">The best way to practice for</span> <span class="text-nowrap">the IELTS <strong>Listening</strong> test</span></h4>
+            </div>
             <p>
-                Simulate a writing test, upload your handwritten text using a smartphone, then our teacher will review it and suggest ways to improve your results.
-                <a href='@Url.Action("Writing", "ExercisesIelts")' class="text-nowrap"><strong>Try now</strong><i class="fa fa-chevron-right fa-fw"></i></a>
+                Our online tests resemble the original test formats as close as possible.
+                <a href='@Url.Action("Index", "ExercisesIelts")' class="text-nowrap"><strong>Try now</strong><i class="fa fa-chevron-right fa-fw"></i></a>
+            </p>
+        </div>
+        <div class="col-md-5">
+            <div class="text-center">
+                <h4 class="app-appred"><span class="text-nowrap">The best way to practice for</span> <span class="text-nowrap">the IELTS <strong>Reading</strong> test</span></h4>
+            </div>
+            <p>
+                Did we mention that our online tests resemble the original test formats as close as possible?
+                <a href='@Url.Action("Index", "ExercisesIelts")' class="text-nowrap"><strong>Try now</strong><i class="fa fa-chevron-right fa-fw"></i></a>
             </p>
         </div>
     </div>
+
+
 </div>
 @section BottomScripts {
     <script>

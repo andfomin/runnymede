@@ -242,14 +242,19 @@ module app {
         static $inject = [app.ngNames.$compileProvider];
         constructor($compileProvider: angular.ICompileProvider) {
             // /^(?:https?:)?\/\/englm\.blob\.core\.windows\.net\/|^https?:\/\/(?:dev\w\.)?englisharium\.com\/|^skype:/
-            $compileProvider.aHrefSanitizationWhitelist(/^skype:/);
+            //$compileProvider.aHrefSanitizationWhitelist(/^skype:/);
+            $compileProvider.aHrefSanitizationWhitelist(/^https?:\/\/(?:dev\w\.)?englisharium\.com\/|^skype:/);
         }
     }
 
     export class SceWhitelistConfig {
         static $inject = [app.ngNames.$sceDelegateProvider];
         constructor($sceDelegateProvider: angular.ISCEDelegateProvider) {
-            $sceDelegateProvider.resourceUrlWhitelist(['self', 'http*://' + app.BlobDomainName + '/**']);
+            $sceDelegateProvider.resourceUrlWhitelist([
+                'self',
+                'http*://' + app.getHostname() + '/**',
+                'http*://' + app.BlobDomainName + '/**'
+            ]);
         }
     }
 

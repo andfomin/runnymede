@@ -1,4 +1,5 @@
 ﻿using Itenso.TimePeriod;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Runnymede.Common.Models;
 using Runnymede.Common.Utils;
@@ -20,8 +21,12 @@ namespace Runnymede.Website.Utils
         private const string ItalkiLoginUrl = "https://www.italki.com/login";
         private const string ItalkiDashbordUrl = "http://www.italki.com/dashboard";
         private const string ItalkiCloakUrl = "http://www.italki.com/teachers";
+        private const string ItalkiWebServicesUrl = "https://secure.italki.com/WebServices/GetData.aspx";
+
         public static TimeSpan ItalkiTimeSlotDuration = TimeSpan.FromMinutes(30); // minutes. 
         private static TimeSpan ReloginInterval = TimeSpan.FromMinutes(10); // minutes
+
+        public const string TimeSlotUnavailableError = "The time you are scheduling was taken by other learners. Please try another time.";
 
         /* HttpClient and handlers are designed for reuse and thread safety. +http://wcf.codeplex.com/discussions/277850
          * +http://chimera.labs.oreilly.com/books/1234000001708/ch14.html#_multiple_instances
@@ -139,7 +144,7 @@ namespace Runnymede.Website.Utils
                 Console.WriteLine(ex.Message);
                 throw;
 #else
-                throw new Exception("External service. GetStringAsync() failed")
+                throw new Exception("External service. GetStringAsync() failed");
 #endif
             }
         }
@@ -154,6 +159,10 @@ namespace Runnymede.Website.Utils
         // Find vacant time slots by subtracting the occupyed slots from the template slots. 
         public IEnumerable<ITimePeriod> GetVacantPeriods(string html)
         {
+            /* !!! Warning! If the balance on the account is low, the page does not have the schedule data, but shows payment offer.
+             * After enabling error details in web.config, the error text is "Parsing the external service data. Snippet not found. 43 9"
+             */
+
             // Save on text parsing. Pre-extract the script texts.
             var paramScriptText = FindText(html, "function ShowMsgBox(title,scr,width,height)", "</script>"); ;
             var listScriptText = FindText(html, @"<script type=""text/javascript"">var sUseList", "</script>"); ;
@@ -171,6 +180,7 @@ namespace Runnymede.Website.Utils
                 .Select(i => new TimeRange(i.Start.AddDays(7), i.Duration))
                 .ToList();
             timeArrList.AddAll(nextEightDays);
+
             CombinePeriods(timeArrList);
 
             var tUseList = ProcessTUseList(listScriptText, firstDay);
@@ -191,6 +201,16 @@ namespace Runnymede.Website.Utils
             var i2 = html.IndexOf(endSnippet, i1 + 1);
             if ((i1 == -1) || (i2 == -1))
             {
+                // Write the poison HTML page to the log.
+                var partitionKey = KeyUtils.GetCurrentTimeKey();
+                var entity = new ExternalSessionLogEntity
+                {
+                    PartitionKey = partitionKey,
+                    RowKey = "Error_FindText",
+                    Data = html,
+                };
+                AzureStorageUtils.InsertEntity(AzureStorageUtils.TableNames.ExternalSessions, entity);
+
                 throw new FormatException("Parsing the external service data. Snippet not found. " + startSnippet.Length.ToString() + " " + endSnippet.Length.ToString());
             }
             var shift = startSnippet.Length;
@@ -341,41 +361,87 @@ namespace Runnymede.Website.Utils
             return CombinePeriods(periods);
         }
 
-        public async Task<bool> BookSession(int courseId, DateTime start, string referer)
+        public async Task<long?> BookSession(int courseId, DateTime start, string referer, string tablePartitionKey)
         {
-            // Time is encoded in a special way.
-            var diff = start - DateTime.UtcNow;
-            var day = Convert.ToInt32(Math.Floor(diff.TotalDays));
-            var halfHour = (diff.Hours * 2) + Convert.ToInt32(1.0 * diff.Minutes / ItalkiTimeSlotDuration.TotalMinutes);
-            var timeText = WebUtility.UrlEncode(String.Format("{0},{1}", day, halfHour));
+            // Time slot is encoded in a weired way.
+            var origin = DateTime.UtcNow.Date;
+            var diff = start - origin;
+            var day = Convert.ToInt32(Math.Floor(diff.TotalDays)) - 1; // Day number for the next day is 0.
+            if (day < 0)
+            {
+                throw new Exception(ItalkiHelper.TimeSlotUnavailableError);
+            }
+            var halfHour = (diff.Hours * 2) + (diff.Minutes == 30 ? 1 : 0); // Convert.ToInt32(1.0 * diff.Minutes / 30); // We expect minutes to be either 00 or 30.
+            var timeText = String.Format("{0},{1}", day, halfHour);
 
-            var password = "12345678";// ConfigurationManager.AppSettings["Italki.Password1"];
+            // We will write to the log.
+            var partitionKey0 = KeyUtils.GetCurrentTimeKey();
 
+            // Pre-booking validation. It might be redundand. We may want to do it just in case.
+            // Note that the validation call does not send the courseId. That means the server uses a session(???) or a cookie or the Referer header. It may cause problems in a multi-teacher scenario, until we use a separate HttpClient for each teacher.
+            //var content1 = new FormUrlEncodedContent(new[]
+            //{
+            //    new KeyValuePair<string, string>("MethodName", "ValidSessionTime"),
+            //    new KeyValuePair<string, string>("time", timeText),
+            //});
+            //var request1 = new HttpRequestMessage
+            //{
+            //    RequestUri = new Uri(ItalkiWebServicesUrl),
+            //    Method = HttpMethod.Post,
+            //    Content = content1,
+            //};
+            //request1.Headers.Add("Referer", referer);
+
+            //var response1 = await httpClient.SendAsync(request1);
+
+            //var statusCode1 = (int)response1.StatusCode;
+            //string responseContent1 = null;
+            //if (response1.IsSuccessStatusCode)
+            //{
+            //    responseContent1 = await response1.Content.ReadAsStringAsync();
+            //}
+
+            //var entity1 = new ExternalSessionLogEntity
+            //{
+            //    PartitionKey = partitionKey,
+            //    RowKey = "ValidationResponse",
+            //    Data = responseContent1,
+            //    HttpStatus = statusCode1,
+            //};
+            //await AzureStorageUtils.InsertEntityAsync(AzureStorageUtils.TableNames.ExternalSessions, entity1);
+
+            //response1.EnsureSuccessStatusCode();
+
+            // Send the booking request
+#if DEBUG
+            var password = "12345678";
+#else
+            var password = ConfigurationManager.AppSettings["Italki.Password1"];
+#endif
             var content = new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("MethodName", "RequestSession"),
-                new KeyValuePair<string, string>("time", timeText),
+                new KeyValuePair<string, string>("time", timeText), // It will be Url-encoded by the form oject.
                 new KeyValuePair<string, string>("tool", "1"),
                 new KeyValuePair<string, string>("sim", "andrey.fomin3"),
-                new KeyValuePair<string, string>("msg", WebUtility.UrlEncode(":-)  :)  :D  :o)  :]  :3  :c)  :>  =]  8)  =)  :}  :^)")),
+                new KeyValuePair<string, string>("msg", ":)"), // ":-)  :)  :D  :o)  :]  :3  :c)  :>  =]  8)  =)  :}  :^)"
                 new KeyValuePair<string, string>("pwd", password),
                 new KeyValuePair<string, string>("cid", courseId.ToString()),
             });
 
             var request = new HttpRequestMessage
             {
-                RequestUri = new Uri("https://secure.italki.com/WebServices/GetData.aspx"),
+                RequestUri = new Uri(ItalkiWebServicesUrl),
                 Method = HttpMethod.Post,
                 Content = content,
             };
             request.Headers.Add("Referer", referer);
 
             // Write to the log
-            var partitionKey = KeyUtils.GetCurrentTimeKey();
             var entity = new ExternalSessionLogEntity
             {
-                PartitionKey = partitionKey,
-                RowKey = "Request",
+                PartitionKey = tablePartitionKey,
+                RowKey = "ItalkiRequest",
                 Data = JsonUtils.SerializeAsJson(new
                 {
                     CourseId = courseId,
@@ -387,35 +453,57 @@ namespace Runnymede.Website.Utils
 
             // Book the session with Italki
             var response = await httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
+
+            var statusCode = (int)response.StatusCode;
+            string responseContent = null;
+            if (response.IsSuccessStatusCode)
+            {
+                responseContent = await response.Content.ReadAsStringAsync();
+            }
 
             // Write the response to the log
             entity = new ExternalSessionLogEntity
             {
-                PartitionKey = partitionKey,
-                RowKey = "Response",
-                Data = JsonUtils.SerializeAsJson(new
-                {
-                    Content = responseContent,
-                }),
+                PartitionKey = tablePartitionKey,
+                RowKey = "ItalkiResponse",
+                Data = responseContent,
+                HttpStatus = statusCode,
             };
             await AzureStorageUtils.InsertEntityAsync(AzureStorageUtils.TableNames.ExternalSessions, entity);
 
-            var items = JArray.Parse(responseContent).Select(i => (string)i);
-            var result = items.FirstOrDefault();
-            var success = (result == "Y") || (result == "Y1"); // +https://secure.italki.com/sessions/schedule_20131106.js?v=150302 , Line 853
-            /* if(result[0]=="-2") $get("MsgPrompt").innerHTML=TS312;
-             * if(result[0]=="-1") $get("MsgPrompt").innerHTML=TS313;
-             * if(result[0]=="1") $get("MsgPrompt").innerHTML=TS314;
-             * if(result[0]=="-3") $get("MsgPrompt").innerHTML=TS315;
-             * var TS312="The time you\'re scheduling was taken by other students. Please try other time.";
-             * var TS313="Your payment account balance is not enough to pay for the session(s) you are scheduling.";
-             * var TS314="Trial session is not available.";
-             * var TS315="Incorrect password";
-             */
+            response.EnsureSuccessStatusCode();
 
-            return success;
+            long? extSessionId = null;
+            try
+            {
+                var items = JArray.Parse(responseContent);
+                /* +https://secure.italki.com/sessions/schedule_20131106.js?v=150302 , Line 853
+                 * if(result[0]=="-2") $get("MsgPrompt").innerHTML=TS312;
+                 * if(result[0]=="-1") $get("MsgPrompt").innerHTML=TS313;
+                 * if(result[0]=="1") $get("MsgPrompt").innerHTML=TS314;
+                 * if(result[0]=="-3") $get("MsgPrompt").innerHTML=TS315;
+                 * In HTML
+                 * var TS312="The time you\'re scheduling was taken by other students. Please try other time.";
+                 * var TS313="Your payment account balance is not enough to pay for the session(s) you are scheduling.";
+                 * var TS314="Trial session is not available.";
+                 * var TS315="Incorrect password";
+                 */
+                var result = (string)items.FirstOrDefault();
+                if ((result == "Y") || (result == "Y1"))
+                {
+                    var idArr = items[3];
+                    if (idArr is JArray)
+                    {
+                        extSessionId = (long)idArr.First();
+                    }
+                }
+            }
+            // We may get an HTML instead of JSON in response.
+            catch (JsonReaderException)
+            {
+            }
+
+            return extSessionId;
         }
 
     }

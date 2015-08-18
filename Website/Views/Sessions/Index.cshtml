@@ -34,7 +34,7 @@
                     Click on a time slot to book a session.
                 </p>
 
-                <div ng-model="vm.eventSources" data-ui-calendar="vm.calConfig" data-calendar="calObj"></div>
+                <div calendar="myCal" ui-calendar="vm.calConfig" ng-model="vm.eventSources"></div>
 
                 @Html.Partial("_ColorLegendPartial")
 

@@ -4,7 +4,8 @@
 
 CREATE PROCEDURE [dbo].[accChangeEscrow]
 	@UserId int,
-	@Amount decimal(9, 2), -- The sign of @Amount determines the direction of the transfer. A negative amount means refund.
+	@Amount decimal(9, 2),
+	@Increase bit, -- 1 means escrow, 0 means refund
 	@TransactionType char(6),
 	@Attribute nvarchar(100) = null,
 	@Details xml = null,
@@ -15,10 +16,8 @@ BEGIN
 Transfer user's money from the personal account to the escrow account on review request.
 Or transfer vice versa on review request cancelation.
 
-The sign of @Amount determines the direction of the transfer. 
-A positive @Amount means from the user to the escrow, a negative @Amount means from the escrow to the user.
-
 20121113 AF. Initial release
+20150721 AF. New parameter @Increase. Do not use the amount sign.
 */
 SET NOCOUNT ON;
 
@@ -41,7 +40,7 @@ begin try
 	if (nullif(@PersonalAccountId, 0) is null) or (nullif(@EscrowAccountId, 0) is null)
 		raiserror('%s,%d:: Account not found.', 16, 1, @ProcName, @UserId);  
 
-	if @Amount >= 0
+	if (@Increase = 1)
 		select @DebitedAccountId = @PersonalAccountId, @CreditedAccountId = @EscrowAccountId;
 	else
 		select @DebitedAccountId = @EscrowAccountId, @CreditedAccountId = @PersonalAccountId;
@@ -54,7 +53,7 @@ begin try
 	from dbo.accEntries
 	where Id = (select max(Id) from dbo.accEntries where AccountId = @DebitedAccountId)
 
-	if coalesce(@Balance, 0) < abs(@Amount) 
+	if coalesce(@Balance, 0) < @Amount
 		raiserror('%s,%d:: Non-sufficient funds.', 16, 1, @ProcName, @UserId); 
 
 	set @Now = sysutcdatetime();

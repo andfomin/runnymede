@@ -36,6 +36,7 @@ namespace Runnymede.Common.Models
         public const string IeltsSpeaking = "SVRIS_";
         public const string IeltsReading = "SVRIR_";
         public const string IeltsListening = "SVRIL_";
+        public const string Session = "SVSSSN";
 
         public static string GetTitle(string serviceType)
         {

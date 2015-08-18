@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = "Lucky You";
+    ViewBag.SecondaryTitle = "Win a free evaluation of your IELTS practice tests";
+    ViewBag.NavItem = "Games";
+    bool isAuthenticated = Request.IsAuthenticated;
+    // +http://www.bankofengland.co.uk/BOEAPPS/IADB/Rates.asp?into=GBP&rateview=L
+    // +http://www.bankofengland.co.uk/BOEAPPS/IADB/Rates.asp?TD=13&TM=Jul&TY=2015&into=GBP&rateview=D
+    // +http://www.bankofengland.co.uk/BOEAPPS/IADB/Rates.asp?Travel=NIxRSx&into=GBP&rateview=L
+}
+@section HeadScripts {
+    @Styles.Render(
+"~/bundles/animate-css"
+)
+}
+<div class="app-margin-top app-margin-bottom">
+    <img class="img-responsive center-block animated zoomIn" src="~/content/images/its-giveaway.png" width="480" height="48" />
+</div>
+<div ng-app="myApp" ng-controller="LuckyYou" ng-cloak>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="text-center app-appred">
+                <h4>The prize</h4>
+            </div>
+            <p style="padding-left:40px;">
+                The prize includes free one-time reviews of Speaking, Writing, Listening, and Reading exercises by a teacher (of&nbsp;a&nbsp;total&nbsp;value&nbsp;$44.)
+            </p>
+            <div class="text-center app-appred">
+                <h4>How to win</h4>
+            </div>
+            <ul>
+                <li>
+                    Enter your email address and the last two digits of your phone number. The two digits will be used to play the game.
+                </li>
+                <li>
+                    We compile a list of five random digits each working day.
+                </li>
+                <li>
+                    If each of your digits have a corresponding random digit on the next day's list, you will be awarded the prize.
+                </li>
+            </ul>
+
+            <div class="row">
+                <div class="col-sm-offset-3 col-sm-6">
+                    <form>
+                        <div class="form-group form-group-lg">
+                            <label>Your email address</label>
+                            <input type="text" class="form-control" ng-model="vm.email">
+                        </div>
+                        <div class="form-group form-group-lg">
+                            <label>Last two digits of your phone number</label>
+                            <input type="text" class="form-control" maxlength="2" ng-model="vm.digits">
+                        </div>
+                        <button class="btn btn-primary btn-lg app-btn-disablable" ng-click="vm.ok()" ng-disabled="!vm.canOk()">Play</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-success text-center app-margin-top app-margin-bottom-none" role="alert" ng-show="vm.showThanks">
+                Thank you for joining the game! Come tomorrow to find out the result.
+            </div>
+
+            <hr/>
+            <div class="text-center text-muted">
+                <h4>Fine print</h4>
+            </div>
+            <ul class="small text-muted app-margin-bottom">
+                <li>
+                    We use the
+                    <a href="http://www.bankofengland.co.uk/BOEAPPS/IADB/Rates.asp?Travel=NIxRSx&into=GBP&rateview=L" target="_blank">currency exchange rates published by the Bank of England</a>
+                    as a verifiable source of random numbers. The rates for a day are available next the working day. We first select the rate values from the top five lines. Then we pick the fourth digit of the fractional part of a value as the random digit.
+                </li>
+                <li>
+                    Day boundaries are set according to Coordinated Universal Time (UTC).
+                </li>
+                <li>
+                    We will inform the winner by email. We may ask the winner to confirm their phone number.
+                </li>
+                <li>
+                    Results may be disputed during the seven days following the announcement.
+                </li>
+            </ul>
+
+        </div>
+        <div class="col-lg-6">
+            <div class="text-center app-appred">
+                <h4>Results</h4>
+            </div>
+        </div>
+    </div>
+
+</div>
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/games/luckyYou.js"
+)}

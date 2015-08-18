@@ -12,10 +12,12 @@
                 </p>
                 <p>
                     The price of the review is <strong>{{vm.price | number:2}}</strong> dollars.
-</p>
-                <p ng-show="vm.balance < vm.price">
-                    You need to buy a review.
-                    <a class="btn btn-primary btn-sm app-2px-up app-margin-left" ng-href="{{vm.getBuyLink()}}">Buy review</a>
+                </p>
+                <p ng-show="vm.showBalance()">
+                    Your account balance is <strong>{{vm.balance | currency:'$'}}</strong>.
+                    <br />
+                    Please add money to your account to pay for the review.
+                    <a class="btn btn-primary btn-sm app-2px-up app-margin-left" ng-href="{{vm.getBuyLink()}}">Make payment</a>
                 </p>
             </div>
         </div>

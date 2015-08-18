@@ -56,7 +56,7 @@ from dbo.exeExercises E
 where E.Id = @ExerciseId
 	and E.UserId = @UserId;
 ";
-            // Returns null for Balance the user has not created the account yet.
+            // Returns 0 as Balance if the user has not created an account yet.
             var data = (await DapperHelper.QueryResilientlyAsync<dynamic>(sql, new
             {
                 UserId = this.GetUserId(),
@@ -203,7 +203,6 @@ where Id = @Id and UserId = @UserId;
             var cardId = (Guid?)value["cardId"];
             var length = UploadUtils.DurationToLength((double)value["duration"]); // We use duration because there is a chance that the same instance of a recorder may be reused.
 
-            // ServiceType corresponds to dbo.appServices
             var sql = @"
 update dbo.exeExercises
 set Title = @Title, CardId = @CardId

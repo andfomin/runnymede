@@ -4,15 +4,16 @@
 
         offers: any[];
 
-        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$scope];
+        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$scope, CalendarCtrlBase.uiCalendarConfigName];
 
         constructor(
             $http: angular.IHttpService,
             $interval: angular.IIntervalService,
             $modal: angular.ui.bootstrap.IModalService,
-            $scope: app.IScopeWithViewModel
+            $scope: app.IScopeWithViewModel,
+            uiCalendarConfig: any
             ) {
-            super($http, $interval, $modal, $scope);
+            super($http, $interval, $modal, $scope, uiCalendarConfig);
 
             this.calConfig.dayClick = this.dayClick;
 
@@ -83,7 +84,10 @@
                     'static'
                     )
                     .result
-                    .finally(() => { this.refetchEvents(); }
+                    .finally(() => {
+                    this.offers = null;
+                    this.refetchEvents();
+                }
                     );
             }
             else {
@@ -99,6 +103,7 @@
         session: ISession;
         duration: number;
         message: string;
+        balance: number = null;
 
         constructor(
             $http: angular.IHttpService,
@@ -109,7 +114,31 @@
             super($http, $modalInstance, $scope, modalParams);
             this.session = modalParams.session;
             this.duration = moment(this.session.end).diff(moment(this.session.start), 'minutes');
+            this.getConditions();
         } // ctor
+
+        getConditions = () => {
+            app.ngHttpGet(this.$http,
+                app.sessionsApiUrl('conditions'),
+                null,
+                (data) => {
+                    if (data) {
+                        this.balance = data.balance || 0;
+                    }
+                });
+        };
+
+        showBalance = () => {
+            return angular.isNumber(this.balance) && (this.balance < this.session.price);
+        };
+
+        getBuyLink = () => {
+            return app.getBuyLink();
+        }
+
+        canOk = () => {
+            return !this.busy && this.balance && (this.balance > this.session.price);
+        }
 
         internalOk = () => {
             var timeInfo = app.getLocalTimeInfo();

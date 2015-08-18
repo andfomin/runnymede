@@ -165,8 +165,6 @@
     <Build Include="Stored Procedures\exeUpdateLength.sql" />
     <Build Include="Tables\conOffers.sql" />
     <Build Include="Functions\conGetOffers.sql" />
-    <Build Include="Tables\sesRates.sql" />
-    <Build Include="Functions\sesGetSessionPrice.sql" />
     <Build Include="Stored Procedures\sesPostMessage.sql" />
     <Build Include="Stored Procedures\sesGetSessionsForTeacher.sql" />
     <Build Include="Stored Procedures\sesGetSessionsForLearner.sql" />
@@ -197,6 +195,11 @@
     <Build Include="Functions\sesGetNewSessionId.sql" />
     <Build Include="Stored Procedures\sesConfirmSession.sql" />
     <Build Include="Stored Procedures\sesCancelSession.sql" />
+    <Build Include="Stored Procedures\sesUpdateSessionExtId.sql" />
+    <Build Include="Tables\lckRates.sql" />
+    <Build Include="Tables\lckEntries.sql" />
+    <Build Include="Functions\sesGetItalkiTeachers.sql" />
+    <Build Include="Tables\appGiveaways.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />

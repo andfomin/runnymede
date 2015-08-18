@@ -12,7 +12,7 @@ using Runnymede.Website.Utils;
 
 namespace Runnymede.Website.Controllers.Api
 {
-    [RoutePrefix("api/converstions")]
+    [RoutePrefix("api/conversations")]
     [Authorize]
     public class ConverstionsApiController : ApiController
     {

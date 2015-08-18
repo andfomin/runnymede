@@ -6,15 +6,16 @@
         eventSources: any[];
         //selections: ISession[] = [];
 
-        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$scope];
+        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$scope, CalendarCtrlBase.uiCalendarConfigName];
 
         constructor(
             $http: angular.IHttpService,
             $interval: angular.IIntervalService,
             $modal: angular.ui.bootstrap.IModalService,
-            $scope: app.IScopeWithViewModel
+            $scope: app.IScopeWithViewModel,
+            uiCalendarConfig: any
             ) {
-            super($http, $interval, $modal, $scope);
+            super($http, $interval, $modal, $scope, uiCalendarConfig);
         } // ctor
 
         styleEvent = (session: ISession) => {
@@ -22,14 +23,14 @@
             if (session.cancellationTime) {
                 classes.push(CssClasses.Cancelled);
             } else
-            if (session.confirmationTime) {
-                classes.push(CssClasses.Confirmed);
-            }
-            else
-                if (session.learnerUserId) {
-                    classes.push(CssClasses.Booked);
-                    //session.title = 'Cost: ' + session.cost;
+                if (session.confirmationTime) {
+                    classes.push(CssClasses.Confirmed);
                 }
+                else
+                    if (session.learnerUserId) {
+                        classes.push(CssClasses.Booked);
+                        //session.title = 'Cost: ' + session.cost;
+                    }
             session.className = classes;
         };
 

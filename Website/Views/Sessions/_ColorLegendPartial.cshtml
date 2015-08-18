@@ -1,10 +1,16 @@
-﻿<div class="panel panel-default app-margin-top">
+﻿@{
+    var pageViewModel = new Runnymede.Website.Models.PageViewModel(this);
+}
+<div class="panel panel-default app-margin-top">
     <div class="panel-heading">
         <h3 class="panel-title text-center">Session color legend</h3>
     </div>
     <div class="panel-body">
         <ul class="list-inline list-unstyled app-margin-bottom-none">
+            @if (!pageViewModel.IsTeacher)
+            {
             <li class="text-nowrap"><i class="fa fa-square fa-fw fa-lg app-2px-up app-appblue" style="opacity:0.7;"></i>Offered</li>
+            }
             <li class="text-nowrap"><i class="fa fa-square fa-fw fa-lg app-2px-up app-appyellow"></i>Booked</li>
             <li class="text-nowrap"><i class="fa fa-square fa-fw fa-lg app-2px-up" style="color:#5cb85c;"></i>Confirmed</li><!-- @@brand-success  -->
             <li class="text-nowrap"><i class="fa fa-square fa-fw fa-lg app-2px-up text-danger"></i>Cancelled</li>

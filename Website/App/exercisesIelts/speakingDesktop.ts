@@ -1,6 +1,6 @@
 module app.exercisesIelts {
 
-    interface IRecordingEvent {
+    export interface IRecordingEvent {
         time: number;
         event: string;
     }
@@ -13,6 +13,7 @@ module app.exercisesIelts {
         recording: boolean = false;
         encoded: boolean = false;
         uploading: boolean = false;
+
         events: IRecordingEvent[] = [];
         startTime: number;
 
@@ -33,6 +34,15 @@ module app.exercisesIelts {
             this.createRecorder();
             /* ----- End of constructor  ----- */
         } // end of ctor  
+
+        addEvent = (event: string) => {
+            this.events.push({
+                time: Date.now() - this.startTime,
+                event: event
+            });
+            if (!this.$scope.$$phase)
+                this.$scope.$apply();
+        };
 
         createRecorder = () => {
             var swfUrl = this.$window.location.protocol + '//' + this.$window.location.host + '/content/audior/Audior.swf';
@@ -132,15 +142,6 @@ module app.exercisesIelts {
             return item && +item.position.slice(0, 1);
         };
 
-        addEvent = (event: string) => {
-            this.events.push({
-                time: Date.now() - this.startTime,
-                event: event
-            });
-            if (!this.$scope.$$phase)
-                this.$scope.$apply();
-        };
-
         canSave = () => {
             return app.isAuthenticated() && this.encoded && !this.uploading;
         };
@@ -191,9 +192,10 @@ module app.exercisesIelts {
             }
         };
 
-    } // end of class Ctrl    
+    } // end of class SpeakingDesktop    
 
-    angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar', 'ngSanitize', 'ui.router'])
+    //angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar', 'ngSanitize', 'ui.router'])
+    angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar', 'ngSanitize'])
         .controller('SpeakingDesktop', SpeakingDesktop)
     ;
 

@@ -22,13 +22,13 @@
 @* Do not use ng-cloak on the root div. We insert a Flash player below. *@
 <div ng-app="myApp" ng-controller="SpeakingDesktop">
     <div class="row" ng-cloak>
-        
+
         <div class="col-lg-6">
             <div class="text-center">
                 <div class="alert alert-danger" role="alert" ng-show="!vm.flashFound" ng-cloak>
                     <p>
                         To record speech you need to install Adobe Flash Player to your browser.
-                        <a href="http://get.adobe.com/flashplayer" target="_blank">Get&nbsp;Adobe&nbsp;Flash&nbsp;Player</a>
+                        <a href="http://get.adobe.com/flashplayer" target="_blank">Download&nbsp;it&nbsp;from&nbsp;Adobe</a>
                     </p>
                 </div>
 
@@ -39,7 +39,7 @@
                     @Html.Partial("_NotAuthenticatedSpanPartial")
                     <button class="btn btn-default app-btn-disablable" ng-class="{'btn-lg': vm.canSave()}" ng-disabled="!vm.canSave()" ng-click="vm.save()">
                         <i class="fa fa-lg app-1px-up"
-                           ng-class="{'fa-check fa-fw text-success animated flash app-fa-pulse':vm.canSave(), 'fa-spinner fa-spin fa-fw app-appblue':vm.uploading}"></i>
+                           ng-class="{'fa-check fa-fw text-success animated flash infinite':vm.canSave(), 'fa-spinner fa-spin fa-fw app-appblue':vm.uploading}"></i>
                         <span>Save recording</span>
                     </button>
                 </div>
@@ -47,7 +47,6 @@
         </div>
 
         <div class="col-md-offset-2 col-lg-offset-0 col-md-8 col-lg-6">
-            @*<div class="col-md-offset-1 col-lg-offset-2 col-md-10 col-lg-8">*@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="text-center">
@@ -76,10 +75,10 @@
 
     </div>
     @*<ul>
-        <li ng-repeat="i in vm.events">
-            {{i.time}} | {{i.event}}
-        </li>
-    </ul>*@
+            <li ng-repeat="i in vm.events">
+                {{i.time}} | {{i.event}}
+            </li>
+        </ul>*@
 </div>
 @*@using (Html.BeginInstructionsContainer())
     {

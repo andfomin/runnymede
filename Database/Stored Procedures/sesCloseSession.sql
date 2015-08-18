@@ -25,8 +25,8 @@ begin try
 			or Rating is not null				
 		);
 
-	-- We assume that the Price of the session must be non-zero.
-	if coalesce(@Price, 0) <= 0
+	-- We assume that the Price of the session must be non-negative.
+	if coalesce(@Price, -1) < 0
 		raiserror('%s,%d:: The session cannot be finished.', 16, 1, @ProcName, @SessionId);
 
 	set @Attribute = cast(@SessionId as nvarchar(100));

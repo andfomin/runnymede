@@ -21,7 +21,7 @@
             break;
     }
 }
-<div ng-app="myApp" ng-controller="Transactions">
+<div ng-app="myApp" ng-controller="Transactions" ng-cloak>
     @if (!String.IsNullOrEmpty(alertText))
     {
         <div class="row">
@@ -30,13 +30,13 @@
             </div>
         </div>
     }
-    <div class="row" ng-cloak>
+    <div class="row">
         @*<div class="col-sm-3">
-            <h4 class="text-center app-margin-top-none">Account</h4>
-            <tabset vertical="true" type="pills">
-                <tab select="vm.select(i)" heading="{{i.title}}" ng-repeat="i in vm.accounts"></tab>
-            </tabset>
-        </div>*@
+                <h4 class="text-center app-margin-top-none">Account</h4>
+                <tabset vertical="true" type="pills">
+                    <tab select="vm.select(i)" heading="{{i.title}}" ng-repeat="i in vm.accounts"></tab>
+                </tabset>
+            </div>*@
         <div class="col-md-offset-2 col-md-8">
             <h4 class="text-center app-margin-top-none">Transaction history</h4>
             <table class="table table-condensed table-bordered app-margin-bottom-none" ng-show="vm.pgTotal">
@@ -69,7 +69,7 @@
                  ng-show="vm.pgTotal>vm.pgLimit" ng-model="vm.pgCurrent" ng-change="vm.pgLoad()"></div>
         </div>
     </div>
-    <p class="text-center text-muted" ng-show="!vm.pgTotal">
+    <p class="text-center text-muted" ng-show="vm.pgTotal === 0">
         There have been no transactions
     </p>
     <hr />

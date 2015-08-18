@@ -9,8 +9,6 @@ module app.account {
         sending: boolean;
         submited: boolean = false;
         minPwdLength = 6;
-        // +https://github.com/angular/angular.js/blob/master/src/ng/directive/input.js
-        EMAIL_REGEXP = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
 
         static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$timeout];
 
@@ -49,7 +47,7 @@ module app.account {
         }
 
         isEmailValid = () => {
-            var ok = (this.email !== null) && this.EMAIL_REGEXP.test(this.email);
+            var ok = this.email && app.EMAIL_REGEXP.test(this.email);
             return !this.submited || ok;
         };
 

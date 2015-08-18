@@ -16,7 +16,7 @@ namespace Runnymede.Common.Utils
             Login
         }
 
-        private static ITableEntity CreateKeeperLogEntity(string logData)
+        public static async Task WriteKeeperLogAsync(string logData)
         {
             var entity = new KeeperLogEntity
             {
@@ -24,12 +24,8 @@ namespace Runnymede.Common.Utils
                 RowKey = String.Empty,
                 LogData = logData,
             };
-            return entity;
-        }
 
-        public static async Task WriteKeeperLogAsync(string logData)
-        {
-            await AzureStorageUtils.InsertEntityAsync(AzureStorageUtils.TableNames.KeeperLog, CreateKeeperLogEntity(logData));
+            await AzureStorageUtils.InsertEntityAsync(AzureStorageUtils.TableNames.KeeperLog, entity);
         }
     }
 

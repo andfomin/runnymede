@@ -109,6 +109,8 @@
 
 
 
+
+
 GO
 
 
@@ -121,4 +123,9 @@ GO
 GRANT INSERT
     ON OBJECT::[dbo].[appUsers] TO [websiterole]
     AS [dbo];
+
+
+GO
+CREATE NONCLUSTERED INDEX [FI_IsTeacher]
+    ON [dbo].[appUsers]([IsTeacher] ASC) WHERE ([IsTeacher]=(1));
 

@@ -286,7 +286,7 @@ select count(*) from dbo.accPostedPayPalPayments where ExtId = @ExtId;
 
                     if (!post)
                     {
-                        WriteLog(PayPalLogEntity.NotificationKind.Error, payment.TxnId, "Duplicate post attempt.");
+                        WriteLog(PayPalLogEntity.NotificationKind.PostingToDatabase, payment.TxnId, "Duplicate post attempt.");
                     }
 
                     if (post)
@@ -314,6 +314,8 @@ execute dbo.accPostIncomingPayPalPayment @UserId, @ExtId, @Amount, @Fee, @Tax, @
                             Tax = payment.Tax,
                             Details = transactionDetails
                         });
+
+                        WriteLog(PayPalLogEntity.NotificationKind.PostingToDatabase, payment.TxnId, "Success");
                     }
                 }
             }

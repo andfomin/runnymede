@@ -346,19 +346,23 @@ select Title, Price from dbo.appGetPricelistItems() order by Position;
         {
             PayPalPaymentResult result = PayPalPaymentResult.Canceled;
 
+            var helper = new PayPalHelper();
+
+            var txnId = !String.IsNullOrEmpty(tx)
+                // tx in PDT from Sandbox is upper-case on automatic return and lower-case on manual return. A PDT request returns error 4002 if given a low-case tx.
+                ? tx.ToUpper()
+                : "PDT " + KeyUtils.GetCurrentTimeKey();
+
+            helper.WriteLog(PayPalLogEntity.NotificationKind.PDT, txnId, Request.Url.Query);
+
             if (!String.IsNullOrEmpty(tx))
             {
-                tx = tx.ToUpper(); // tx in PDT from Sandbox is upper-case on automatic return and lower-case on manual return. But a PDT request returns error 4002 if given a low-case tx.
-
-                var helper = new PayPalHelper();
-
-                helper.WriteLog(PayPalLogEntity.NotificationKind.PDT, tx, Request.Url.Query);
-
                 // Query PayPal.
-                var response = helper.RequestPaymentDetails(tx);
+                var response = helper.RequestPaymentDetails(txnId);
 
-                var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.DetailsRequest, tx, response);
+                var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.DetailsRequest, txnId, response);
 
+                // Parse the response
                 var lines = helper.SplitPdtMessage(response);
                 var payment = helper.ParsePaymentLines(lines);
 
@@ -366,7 +370,6 @@ select Title, Price from dbo.appGetPricelistItems() order by Position;
                 if (helper.PostIncomingPayPalPayment(payment, logRowKey))
                 {
                     result = PayPalPaymentResult.Success;
-                    //helper.PurchaseOnIncomingPayPalPayment(payment);
                 }
             }
 
@@ -385,7 +388,7 @@ select Title, Price from dbo.appGetPricelistItems() order by Position;
 
             var lines = helper.SplitIpnMessage(message);
             var payment = helper.ParsePaymentLines(lines);
-            var txnId = String.IsNullOrEmpty(payment.TxnId) ? payment.TxnId : "IPN " + KeyUtils.GetCurrentTimeKey();
+            var txnId = !String.IsNullOrEmpty(payment.TxnId) ? payment.TxnId : "IPN " + KeyUtils.GetCurrentTimeKey();
 
             var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.IPN, txnId, message);
 

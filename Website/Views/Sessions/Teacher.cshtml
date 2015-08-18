@@ -53,7 +53,8 @@
         @Html.Partial("_ClockWrongPartial")
         <div class="row">
             <div class="col-lg-offset-1 col-lg-10">
-                <div ng-model="vm.eventSources" data-ui-calendar="vm.calConfig" data-calendar="calObj"></div>
+
+                <div calendar="myCal" ui-calendar="vm.calConfig" ng-model="vm.eventSources"></div>
 
                 @Html.Partial("_ColorLegendPartial")
 

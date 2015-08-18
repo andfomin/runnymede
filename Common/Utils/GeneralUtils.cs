@@ -18,19 +18,22 @@ namespace Runnymede.Common.Utils
 
     public static class MediaType
     {
-        public const string Mp3 = "audio/mpeg";
+        public const string Mpeg = "audio/mpeg"; // The canonical type for MP3
+        public const string Mp3 = "audio/mp3"; // Alias introduced by Chrome
         public const string Amr = "audio/amr";
         public const string Gpp = "audio/3gpp";
         public const string QuickTime = "video/quicktime";
         public const string Jpeg = MediaTypeNames.Image.Jpeg; // "image/jpeg";
         public const string Octet = MediaTypeNames.Application.Octet;// "application/octet-stream";
         public const string Json = "application/json"; // JsonMediaTypeFormatter.DefaultMediaType.MediaType
-        public const string PlainText = MediaTypeNames.Text.Plain; // "text/plain";
+        public const string PlainText = MediaTypeNames.Text.Plain; // "text/plain"
+        public const string Xml = MediaTypeNames.Text.Xml; // "text/xml" // +http://www.ietf.org/rfc/rfc7303.txt Section 9.2: "information for text/xml is in all respects the same as that given for application/xml"
 
         public static string GetExtension(string contentType)
         {
             switch (contentType)
             {
+                case Mpeg:
                 case Mp3:
                     return "mp3";
                 case Amr:
@@ -129,6 +132,7 @@ namespace Runnymede.Common.Utils
         {
             PlainText,
             Json,
+            Xml
         }
 
         public RawStringResult(ApiController controller, string content, TextMediaType mediaType)
@@ -143,11 +147,17 @@ namespace Runnymede.Common.Utils
 
         private static string GetMediaTypeString(TextMediaType mediaType)
         {
-            return mediaType == TextMediaType.PlainText
-                ? MediaType.PlainText
-                : (mediaType == TextMediaType.Json
-                 ? MediaType.Json // JsonMediaTypeFormatter.DefaultMediaType.MediaType // "application/json"
-                 : null);
+            switch (mediaType)
+            {
+                case TextMediaType.PlainText:
+                    return MediaType.PlainText;
+                case TextMediaType.Json:
+                    return MediaType.Json;
+                case TextMediaType.Xml:
+                    return MediaType.Xml;
+                default:
+                    return null;
+            }
         }
 
         private class RawStringFormatter : MediaTypeFormatter
@@ -249,6 +259,23 @@ namespace Runnymede.Common.Utils
     }
     #endregion
 
+    /// <summary>
+    /// Use it for transferring information to the client side. It is used for custom error handling in WebApi. 
+    /// </summary>
+    public class UserAlertException : Exception
+    {
+        public UserAlertException(string message)
+            : base(message)
+        {
+        }
+
+        public UserAlertException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        // See Runnymede.Website.Utils.CustomExceptionResult
+    }
 
 
 

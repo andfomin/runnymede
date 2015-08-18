@@ -2,6 +2,8 @@
 
 namespace Runnymede.Website.Controllers.Mvc
 {
+    // We use this path in URLs pointing to landing pages in AdWords
+
     public class IeltsController : Controller
     {
         public ActionResult Index()

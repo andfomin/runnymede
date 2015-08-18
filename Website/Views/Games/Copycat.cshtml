@@ -24,7 +24,7 @@
     <div class="row  app-margin-bottom">
         <div class="col-md-5">
             <div ng-show="vm.isKindViewed()">
-                @Html.Partial("_NotAuthenticatedDivPartial")
+                @Html.Partial("_NotAuthenticatedDivPartial", "col-md-12 ng-cloak")
             </div>
             <div class="row">
                 <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10 col-sm-offset-0 col-sm-6 col-xs-offset-3 col-xs-6">

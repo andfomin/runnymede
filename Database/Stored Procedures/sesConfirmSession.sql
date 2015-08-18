@@ -14,22 +14,17 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	---- The user must have the Skype name entered in the profile
-	--if exists (
-	--	select *
-	--	from dbo.appUsers
-	--	where Id = @UserId
-	--		and nullif(SkypeName, '') is null
-	--)
-	--	raiserror('%s,%d:: Please enter your Skype name on the Profile page.', 16, 1, @ProcName, @UserId);
+	declare @SkypeName nvarchar(100), @IsTeacher bit;
 
-	if not exists (
-		select * 
-		from dbo.appUsers 
-		where Id = @UserId
-			and IsTeacher = 1
-	)
+	select @IsTeacher = IsTeacher, @SkypeName = SkypeName
+	from dbo.appUsers 
+	where Id = @UserId;
+
+	if (nullif(@IsTeacher, 0) is null)
 		raiserror('%s,%d,%d:: The user is not a teacher.', 16, 1, @ProcName, @UserId, @SessionId);
+
+	if (nullif(@SkypeName, '') is null)
+		raiserror('%s,%d:: Please enter your Skype name on the Profile page.', 16, 1, @ProcName, @UserId);
 
 	if exists (
 		select * 
@@ -40,6 +35,7 @@ begin try
 		where S1.Start < S2.[End]
 			and S1.[End] > S2.Start
 			and TeacherUserId = @UserId
+			and ConfirmationTime is not null
 			and CancellationTime is null 
 	)
 		raiserror('%s,%d:: You have another session at the time.', 16, 1, @ProcName, @UserId);

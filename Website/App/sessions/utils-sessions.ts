@@ -28,13 +28,14 @@ module app.sessions {
         styleEvent: (session: ISession) => void;
         buffer: any;
 
-        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$scope];
+        static uiCalendarConfigName = 'uiCalendarConfig'; // angular-ui-calendar makes this constant available via DI. uiCalendarConfig.calendars holds all calendar objects on the page.
 
         constructor(
             public $http: angular.IHttpService,
             $interval: angular.IIntervalService,
             public $modal: angular.ui.bootstrap.IModalService,
-            public $scope: app.IScopeWithViewModel
+            public $scope: app.IScopeWithViewModel,
+            private uiCalendarConfig: any
             ) {
             $scope.vm = this;
 
@@ -92,7 +93,7 @@ module app.sessions {
         } // ctor
 
         callCalendar = (param1: any, param2?: any) => {
-            (<any>this.$scope).calObj.fullCalendar(param1, param2);
+            this.uiCalendarConfig.calendars['myCal'].fullCalendar(param1, param2);
         }
 
         loadEvents = (start: moment.Moment, end: moment.Moment, callback: (data: any) => void) => {

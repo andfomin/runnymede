@@ -14,7 +14,8 @@ namespace Runnymede.Website.Models
             IPNResponse,
             Email,
             DetailsRequest,
-            Error
+            Error,
+            PostingToDatabase
         }
 
         public PayPalLogEntity()
@@ -23,7 +24,7 @@ namespace Runnymede.Website.Models
 
         // PartitionKey = string "Tx"
         // RowKey = string "ObservedTimeUnique"
-        public string Kind { get; set; }
+        public string Kind { get; set; } // NotificationKind .ToString()
         public string LogData { get; set; }
 
 

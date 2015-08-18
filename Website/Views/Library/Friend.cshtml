@@ -23,9 +23,9 @@
         </div>
     </div>
     <div ng-controller="Friend">
-        <div class="row">
-            @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6")
-        </div>
+
+        @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6 ng-cloak")
+
         <div class="row" ng-show="vm.friends && (vm.friends.length===0)" ng-cloak>
             <div class="col-md-offset-2 col-md-8 text-center">
                 <div class="alert alert-warning">

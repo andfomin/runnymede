@@ -14,6 +14,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Xml.Linq;
+using System.Web.Hosting;
 
 namespace Runnymede.Common.Utils
 {
@@ -55,7 +56,7 @@ namespace Runnymede.Common.Utils
         {
             var claimsIdentity = identity as System.Security.Claims.ClaimsIdentity;
             //return (claimsIdentity != null ? claimsIdentity.FindFirstValue(claimType) : null) ?? String.Empty; // FindFirstValue() returns null if not found.
-            return claimsIdentity != null ? claimsIdentity.FindFirstValue(claimType) : null; 
+            return claimsIdentity != null ? claimsIdentity.FindFirstValue(claimType) : null;
         }
 
         private static bool GetUserIsTeacher(IIdentity identity)
@@ -176,7 +177,7 @@ namespace Runnymede.Common.Utils
 
         #region Keeper cookie utils
 
-        public static async Task EnsureExtIdCookieAsync(this Controller controller)
+        public static void EnsureExtIdCookie(this Controller controller)
         {
             var request = controller.Request;
 
@@ -195,22 +196,35 @@ namespace Runnymede.Common.Utils
                 var referer = request.UrlReferrer != null ? request.UrlReferrer.AbsoluteUri : null;
                 var languages = request.UserLanguages ?? Enumerable.Empty<string>();
 
-                var logData =
-                    new XElement("LogData",
-                        new XElement("Kind", LoggingUtils.Kind.Referer),
-                        new XElement("Time", DateTime.UtcNow),
-                        new XElement("ExtId", value),
-                        new XElement("RefererUrl", referer),
-                        new XElement("Host", request.UserHostAddress),
-                        new XElement("UserAgent", request.UserAgent),
-                        new XElement("UserLanguages",
-                            from language in languages
-                            select new XElement("Language", language)
-                        )
-                    )
-                    .ToString(SaveOptions.DisableFormatting);
+                //var logData0 =
+                //    new XElement("LogData",
+                //        new XElement("Kind", LoggingUtils.Kind.Referer),
+                //        new XElement("Time", DateTime.UtcNow),
+                //        new XElement("ExtId", value),
+                //        new XElement("RefererUrl", referer),
+                //        new XElement("Host", request.UserHostAddress),
+                //        new XElement("UserAgent", request.UserAgent),
+                //        new XElement("UserLanguages",
+                //            from language in languages
+                //            select new XElement("Language", language)
+                //        )
+                //    )
+                //    .ToString(SaveOptions.DisableFormatting);
 
-                await LoggingUtils.WriteKeeperLogAsync(logData);
+                var logData = JsonUtils.SerializeAsJson(
+                    new KeeperLogData
+                    {
+                        Kind = LoggingUtils.Kind.Referer,
+                        Time = DateTime.UtcNow,
+                        ExtId = value,
+                        RefererUrl = referer,
+                        Host = request.UserHostAddress,
+                        UserAgent = request.UserAgent,
+                        Languages = languages,
+                    });
+
+                //await LoggingUtils.WriteKeeperLogAsync(logData);
+                HostingEnvironment.QueueBackgroundWorkItem(async ct => await LoggingUtils.WriteKeeperLogAsync(logData));
             }
         }
 

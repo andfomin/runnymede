@@ -3,9 +3,9 @@
     ViewBag.NavItem = "Reviews";
 }
 <div ng-app="myApp" ng-cloak>
-    <div class="row">
-        @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6 app-margin-bottom")
-    </div>
+
+    @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6 app-margin-bottom ng-cloak")
+
     <div ng-controller="Requests">
         <div class="row">
             <div class="col-sm-offset-3 col-sm-6">

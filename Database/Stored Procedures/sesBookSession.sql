@@ -4,8 +4,8 @@ CREATE PROCEDURE [dbo].[sesBookSession]
 	@UserId int, -- who requests
 	@Start smalldatetime,
 	@End smalldatetime,
-	@Price decimal(9,2),
 	@TeacherUserId int,
+	@Price decimal(9,2),
 	@MessageExtId nchar(12) = null
 AS
 BEGIN
@@ -37,12 +37,16 @@ begin try
 	)
 		raiserror('%s,%d:: Please enter your Skype name on the Profile page.', 16, 1, @ProcName, @UserId);
 
+    if (@Price != (dbo.appGetServicePrice('SVSSSN') * datediff(minute, @Start, @End) / 60))
+		raiserror('%s,%d:: The price is wrong', 16, 1, @ProcName, @UserId);
+
 	if not exists (
 		select *
-		from dbo.sesGetSessionPrice(@Start, @End)
-		where Price = @Price
+		from dbo.appUsers 
+		where Id = @TeacherUserId
+			and IsTeacher = 1
 	)
-		raiserror('%s,%d:: The price is wrong', 16, 1, @ProcName, @UserId);
+		raiserror('%s,%d,%d:: The user is not a teacher.', 16, 1, @ProcName, @UserId, @TeacherUserId);
 
 	if exists (
 		select * 
@@ -61,21 +65,35 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 			
-			exec dbo.accChangeEscrow @UserId = @UserId, @Amount = @Price, @TransactionType = 'TRSSRQ', @Attribute = @Attribute, @Details = null, @Now = @Now output;
+		-- The service may be offered to the user for free.
+		update dbo.appGiveaways
+		set [Counter] = [Counter] - 1
+		where UserId = @UserId
+			and ServiceType = 'SVSSSN'
+			and [Counter] > 0;
 
-			insert dbo.sesSessions (Id, Start, [End], LearnerUserId, TeacherUserId, Price, BookingTime)
-			values (@SessionId, @Start, @End, @UserId, @TeacherUserId, @Price, @Now)
+		if (@@rowcount != 0)
+			set @Price = 0;
 
-			if @@rowcount = 0
-				raiserror('%s,%d:: Failed to book the session.', 16, 1, @ProcName, @UserId);
+		exec dbo.accChangeEscrow 
+			@UserId = @UserId, @Amount = @Price, @Increase = 1, @TransactionType = 'TRSSRQ', @Attribute = @Attribute, @Details = null, @Now = @Now output;
 
-			if (@MessageExtId is not null) begin
-				exec dbo.appPostMessage	
-					@SenderUserId = @UserId, @RecipientUserId = @TeacherUserId, @Type = 'MSSSRQ', @Attribute = @Attribute, @ExtId = @MessageExtId;
-			end
+		insert dbo.sesSessions (Id, Start, [End], LearnerUserId, TeacherUserId, Price, BookingTime)			
+		values (@SessionId, @Start, @End, @UserId, @TeacherUserId, @Price, @Now);
+
+		if @@rowcount = 0
+			raiserror('%s,%d:: Failed to book the session.', 16, 1, @ProcName, @UserId);
+
+		if (@MessageExtId is not null) begin
+			exec dbo.appPostMessage	
+				@SenderUserId = @UserId, @RecipientUserId = @TeacherUserId, @Type = 'MSSSRQ', @Attribute = @Attribute, @ExtId = @MessageExtId;
+		end
 
 	if @ExternalTran = 0
 		commit;
+
+	select @SessionId;
+
 end try
 begin catch
 	set @XState = xact_state();

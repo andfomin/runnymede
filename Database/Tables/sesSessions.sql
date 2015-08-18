@@ -2,8 +2,9 @@
     [Id]                 INT            NOT NULL,
     [Start]              SMALLDATETIME  NOT NULL,
     [End]                SMALLDATETIME  NOT NULL,
-    [TeacherUserId]      INT            NULL,
     [LearnerUserId]      INT            NULL,
+    [TeacherUserId]      INT            NULL,
+    [ExtId]              BIGINT         NULL,
     [Price]              DECIMAL (9, 2) NOT NULL,
     [BookingTime]        SMALLDATETIME  NULL,
     [ConfirmationTime]   SMALLDATETIME  NULL,
@@ -16,6 +17,10 @@
     CONSTRAINT [FK_sesSessions_appUsers] FOREIGN KEY ([TeacherUserId]) REFERENCES [dbo].[appUsers] ([Id]),
     CONSTRAINT [FK_sesSessions_appUsers1] FOREIGN KEY ([LearnerUserId]) REFERENCES [dbo].[appUsers] ([Id])
 );
+
+
+
+
 
 
 

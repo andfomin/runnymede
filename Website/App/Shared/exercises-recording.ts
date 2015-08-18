@@ -187,7 +187,7 @@ module app.exercises {
     } // end of class AudioPlayer
 
     var injector = angular.injector(['ng']);
-    var $q: angular.IQService = injector.get('$q');
+    var $q = injector.get<angular.IQService>('$q');
     var soundManagerReady = $q.defer();
 
     var setupSoundManager = () => {

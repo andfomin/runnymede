@@ -16,7 +16,6 @@ namespace Runnymede.Common.Models
         public int CourseId { get; set; }
         public string ScheduleUrl { get; set; }
         public decimal Rate { get; set; }
-        public string TestFilePath { get; set; }
     }
 
     public class TeacherTimeRange : TimeRange
@@ -118,6 +117,7 @@ namespace Runnymede.Common.Models
         // PartitionKey KeyUtils.GetCurrentTimeKey()
         // RowKey {"Request" | "Response"}
         public string Data { get; set; } // Max 64kB
+        public int HttpStatus { get; set; } // HTTP status
     }
 
 

@@ -54,7 +54,7 @@
             <div class="col-sm-offset-3 col-sm-9">
                 <button type="submit" class="btn btn-default btn-lg app-btn-disablable" ng-disabled="!vm.fileReady()">
                     <i class="fa app-1px-up"
-                       ng-class="{'fa-check fa-fw text-success animated flash app-fa-pulse':(vm.fileReady() && !vm.uploading), 'fa-spinner fa-fw fa-spin app-appblue':vm.uploading}"></i>
+                       ng-class="{'fa-check fa-fw text-success animated flash infinite':(vm.fileReady() && !vm.uploading), 'fa-spinner fa-fw fa-spin app-appblue':vm.uploading}"></i>
                     <span>Save recording</span>
                 </button>
             </div>
@@ -73,7 +73,7 @@
         <div style="margin-top:17px;" ng-show="!vm.mobile" ng-cloak>
             @Html.Partial("_NotAuthenticatedSpanPartial")
             <button class="btn btn-default app-btn-disablable" ng-disabled="!vm.canSave()" ng-click="vm.save()">
-                <i class="fa fa-check fa-fw text-success animated flash app-fa-pulse" ng-show="vm.canSave()"></i><span>Save recording</span>
+                <i class="fa fa-check fa-fw text-success animated flash infinite" ng-show="vm.canSave()"></i><span>Save recording</span>
             </button>
         </div>
     </div>

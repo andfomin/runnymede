@@ -2,7 +2,8 @@
 
 CREATE PROCEDURE [dbo].[sesCancelSession]
 	@UserId int,
-	@SessionId int
+	@SessionId int,
+	@ClearUsers bit = null -- During the booking process, if we failed to book a corresponding external session, make the session abandoned.
 AS
 BEGIN
 SET NOCOUNT ON;
@@ -14,13 +15,12 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @Refund decimal(9,2), @LearnerUserId int, @Attribute nvarchar(100), @Now datetime2(2);
+	declare @Price decimal(9,2), @LearnerUserId int, @Attribute nvarchar(100), @Now datetime2(2);
 
-	-- The negative sign in dbo.accChangeEscrow means refund.
-	select @Refund = - Price, @LearnerUserId = LearnerUserId
+	select @Price = Price, @LearnerUserId = LearnerUserId
 	from dbo.sesSessions
 	where Id = @SessionId
-		and TeacherUserId = @UserId
+		and TeacherUserId = iif(@ClearUsers = 1, TeacherUserId, @UserId)
 		and Start > sysutcdatetime()
 		and ConfirmationTime is null
 		and CancellationTime is null
@@ -35,13 +35,17 @@ begin try
 	if @ExternalTran = 0
 		begin transaction;
 			
-			exec dbo.accChangeEscrow @UserId = @LearnerUserId, @Amount = @Refund, @TransactionType = 'TRSSCN', @Attribute = @Attribute, @Details = null, @Now = @Now output;
+			exec dbo.accChangeEscrow 
+				@UserId = @LearnerUserId, @Amount = @Price, @Increase = 0, @TransactionType = 'TRSSCN', @Attribute = @Attribute, @Details = null, @Now = @Now output;
 
 			update dbo.sesSessions
-				set CancellationTime = @Now, CancellationUserId = @UserId
+				set CancellationTime = @Now, 
+				CancellationUserId = iif(@ClearUsers = 1, null, @UserId), 
+				LearnerUserId = iif(@ClearUsers = 1, null, LearnerUserId),
+				TeacherUserId = iif(@ClearUsers = 1, null, TeacherUserId)
 			output inserted.CancellationTime
 			where Id = @SessionId
-				and TeacherUserId = @UserId
+				and TeacherUserId = iif(@ClearUsers = 1, TeacherUserId, @UserId)
 				and Start > @Now
 				and ConfirmationTime is null
 				and CancellationTime is null

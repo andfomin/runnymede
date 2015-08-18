@@ -5,12 +5,15 @@ module app {
     export var BlobDomainName = 'englmdata.blob.core.windows.net'; // Custom domain mapping does not support HTTPS.
     export var notAuthenticatedMessage = 'Please log in to enable this feature.';
 
+    // +https://github.com/angular/angular.js/blob/master/src/ng/directive/input.js
+    export var EMAIL_REGEXP = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
+
     export function accountUrl(path?: string) { return '/account/' + (path || ''); };
     export function exercisesUrl(path?: string) { return '/exercises/' + path || ''; };
     export function reviewsUrl(path?: string) { return '/reviews/' + (path || ''); };
 
     export function accountsApiUrl(path?: string) { return '/api/accounts/' + (path || ''); };
-    export function converstionsApiUrl(path?: string) { return '/api/converstions/' + (path || ''); };
+    export function conversationsApiUrl(path?: string) { return '/api/conversations/' + (path || ''); };
     export function exercisesApiUrl(path?: string) { return '/api/exercises/' + (path || ''); };
     export function friendsApiUrl(path?: string) { return '/api/friends/' + (path || ''); };
     export function pickapicApiUrl(path?: string) { return '/api/pickapic/' + (path || ''); };
@@ -18,6 +21,7 @@ module app {
     export function libraryApiUrl(path?: string) { return '/api/library/' + (path || ''); };
     export function reviewsApiUrl(path?: string) { return '/api/reviews/' + (path || ''); };
     export function sessionsApiUrl(path?: string) { return '/api/sessions/' + (path || ''); };
+    export function luckyYouApiUrl(path?: string) { return '/api/luckyyou/' + (path || ''); };
 
     // Corresponds to dbo.appTypes ('AR....') and Runnymede.Common.Models.ArtifactType (in ExerciseModels.cs)
     export class ArtifactType {
@@ -94,10 +98,6 @@ module app {
         //return Boolean(getSelfUser()); // returns a Boolean object, not a boolean literal;
         return getSelfUser() ? true : false;
     };
-
-    export function getLoginLink() {
-        return 'https://' + window.document.location.hostname + '/account/login';
-    }
 
     function isMobile() {
         return navigator.userAgent.toLowerCase().indexOf("mobile") >= 0;
@@ -273,36 +273,60 @@ module app {
         return Object.keys(groups).map((i) => { return groups[i]; });
     };
 
+    //export function logError0(data: any, defaultMessage?: any) {
+    //    var m = '' + defaultMessage;
+    //    if (data) {
+    //        // On staus=500 "Internal Server Error" 
+    //        if (data.data) {
+    //            data = data.data;
+    //        }
+    //        var em = data.exceptionMessage ? ('' + data.exceptionMessage) : '';
+    //        // SQL stored procedures return custom formatted error messages with parameter values at the beginning of the message.
+    //        var i = em.indexOf('::');
+    //        if (i > -1) {
+    //            em = em.substring(i + 2);
+    //        }
+    //        m = em ? em : (data.message ? data.message : (data.error_description ? data.error_description : ''));
+    //    }
+    //    toastr.error('Error. ' + m);
+    //};
+
     export function logError(data: any, defaultMessage?: any) {
-        var m = '' + defaultMessage;
+        var error = defaultMessage;
         if (data) {
-            // On staus=500 "Internal Server Error" 
+            // On staus 500 "Internal Server Error" 
             if (data.data) {
                 data = data.data;
             }
-            var em = data.exceptionMessage ? ('' + data.exceptionMessage) : '';
-            // SQL stored procedures return custom formatted error messages with parameter values at the beginning of the message.
-            var i = em.indexOf('::');
-            if (i > -1) {
-                em = em.substring(i + 2);
-            }
-            m = em ? em : (data.message ? data.message : (data.error_description ? data.error_description : ''));
+            var error = data.alert || data.exceptionMessage || data.message || data.error_description || defaultMessage;
         }
-        toastr.error('Error. ' + m);
+        toastr.error('Error. ' + error);
     };
 
+    export function getHostname() {
+        return window.document.location.hostname;
+    }
+
     export function isDevHost() {
-        return (document.location.hostname.indexOf('dev')) === 0 && (document.location.hostname[4] === '.');
+        var hostname = getHostname();
+        return (hostname.indexOf('dev')) === 0 && (hostname[4] === '.');
     };
+
+    export function getLoginLink() {
+        return 'https://' + getHostname() + '/account/login';
+    }
+
+    export function getBuyLink() {
+        return 'https://' + getHostname() + '/account/buy-services';
+    }
 
     export function getBlobUrl(containerName: string, blobName: string) {
         if (containerName && blobName) {
-            var hostname = document.location.hostname;
             //var protocol = isLocal ? 'http:' : document.location.protocol;
             var protocol = document.location.protocol;
             //var root = isLocal ? '127.0.0.1:10000/devstoreaccount1' : BlobDomainName;
             return app.isDevHost()
-                ? protocol + '//' + hostname + '/api/exercises/artifact/' + containerName + '?blobName=' + blobName
+                ? protocol + '//' + getHostname() + '/api/exercises/artifact/' + containerName + '?blobName=' + blobName
                 : protocol + '//' + BlobDomainName + '/' + containerName + '/' + blobName;
         }
         else

@@ -49,12 +49,17 @@ module app.exercises {
                 });
         };
 
+        showBalance = () => {
+            return angular.isNumber(this.balance) && (this.balance < this.price);
+        };
+
         getBuyLink = () => {
-            return 'https://' + window.document.location.hostname + '/account/buy-services';
+            return app.getBuyLink();
         }
 
         canOk = () => {
-            return !this.busy && (this.balance > this.price);
+            return !this.busy; 
+            //&& (this.balance > this.price); // This may be a lucky-you exercise. It can be requested with any balance.
         }
 
         internalOk = () => {
@@ -63,7 +68,7 @@ module app.exercises {
                 {
                     exerciseId: this.exercise.id,
                 },
-                () => { toastr.success('Thank you for requesting review'); }
+                () => { toastr.success('Thank you for requesting a review'); }
                 );
         };
     }; // end of class CreateReviewRequestModal
