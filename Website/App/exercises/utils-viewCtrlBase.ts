@@ -8,8 +8,9 @@ module app.exercises {
         private reviewerNames: any = {};
         private busy: boolean;
 
-        static $inject = [app.ngNames.$appRemarks, app.ngNames.$http, app.ngNames.$modal, app.ngNames.$rootScope, app.ngNames.$scope, app.ngNames.$signalRService,
-            app.ngNames.$timeout, app.ngNames.$window];
+        static $inject = [app.ngNames.$appRemarks, app.ngNames.$http, app.ngNames.$uibModal, app.ngNames.$rootScope, app.ngNames.$scope,
+            /*app.ngNames.$signalRService,*/ app.ngNames.$timeout, app.ngNames.$window,
+            app.exercises.CardProvider.ServiceName];
 
         constructor(
             $appRemarks: app.exercises.IRemarksService,
@@ -17,12 +18,13 @@ module app.exercises {
             private $modal: angular.ui.bootstrap.IModalService,
             $rootScope: angular.IRootScopeService,
             public $scope: app.IScopeWithViewModel,
-            public $signalRService: app.ISignalRService,
+            //public $signalRService: app.ISignalRService,
             $timeout: angular.ITimeoutService,
-            $window: angular.IWindowService
-            )
+            $window: angular.IWindowService,
+            cardProvider: ILazyProvider<ICard>
+        )
         /* ----- Constructor  ------------ */ {
-            super($appRemarks, $http, $rootScope, $scope);
+            super($appRemarks, $http, $rootScope, $scope, cardProvider);
 
             this.originalTitle = this.exercise.title;
             this.originalLength = this.exercise.length;
@@ -32,52 +34,52 @@ module app.exercises {
                 this.reviewerNames[i.id.toString()] = i.reviewerName;
             });
 
-            $scope.$on(CtrlBase.PiecesLoaded,() => {
+            $scope.$on(CtrlBase.PiecesLoaded, () => {
                 // Wait until Angular inserts new elements in DOM.
                 $timeout(() => {
                     this.reviews
                         .filter((i) => { return !!(i.video && i.video.url); })
                         .forEach((i) => {
-                        var tagId = 'toBeReplacedByYoutubeIframe-' + i.id;
-                        var elem = $window.document.getElementById(tagId);
-                        // The Youtube script will replace DIV with IFRAME
-                        if (elem.tagName === 'DIV') {
-                            var videoId = app.getYtVideoId(i.video.url);
-                            app.createYouTubePlayer($window, 960, 720, tagId,
-                                (event: YT.EventArgs) => { event.target.cueVideoById(videoId); },
-                                (event: YT.EventArgs) => { toastr.error('Player error ' + event.data); }
+                            var tagId = 'toBeReplacedByYoutubeIframe-' + i.id;
+                            var elem = $window.document.getElementById(tagId);
+                            // The Youtube script will replace DIV with IFRAME
+                            if (elem.tagName === 'DIV') {
+                                var videoId = app.getYtVideoId(i.video.url);
+                                app.createYouTubePlayer($window, 960, 720, tagId,
+                                    (event: YT.EventArgs) => { event.target.cueVideoById(videoId); },
+                                    (event: YT.EventArgs) => { toastr.error('Player error ' + event.data); }
                                 );
-                        }
-                    });
+                            }
+                        });
                 }, 200);
             });
 
-            this.$signalRService.setEventHandlers('reviewHub', [
-                {
-                    eventName: 'piecesChanged',
-                    handler: (args: any[]) => {
-                        this.updatePieces(args[0]);
-                    },
-                },
-                {
-                    eventName: 'pieceDeleted',
-                    handler: (args: any[]) => {
-                        this.onPieceDeleted(args[0], args[1], args[2]);
-                    }
-                },
-                {
-                    eventName: 'reviewStarted',
-                    handler: (args: any[]) => {
-                        this.onReviewStarted(args[0], args[1], args[2], args[3]);
-                    }
-                },
-                {
-                    eventName: 'reviewFinished',
-                    handler: (args: any[]) => {
-                        this.onReviewFinished(args[0], args[1]);
-                    }
-                }
-            ]);
+            //this.$signalRService.setEventHandlers('reviewHub', [
+            //    {
+            //        eventName: 'piecesChanged',
+            //        handler: (args: any[]) => {
+            //            this.updatePieces(args[0]);
+            //        },
+            //    },
+            //    {
+            //        eventName: 'pieceDeleted',
+            //        handler: (args: any[]) => {
+            //            this.onPieceDeleted(args[0], args[1], args[2]);
+            //        }
+            //    },
+            //    {
+            //        eventName: 'reviewStarted',
+            //        handler: (args: any[]) => {
+            //            this.onReviewStarted(args[0], args[1], args[2], args[3]);
+            //        }
+            //    },
+            //    {
+            //        eventName: 'reviewFinished',
+            //        handler: (args: any[]) => {
+            //            this.onReviewFinished(args[0], args[1]);
+            //        }
+            //    }
+            //]);
 
             this.controlWatcher();
         }
@@ -101,7 +103,7 @@ module app.exercises {
                         this.originalTitle = this.exercise.title;
                     },
                     () => { this.busy = false; }
-                    )
+                )
             }
         }
 
@@ -127,7 +129,7 @@ module app.exercises {
                         this.originalLength = length;
                     },
                     () => { this.busy = false; }
-                    )
+                )
             }
             else {
                 toastr.error('Number expected');
@@ -174,36 +176,36 @@ module app.exercises {
                             }
                         },
                         () => { this.busy = false; }
-                        );
+                    );
                 }
             }
         };
 
         showCreateRequestModal = () => {
-            showCreateRequestModal(this.$modal, this.exercise,() => { this.controlWatcher(); });
+            showCreateRequestModal(this.$modal, this.exercise, () => { this.controlWatcher(); });
         };
 
         private controlWatcher = () => {
-            var active = this.reviews.some((i) => { return !i.finishTime; });
-            if (active) {
-                var promise = this.$signalRService.start();
-                if (promise) {
-                    promise.done(() => {
-                        // Register the watcher on first start. Affiliate the exercise watcher with the connection. ConnectionId is keept the same on reconnects.
-                        // RegisterWatcher on the server is idempotent.
-                        this.$signalRService.invoke('reviewHub', 'registerWatcher', this.exercise.id);
-                    });
-                }
-            }
-            else {
-                this.$signalRService.stop();
-            }
+            //var active = this.reviews.some((i) => { return !i.finishTime; });
+            //if (active) {
+            //    var promise = this.$signalRService.start();
+            //    if (promise) {
+            //        promise.done(() => {
+            //            // Register the watcher on first start. Affiliate the exercise watcher with the connection. ConnectionId is keept the same on reconnects.
+            //            // RegisterWatcher on the server is idempotent.
+            //            this.$signalRService.invoke('reviewHub', 'registerWatcher', this.exercise.id);
+            //        });
+            //    }
+            //}
+            //else {
+            //    this.$signalRService.stop();
+            //}
         };
 
         private onPieceDeleted = (reviewId: number, pieceType: string, pieceId: number) => {
             switch (pieceType) {
                 case PieceTypes.Remark:
-                    var r = app.arrFind(this.$appRemarks.remarks,(i) => { return (i.id === pieceId) && (i.reviewId === reviewId); });
+                    var r = app.arrFind(this.$appRemarks.remarks, (i) => { return (i.id === pieceId) && (i.reviewId === reviewId); });
                     if (r) {
                         this.$appRemarks.deleteRemark(r);
                     }
@@ -212,7 +214,7 @@ module app.exercises {
                     this.reviews.forEach((i) => {
                         if (i.id === reviewId) {
                             var ss = i.suggestions;
-                            var s = app.arrFind(ss,(j) => { return j.id === pieceId; });
+                            var s = app.arrFind(ss, (j) => { return j.id === pieceId; });
                             if (s) {
                                 app.arrRemove(ss, s);
                                 this.$rootScope.$broadcast(app.library.ResourceList.Clear);
@@ -224,7 +226,7 @@ module app.exercises {
         };
 
         private onReviewStarted = (reviewId: number, time: any, userId: number, name: string) => {
-            var review = app.arrFind(this.reviews,(i) => { return i.id === reviewId; });
+            var review = app.arrFind(this.reviews, (i) => { return i.id === reviewId; });
             if (review) {
                 review.startTime = time;
                 review.userId = userId;
@@ -234,7 +236,7 @@ module app.exercises {
         };
 
         private onReviewFinished = (reviewId: number, time: any) => {
-            var review = app.arrFind(this.reviews,(i) => { return i.id === reviewId; });
+            var review = app.arrFind(this.reviews, (i) => { return i.id === reviewId; });
             if (review) {
                 review.finishTime = time;
                 this.controlWatcher();

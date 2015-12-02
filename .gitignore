@@ -214,5 +214,6 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 *.map
-Website/App/*/*.js
+Website/app/*/*.js
 Website/bower_components/
+Website/node_modules/

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ServiceDefinition name="Roles" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2014-06.2.4">
+<ServiceDefinition name="Roles" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2015-04.2.6">
   <WebRole name="Helper" vmsize="ExtraSmall">
     <Sites>
       <Site name="Web">
@@ -21,6 +21,7 @@
     <ConfigurationSettings>
       <Setting name="StorageConnection" />
       <Setting name="RecordingsBlobContainer" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>
   </WebRole>
 </ServiceDefinition>

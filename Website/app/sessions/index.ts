@@ -4,7 +4,7 @@
 
         offers: any[];
 
-        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$scope, CalendarCtrlBase.uiCalendarConfigName];
+        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$uibModal, app.ngNames.$scope, CalendarCtrlBase.uiCalendarConfigName];
 
         constructor(
             $http: angular.IHttpService,
@@ -12,7 +12,7 @@
             $modal: angular.ui.bootstrap.IModalService,
             $scope: app.IScopeWithViewModel,
             uiCalendarConfig: any
-            ) {
+        ) {
             super($http, $interval, $modal, $scope, uiCalendarConfig);
 
             this.calConfig.dayClick = this.dayClick;
@@ -57,7 +57,7 @@
                         this.offers.forEach((i) => { (<any>i).duration = moment(i.end).diff(moment(i.start), 'minutes'); });
                     }
                 }
-                );
+            );
         };
 
         eventClick = (session: ISession, jsEvent, view) => {
@@ -68,7 +68,7 @@
                     {
                         session: session,
                     }
-                    );
+                );
             }
         }
 
@@ -82,12 +82,11 @@
                     },
                     null,
                     'static'
-                    )
-                    .result
+                )
                     .finally(() => {
-                    this.offers = null;
-                    this.refetchEvents();
-                }
+                        this.offers = null;
+                        this.refetchEvents();
+                    }
                     );
             }
             else {
@@ -110,7 +109,7 @@
             $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
-            ) {
+        ) {
             super($http, $modalInstance, $scope, modalParams);
             this.session = modalParams.session;
             this.duration = moment(this.session.end).diff(moment(this.session.start), 'minutes');
@@ -155,7 +154,7 @@
                     message: this.message,
                 },
                 () => { toastr.success('Thank you for booking a session.'); }
-                );
+            );
         };
 
     } // end of class BookSessionModal

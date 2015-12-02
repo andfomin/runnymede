@@ -1,204 +1,149 @@
 module app.exercisesIelts {
 
-    export interface IRecordingEvent {
-        time: number;
-        event: string;
+    interface IFWRecorder {
+        isMicrophoneAccessible: () => void;
+        configure: (rate?: number, gain?: number, silenceLevel?: number, silenceTimeout?: number) => void;
+        permitPermanently: () => void;
+        record: (soundName: string) => void;
+        stopRecording: () => void;
+        observeSamples: () => void;
+        stopObservingSamples: () => void;
     }
 
-    export class SpeakingDesktop extends app.exercisesIelts.IeltsBase {
+    // based on +https://github.com/michalstocki/FlashWavRecorder/blob/master/html/js/recorder.js
+    class RecorderDesktop extends Mp3Recorder {
 
-        flashFound: boolean = true;
-        currentPart: number = -1;
+        private static SwfElementId = 'myRecorderSwfObject';
+        private static BoxElementId = 'myRecorderBox';
+        private static BoxClass = 'my-visible';
 
-        recording: boolean = false;
-        encoded: boolean = false;
-        uploading: boolean = false;
+        private fwRecorder: IFWRecorder;
+        private deferredStarted: angular.IDeferred<any>;
 
-        events: IRecordingEvent[] = [];
-        startTime: number;
-
-        static $inject = [app.ngNames.$document, app.ngNames.$http, app.ngNames.$modal, app.ngNames.$scope, app.ngNames.$timeout, app.ngNames.$window];
-
+        // No injection. This object is created by a factory which has got the services injected and passes them directly to the ctor.
         constructor(
-            private $document: angular.IDocumentService,
-            $http: angular.IHttpService,
-            $modal: angular.ui.bootstrap.IModalService,
-            $scope: app.IScopeWithViewModel,
-            private $timeout: angular.ITimeoutService,
-            private $window: angular.IWindowService
-            ) {
-            /* ----- Constructor  ----- */
-            super($http, $modal, $scope);
-           // this.cardType = 'CDIS__';
-
-            this.createRecorder();
-            /* ----- End of constructor  ----- */
-        } // end of ctor  
-
-        addEvent = (event: string) => {
-            this.events.push({
-                time: Date.now() - this.startTime,
-                event: event
-            });
-            if (!this.$scope.$$phase)
-                this.$scope.$apply();
+            $q: angular.IQService,
+            $timeout: angular.ITimeoutService,
+            $window: angular.IWindowService,
+            encoderProvider: ILazyProvider<Worker>
+        ) {
+            super($q, $timeout, $window, encoderProvider);
+            this.originalSampleRate = Mp3Recorder.SampleRate;
         };
 
-        createRecorder = () => {
-            var swfUrl = this.$window.location.protocol + '//' + this.$window.location.host + '/content/audior/Audior.swf';
-            var idOfElementToReplace = 'toBeReplacedByAudiorSwfObject';
-            var width = 520; //600
-            var height = 142;
-            var swfVersion = '10.2.0';
-            var expressInstallSwfUrl = '';
+        internalCreateRecorder = () => {
+            // The event handler name is hard-coded in src/main/flashwavrecorder/RecorderJSInterface.as .
+            (<any>this.$window).fwr_event_handler = this.flashEventHandler;
 
-            var flashvars = {
-                lstext: 'Loading...',
-                recorderId: Date.now().toString(),
-                userId: 0,
-                licenseKey: '656e676c697368617269756d2e636f6d3f617a757265aurc8be77656273697465732e6e65743f6c6f63616c686f7374aurc0c2c4baceba198',
-                settingsFile: 'audior_settings.xml',
-            };
-
-            var params = {
-                quality: 'high',
-                bgcolor: '#ffffff',
-                allowscriptaccess: 'sameDomain',
-                allowfullscreen: 'false',
-                base: '/content/audior/'
-            };
-
-            var attributes = {
-                id: 'myAudior',
-                name: 'audior',
-                align: 'middle',
-            };
-
-            var callbackFn = (event) => {
-                if (!event.success) {
-                    this.flashFound = false;
-                    toastr.error('Adobe Flash version 10.2.0 or above not found.');
+            var swfUrl = app['swfUrl'];
+            var idOfElementToReplace = 'toBeReplacedByRecorderSwfObject';
+            var width = '240';
+            var height = '160';
+            var swfVersion = '11.0.0';
+            var installSwfUrl = '';
+            var flashvars = null;
+            var params = null;
+            var attributes = { id: RecorderDesktop.SwfElementId, };
+            var callbackFn = (callbackObj: swfobject.ICallbackObj) => {
+                if (!callbackObj.success) {
+                    this.deferredCreate.reject({ message: 'Adobe Flash version 11.0.0 or above not found.', });
                 }
             };
-
-            var wnd = <any>this.$window;
-
-            var swfObject = wnd.swfobject;
-            swfObject.embedSWF(swfUrl, idOfElementToReplace, width, height, swfVersion, expressInstallSwfUrl, flashvars, params, attributes, callbackFn);
-
-            wnd.btRecordClick = (recorderId) => {
-                this.recording = true;
-                this.setPart(0);
-                this.startTime = Date.now(),
-                this.addEvent('record');
-            };
-
-            wnd.onMicAccess = (allowed, recorderId) => {
-                this.addEvent('mic ' + allowed);
-            };
-
-            wnd.btStopClick = (recorderId) => {
-                this.recording = false;
-                this.setPart(-1);
-                this.addEvent('stop');
-            };
-
-            wnd.onEncodingDone = (duration, recorderId) => {
-                this.encoded = true;
-                this.$scope.$apply();
-            };
-
-            wnd.onUploadDone = (success, recordName, duration, recorderId) => {
-                if (success) {
-                    app.ngHttpPut(this.$http,
-                        app.exercisesApiUrl('recording_details'),
-                        {
-                            recorderId: recorderId,
-                            recordName: recordName,
-                            duration: duration,
-                            title: this.card.title,
-                            cardId: this.card.id,
-                        },
-                        (data) => {
-                            if (data) {
-                                this.$window.location.assign('/exercises/view/' + data);
-                            }
-                        });
-                }
-            };
-
-            //function onFlashReady(recorderId) {
-            //};
-
-        }
-
-        getItems = (part: number) => {
-            return this.card
-                ? this.card.items.filter((i) => { return this.getPart(i) === part; })
-                : null;
+            swfobject.embedSWF(swfUrl, idOfElementToReplace, width, height, swfVersion, installSwfUrl, flashvars, params, attributes, callbackFn);
         };
 
-        getPart = (item: ICardItem) => {
-            return item && +item.position.slice(0, 1);
-        };
-
-        canSave = () => {
-            return app.isAuthenticated() && this.encoded && !this.uploading;
-        };
-
-        save = () => {
-            this.uploading = true;
-            //var doc = <Document>(<any>this.$document[0]);
-            //var audior = <any>doc.getElementById('myAudior');
-            //audior.save();            
-            (<any>this.$document[0]).myAudior.save();
-        };
-
-        resetCard = () => {
-            this.currentPart = 0;
-        };
-
-        setPart = (part: number) => {
-            this.addEvent('part' + part);
-            this.currentPart = part;
-            app.soundHit();
-
-            var timeout = null;
-            switch (part) {
-                case 0:
-                case 2:
-                    timeout = 300000;
-                    break;
-                case 1:
-                    timeout = 180000;
-                    break;
-                default:
-                    timeout = null;
+        private getElement = (elementId: string) => {
+            var element = this.$window.document.getElementById(elementId);
+            if (!element) {
+                this.deferredCreate.reject({ message: 'Element not found. ' + elementId });
             }
-            if (timeout && this.recording) {
-                this.$timeout(() => {
-                    if ((this.currentPart === part) && this.recording) {
-                        this.setPart(part + 1);
+            return element;
+        };
+
+        private flashEventHandler = (eventName: string, arg1?: any) => {
+            console.log(eventName);
+
+            if (!this.fwRecorder) {
+                this.fwRecorder = <IFWRecorder><any>this.getElement(RecorderDesktop.SwfElementId);
+            }
+
+            switch (eventName) {
+                case 'ready':
+                    this.deferredCreate.resolve();
+                    break;
+                case 'no_microphone_found':
+                    this.deferredStarted && this.deferredStarted.reject({ message: 'Microphone not found.', });
+                    break;
+                case 'microphone_connected':
+                    // Be careful, configure() is initially called internally with default parameters just before this event is sent. src/main/flashwavrecorder/RecorderJSInterface.as
+                    this.fwRecorder.configure(this.originalSampleRate / 1000); // Expects kHz
+                    break;
+                case 'microphone_not_connected':
+                    this.deferredStarted && this.deferredStarted.reject({ message: 'Please reload the page to enable microphone access.', });
+                    break;
+                case 'permission_panel_closed':
+                    angular.element(this.getElement(RecorderDesktop.BoxElementId)).removeClass(RecorderDesktop.BoxClass);
+                    if (this.fwRecorder.isMicrophoneAccessible()) {
+                        this.$timeout(() => { this.fwRecorder.record(Math.random().toString()); }, 0, false);
                     }
-                }, timeout);
-                // part 2 preparation
-                if (part == 1) {
-                    this.$timeout(() => {
-                        if (this.currentPart == part) {
-                            app.soundBeep();
-                        }
-                    }, 60000);
-                }
+                    break;
+                case 'recording':
+                    // The event confirming this command is 'observing_level'. It is a copy-paste mistake in the source code.
+                    this.fwRecorder.observeSamples();
+                    break;
+                case 'recording_stopped':
+                    // The event confirming this command is 'observing_level_stopped'. It is a copy-paste mistake in the source code.
+                    this.fwRecorder.stopObservingSamples();
+                    break;
+                case 'microphone_samples':
+                    if (this.deferredStarted) {
+                        var deferred = this.deferredStarted;
+                        this.deferredStarted = null;
+                        this.$timeout(() => { deferred.resolve(); }, 0, false);
+                    }
+                    this.encode(arg1);
+                    break;
             }
         };
 
-    } // end of class SpeakingDesktop    
+        startRecorder = () => {
+            this.deferredStarted = this.$q.defer();
+            // In Chrome, Flash function start working stable some time after the "ready" event, so we may catch an exception if the user presses Start just after the button got enabled. That exception has been observed in Chrome.
+            // Everything works fine after the "microphone_connected" event.
+            // If access not allowed by default, we don't get the initial "microphone_connected" and we have no idea, when isMicrophoneAccessible() becomes available.            
+            // The sad fact is that even if we avoided calling isMicrophoneAccessible(), we would get an exception on permitPermanently() call anyway, even after waiting for 2 seconds. In Chrome.
+            if (this.fwRecorder.isMicrophoneAccessible()) {
+                this.fwRecorder.record(Math.random().toString());
+            } else {
+                angular.element(this.getElement(RecorderDesktop.BoxElementId)).addClass(RecorderDesktop.BoxClass);
+                this.$timeout(() => { this.fwRecorder.permitPermanently(); }, 0, false);
+            }
+            return this.deferredStarted.promise;
+        };
 
-    //angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar', 'ngSanitize', 'ui.router'])
-    angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar', 'ngSanitize'])
-        .controller('SpeakingDesktop', SpeakingDesktop)
+        stopRecorder = () => {
+            this.fwRecorder.stopRecording();
+        };
+
+    } // end of class RecorderDesktop
+
+    // Angular uses the suffix as a naming convention to configure the povider.
+    recorderProviderConfig.$inject = [RecorderProvider.ServiceName + 'Provider'];
+    function recorderProviderConfig(provider: app.IServiceProvider<RecorderConstructor>) {
+        provider.configure(RecorderDesktop);
+    };
+
+    angular.module(app.myAppName, [app.utilsNg, 'ui.bootstrap', 'angular-loading-bar', 'ui.router', 'ngSanitize'])
+        //.constant(ReadyStateResolverFactory.ServiceName, ReadyStateResolverFactory)
+        .config(app.exercisesIelts.cardPlayerProviderConfig)
+        .config(recorderProviderConfig)
+        .config(StateConfig)
+        .service(app.exercises.CardProvider.ServiceName, app.exercises.CardProvider)
+        .provider(app.exercises.PlayerProvider.ServiceName, app.exercises.PlayerProvider)
+        .service(EncoderFabric.ServiceName, EncoderFabric)
+        .provider(RecorderProvider.ServiceName, RecorderProvider)
+        .run(StateChangeHandlers)
+        .controller('Speaking', app.exercisesIelts.SpeakingBase)
     ;
 
-} // end of module
-
-
+} // end of module exercisesIelts

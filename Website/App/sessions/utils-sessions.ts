@@ -1,4 +1,4 @@
-module app.sessions {
+module app.sessions {    
 
     export interface ISession extends FullCalendar.EventObject {
         // url?: string; // Chrome weiredly tries to silently send a request to this URL as if it was a real URL. It gets an unrecoverable error for 'javascript:;' and the event fials to render. If the value is malformed, Firefox uncoditionally goes to the URL on click and reports the unknown format to the user.
@@ -53,7 +53,7 @@ module app.sessions {
                     right: 'prev,next'
                 },
                 height: <any>'auto',
-                slotDuration: '01:00',
+                slotDuration: moment.duration(1, 'hours'),
                 timezone: 'local',
                 //views: {
                 //    myCustomView: {
@@ -291,4 +291,13 @@ module app.sessions {
 
     } // end of class ShowSessionDetailsModal
 
-} // end of module
+} // end of module app.sessions
+
+declare module FullCalendar {
+    // It looks like the definition in NiGet is for the outdated version 1.x. Version 2.x has a different set of options.
+    interface Options {
+        allDaySlot?: boolean;
+        //slotDuration?: moment.Duration | string;
+        //timezone?: string;
+    }
+} // end of module FullCalendar

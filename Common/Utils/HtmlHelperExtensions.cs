@@ -91,6 +91,7 @@ namespace Runnymede.Common.Utils
         {
 #if DEBUG
             return true;
+            // There is app.isDevHost() in app/shared/utils.ts
 #else
       return false;
 #endif

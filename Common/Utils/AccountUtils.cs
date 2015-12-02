@@ -245,8 +245,7 @@ namespace Runnymede.Common.Utils
         public static string GetExtId(this ApiController controller)
         {
             var cookies = controller.Request.Headers.GetCookies(ExtIdCookieName).FirstOrDefault();
-            var cookie = cookies != null ? cookies.Cookies.FirstOrDefault() : null;
-            return cookie != null ? cookie.Value : null;
+            return cookies != null ? cookies[ExtIdCookieName].Value : null;
         }
 
         #endregion

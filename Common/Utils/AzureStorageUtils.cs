@@ -27,6 +27,8 @@ namespace Runnymede.Common.Utils
             public const string AvatarsLarge = "user-avatars-large";
             public const string AvatarsSmall = "user-avatars-small";
             public const string Presentations = "user-presentations";
+            public const string IeltsSpeaking = "ielts-speaking";
+            public const string StorytellingVideos = "storytelling-videos";
         }
 
         // Table name rules are described by the regular expression "^[A-Za-z][A-Za-z0-9]{2,62}$". Table names are case-insensitive. No dashes. +http://msdn.microsoft.com/library/azure/dd179338.aspx
@@ -83,6 +85,8 @@ namespace Runnymede.Common.Utils
                 ContainerNames.AvatarsLarge,
                 ContainerNames.AvatarsSmall,
                 ContainerNames.Presentations,
+                ContainerNames.IeltsSpeaking,
+                ContainerNames.StorytellingVideos
             }
             .ForEach(i =>
             {
@@ -229,30 +233,36 @@ namespace Runnymede.Common.Utils
             return String.Format(format, protocol, hostname, containerName, blobName);
         }
 
-        private static CloudBlockBlob InternalPrepareBlobUpload(Stream stream, string containerName, string blobName, string contentType)
+        private static CloudBlockBlob InternalPrepareBlobUpload(string containerName, string blobName, string contentType)
         {
             var blob = GetBlob(containerName, blobName);
             if (!String.IsNullOrEmpty(contentType))
             {
                 blob.Properties.ContentType = contentType;
             }
-            if (stream.Position != 0)
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
             return blob;
-        }
-
-        public static void UploadBlob(Stream stream, string containerName, string blobName, string contentType)
-        {
-            var blob = InternalPrepareBlobUpload(stream, containerName, blobName, contentType);
-            blob.UploadFromStream(stream);
         }
 
         public static async Task UploadBlobAsync(Stream stream, string containerName, string blobName, string contentType)
         {
-            var blob = InternalPrepareBlobUpload(stream, containerName, blobName, contentType);
+            if (stream.Position != 0)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
+            var blob = InternalPrepareBlobUpload(containerName, blobName, contentType);
             await blob.UploadFromStreamAsync(stream);
+        }
+
+        public static async Task UploadFromFileAsync(string filePath, string containerName, string blobName, string contentType)
+        {
+            var blob = InternalPrepareBlobUpload(containerName, blobName, contentType);
+            await blob.UploadFromFileAsync(filePath, FileMode.Open);
+        }
+
+        public static async Task UploadTextAsync(string text, string containerName, string blobName, string contentType)
+        {
+            var blob = InternalPrepareBlobUpload(containerName, blobName, contentType);
+            await blob.UploadTextAsync(text);
         }
 
         // Depricated. There is direct CloudBlockBlob.DownloadTextAsync()

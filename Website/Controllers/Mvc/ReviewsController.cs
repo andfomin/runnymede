@@ -27,12 +27,12 @@ namespace Runnymede.Website.Controllers.Mvc
         {
             var exercise = (await ExerciseUtils.GetExerciseWithReviews("exeGetReview", new { UserId = this.GetUserId(), Id = id, })).Single();
 
+            ViewBag.ExerciseParam = exercise;
+            ViewBag.cardIdParam = exercise.CardId.GetValueOrDefault();
             if (exercise.CardId.HasValue)
             {
                 ViewBag.cardParam = await ExerciseUtils.GetCardWithItems(exercise.CardId.Value);
             }
-
-            ViewBag.ExerciseParam = exercise;
 
             switch (exercise.ArtifactType)
             {

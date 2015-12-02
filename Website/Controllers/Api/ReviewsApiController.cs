@@ -253,7 +253,7 @@ namespace Runnymede.Website.Controllers.Api
             var finishTime = DateTime.SpecifyKind(output.FinishTime, DateTimeKind.Utc);
 
             // Notify the watching exercise author
-            this.GetAuthorConnections(partitionKey).ReviewFinished(reviewId, finishTime);
+           // this.GetAuthorConnections(partitionKey).ReviewFinished(reviewId, finishTime);
 
             return Ok(new { FinishTime = finishTime });
         }

@@ -1,0 +1,162 @@
+﻿{
+  "comment": "+https://www.youtube.com/watch?v=rcaIOTRV64g +http://mp4.ee ",
+  "id": "aec3cc24-92b4-4cc3-88d1-c235395e30d0",
+  "items": [
+    {
+      "content": "Now, in this first part I'd like to ask you some questions about yourself. Tell me about your hometown. What do you like most about your hometown?",
+      "playFrom": 0,
+      "playTo": 14.2,
+      "playTo2": 3.0,
+      "position": "1a"
+    },
+    {
+      "content": "Is your hometown a popular place for tourists?",
+      "playFrom": 14.7,
+      "playTo": 18.1,
+      "playTo2": 16.7,
+      "position": "1b"
+    },
+    {
+      "content": "And has your hometown changed much in recent years?",
+      "playFrom": 18.6,
+      "playTo": 23.6,
+      "position": "1c"
+    },
+    {
+      "content": "Let’s talk about free time now. How much free time do you normally have?",
+      "playFrom": 24.1,
+      "playTo": 31.3,
+      "position": "1d"
+    },
+    {
+      "content": "Have your leisure activities changed much since you were young?",
+      "playFrom": 31.8,
+      "playTo": 36.3,
+      "position": "1e"
+    },
+    {
+      "content": "If you had more free time, how would you spend it?",
+      "playFrom": 36.8,
+      "playTo": 40.5,
+      "position": "1f"
+    },
+    {
+      "content": "Let’s talk about photos now. How often do you take photos?",
+      "playFrom": 41.0,
+      "playTo": 46.6,
+      "position": "1g"
+    },
+    {
+      "content": "Do you prefer taking photos of people or places?",
+      "playFrom": 47.1,
+      "playTo": 51.7,
+      "position": "1h"
+    },
+    {
+      "content": "What do you do with the photos you take?",
+      "playFrom": 52.2,
+      "playTo": 55.8,
+      "position": "1i"
+    },
+    {
+      "content": "Do you think the way people take photos is changing?",
+      "playFrom": 56.3,
+      "playTo": 61.1,
+      "position": "1j"
+    },
+    {
+      "content": "Now I’m going to give you a topic and I’d like you to talk about it for one to two minutes. Before you talk, you have one minute to think about what you are going to say. You can make some notes if you wish.",
+      "paceTarget": 240,
+      "paceTarget2": 20.0,
+      "playFrom": 61.6,
+      "playTo": 76.1,
+      "playTo2": 63.6,
+      "position": "2a",
+      "record": false
+    },
+    {
+      "content": "And here is your topic. I’d like you to describe a situation when someone you didn’t know helped you.",
+      "cueCard": "Describe a situation when someone you did not know helped you.<br/>You should say<br/>&nbsp;who helped you<br/>&nbsp;when it was<br/>&nbsp;why he or she helped you<br/>and describe how you felt about it.",
+      "playFrom": 76.6,
+      "playTo": 85.9,
+      "playTo2": 78.6,
+      "position": "2b",
+      "record": false
+    },
+    {
+      "timeout": 6,
+      "record": false
+    },
+    {
+      "content": "Alright. Remember, you have one to two minutes for this so don’t worry if I stop you. I’ll tell you when the time is up. Can you start speaking now please?",
+      "playFrom": 86.4,
+      "playTo": 98.3,
+      "playTo2": 88.4,
+      "position": "2c",
+      "timeout": 6
+    },
+    {
+      "content": "Thank you very much.",
+      "cueCard": null,
+      "playFrom": 98.8,
+      "playTo": 100.2,
+      "playTo2": 100.2,
+      "position": "2d",
+      "record": false
+    },
+    {
+      "content": "We’ve been talking about a situation when someone you didn’t know helped you. And I’d like to discuss with you one or two more general questions related to this. Let’s consider first of all children helping others. What kinds of things can children do to help in the home?",
+      "playFrom": 100.7,
+      "playTo": 120.4,
+      "playTo2": 102.7,
+      "position": "3a"
+    },
+    {
+      "content": "How can children best learn to be helpful to others?",
+      "playFrom": 120.9,
+      "playTo": 125.8,
+      "playTo2": 122.9,
+      "position": "3b"
+    },
+    {
+      "content": "What ways can schools encourage children to help the community?",
+      "playFrom": 126.3,
+      "playTo": 131.7,
+      "position": "3c"
+    },
+    {
+      "content": "Let’s think about working for other people without payments. What types of voluntary work are most popular?",
+      "playFrom": 132.2,
+      "playTo": 140.3,
+      "position": "3d"
+    },
+    {
+      "content": "And do all age groups take part in voluntary work?",
+      "playFrom": 140.8,
+      "playTo": 145.0,
+      "position": "3e"
+    },
+    {
+      "content": "And how can individuals benefit from doing voluntary work?",
+      "playFrom": 145.5,
+      "playTo": 150.7,
+      "position": "3f"
+    },
+    {
+      "content": "And what ways can voluntary work improve life for the community?",
+      "playFrom": 151.2,
+      "playTo": 156.9,
+      "position": "3g"
+    },
+    {
+      "content": "Thank you very much. That’s the end of the speaking test.",
+      "paceTarget": 720,
+      "paceTarget2": 35,
+      "playFrom": 157.4,
+      "playTo": 161.9,
+      "position": "3h",
+      "record": false
+    }
+  ],
+  "type": "CDIS__"
+}

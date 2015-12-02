@@ -1,3 +1,9 @@
+// Angular uses names for dependancy injection. Service factories and directives are functions, not classes.
+interface Function {
+    ServiceName?: string;
+    DirectiveName?: string;
+}
+
 module app {
 
     export interface IScopeWithViewModel extends angular.IScope {
@@ -11,12 +17,20 @@ module app {
         isClockWrong: boolean;
     };
 
+    export interface ILazyProvider<T> {
+        get: () => angular.IPromise<T>;
+    }
+
+    export interface IServiceProvider<T> {
+        configure: (param: T) => void;
+    }
+
     export class ngNames {
         // from module ng
         public static $compileProvider = '$compileProvider';
         public static $document = '$document';
         public static $filter = '$filter';
-        public static $http = '$http';
+        public static $http = '$http'; // angular.IHttpService
         public static $interval = '$interval'; // Intervals created by this service must be explicitly destroyed. See the example in the docs.
         public static $location = '$location';
         public static $locationProvider = '$locationProvider';
@@ -30,12 +44,12 @@ module app {
         // ui-bootstrap
         public static datepickerConfig = 'datepickerConfig';
         public static datepickerPopupConfig = 'datepickerPopupConfig';
-        public static $modal = '$modal';
+        public static $uibModal = '$uibModal';
         public static $modalInstance = '$modalInstance';
         // ui-router
-        public static $state = '$state';
+        public static $state = '$state'; // angular.ui.IStateService
         public static $stateParams = '$stateParams';
-        public static $stateProvider = '$stateProvider';
+        public static $stateProvider = '$stateProvider'; // angular.ui.IStateProvider
         public static $urlRouterProvider = '$urlRouterProvider';
         // third-party
         public static jQuery = 'jQuery';
@@ -63,7 +77,7 @@ module app {
 
         constructor(
             $scope: app.IScopeWithViewModel
-            ) {
+        ) {
             /* ----- Constructor  ----- */
             $scope.vm = this;
             this.authenticated = app.isAuthenticated();
@@ -84,41 +98,40 @@ module app {
 
     export interface IModal {
         canOk: () => any;
-        internalOk: () => angular.IPromise<any>;
+        internalOk: (param?: any) => angular.IPromise<any>;
     }
 
-    export class Modal {
+    export abstract class Modal implements IModal {
 
         busy: boolean = false;
         authenticated: boolean;// The server may accept unauthenticated requests for some features but returns a custom error message for the disabled features.
         loginLink: string;
 
         canOk: () => any = () => { return true; }; // Replaced in descendand classes.
-        internalOk: () => angular.IPromise<any>; // Replaced in descendand classes.
+        internalOk: (param?: any) => angular.IPromise<any>; // Replaced in descendand classes.
         dismissOnError: boolean = false;
 
         /* +http://www.typescriptlang.org/Content/TypeScript%20Language%20Specification.pdf  Section 8.2.3
         *  Base class static property members can be overridden by derived class static property members of any kind as long as the types are compatible, as described above. */
         static $inject = [app.ngNames.$http, app.ngNames.$modalInstance, app.ngNames.$scope, 'modalParams'];
-
         constructor(
             public $http: angular.IHttpService,
             public $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             public $scope: app.IScopeWithViewModel,
             public modalParams: any
-            ) {
+        ) {
             $scope.vm = this;
             this.authenticated = app.isAuthenticated();
             this.loginLink = app.getLoginLink(); // 'https://' + $window.document.location.hostname + '/account/login';
         } // ctor
 
-        ok = () => {
+        ok = (param?: any) => {
             if (this.internalOk
                 && !this.busy
                 && this.canOk()
-                ) {
+            ) {
                 this.busy = true;
-                this.internalOk()
+                this.internalOk(param)
                     .then<void>(
                     (data) => {
                         //$http.post().success() returns ng.IHttpPromiseCallbackArg<any>
@@ -151,10 +164,9 @@ module app {
             templateUrl: string,
             controller: new (...args: any[]) => IModal,
             modalParams?: any,
-            successCallback?: (data: any) => void,
             backdrop?: any, // true (default???), false (no backdrop), 'static'
             size?: string // 'sm', 'lg'
-            ) {
+        ) {
             var options: angular.ui.bootstrap.IModalSettings = {
                 templateUrl: templateUrl,
                 controller: controller,
@@ -167,11 +179,7 @@ module app {
                 size: size,
             };
             var modalInstance = $modal.open(options);
-            modalInstance.result.then(
-                (data) => { (successCallback || angular.noop)(data); },
-                null
-                );
-            return modalInstance;
+            return modalInstance.result;
         }
     }; // end of class Modal
 
@@ -183,7 +191,7 @@ module app {
 
         constructor(
             $scope: app.IScopeWithViewModel
-            )
+        )
         /* ----- Constructor  ----- */ {
             $scope.vm = this;
             this.isCollapsed = app.isAuthenticated();
@@ -217,7 +225,7 @@ module app {
     export class StateTitleSyncer {
         static $inject = [ngNames.$rootScope];
         constructor($rootScope: IAppRootScopeService) {
-            $rootScope.$on('$stateChangeSuccess',(event, toState, toParams, fromState, fromParams) => {
+            $rootScope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) => {
                 $rootScope.pageTitle = toState.data && toState.data.title;
                 $rootScope.secondaryTitle = toState.data && toState.data.secondaryTitle;
                 //window.document.title = current.title + ' \u002d Bla bla bla'; // &ndash;
@@ -234,7 +242,7 @@ module app {
                 (data) => {
                     $rootScope.isClockWrong = (Math.abs(Date.now() - data) > 120000); // Calculate the difference between the client and the provided time
                 }
-                );
+            );
         }
     };
 
@@ -245,7 +253,7 @@ module app {
             //$compileProvider.aHrefSanitizationWhitelist(/^skype:/);
             $compileProvider.aHrefSanitizationWhitelist(/^https?:\/\/(?:dev\w\.)?englisharium\.com\/|^skype:/);
         }
-    }
+    };
 
     export class SceWhitelistConfig {
         static $inject = [app.ngNames.$sceDelegateProvider];
@@ -256,7 +264,15 @@ module app {
                 'http*://' + app.BlobDomainName + '/**'
             ]);
         }
-    }
+    };
+
+    /** Disable AngularJS debug information in production for a significant performance boost. */
+    export class DisableAngularDebugInfo {
+        static $inject = [app.ngNames.$compileProvider];
+        constructor($compileProvider: angular.ICompileProvider) {
+            $compileProvider.debugInfoEnabled(false);
+        }
+    };
 
     export function anticacher() {
         // The actual string length is not that much important. If a proxy server sees a '?' in the url, it will not cache
@@ -274,10 +290,12 @@ module app {
             .finally(finallyCallback || angular.noop);
     };
 
-    export function ngHttpPost($http: angular.IHttpService, url: string, data: any, successCallback?: angular.IHttpPromiseCallback<any>, finallyCallback?: () => any) {
+    export function ngHttpPost($http: angular.IHttpService, url: string, data: any, successCallback?: angular.IHttpPromiseCallback<any>, finallyCallback?: () => void) {
         return $http.post(url, data)
-            .success(successCallback || angular.noop)
-            .error(app.logError)
+            .then(
+            (response) => { (successCallback || angular.noop)(response.data, response.status, response.headers, response.config) },
+            app.logError
+            )
             .finally(finallyCallback || angular.noop);
     };
 
@@ -311,7 +329,7 @@ module app {
             // Encourage caching.   
             //app.accountsApiUrl('presentation/' + id), { cache: true }
             app.getBlobUrl('user-presentations', intToKey(id)), { cache: true }
-            )
+        )
             .success(callback)
             .error(() => callback(null)); // Azure Blob can return 404 Not Found.
     }
@@ -334,6 +352,13 @@ module app {
     export function AppMsecToMinSecFilter() {
         return (valMsec: number) => {
             return app.formatMsec(valMsec);
+        }
+    };
+
+    // Format exercise length from seconds to min:sec
+    export function AppSecToMinSecFilter() {
+        return (valSec: number) => {
+            return app.formatMsec(valSec * 1000);
         }
     };
 
@@ -374,6 +399,7 @@ module app {
         .filter('appDate', [app.ngNames.$filter, app.AppDateFilter])
         .filter('appDateTime', [app.AppDateTimeFilter])
         .filter('appMsecToMinSec', [app.AppMsecToMinSecFilter])
+        .filter('appSecToMinSec', [app.AppSecToMinSecFilter])
         .filter('appLength', [app.AppLengthFilter])
         .filter('appDateHuman', [app.AppDateHumanFilter])
         .filter('appDateAgo', [app.AppDateAgoFilter])

@@ -87,13 +87,14 @@ namespace Runnymede.Common.Models
         public int Id { get; set; }
         public int UserId { get; set; }
         public string ServiceType { get; set; }
+        public Guid? CardId { get; set; }
         public string ArtifactType { get; set; }
         public string Artifact { get; set; }
         public string Title { get; set; }
-        public int? Length { get; set; }
+        public decimal? Length { get; set; }
         public virtual IEnumerable<ReviewDto> Reviews { get; set; }
-        public Guid? CardId { get; set; }
         public string Comment { get; set; }
+        public string Details { get; set; }
 
         private DateTime? creationTime;
         public DateTime? CreationTime
@@ -245,8 +246,29 @@ namespace Runnymede.Common.Models
         //public int Id { get; set; }
         public Guid CardId { get; set; }
         public string Position { get; set; }
-        public string Contents { get; set; }
+        public string Content { get; set; }
+        /// <summary>
+        /// Seconds
+        /// </summary>
+        public decimal PlayFrom { get; set; }
+        public decimal PlayTo { get; set; }
     }
+
+   public class Track
+    {
+        public string Position { get; set; }
+        public decimal From { get; set; }
+        public decimal To { get; set; }
+    }
+
+    public class RecordingDetails
+    {
+        public string BlobName { get; set; }
+        public decimal TotalDuration { get; set; } // Seconds
+        public Dictionary<string, decimal> TrackDurations { get; set; } // The durations of tracks (in seconds) related to particular card items. Key is ICardItem.Position
+    }
+
+
 
 
 } // end of namespace

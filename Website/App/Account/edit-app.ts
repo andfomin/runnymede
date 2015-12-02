@@ -3,8 +3,8 @@ module app.account_edit {
     class StateConfig {
         static $inject = [app.ngNames.$stateProvider, app.ngNames.$urlRouterProvider];
         constructor(
-            private $stateProvider: ng.ui.IStateProvider,
-            private $urlRouterProvider: ng.ui.IUrlRouterProvider
+            $stateProvider: angular.ui.IStateProvider,
+            $urlRouterProvider: ng.ui.IUrlRouterProvider
             ) {
             var title = 'Edit profile';
             var templateUrl = (template: string) => { return '/app/account/' + template; };

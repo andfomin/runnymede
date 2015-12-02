@@ -134,12 +134,12 @@ namespace Runnymede.Website.Controllers.Api
         public async Task<IHttpActionResult> GetOtherUser(int id)
         {
             var item = (await DapperHelper.QueryResilientlyAsync<dynamic>("dbo.sesGetOtherUser", new
-                   {
-                       SessionId = id,
-                       UserId = this.GetUserId(),
-                   },
+            {
+                SessionId = id,
+                UserId = this.GetUserId(),
+            },
                    CommandType.StoredProcedure))
-                // The query may return empty rowset. We need a typed data to return Ok<T>(T). Otherwise it cannot infer the type parameter when given a null.
+                   // The query may return empty rowset. We need a typed data to return Ok<T>(T). Otherwise it cannot infer the type parameter when given a null.
                    .Select(i => new
                    {
                        Id = (int)i.Id,
@@ -239,14 +239,14 @@ select dbo.sesGetMessageCount(@UserId, @SessionId);
             var messageExtId = await SessionHelper.SaveMessageAndGetExtId(message);
 
             var sessionId = (await DapperHelper.QueryResilientlyAsync<int>("dbo.sesBookSession", new
-             {
-                 UserId = userId, // who requests and pays
-                 Start = start,
-                 End = end,
-                 TeacherUserId = teacherUserId,
-                 Price = price,
-                 MessageExtId = messageExtId,
-             },
+            {
+                UserId = userId, // who requests and pays
+                Start = start,
+                End = end,
+                TeacherUserId = teacherUserId,
+                Price = price,
+                MessageExtId = messageExtId,
+            },
              CommandType.StoredProcedure))
              .Single();
 
@@ -442,11 +442,11 @@ select dbo.sesGetMessageCount(@UserId, @SessionId);
             var message = twilio.SendMessage(fromPhoneNumber, "+16477711715", text);
 
             var entity = new ExternalSessionLogEntity
-             {
-                 PartitionKey = tablePartitionKey,
-                 RowKey = "TwilioMessage",
-                 Data = JsonUtils.SerializeAsJson(new { Message = message, }),
-             };
+            {
+                PartitionKey = tablePartitionKey,
+                RowKey = "TwilioMessage",
+                Data = JsonUtils.SerializeAsJson(new { Message = message, }),
+            };
             await AzureStorageUtils.InsertEntityAsync(AzureStorageUtils.TableNames.ExternalSessions, entity);
         }
 
@@ -465,6 +465,8 @@ select dbo.accGetBalance(@UserId) as Balance, dbo.appGetServicePrice(@ServiceTyp
 
             return data;
         }
+
+
 
     }
 }

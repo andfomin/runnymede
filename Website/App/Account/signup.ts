@@ -10,11 +10,11 @@ module app.account {
         submited: boolean = false;
         minPwdLength = 6;
 
-        static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$timeout];
+        static $inject = [app.ngNames.$http, app.ngNames.$scope, app.ngNames.$timeout];
 
         constructor(
-            private $scope: app.IScopeWithViewModel,
             private $http: angular.IHttpService,
+            private $scope: app.IScopeWithViewModel,
             private $timeout: angular.ITimeoutService
             ) {
             $scope.vm = this;

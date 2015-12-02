@@ -23,7 +23,7 @@ module app.library {
         static Common = 'common';
         static Personal = 'personal';
 
-        static $inject = [app.ngNames.$scope, app.ngNames.$rootScope, app.ngNames.$http, app.ngNames.$modal, app.ngNames.$window, app.ngNames.$state];
+        static $inject = [app.ngNames.$scope, app.ngNames.$rootScope, app.ngNames.$http, app.ngNames.$uibModal, app.ngNames.$window, app.ngNames.$state];
 
         constructor(
             private $scope: app.IScopeWithViewModel,
@@ -32,13 +32,13 @@ module app.library {
             private $modal: angular.ui.bootstrap.IModalService,
             private $window: angular.IWindowService,
             private $state: ng.ui.IStateService
-            ) {
+        ) {
             /* ----- Constructor  ----- */
             super($scope);
 
             this.isEmpty = !this.authenticated;
 
-            $rootScope.$on('$stateChangeSuccess',(event, toState, toParams, fromState, fromParams) => {
+            $rootScope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) => {
                 if (toState.name === Index.Personal) {
                     this.clear();
                     this.clearList();
@@ -51,7 +51,7 @@ module app.library {
                 }
             });
 
-            $scope.$on(ResourceList.PersonalRemoved,(event, args) => { this.onPersonalRemoved(args.resources, args.resource); });
+            $scope.$on(ResourceList.PersonalRemoved, (event, args) => { this.onPersonalRemoved(args.resources, args.resource); });
 
             //Watch when an accordion section is toggled manually by the user.
             $scope.$watch(() => { return angular.toJson(this.categoriesL1); },
@@ -59,7 +59,7 @@ module app.library {
                     if (newValue !== this.categoriesL1KnownState) {
                         this.categoriesL1KnownState = newValue;
                         // The switch happens not atomicaly. At some time two root categories may be active. There may be two events. It causes a wrong search call, and the susequent call is lost because the busy value is true on the first one.
-                        var selectL1 = app.arrFind(this.categoriesL1,(i) => { return i.active; });
+                        var selectL1 = app.arrFind(this.categoriesL1, (i) => { return i.active; });
                         if (selectL1 != this.selectedL1) {
                             this.selectL1(selectL1);
                         }
@@ -155,7 +155,7 @@ module app.library {
                         }
                     },
                     () => { this.busy = false; }
-                    );
+                );
             }
         }
 
@@ -182,7 +182,7 @@ module app.library {
                             adjustCategories(data.value);
                             this.isEmpty = angular.isArray(data.value) && (data.value.length === 0);
                         }
-                        );
+                    );
                 }, delay || 0);
             }
             else {
@@ -231,15 +231,15 @@ module app.library {
                 'addNewResourceModal',
                 AddNewResourceModal,
                 null,
-                (data) => {
+                'static',
+                'lg'
+            )
+                .then((data) => {
                     // log a resource view.
                     logResourceView(this.$http, data);
                     // Ensure Azure Search keeps pace adding the document and re-enumerating categories.
                     this.loadPersonalCategoryIds(2000);
-                },
-                'static',
-                'lg'
-                );
+                });
         };
 
     } // end of class Ctrl

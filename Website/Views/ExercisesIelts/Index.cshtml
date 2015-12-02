@@ -19,7 +19,8 @@
                                 <i class="fa fa-pencil fa-fw app-appblue app-1px-up"></i> @Html.ActionLink("Writing Task 2", "Writing", new { Id = "task-2" })
                             </span>
                             <span class="text-nowrap app-margin-left">
-                                <i class="fa fa-comment-o fa-fw app-appblue app-2px-up"></i> @Html.ActionLink("Speaking", "Speaking")
+                                <i class="fa fa-comment-o fa-fw app-appblue app-2px-up"></i>
+                                @Html.ActionLinkWithProtocol("Speaking", "Speaking", null, "https", null)
                             </span>
                             <span class="text-nowrap app-margin-left">
                                 <i class="fa fa-volume-up fa-fw app-appblue"></i> @Html.ActionLink("Listening", "Listening")
@@ -76,6 +77,9 @@
 
     </div><!-- /ng-controller="Index" -->
 </div><!-- /ng-app="myApp" -->
+
+@Html.Partial("_RecordingMethodsScriptPartial")
+
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/angular",
@@ -85,6 +89,11 @@
 "~/app/exercises/utils.js",
 "~/app/exercisesIelts/index.js"
 )
+
+
+
+
+
 }
 
 

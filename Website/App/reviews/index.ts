@@ -9,7 +9,7 @@ module app.reviews {
         unfinishedReviewId: number = null;
         requests: IReview[] = null;
 
-        static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$modal, app.ngNames.$interval, app.ngNames.$window];
+        static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$uibModal, app.ngNames.$interval, app.ngNames.$window];
 
         constructor(
             private $scope: app.IScopeWithViewModel,
@@ -17,11 +17,11 @@ module app.reviews {
             private $modal: angular.ui.bootstrap.IModalService,
             $interval: angular.IIntervalService,
             private $window: angular.IWindowService
-            ) {
+        ) {
             super($scope);
             this.getRequests();
             var interval = $interval(() => { this.getRequests(); }, 60000);
-            $scope.$on('$destroy',() => { $interval.cancel(interval); });
+            $scope.$on('$destroy', () => { $interval.cancel(interval); });
         } // end of ctor
         
         private getRequests = () => {
@@ -51,11 +51,11 @@ module app.reviews {
                 StartReviewModal,
                 {
                     request: request
-                },
-                () => {
-                    this.$window.location.assign(getEditUrl(request.id));
                 }
-                );
+            )
+                .then(() => {
+                    this.$window.location.assign(getEditUrl(request.id));
+                });
         };
 
     } // end of class Requests
@@ -70,11 +70,11 @@ module app.reviews {
             private $scope: app.IScopeWithViewModel,
             private $http: angular.IHttpService,
             $interval: angular.IIntervalService
-            ) {
+        ) {
             super($scope);
             this.pgLoad();
             var interval = $interval(() => { this.pgLoad(); }, 300000);
-            $scope.$on('$destroy',() => { $interval.cancel(interval); });
+            $scope.$on('$destroy', () => { $interval.cancel(interval); });
         } // end of ctor
 
         pgLoad() {
@@ -89,7 +89,7 @@ module app.reviews {
                         this.reviews = data.items;
                         this.pgTotal = data.totalCount;
                     }
-                    );
+                );
             }
         }
 
@@ -116,7 +116,7 @@ module app.reviews {
             $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
-            ) {
+        ) {
             super($http, $modalInstance, $scope, modalParams);
             this.request = modalParams.request;
         } // ctor
@@ -125,7 +125,7 @@ module app.reviews {
             return app.ngHttpPost(this.$http,
                 app.reviewsApiUrl(this.request.id.toString() + '/start'),
                 null
-                );
+            );
         };
     }
 

@@ -117,6 +117,8 @@
                 By creating an account, you agree to our <a href="javascript:;" ng-click="isVisible = !isVisible">Terms&nbsp;of&nbsp;Service</a>.
             </div>
         </div>
+        <hr />
+        <h4>Already have an account? @Html.ActionLink("Log in", "Login", new { ReturnUrl = ViewBag.ReturnUrl })</h4>
     </div>
 
     <div class="col-md-5" ng-if="!isVisible">

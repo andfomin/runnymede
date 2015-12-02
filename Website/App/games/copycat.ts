@@ -29,7 +29,7 @@
             { value: 5, icon: 'fa-plus' }
         ];
 
-        static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$window, app.ngNames.$interval, app.ngNames.$modal];
+        static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$window, app.ngNames.$interval, app.ngNames.$uibModal];
 
         constructor(
             private $scope: app.IScopeWithViewModel,
@@ -37,7 +37,7 @@
             private $window: angular.IWindowService,
             private $interval: angular.IIntervalService,
             private $modal: angular.ui.bootstrap.IModalService
-            ) {
+        ) {
             /* ----- Constructor  ----- */
             super($scope);
 
@@ -45,7 +45,7 @@
                 (event: YT.EventArgs) => { this.player = event.target; },
                 (event: YT.EventArgs) => { toastr.error('Player error ' + event.data); },
                 (event: YT.EventArgs) => { this.onPlayerStateChange(event.data); }
-                );
+            );
 
             // pagingSession is used for maintaining a repeatable random order.
             this.pagingSession = Date.now() % 1000;
@@ -107,7 +107,7 @@
                         this.resources = data.items;
                         this.pgTotal = data.totalCount;
                     }
-                    );
+                );
             }
         };
 
@@ -212,7 +212,7 @@
             var priorities = this.resources
                 .filter((i) => { return (i.naturalKey === group.naturalKey) && angular.isNumber(i.priority); })
                 .map((i) => { return i.priority; })
-            ;
+                ;
             var max = priorities.length
                 ? priorities.reduce((previous, current) => { return (current > previous) ? current : previous; }, 0)
                 : null;
@@ -227,7 +227,7 @@
                 {
                     priority: priority,
                 }
-                );
+            );
         };
 
         showPublicTranscript = () => {
@@ -238,7 +238,7 @@
                     (data) => {
                         this.publicTranscript = (data && data.transcript) || ' ';
                     }
-                    );
+                );
             }
         };
 
@@ -253,9 +253,9 @@
                 {
                     resourceId: this.resource && this.resource.id,
                     transcript: this.transcript,
-                },
-                () => { this.publicTranscript = this.transcript; }
-                );
+                }
+            )
+                .then(() => { this.publicTranscript = this.transcript; });
         };
 
     } // end of class Ctrl
@@ -269,7 +269,7 @@
                     transcript: this.modalParams.transcript
                 },
                 () => { toastr.success('Transcript saved.'); }
-                );
+            );
         };
     }; // end of class SaveTranscriptModal
 

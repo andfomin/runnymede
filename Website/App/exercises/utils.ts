@@ -7,7 +7,9 @@ module app.exercises {
             {
                 exercise: exercise
             },
-            (data: app.IReview) => {
+            'static'
+        )
+            .then((data: app.IReview) => {
                 if ((data && data.exerciseId) === exercise.id) {
                     if (!angular.isArray(exercise.reviews)) {
                         exercise.reviews = [];
@@ -15,9 +17,7 @@ module app.exercises {
                     exercise.reviews.push(data);
                     (successCallback || angular.noop)();
                 }
-            },
-            'static'
-            );
+            });
     };
 
     class CreateReviewRequestModal extends app.Modal {
@@ -31,7 +31,7 @@ module app.exercises {
             $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
-            ) {
+        ) {
             super($http, $modalInstance, $scope, modalParams);
             this.exercise = modalParams.exercise;
             this.getConditions();
@@ -69,22 +69,22 @@ module app.exercises {
                     exerciseId: this.exercise.id,
                 },
                 () => { toastr.success('Thank you for requesting a review'); }
-                );
+            );
         };
     }; // end of class CreateReviewRequestModal
 
     export function showChooseCardModal($modal: angular.ui.bootstrap.IModalService, serviceType: string, cardType: string, successCallback: (any) => void) {
-        app.Modal.openModal($modal,
+        return app.Modal.openModal($modal,
             '/app/exercises/chooseCardModal.html',
             ChooseCardModal,
             {
                 serviceType: serviceType,
                 cardType: cardType
             },
-            successCallback,
             true,
             'lg'
-            );
+        )
+            .then(successCallback);
     };
 
     class ChooseCardModal extends app.Modal {
@@ -99,9 +99,9 @@ module app.exercises {
             private $q: angular.IQService,
             $scope: app.IScopeWithViewModel,
             modalParams: any
-            ) {
+        ) {
             super($http, $modalInstance, $scope, modalParams);
-            this.getCards(modalParams.serviceType,  modalParams.cardType);
+            this.getCards(modalParams.serviceType, modalParams.cardType);
         } // ctor
 
         getCards = (serviceType, cardType) => {
@@ -109,11 +109,11 @@ module app.exercises {
                 app.exercisesApiUrl('cards/' + serviceType + '/' + (cardType || '_null_')),
                 null,
                 (data) => { this.cards = data; }
-                );
+            );
         };
 
         findOpenedCard = () => {
-            return app.arrFind(this.cards,(i) => { return i['open']; });
+            return app.arrFind(this.cards, (i) => { return i['open']; });
         };
 
         canOk = () => {
@@ -129,5 +129,4 @@ module app.exercises {
 
     }; // end of class ChooseCardModal
 
-
-} // end of module exercises
+} // end of module app.exercises

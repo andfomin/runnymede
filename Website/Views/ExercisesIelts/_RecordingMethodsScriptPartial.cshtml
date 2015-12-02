@@ -1,0 +1,34 @@
+﻿@{
+    var cookieName = Runnymede.Website.Controllers.Mvc.ExercisesIeltsController.RecordingMethodsCookieName;
+    if (!Request.Cookies.AllKeys.Contains(cookieName))
+    {
+        <script>
+            (function () {
+                function hasUserMedia() {
+                    var ac = window.AudioContext || window.webkitAudioContext;
+                    var gum = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                    return (ac && gum) ? 1 : 0;
+                }
+                function hasCapture(mimeType) {
+                    var element = document.createElement('input');
+                    element.setAttribute('type', 'file');
+                    element.setAttribute('accept', mimeType);
+                    element.setAttribute('capture', true);
+                    return (element.hasAttribute('accept') && element.hasAttribute('capture')) ? 1 : 0;
+                }
+                function hasFlash() {
+                    var mimeType = 'application/x-shockwave-flash';
+                    var has = navigator.mimeTypes && navigator.mimeTypes[mimeType] && navigator.mimeTypes[mimeType].enabledPlugin;
+                    if (!has) {
+                        try {
+                            has = window.ActiveXObject && new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
+                        } catch (e) { }
+                    }
+                    return has ? 1 : 0;
+                }
+                var val = 'um' + hasUserMedia() + 'ca' + hasCapture('audio/*') + 'cv' + hasCapture('video/*') + 'fl' + hasFlash();
+                document.cookie = '@cookieName' + '=' + encodeURIComponent(val) + ';max-age=' + 60*60*24*31 + ';path=/exercises-ielts';
+            })();
+        </script>
+    }
+}

@@ -46,7 +46,7 @@ module app.library {
         static Selected = 'resourceList.selected'; // Notify the host page of an item selection
         static PersonalRemoved = 'resourceList.personalRemoved'; // Notify the host page.
 
-        static $inject = [app.ngNames.$scope, app.ngNames.$rootScope, app.ngNames.$http, app.ngNames.$modal, app.ngNames.$window];
+        static $inject = [app.ngNames.$scope, app.ngNames.$rootScope, app.ngNames.$http, app.ngNames.$uibModal, app.ngNames.$window];
 
         constructor(
             // ----- Constructor ----- 
@@ -55,16 +55,16 @@ module app.library {
             private $http: angular.IHttpService,
             private $modal: angular.ui.bootstrap.IModalService,
             private $window: angular.IWindowService
-            ) {
+        ) {
             $scope.vm = this;
 
-            $scope.$on(ResourceList.Clear,() => { this.clear(); });
-            $scope.$on(ResourceList.Display,(event, args) => { this.displayResources(args.resources); });
+            $scope.$on(ResourceList.Clear, () => { this.clear(); });
+            $scope.$on(ResourceList.Display, (event, args) => { this.displayResources(args.resources); });
 
             createYouTubePlayer(this.$window, 420, 420, 'toBeReplacedByYoutubeIframe',
                 (event: YT.EventArgs) => { this.player = event.target; },
                 (event: YT.EventArgs) => { toastr.error('Player error ' + event.data); }
-                );
+            );
 
             $scope.$watch(() => { return this.levelRating; },
                 (newValue, oldValue, scope) => {
@@ -73,7 +73,7 @@ module app.library {
                         this.logLanguageLevelRating();
                     }
                 }
-                );
+            );
             // ----- End of constructor ----- 
         }
 
@@ -127,11 +127,11 @@ module app.library {
             if (isExponent(this.selection)) {
                 this.$http.get(app.libraryApiUrl('category/' + this.selection.categoryIds + '/exponents'))
                     .success((data: any) => {
-                    this.exponents = data;
-                    this.exponents.forEach((i) => {
-                        i.lines = i.text.split('\n\n');
-                    });
-                }
+                        this.exponents = data;
+                        this.exponents.forEach((i) => {
+                            i.lines = i.text.split('\n\n');
+                        });
+                    }
                     );
             }
         };
@@ -165,11 +165,11 @@ module app.library {
                         resourceId: resourceId,
                         languageLevelRating: this.levelRating
                     }
-                    )
+                )
                     .catch(() => {
-                    this.levelRating = null;
-                    this.levelRatingKnownValue = null;
-                }
+                        this.levelRating = null;
+                        this.levelRatingKnownValue = null;
+                    }
                     );
             }
         };
@@ -184,14 +184,14 @@ module app.library {
                         DeletePersonalResourceModal,
                         {
                             resource: this.selection
-                        },
-                        () => {
+                        }
+                    )
+                        .then(() => {
                             this.selection.isPersonal = false;
                             this.selection.comment = null;
                             this.$rootScope.$broadcast(ResourceList.PersonalRemoved, { resources: this.resources, resource: this.selection });
                             toastr.success('The personal resouce is removed.');
-                        }
-                        );
+                        });
                 }
                 else {
                     app.Modal.openModal(this.$modal,
@@ -200,13 +200,13 @@ module app.library {
                         {
                             resource: this.selection
                         },
-                        () => {
-                            this.selection.isPersonal = true;
-                            toastr.success('The resource is added.');
-                        },
                         'static',
                         'lg'
-                        );
+                    )
+                        .then(() => {
+                            this.selection.isPersonal = true;
+                            toastr.success('The resource is added.');
+                        });
                 }
             }
         };
@@ -272,10 +272,9 @@ module app.library {
                 {
                     resource: this.selection,
                 },
-                null,
                 'static',
                 'lg'
-                );
+            );
         };
 
     } // end of class ResourceList
@@ -303,7 +302,7 @@ module app.library {
             $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
-            ) {
+        ) {
             super($http, $modalInstance, $scope, modalParams);
             this.categoriesL1 = Categories.filter((i) => { return (i.level === 1); });
         } // ctor
@@ -357,7 +356,7 @@ module app.library {
             return app.ngHttpPost(this.$http,
                 app.libraryApiUrl(),
                 this.resource
-                );
+            );
         };
 
     }; // end of class AddResourceModal
@@ -368,7 +367,7 @@ module app.library {
             $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
-            ) {
+        ) {
             super($http, $modalInstance, $scope, modalParams);
             this.resource = <IResource>{
                 url: null,
@@ -385,7 +384,7 @@ module app.library {
             $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
-            ) {
+        ) {
             super($http, $modalInstance, $scope, modalParams);
             this.showUrl = false;
             // The user is going to edit the description.
@@ -399,23 +398,23 @@ module app.library {
                 .split(' ')
                 .filter((i) => { return i.length > 0; })
                 .forEach((i) => {
-                var sel = {};
-                var catId = i;
-                while (catId) {
-                    var cat = app.arrFind(Categories,(j) => { return j.id === catId; });
-                    // There may be a case when a category assigned to the item was then removed from the main Categories list. It will not be found here.
-                    if (cat) {
-                        sel['level' + cat.level] = catId;
+                    var sel = {};
+                    var catId = i;
+                    while (catId) {
+                        var cat = app.arrFind(Categories, (j) => { return j.id === catId; });
+                        // There may be a case when a category assigned to the item was then removed from the main Categories list. It will not be found here.
+                        if (cat) {
+                            sel['level' + cat.level] = catId;
+                        }
+                        else {
+                            sel = null;
+                        }
+                        catId = cat && cat.parentId;
+                    };
+                    if (sel) {
+                        this.selections.push(<ICategorySelection>sel);
                     }
-                    else {
-                        sel = null;
-                    }
-                    catId = cat && cat.parentId;
-                };
-                if (sel) {
-                    this.selections.push(<ICategorySelection>sel);
-                }
-            });
+                });
 
             this.tags = (this.resource.tags || '')
                 .split(' ')
@@ -435,7 +434,7 @@ module app.library {
             $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
-            ) {
+        ) {
             super($http, $modalInstance, $scope, modalParams);
             this.resource = modalParams.resource;
         } // ctor
@@ -460,7 +459,7 @@ module app.library {
             $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
-            ) {
+        ) {
             super($http, $modalInstance, $scope, modalParams);
             this.showUrl = true;
             this.reportedVersion = angular.copy(this.resource);
@@ -482,7 +481,7 @@ module app.library {
                     suggestedVersion: this.resource,
                 },
                 () => { toastr.success('Thank you for reporting the problem!'); }
-                );
+            );
         };
 
     } // end of class ReportProblemModal
@@ -572,7 +571,7 @@ module app.library {
                 hostPage: getHostPage(),
                 resource: resource,
             }
-            );
+        );
     };
 
 } // end of module app.library

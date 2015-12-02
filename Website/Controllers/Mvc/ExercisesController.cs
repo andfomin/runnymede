@@ -1,4 +1,5 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Runnymede.Common.Models;
 using Runnymede.Common.Utils;
@@ -44,7 +45,7 @@ namespace Runnymede.Website.Controllers.Mvc
         }
 
         // GET: /view/2000000001 by ExerciseId
-        [ActionName("View")] // Be carefull, the term "View" has a special meaning in ASP.NET MVC. There is the method View() in the base class.
+        [ActionName("View")] // Be carefull, the term "View" has a special meaning in ASP.NET MVC. There is the method View() in the base Controller class.
         public async Task<ActionResult> ViewExercise(int id)
         {
             var exercises = await ExerciseUtils.GetExerciseWithReviews("dbo.exeGetExerciseWithReviews", new { UserId = this.GetUserId(), Id = id, });
@@ -60,7 +61,7 @@ namespace Runnymede.Website.Controllers.Mvc
             exercise.Reviews = reviews;
 
             ViewBag.ExerciseParam = exercise;
-
+            ViewBag.cardIdParam = exercise.CardId.GetValueOrDefault();
             if (exercise.CardId.HasValue)
             {
                 ViewBag.cardParam = await ExerciseUtils.GetCardWithItems(exercise.CardId.Value);
@@ -105,7 +106,7 @@ namespace Runnymede.Website.Controllers.Mvc
                 }
 
                 var length = UploadUtils.DurationToLength(duration);
-                await UploadUtils.CreateExercise(blobName, userId, ServiceType.IeltsSpeaking, ArtifactType.Mp3, length, null);
+                await ExerciseUtils.CreateExercise(blobName, userId, ServiceType.IeltsSpeaking, ArtifactType.Mp3, length, null);
                 success = true;
             }
             catch (Exception ex)
@@ -164,7 +165,7 @@ namespace Runnymede.Website.Controllers.Mvc
             }
 
             // 2. Call the transcoding service.
-            var host = ConfigurationManager.AppSettings["RecordingTranscoderHost"];
+            var host = ConfigurationManager.AppSettings["RecorderHost"];
             var url = String.Format("http://{0}/api/recordings/transcoded/?inputBlobName={1}", host, blobName);
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(url);
@@ -185,11 +186,11 @@ namespace Runnymede.Website.Controllers.Mvc
                 using (var stream = new MemoryStream())
                 {
                     await outputBlob.DownloadToStreamAsync(stream);
-                    durationMsec = UploadUtils.GetMp3DurationMsec(stream); // Seeks the stream to the beginning internally.
+                    durationMsec = RecordingUtils.GetMp3DurationMsec(stream); // Seeks the stream to the beginning internally.
                 }
             }
             // 4. Create a database record.
-            var exerciseId = await UploadUtils.CreateExercise(outputBlobName, userId, ServiceType.IeltsSpeaking, ArtifactType.Mp3, durationMsec, recordingTitle);
+            var exerciseId = await ExerciseUtils.CreateExercise(outputBlobName, userId, ServiceType.IeltsSpeaking, ArtifactType.Mp3, durationMsec, recordingTitle);
             // 5. Redirect to the exercise page.
             return RedirectToAction("View", new { Id = exerciseId });
         }
@@ -212,14 +213,14 @@ namespace Runnymede.Website.Controllers.Mvc
                 {
                     using (var stream = mp3File.InputStream)
                     {
-                        var durationMsec = UploadUtils.GetMp3DurationMsec(stream);
+                        var durationMsec = RecordingUtils.GetMp3DurationMsec(stream);
                         if (durationMsec > 0)
                         {
                             var recordingTitle = !String.IsNullOrEmpty(title)
                                 ? title
                                 : Path.GetFileNameWithoutExtension(mp3File.FileName);
 
-                            exerciseId = await UploadUtils.SaveRecording(
+                            exerciseId = await ExerciseUtils.SaveRecording(
                                 stream,
                                 userId,
                                 ArtifactType.Mp3,
@@ -242,7 +243,7 @@ namespace Runnymede.Website.Controllers.Mvc
                 // Continue anyway with either old or new user.
                 if (!String.IsNullOrEmpty(learnerSkype))
                 {
-                    newUserId = (await DapperHelper.QueryResilientlyAsync<int>("dbo.exeTryChangeExerciseAuthor",
+                    newUserId = (await DapperHelper.QueryResilientlyAsync<int?>("dbo.exeTryChangeExerciseAuthor",
                                              new
                                              {
                                                  ExerciseId = exerciseId,
@@ -250,7 +251,8 @@ namespace Runnymede.Website.Controllers.Mvc
                                                  SkypeName = learnerSkype,
                                              },
                                              CommandType.StoredProcedure))
-                                             .FirstOrDefault();
+                                             .SingleOrDefault()
+                                             .GetValueOrDefault();
                 }
 
                 IEnumerable<int> remarkSpots = new int[] { };
@@ -352,8 +354,8 @@ namespace Runnymede.Website.Controllers.Mvc
                         // Redirect to the reviews page.
                         return RedirectToAction("Edit", "Reviews", new { id = reviewId.ToString() });
                     }
-                }
-            } // end of if (mp3Success && this.GetIsTeacher())
+                } // end of if (remarkSpots.Any())
+            } // end of if (exerciseId && this.GetIsTeacher())
 
             //
             if (exerciseId != 0)
@@ -367,6 +369,29 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         } // end of Upload()
 
+        // This method is called as by redirection after signup which in turn was called by the Speaking page after the recording had been saved by an unauthorized user. The id (aka timeKey) is passed along as the returnUrl parameter in URLs.
+        // GET: /exercises/claim/adcd1234
+        public async Task<ActionResult> Claim(string id)
+        {
+            var userIdKey = KeyUtils.IntToKey(0);
+            var longTimeKey = id + this.GetExtId();
+            var blobName = ExerciseUtils.FormatBlobName(userIdKey, longTimeKey, "metadata", "json");
+            var blob = AzureStorageUtils.GetBlob(AzureStorageUtils.ContainerNames.Artifacts, blobName);
+            var metadataJson = await blob.DownloadTextAsync();
+            var metadata = JObject.Parse(metadataJson);
+            var serviceType = (string)metadata["serviceType"];
+            var cardId = (Guid?)metadata["cardId"];
+            var title = (string)metadata["title"];
+            var comment = (string)metadata["comment"];
+            var details = metadata["recordingDetails"];
+            var recordingDetails = details.ToObject<RecordingDetails>();
+
+            var exerciseId = await ExerciseUtils.CreateExercise(recordingDetails.BlobName, this.GetUserId(),
+                serviceType, ArtifactType.Mp3, recordingDetails.TotalDuration, title, cardId, comment, details.ToString(Formatting.None));
+
+            //~~ Redirect to the View exercise page.
+            return RedirectToAction("View", new { Id = exerciseId });
+        }
 
     }
 }

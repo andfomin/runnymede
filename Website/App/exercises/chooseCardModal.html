@@ -8,7 +8,7 @@
                 <span class="app-appblue" ng-style="c.open ? {'font-weight':'bolder'} : {}">{{c.title}}</span>
             </accordion-heading>
             <div ng-repeat="i in c.items" >
-                <div ng-bind-html="i.contents"></div>
+                <div ng-bind-html="i.content"></div>
             </div>
         </accordion-group>
     </accordion>

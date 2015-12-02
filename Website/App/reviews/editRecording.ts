@@ -26,9 +26,11 @@
     export class AudioPlayerEditor extends app.exercises.AudioPlayer {
 
         review: IReview;
-        minSpotLength = 2000; // msec
+        minSpotLength = 2; // seconds
 
-        static $inject = [app.ngNames.$appRemarks, app.ngNames.$filter, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$scope, app.ngNames.$timeout];
+        static $inject = [app.ngNames.$appRemarks, app.ngNames.$filter, app.ngNames.$interval, app.ngNames.$uibModal,
+            app.ngNames.$scope, app.ngNames.$timeout,
+            app.exercises.CardProvider.ServiceName, app.exercises.PlayerProvider.ServiceName];
 
         constructor(
             private $appRemarks: app.exercises.IRemarksService,
@@ -36,26 +38,26 @@
             $interval: angular.IIntervalService,
             private $modal: angular.ui.bootstrap.IModalService,
             $scope: app.IScopeWithViewModel,
-            $timeout: angular.ITimeoutService
-            )
-        /* ----- Constructor  ------------ */
-        {
-            super($scope, $filter, $interval, $timeout);
+            $timeout: angular.ITimeoutService,
+            cardProvider: ILazyProvider<ICard>,
+            playerProvider: ILazyProvider<app.exercises.IPlayer>
+        )
+        /* ----- Constructor  ------------ */ {
+            super($filter, $interval, $scope, $timeout, cardProvider, playerProvider);
 
             this.review = this.exercise.reviews[0];
-
-        }
         /* ----- End of constructor  ----- */
+        };
 
         canAddRemark = () => {
             return (!this.remark)
-                && (this.soundPosition > 0)
-                && (this.soundPosition < this.exercise.length);
-        }
+                && (this.sliderPosition > 0)
+                && (this.sliderPosition < this.exercise.length);
+        };
 
         addRemark = () => {
-            var finish = Math.max(this.minSpotLength, Math.floor((this.sound.position - 500) / 1000) * 1000); // -1000 msec for human reaction delay. +500 for better rounding
-            var start = Math.max(0, finish - this.minSpotLength);
+            var finish = Math.max(this.minSpotLength, app.roundTo(this.player.currentTime - 1, 2)); // -1 sec for a human reaction delay.
+            var start = Math.max(0, app.roundTo(finish - this.minSpotLength, 2));
             var remark = <IRemark>{
                 reviewId: this.review.id,
                 type: app.exercises.PieceTypes.Remark,
@@ -64,7 +66,7 @@
                 finish: finish,
             };
             this.$appRemarks.add(remark);
-        }
+        };
 
         shiftSpot = (remark: app.IRemark, shiftStart: boolean, shift: number) => {
             var os = remark.start;
@@ -93,21 +95,24 @@
 
         isHighlighted = (remark: app.IRemark) => {
             return remark && !(remark.correction || remark.comment || this.review.finishTime);
-        }
+        };
 
         isNotFinished = () => {
             return !this.review.finishTime;
-        }
+        };
 
         isEditing = (remark: app.IRemark) => {
             var unfinished = this.exercise.reviews.some((i) => { return !i.finishTime; });
             return (remark === this.remark) && unfinished;
-        }
+        };
 
     } // end of class AudioPlayerEditor
 
     angular.module(app.myAppName, [app.utilsNg, 'ngSanitize', 'ui.bootstrap', 'angular-loading-bar', 'vr.directives.slider'])
-        .value(app.ngNames.$appRemarksComparer, app.exercises.RecordingsComparer)
+        .constant(app.ngNames.$appRemarksComparer, app.exercises.RecordingsComparer)
+        .config(app.exercises.artifactPlayerProviderConfig)
+        .provider(app.exercises.PlayerProvider.ServiceName, app.exercises.PlayerProvider)
+        .service(app.exercises.CardProvider.ServiceName, app.exercises.CardProvider)
         .service(app.ngNames.$appRemarks, app.exercises.RemarksService)
         .controller('AudioPlayer', app.reviews.AudioPlayerEditor) // vma
         .controller('EditRecording', app.reviews.EditCtrlBase)

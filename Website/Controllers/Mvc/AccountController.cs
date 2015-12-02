@@ -45,13 +45,14 @@ namespace Runnymede.Website.Controllers.Mvc
         // GET: /account/signup
         [RequireHttps]
         [AllowAnonymous]
-        public ActionResult Signup()
+        public ActionResult Signup(string returnUrl)
         {
             // Don't log the user out. Even if she has been authenticated with password, she can manually return here to login with an extrnal login.
             if (Request.IsAuthenticated)
             {
                 return RedirectToManageLoginsPage();
             }
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 

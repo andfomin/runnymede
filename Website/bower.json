@@ -1,12 +1,54 @@
 {
-  "name": "Scripts",
-  "version": "0.0.0",
-  "homepage": "https://github.com/andfomin/Runnymede",
   "authors": [
     "Andrey <afomin@dignicom.com>"
   ],
-  "license": "MIT",
-  "private": true,
+  "dependencies": {
+    "angular": "1.4.8",
+    "angular-animate": "1.4.8",
+    "angular-bootstrap": "0.14.3",
+    "angular-loading-bar": "0.8.0",
+    "angular-sanitize": "1.4.8",
+    "angular-touch": "1.4.8",
+    "angular-ui-calendar": "1.0.1",
+    "angular-ui-router": "0.2.15",
+    "animate.css": "3.4.0",
+    "bootstrap": "3.3.6",
+    "datastreamjs": "https://raw.githubusercontent.com/kig/DataStream.js/master/DataStream.js",
+    "flashWavRecorder": "https://raw.githubusercontent.com/michalstocki/FlashWavRecorder/master/html/recorder.swf",
+    "fullcalendar": "2.4.0",
+    "jquery": "2.1.4",
+    "lamejs": "https://raw.githubusercontent.com/zhuker/lamejs/master/lame.min.js",
+    "moment": "2.10.6",
+    "ng-tags-input": "2.2.0",
+    "ngUpload": "0.5.17",
+    "signalr": "2.2.0",
+    "swfobject": "2.2",
+    "toastr": "2.1.2",
+    "venturocket-angular-slider": "0.3.2"
+  },
+  "exportsOverride": {
+    "angular": {},
+    "angular-animate": {},
+    "angular-bootstrap": {},
+    "angular-loading-bar": {},
+    "angular-sanitize": {},
+    "angular-touch": {},
+    "angular-ui-calendar": {},
+    "angular-ui-router": {},
+    "animate.css": {},
+    "bootstrap": {},
+    "fullcalendar": {},
+    "howler": {},
+    "jquery": {},
+    "moment": {},
+    "ng-tags-input": {},
+    "ngUpload": {},
+    "signalr": {},
+    "swfobject": {},
+    "toastr": {},
+    "venturocket-angular-slider": {}
+  },
+  "homepage": "https://github.com/andfomin/Runnymede",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -15,31 +57,6 @@
     "tests",
     "bower_installer"
   ],
-  "dependencies": {
-    "angular": "1.4.3",
-    "angular-animate": "1.4.3",
-    "angular-bootstrap": "0.13.0",
-    "angular-loading-bar": "0.8.0",
-    "angular-sanitize": "1.4.3",
-    "angular-touch": "1.4.3",
-    "angular-ui-calendar": "1.0.1",
-    "angular-ui-router": "0.2.15",
-    "animate.css": "3.3.0",
-    "bootstrap": "3.3.5",
-    "fullcalendar": "2.3.2",
-    "jquery": "2.1.4",
-    "moment": "2.10.3",
-    "ng-tags-input": "2.2.0",
-    "ngUpload": "0.5.17",
-    "signalr": "2.2.0",
-    "toastr": "2.1.1",
-    "venturocket-angular-slider": "0.3.2"
-  },
-  "resolutions": {
-    "angular": "1.4.3",
-    "angular-touch": "1.4.3",
-    "fullcalendar": "2.3.2"
-  },
   "install": {
     "path": "bower_installer",
     "sources": {
@@ -72,6 +89,20 @@
         "bower_components/bootstrap/dist/fonts/**",
         "bower_components/bootstrap/dist/js/bootstrap.min.js"
       ],
+      "datastreamjs": {
+        "mapping": [
+          {
+            "bower_components/datastreamjs/index.js": "DataStream.js"
+          }
+        ]
+      },
+      "flashWavRecorder": {
+        "mapping": [
+          {
+            "bower_components/flashWavRecorder/index.swf": "recorder.swf"
+          }
+        ]
+      },
       "fullcalendar": [
         "bower_components/fullcalendar/dist/fullcalendar.css",
         "bower_components/fullcalendar/dist/fullcalendar.min.js"
@@ -80,6 +111,13 @@
         "bower_components/jquery/dist/jquery.min.js",
         "bower_components/jquery/dist/jquery.min.map"
       ],
+      "lamejs": {
+        "mapping": [
+          {
+            "bower_components/lamejs/index.js": "lamejs.min.js"
+          }
+        ]
+      },
       "moment": "bower_components/moment/min/moment.min.js",
       "ng-tags-input": [
         "bower_components/ng-tags-input/ng-tags-input.min.css",
@@ -88,11 +126,21 @@
       ],
       "ngUpload": "bower_components/ngUpload/ng-upload.min.js",
       "signalr": "bower_components/signalr/jquery.signalR.min.js",
+      "swfobject": "bower_components/swfobject/swfobject/swfobject.js",
       "toastr": [
         "bower_components/toastr/toastr.min.css",
         "bower_components/toastr/toastr.min.js"
       ],
       "venturocket-angular-slider": "bower_components/venturocket-angular-slider/build/angular-slider.min.js"
     }
-  }
+  },
+  "license": "MIT",
+  "name": "Scripts",
+  "private": true,
+  "resolutions": {
+    "angular": "1.4.8",
+    "angular-touch": "1.4.8",
+    "fullcalendar": "2.4.0"
+  },
+  "version": "0.0.0"
 }

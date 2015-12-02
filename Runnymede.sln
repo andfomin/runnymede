@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Web
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Database.sqlproj", "{26997747-5131-4718-BE51-0F1B45D26EEE}"
 EndProject
@@ -18,6 +18,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme", "Readme", "{316C2FB0-B466-4705-B217-565D325762C0}"
 	ProjectSection(SolutionItems) = preProject
 		_Deployment Sequence.txt = _Deployment Sequence.txt
+		_EventRegisterUsersGuide.docx = _EventRegisterUsersGuide.docx
+		_EventSourceUsersGuide.docx = _EventSourceUsersGuide.docx
+		_FreeSwitch Deployment.txt = _FreeSwitch Deployment.txt
 		_Production Update Sequence.txt = _Production Update Sequence.txt
 		_Website Project Setup.txt = _Website Project Setup.txt
 	EndProjectSection
@@ -33,10 +36,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PublishScripts", "PublishSc
 		PublishScripts\Publish-WebApplicationWebsite.ps1 = PublishScripts\Publish-WebApplicationWebsite.ps1
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configurations", "{5C55E4FF-4EDA-47C3-B7E8-3CCEDF54B92E}"
-	ProjectSection(SolutionItems) = preProject
-		PublishScripts\Configurations\WhiteLabel-WAWS-dev.json = PublishScripts\Configurations\WhiteLabel-WAWS-dev.json
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recorder", "Recorder\Recorder.csproj", "{7B2A9162-1ACE-4ED0-B9DE-91856304A1C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,11 +66,12 @@ Global
 		{6D995A70-145E-4A0E-B75E-54B13FA1E689}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D995A70-145E-4A0E-B75E-54B13FA1E689}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D995A70-145E-4A0E-B75E-54B13FA1E689}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B2A9162-1ACE-4ED0-B9DE-91856304A1C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B2A9162-1ACE-4ED0-B9DE-91856304A1C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B2A9162-1ACE-4ED0-B9DE-91856304A1C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B2A9162-1ACE-4ED0-B9DE-91856304A1C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{5C55E4FF-4EDA-47C3-B7E8-3CCEDF54B92E} = {01A43F1A-E5CE-4E81-9E6B-D546EEA98694}
 	EndGlobalSection
 EndGlobal

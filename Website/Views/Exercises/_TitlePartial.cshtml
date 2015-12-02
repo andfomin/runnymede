@@ -1,19 +1,5 @@
 ﻿<div ng-cloak>
     <div class="row">
-        <div class="col-md-4 app-margin-bottom">
-            <button class="btn btn-primary" style="margin-right:20px;" ng-click="vm.showCreateRequestModal()" ng-show="!vm.exercise.reviews.length">Request&nbsp;review</button>
-            <button class="btn btn-default" ng-click="showQuestions = !showQuestions">{{showQuestions ? '&nbsp;Hide' : 'Show'}}&nbsp;questions</button>
-        </div>
-        <div class="col-md-8 col-lg-7">
-            <div class="well" collapse="!showQuestions">
-                <div ng-repeat="i in vm.card.items">
-                    @* Include ngSanitize for using ng-bind-html *@
-                    <p ng-bind-html="i.contents"></p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
         <div class="col-md-8">
             <div class="input-group">
                 <span class="input-group-addon"><strong>Title</strong></span>
@@ -24,10 +10,12 @@
                     </button>
                 </span>
             </div><!-- /input-group -->
-            <p class="app-margin-top app-margin-bottom-none">
-                <strong>Comment:</strong> {{vm.exercise.comment}}
-            </p>
         </div>
+        <div class="col-md-4 text-right app-margin-top-sm">
+            <button class="btn btn-default" ng-click="showQuestions = !showQuestions">{{showQuestions ? '&nbsp;Hide' : 'Show'}}&nbsp;questions</button>
+            <button class="btn btn-primary app-margin-left" ng-click="vm.showCreateRequestModal()" ng-show="!vm.exercise.reviews.length">Request&nbsp;review</button>
+        </div>
+
         @*<div class="col-md-4" ng-show="vm.canEditLength()">
                 <div class="hidden-lg hidden-md">&nbsp;</div>
                 <div class="input-group">
@@ -40,6 +28,17 @@
                     </span>
                 </div><!-- /input-group -->
             </div>*@
+    </div>
+    <div class="row">
+        <div class="col-md-offset-2 col-md-8">
+            <div class="well app-margin-top app-margin-bottom-none" uib-collapse="!showQuestions">
+                <div ng-repeat="i in vm.card.items">
+                    @* Include ngSanitize for using ng-bind-html *@
+                    <p ng-bind-html="i.content"></p>
+                    <p ng-bind-html="i.cueCard"></p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

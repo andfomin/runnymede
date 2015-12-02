@@ -6,7 +6,7 @@
         eventSources: any[];
         //selections: ISession[] = [];
 
-        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$scope, CalendarCtrlBase.uiCalendarConfigName];
+        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$uibModal, app.ngNames.$scope, CalendarCtrlBase.uiCalendarConfigName];
 
         constructor(
             $http: angular.IHttpService,

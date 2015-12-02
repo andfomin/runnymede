@@ -23,14 +23,19 @@ module app.exercises {
             public $appRemarks: app.exercises.IRemarksService,
             public $http: angular.IHttpService,
             public $rootScope: angular.IRootScopeService,
-            public $scope: app.IScopeWithViewModel
-            )
+            public $scope: app.IScopeWithViewModel,
+            cardProvider: ILazyProvider<ICard>
+        )
         /* ----- Constructor  ------------ */ {
             $scope.vm = this;
 
             this.exercise = app['exerciseParam'];
-            this.card = app['cardParam'];
             this.reviews = this.exercise.reviews;
+
+            cardProvider.get()
+                .then((card) => {
+                    this.card = card;
+                });
 
             // Performance descriptors. Flat array filtered by serviceType.
             var descs: app.exercisesIelts.IDescriptor[] =
@@ -43,10 +48,10 @@ module app.exercises {
                 i.band = +i.path.substr(12, 1);
             });
             // First group by criterion area
-            var groups: app.exercisesIelts.IDescriptor[][] = app.arrGroupBy(descs,(i) => { return i.path.substr(0, 9); });
+            var groups: app.exercisesIelts.IDescriptor[][] = app.arrGroupBy(descs, (i) => { return i.path.substr(0, 9); });
             // Then group by descriptor group
             this.descGroups = groups.map((i) => {
-                return app.arrGroupBy(i,(j) => { return j.group; });
+                return app.arrGroupBy(i, (j) => { return j.group; });
             });
 
             // The dummy pieces will be replaced as the real ones have been loaded.
@@ -95,7 +100,7 @@ module app.exercises {
                 pieces.forEach((i) => {
                     i.dirtyTime = null;
                     var reviewId = i.reviewId;
-                    var review = app.arrFind(this.reviews,(r) => { return r.id === reviewId; });
+                    var review = app.arrFind(this.reviews, (r) => { return r.id === reviewId; });
                     if (review) {
                         switch (i.type) {
                             case PieceTypes.Remark:
@@ -106,7 +111,7 @@ module app.exercises {
                                 break;
                             case PieceTypes.Suggestion:
                                 var ss = review.suggestions;
-                                var s = app.arrFind(ss,(j) => { return j.id === i.id; });
+                                var s = app.arrFind(ss, (j) => { return j.id === i.id; });
                                 if (s) {
                                     ss[ss.indexOf(s)] = <any>i;
                                 }
@@ -118,7 +123,7 @@ module app.exercises {
                                 review.comment = <any>i;
                                 break;
                             case PieceTypes.Video:
-                                review.video = <any>i;                                
+                                review.video = <any>i;
                                 break;
                         }
                     }
@@ -154,12 +159,12 @@ module app.exercises {
         constructor(
             private $appRemarksComparer: (a: IRemark, b: IRemark) => number,
             private $rootScope: angular.IRootScopeService
-            ) { /* ----- Ctor  ----- */
+        ) { /* ----- Ctor  ----- */
         } // end of ctor
 
         upsertRemarks = (remarks: IRemark[]) => {
             remarks.forEach((i) => {
-                var r = app.arrFind(this.remarks,(j) => { return (j.id === i.id) && (j.reviewId === i.reviewId); });
+                var r = app.arrFind(this.remarks, (j) => { return (j.id === i.id) && (j.reviewId === i.reviewId); });
                 if (r) {
                     this.remarks[this.remarks.indexOf(r)] = i;
                 }
@@ -193,5 +198,40 @@ module app.exercises {
         };
 
     } // end of class RemarksService
+
+    export class CardProvider implements ILazyProvider<ICard> {
+        static ServiceName = 'appCardProvider';
+        //static SupportedTypes = [ServiceType.IeltsWritingTask1, ServiceType.IeltsWritingTask2, ServiceType.IeltsSpeaking];
+
+        promise: angular.IPromise<ICard>;
+
+        static $inject = [app.ngNames.$http]
+        constructor(
+            public $http: angular.IHttpService
+        ) {
+            //this.serviceType = app['serviceTypeParam'];
+            //if (IeltsBase.SupportedTypes.indexOf(this.serviceType) != -1) {
+            //}
+        };
+
+        get = () => {
+            if (!this.promise) {
+                //var serviceType = app['serviceTypeParam'];
+                //var url = app.exercisesApiUrl('user_card/' + serviceType);
+                //var url = '/content/aec3cc24-92b4-4cc3-88d1-c235395e30d0.json';
+                var cardId = app['cardIdParam'];
+                var url = '/app/exercisesIelts/' + cardId + '.json';
+                this.promise = app.ngHttpGet(this.$http, url, null, null)
+                    .then(
+                    (response: angular.IHttpPromiseCallbackArg<ICard>) => {
+                        return response.data;
+                    },
+                    (reason) => { return { message: reason } }
+                    );
+            }
+            return this.promise;
+        };
+
+    } // end of class CardProvider
 
 } // end of module app.exercises

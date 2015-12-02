@@ -4,7 +4,7 @@ module app.exercises {
 
         exercises: app.IExercise[];
 
-        static $inject = [app.ngNames.$filter, app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$rootScope, app.ngNames.$scope, app.ngNames.$state, app.ngNames.$timeout];
+        static $inject = [app.ngNames.$filter, app.ngNames.$http, app.ngNames.$interval, app.ngNames.$uibModal, app.ngNames.$rootScope, app.ngNames.$scope, app.ngNames.$state, app.ngNames.$timeout];
 
         constructor(
             private $filter: angular.IFilterService,

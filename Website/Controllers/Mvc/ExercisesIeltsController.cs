@@ -17,20 +17,32 @@ using System.Web.Routing;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
+    public enum RecordingMethods
+    {
+        Modern,
+        Desktop,
+        Capture
+    }
+
     public class ExercisesIeltsController : Runnymede.Website.Utils.CustomController
     {
+        public const string RecordingMethodsCookieName = "apprm";
 
         public ActionResult Index()
         {
+            this.EnsureExtIdCookie();
             return View();
         }
 
+        [RequireHttps] // getUserMedia() is deprecated on insecure origins in Chrome.
         public ActionResult Speaking()
         {
-            var userAgent = Request.UserAgent.ToLower();
-            var regex = new Regex(".*(android|iphone|ipad|ipod|windows phone).*");
-            var mobile = regex.IsMatch(userAgent);
-            return mobile ? View("SpeakingMobile") : View("SpeakingDesktop");
+            //var serviceType = app['serviceTypeParam'];
+            //var url = app.exercisesApiUrl('user_card/' + serviceType);
+            //var url = '/content/aec3cc24-92b4-4cc3-88d1-c235395e30d0.json';
+            this.EnsureExtIdCookie();
+            ViewBag.cardIdParam = "aec3cc24-92b4-4cc3-88d1-c235395e30d0";
+            return View();
         }
 
         public ActionResult Writing(string id)
@@ -85,11 +97,6 @@ namespace Runnymede.Website.Controllers.Mvc
             if (!items.All(i => i.File.ContentType == MediaType.Jpeg))
             {
                 return RedirectToAction(referrerAction, new { error = "wrong_file_format" });
-            }
-
-            if (String.IsNullOrWhiteSpace(title))
-            {
-                title = ServiceType.GetTitle(serviceType);
             }
 
             var userId = this.GetUserId();
@@ -149,19 +156,14 @@ namespace Runnymede.Website.Controllers.Mvc
 
             var artifact = String.Join(",", blobNames);
 
-            var exerciseId = await UploadUtils.CreateExercise(artifact, userId, serviceType, ArtifactType.Jpeg, 0, title, cardId, comment);
+            var exerciseId = await ExerciseUtils.CreateExercise(artifact, userId, serviceType, ArtifactType.Jpeg, 0, title, cardId, comment);
 
             return RedirectToAction("View", "Exercises", new { Id = exerciseId });
         }
 
-
-
-
-
-
         [Authorize]
         [HttpPost]
-        // Do not rename the files parameter. The form inputs are bounded by this name.
+        // TODO OBSOLETE. Do not rename the files parameter. The form inputs are bounded by this name.
         public async Task<ActionResult> SaveRecordings(IEnumerable<HttpPostedFileBase> files, string serviceType, Guid? cardId, string title, string comment)
         {
             /*
@@ -194,31 +196,26 @@ namespace Runnymede.Website.Controllers.Mvc
                 ;
 
             var acceptedContentTypes = (new[] { MediaType.Mpeg, MediaType.Mp3, MediaType.Amr, MediaType.Gpp, MediaType.QuickTime });
-            if (! acceptedContentTypes.Contains(contentType))
+            if (!acceptedContentTypes.Contains(contentType))
             {
                 return RedirectToAction(referrerAction, new { error = "wrong_file_format" });
             }
 
-            if (String.IsNullOrWhiteSpace(title))
-            {
-                title = ServiceType.GetTitle(serviceType);
-            }
-
             // 2. Save the original media files to blobs.
 
-            var userId = this.GetUserId(); 
+            var userId = this.GetUserId();
             var userIdKey = KeyUtils.IntToKey(userId);
             var timeKey = KeyUtils.GetTimeAsBase32();
             var index = 0;
             var extension = MediaType.GetExtension(contentType);
-            var blobNames = new List<string>();
+            //var blobNames = new List<string>();
 
             foreach (var file in originalFiles)
             {
                 using (var inputStream = file.InputStream)
                 {
                     // The directory structure in the Blob Storage is userIdKey/timeKey/index.ext. Runnymede.Helper.Controllers.RecordingsController.Get() relies on this structure.
-                    var blobName = String.Format("{1}{0}{2}{0}{3}.{4}", AzureStorageUtils.DefaultDirectoryDelimiter, userIdKey, timeKey, index, extension);
+                    var blobName = String.Format("{0}/{1}/{2}.{3}", userIdKey, timeKey, index, extension);
                     await AzureStorageUtils.UploadBlobAsync(inputStream, AzureStorageUtils.ContainerNames.Artifacts, blobName, file.ContentType);
                     index++;
                 }
@@ -226,7 +223,7 @@ namespace Runnymede.Website.Controllers.Mvc
 
             // 3. Call the remote transcoding service.
 
-            var host = ConfigurationManager.AppSettings["RecordingTranscoderHost"];
+            var host = ConfigurationManager.AppSettings["RecorderHost"];
             var urlFormat = "http://{0}/api/recordings/transcoded/?userIdKey={1}&timeKey={2}&extension={3}&count={4}";
             var url = String.Format(urlFormat, host, userIdKey, timeKey, extension, originalFiles.Count());
             HttpClient client = new HttpClient();
@@ -236,41 +233,22 @@ namespace Runnymede.Website.Controllers.Mvc
                 return RedirectToAction(referrerAction, new { error = "transcoding_error" });
             }
             // Error is returned as HTML. Then we get error here: No MediaTypeFormatter is available to read an object of type 'JObject' from content with media type 'text/html'.
-            var value = await response.Content.ReadAsAsync<JObject>();
-            var outputBlobName = (string)value["outputBlobName"];
-            var durationMsec = (int)value["durationMsec"];
+            var recordingDetails = await response.Content.ReadAsAsync<RecordingDetails>();
 
-            // Make sure the duration is known. If the transcoder has failed to parse the ffmpeg logs, it returns DurationMsec = -1.
-            if (durationMsec < 0)
+            // Make sure the duration is known. If the transcoder has failed to parse the ffmpeg logs, it returns DurationMsec = 0.
+            if (recordingDetails.TotalDuration == 0)
             {
                 // Read the blob and try to determine the duration directly.
-                var outputBlob = AzureStorageUtils.GetBlob(AzureStorageUtils.ContainerNames.Recordings, outputBlobName);
-                using (var stream = new MemoryStream())
-                {
-                    await outputBlob.DownloadToStreamAsync(stream);
-                    durationMsec = UploadUtils.GetMp3DurationMsec(stream); // Seeks the stream to the beginning internally.
-                }
+                recordingDetails.TotalDuration = await RecordingUtils.GetMp3DurationMsec(recordingDetails.BlobName);
             }
 
             // 4. Create a database record.
-            var exerciseId = await UploadUtils.CreateExercise(outputBlobName, userId, serviceType, ArtifactType.Mp3, durationMsec, title, cardId, comment);
+            var exerciseId = await ExerciseUtils.CreateExercise(recordingDetails.BlobName, userId,
+                serviceType, ArtifactType.Mp3, recordingDetails.TotalDuration, title, cardId, comment);
 
             // 5. Redirect to the exercise page.
             return RedirectToAction("View", "Exercises", new { Id = exerciseId });
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     }
 }

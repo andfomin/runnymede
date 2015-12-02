@@ -10,11 +10,11 @@ using System.Web.Http;
 
 namespace Runnymede.Website.Controllers.Api
 {
-        [RoutePrefix("api/luckyyou")]
+    [RoutePrefix("api/lucky_you")]
     public class LuckyYouApiController : ApiController
     {
 
-        // POST: /api/luckyyou/entry
+        // POST: /api/lucky_you/entry
         [Route("entry")]
         public async Task<IHttpActionResult> PostEntry([FromBody] JObject value)
         {
@@ -26,7 +26,8 @@ when not matched then
 	insert ([Date], Email, Digits, UserId, IpAddress, UserAgent, ExtId)
 		values (Src.[Date], @Email, @Digits, @UserId, @IpAddress, @UserAgent, @ExtId);
 ";
-            await DapperHelper.ExecuteResilientlyAsync(sql, new {
+            await DapperHelper.ExecuteResilientlyAsync(sql, new
+            {
                 Email = (string)value["email"],
                 Digits = (string)value["digits"],
                 UserId = this.IsAuthenticated() ? this.GetUserId() : default(int?),

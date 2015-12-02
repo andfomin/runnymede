@@ -35,10 +35,30 @@ namespace Runnymede.Website.Controllers.Mvc
             return View();
         }
 
-        public ActionResult Test01()
+        //        public ActionResult Test01()
+        //        {
+        //            /* The View contents:
+        //<form action="/api/sessions/inbound_webhook" method="post">
+        //    <input type="text" name="mandrill_events" value="qwe1" />
+        //    <input type="submit" value="Ok" />
+        //</form>            
+        //            */
+        //            return View();
+        //        }
+
+        // GET: sessions/skype-recorder
+
+        [Authorize]
+        public ActionResult SkypeRecorder()
         {
+            if (!this.GetUserIsTeacher())
+            {
+                return Redirect(Url.Action("Logout", "Account", null, "https"));
+            }
             return View();
         }
+
+
 
     }
 }

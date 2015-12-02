@@ -200,6 +200,8 @@
     <Build Include="Tables\lckEntries.sql" />
     <Build Include="Functions\sesGetItalkiTeachers.sql" />
     <Build Include="Tables\appGiveaways.sql" />
+    <Build Include="Views\appCombinedUsers.sql" />
+    <Build Include="Functions\appGetUserIdBySkypeName.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare.scmp" />

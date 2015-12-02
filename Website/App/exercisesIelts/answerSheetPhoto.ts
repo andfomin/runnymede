@@ -6,7 +6,7 @@
         rotations: number[]; 
         uploading: boolean = false;
 
-        static $inject = [app.ngNames.$http, app.ngNames.$modal, app.ngNames.$scope, app.ngNames.$timeout];
+        static $inject = [app.ngNames.$http, app.ngNames.$uibModal, app.ngNames.$scope, app.ngNames.$timeout];
 
         constructor(
             $http: angular.IHttpService,
@@ -27,7 +27,7 @@
                 this.rotations[pageCount] = 0;
             } 
 
-            this.supported = app.isMobileDevice() && captureSupported('image/jpeg');
+            this.supported = app.isMobileDevice() && app.captureSupported('image/jpeg');
             // ng-change does not support input["file"]. We attach a handler to the native event on the element.
             (<any>AnswerSheetPhoto).onFileChange = this.onFileChange;
             /* ----- End of constructor  ----- */

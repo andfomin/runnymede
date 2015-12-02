@@ -4,7 +4,7 @@ module app.exercisesIelts {
 
         exercises: app.IExercise[];
 
-        static $inject = [app.ngNames.$filter, app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$scope];
+        static $inject = [app.ngNames.$filter, app.ngNames.$http, app.ngNames.$interval, app.ngNames.$uibModal, app.ngNames.$scope];
 
         constructor(
             private $filter: angular.IFilterService,

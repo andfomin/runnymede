@@ -10,10 +10,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 
 namespace Runnymede.Helper.Controllers
 {
+    [RoutePrefix("api/recordings")]
     public class RecordingsController : ApiController
     {
         public const string StorageConnectionSetting = "StorageConnection";
@@ -91,9 +93,10 @@ namespace Runnymede.Helper.Controllers
         //}
         /*
          */
-        
+
         // GET api/recordings/transcoded/?userIdKey=1234567890&timeKey=qwe123asd&extension=amr&count=19            
-        public async Task<IHttpActionResult> Get(string userIdKey = null, string timeKey = null, string extension = null, int count = 0)
+        [Route("transcoded")]
+        public async Task<IHttpActionResult> GetTranscoded(string userIdKey = null, string timeKey = null, string extension = null, int count = 0)
         {
             if (count < 1)
             {
@@ -111,7 +114,7 @@ namespace Runnymede.Helper.Controllers
             var outputBlobName = blobFolder + "/transcoded.mp3";
             var logBlobName = Path.ChangeExtension(outputBlobName, "log");
 
-            var workDirPath = GetLocalStoragePath();
+            var workDirPath = GetAppDataDir(); // GetLocalStoragePath();
             var fileNamePrefix = userIdKey + "_" + timeKey;
 
             var filePaths = Enumerable.Range(0, count)
@@ -143,7 +146,7 @@ namespace Runnymede.Helper.Controllers
                 foreach (var i in filePaths)
                 {
                     // Increase audio volume by 20dB, convert to MP3 CBR 32kbit/s.
-                    arguments = String.Format("-i \"{0}\" -af \"volume=20dB\" -b:a 32k \"{1}\"", i.Original, i.Intermidiate);
+                    arguments = String.Format("-i \"{0}\" -af \"volume=20dB\" -b:a 64k \"{1}\"", i.Original, i.Intermidiate);
                     var logText1 = RunFfmpeg(arguments);
                     logs.Add(logText1);
                 }
@@ -159,12 +162,15 @@ namespace Runnymede.Helper.Controllers
 
                 var outputBlob = blobContainer.GetBlockBlobReference(outputBlobName);
                 outputBlob.Properties.ContentType = "audio/mpeg";
-                await outputBlob.UploadFromFileAsync(outputFilePath, FileMode.Open);
+                var taskMp3 = outputBlob.UploadFromFileAsync(outputFilePath, FileMode.Open);
 
                 var logBlob = blobContainer.GetBlockBlobReference(logBlobName);
                 logBlob.Properties.ContentType = "text/plain";
                 var logText = String.Join(Environment.NewLine + "---------------------------" + Environment.NewLine, logs);
-                await logBlob.UploadTextAsync(logText);
+                var taskLog = logBlob.UploadTextAsync(logText);
+
+                // Upload the blobs simultaneously.
+                await Task.WhenAll(taskMp3, taskLog);
 
                 // Try to read the recording's duration from the ffmpeg logging information.
                 int durationMsec;
@@ -193,10 +199,69 @@ namespace Runnymede.Helper.Controllers
             return Ok(result);
         }
 
+        // GET api/recordings/freeswitch/?uuid=ae1d4ee2-f4b7-4816-8111-3077e475f771&userIdKey=1234567890&timeKey=qwe123asd           
+        [Route("freeswitch")]
+        public async Task<IHttpActionResult> GetFromFreeswitch(string uuid, string userIdKey = null, string timeKey = null)
+        {
+            dynamic result = null;
+
+            // Produce file paths.
+            var workDirPath = GetAppDataDir();
+            var sourceFilePath = Path.Combine(workDirPath, uuid + ".wav");
+            var outputFilePath = Path.ChangeExtension(sourceFilePath, "mp3");
+
+            var blobContainer = GetBlobContainer();
+            // The directory structure in the Blob Storage is userIdKey/timeKey/filename.ext
+            // Do not use Path.Combine() because Path.DirectorySeparatorChar is '\', whereas CloudBlobClient.DefaultDelimiter is NavigationHelper.Slash .
+            var blobFolder = userIdKey + "/" + timeKey;
+            var outputBlobName = blobFolder + "/fs.mp3";
+            var logBlobName = Path.ChangeExtension(outputBlobName, "log");
+
+            try
+            {
+                // Convert to MP3. Increase the audio volume by 10dB, convert to MP3 CBR 64kbit/s.
+                var arguments = String.Format("-i \"{0}\" -af \"volume=10dB\" -b:a 64k \"{1}\"", sourceFilePath, outputFilePath);
+                var logText = RunFfmpeg(arguments);
+
+                var outputBlob = blobContainer.GetBlockBlobReference(outputBlobName);
+                outputBlob.Properties.ContentType = "audio/mpeg";
+                var taskMp3 = outputBlob.UploadFromFileAsync(outputFilePath, FileMode.Open);
+
+                var logBlob = blobContainer.GetBlockBlobReference(logBlobName);
+                logBlob.Properties.ContentType = "text/plain";
+                var taskLog = logBlob.UploadTextAsync(logText);
+
+                // Upload the blobs simultaneously.
+                await Task.WhenAll(taskMp3, taskLog);
+
+                // Try to read the recording's duration from the ffmpeg logging information.
+                int durationMsec;
+                var parsed = ParseDuration(logText, out durationMsec);
+
+                // The JSON encoder with default settings doesn't make upper-case -> lower-case letter conversion of property names. The receiving side is case-sensitive.
+                result = new
+                {
+                    outputBlobName = outputBlobName,
+                    durationMsec = parsed ? durationMsec : -1,
+                };
+
+                // Delete the original WAV file on success.
+                File.Delete(sourceFilePath);
+            }
+            finally
+            {
+                // Clean up the MP3 file.
+                File.Delete(outputFilePath);
+            }
+
+            return Ok(result);
+        }
+
         private string RunFfmpeg(string arguments)
         {
             // Path.Combine() ignores the first path part if it has no trailing back slash.
-            var exeDirPath = Path.Combine(Environment.GetEnvironmentVariable("RoleRoot") + @"\", @"approot\bin\");
+            //var exeDirPath = Path.Combine(Environment.GetEnvironmentVariable("RoleRoot") + @"\", @"approot\bin\");
+            var exeDirPath = GetAppDataDir();
             var exePath = Path.Combine(exeDirPath, "ffmpeg.exe");
 
             var processStartInfo = new ProcessStartInfo
@@ -221,26 +286,26 @@ namespace Runnymede.Helper.Controllers
         {
             // +http://www.heikniemi.net/hardcoded/2013/06/encrypting-connection-strings-in-windows-azure-web-applications/
             // RoleEnvironment.IsEmulated
-            //var connectionString = ConfigurationManager.ConnectionStrings[StorageConnectionStringName].ConnectionString;
-            //var containerName = ConfigurationManager.AppSettings[RecordingsBlobContainerName];
-            var connectionString = RoleEnvironment.GetConfigurationSettingValue(StorageConnectionSetting);
-            var containerName = RoleEnvironment.GetConfigurationSettingValue(RecordingsBlobContainerSetting);
+            //var connectionString = RoleEnvironment.GetConfigurationSettingValue(StorageConnectionSetting);
+            //var containerName = RoleEnvironment.GetConfigurationSettingValue(RecordingsBlobContainerSetting);
+            var connectionString = ConfigurationManager.ConnectionStrings[StorageConnectionSetting].ConnectionString;
+            var containerName = ConfigurationManager.AppSettings[RecordingsBlobContainerSetting];
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
             var blobContainer = blobClient.GetContainerReference(containerName);
             return blobContainer;
         }
 
-        //private CloudBlockBlob GetBlob(string blobName)
-        //{
-        //    var blobContainer = GetBlobContainer();
-        //    return blobContainer.GetBlockBlobReference(blobName);
-        //}
-
-        private string GetLocalStoragePath()
+        private string GetAppDataDir()
         {
-            return RoleEnvironment.GetLocalResource("MyLocalStorage").RootPath;
+            return HttpContext.Current.Server.MapPath("~/App_Data");
         }
+
+        // We don't use Web Role anymore.
+        //private string GetLocalStoragePath()
+        //{
+        //    return RoleEnvironment.GetLocalResource("MyLocalStorage").RootPath; 
+        //}
 
         //private string GetExeDirPath()
         //{

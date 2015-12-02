@@ -32,14 +32,12 @@
                 @if (!Model.IsTeacher)
                 {
                     <li class="@NavClass("IeltsExercises")">@Html.ActionLink("IELTS Exercises", "Index", "ExercisesIelts")</li>
-                    <li class="@NavClass("Sessions")">@Html.ActionLink("Sessions", "Index", "Sessions")</li>
                     <li class="@NavClass("Library")">@Html.ActionLink("Library", "Index", "Library")</li>
                     <li class="@NavClass("Games")">@Html.ActionLink("Game", "LuckyYou", "Games", null, new { tabindex = "-1" })</li>
                 }
                 @if (Model.IsTeacher)
                 {
                     <li class="@NavClass("Reviews")">@Html.ActionLink("Reviews", "Index", "Reviews", null, new { tabindex = "-1" })</li>
-                    <li class="@NavClass("Sessions")">@Html.ActionLink("Sessions", "Teacher", "Sessions")</li>
                     <li class="@NavClass("Library")">@Html.ActionLink("Library", "Index", "Library")</li>
                 }
             </ul>

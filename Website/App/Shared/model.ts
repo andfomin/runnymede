@@ -19,12 +19,14 @@ module app {
 
     export interface IExercise {
         id: number;
-        creationTime: string;
         serviceType: string;
+        cardId: string;
+        creationTime: string;
         artifactType: string;
         artifact: string;
         title: string;
         length: number;
+        details?: string; // JSON
         reviews: IReview[];
     };
 
@@ -141,7 +143,17 @@ module app {
     }
 
     export interface ICardItem {
-        position: string;
+        content: string;
+        cueCard?: string;
+        paceTarget?: number; // seconds
+        playFrom?: number; // seconds
+        playTo?: number; 
+        position?: string;
+        record?: boolean;
+        timeout: number; // seconds
+        // The follwing properties are used for development and testing.
+        playTo2?: number; 
+        paceTarget2?: number; // seconds
     }
 
     export interface ICard {

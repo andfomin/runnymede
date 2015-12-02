@@ -20,20 +20,19 @@ module app.exercises {
             public $appRemarks: app.exercises.IRemarksService,
             private $document: angular.IDocumentService,
             public $modal: angular.ui.bootstrap.IModalService,
-            public $scope: app.IScopeWithViewModel,
+            public $scope: angular.IScope,
             private $window: angular.IWindowService
-            )
-        /* ----- Constructor  ------------ */
-        {
+        )
+        /* ----- Constructor  ------------ */ {
             (<any>$scope).vma = this;
 
             this.exercise = app['exerciseParam'];
             this.loadImages();
 
-            this.canvas = <HTMLCanvasElement>($window.document.getElementById('myCanvas'));            
+            this.canvas = <HTMLCanvasElement>($window.document.getElementById('myCanvas'));
             this.canvas.onclick = (event: MouseEvent) => { this.onCanvasClick(event); }; // onCanvasClick is overrided in the descendant, thus do not assign the function directly, wrap it in a call.
 
-            $scope.$on(app.exercises.RemarksService.remarksChanged,() => { this.onRemarksChanged(); });
+            $scope.$on(app.exercises.RemarksService.remarksChanged, () => { this.onRemarksChanged(); });
             $scope.$on(app.exercises.RemarksService.unselectRemark, () => { this.selectRemark(null); });
 
             $document.on('scroll', () => { this.scrollSpy(); });
@@ -175,8 +174,8 @@ module app.exercises {
             var x = event.clientX - left;
             var y = event.clientY - top;
             // Round to 3 decimals.
-            x = Math.round(1000 * x / width) / 1000;
-            y = Math.round(1000 * y / height) / 1000;
+            x = app.roundTo(x / width, 3);
+            y = app.roundTo(y / height, 3);
             return <IPoint>{ x: x, y: y };
         };
 
@@ -228,7 +227,7 @@ module app.exercises {
             this.clear();
             if (old) {
                 // Old remark items are replaced with new ones in the list. Aarray.indexOf() will not find the old one.
-                var r = app.arrFind(this.$appRemarks.remarks,(i) => {
+                var r = app.arrFind(this.$appRemarks.remarks, (i) => {
                     return (i.id === old.id) && (i.reviewId === old.reviewId);
                 });
                 if (r) {

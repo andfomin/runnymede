@@ -3,7 +3,7 @@
 CREATE PROCEDURE [dbo].[exeTryChangeExerciseAuthor]
 	@ExerciseId int,
 	@UserId int, -- Original owner
-	@SkypeName nvarchar(100) = null -- Skype name of the new owner
+	@SkypeName nvarchar(100) -- Skype name of the new owner
 AS
 BEGIN
 /*
@@ -18,31 +18,20 @@ begin try
 	if @ExternalTran > 0
 		save transaction ProcedureSave;
 
-	declare @Count int, @NewUserId int;
-
-	declare @t table (
-		Id int
-	);
-
-	insert @t
-		select Id from dbo.appUsers where SkypeName = @SkypeName;
-
-	select @Count = count(*) from @t;
-	select @NewUserId = Id from @t where @Count = 1;
+	declare @NewUserId int = dbo.appGetUserIdBySkypeName(@SkypeName);
 
 	if @ExternalTran = 0
 		begin transaction;
 
 			update dbo.exeExercises
 			set UserId = @NewUserId
+			output inserted.UserId
 			where @NewUserId is not null
 				and Id = @ExerciseId
 				and UserId = @UserId;
 
 	if @ExternalTran = 0
 		commit;
-
-	select @NewUserId;
 
 end try
 begin catch

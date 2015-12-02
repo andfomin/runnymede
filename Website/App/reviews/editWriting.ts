@@ -26,7 +26,7 @@ module app.reviews {
 
         review: IReview;
 
-        static $inject = [app.ngNames.$appRemarks, app.ngNames.$document, app.ngNames.$modal, app.ngNames.$scope, app.ngNames.$window];
+        static $inject = [app.ngNames.$appRemarks, app.ngNames.$document, app.ngNames.$uibModal, app.ngNames.$scope, app.ngNames.$window];
 
         constructor(
             $appRemarks: app.exercises.IRemarksService,

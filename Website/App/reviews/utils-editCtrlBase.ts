@@ -8,8 +8,9 @@ module app.reviews {
         unsavedOnExit: boolean = false;
         categories: any[];
 
-        static $inject = [app.ngNames.$appRemarks, app.ngNames.$http, app.ngNames.$interval, app.ngNames.$modal, app.ngNames.$q,
-            app.ngNames.$rootScope, app.ngNames.$scope, app.ngNames.$window];
+        static $inject = [app.ngNames.$appRemarks, app.ngNames.$http, app.ngNames.$interval, app.ngNames.$uibModal, app.ngNames.$q,
+            app.ngNames.$rootScope, app.ngNames.$scope, app.ngNames.$window,
+            app.exercises.CardProvider.ServiceName];
 
         constructor(
             $appRemarks: app.exercises.IRemarksService,
@@ -19,10 +20,11 @@ module app.reviews {
             private $q: angular.IQService,
             $rootScope: angular.IRootScopeService,
             $scope: app.IScopeWithViewModel,
-            public $window: angular.IWindowService
-            )
+            public $window: angular.IWindowService,
+            cardProvider: ILazyProvider<ICard>
+        )
         /* ----- Constructor  ------------ */ {
-            super($appRemarks, $http, $rootScope, $scope);
+            super($appRemarks, $http, $rootScope, $scope, cardProvider);
 
             this.review = this.exercise.reviews[0];
 
@@ -32,14 +34,14 @@ module app.reviews {
                 () => { this.autoSave(); },
                 10000);
 
-            $scope.$on('$destroy',() => {
+            $scope.$on('$destroy', () => {
                 if (angular.isDefined(autoSaveInterval)) {
                     $interval.cancel(autoSaveInterval);
                 }
                 this.$window.onbeforeunload = undefined;
             });
 
-            $scope.$on(app.exercises.RemarksService.remarksChanged,() => { this.autoSaved = false; });
+            $scope.$on(app.exercises.RemarksService.remarksChanged, () => { this.autoSaved = false; });
 
             this.categories = app.library.Categories
                 .filter((i) => { return i.pathIds.indexOf(app.library.ID_OF_MEDIA_CATEGORY) === -1; }) // Filter out everything under "Media"
@@ -52,8 +54,8 @@ module app.reviews {
             var maxLength = 90;
 
             var withParent = (id: string) => {
-                var category = app.arrFind(app.library.Categories,(i) => { return i.id === id; });
-                var parent = app.arrFind(app.library.Categories,(i) => { return i.id === category.parentId; });
+                var category = app.arrFind(app.library.Categories, (i) => { return i.id === id; });
+                var parent = app.arrFind(app.library.Categories, (i) => { return i.id === category.parentId; });
                 var parName = (parent && parent.name) || '';
                 var length = Math.max(maxLength - category.name.length, 0);
                 var prefix = parName.length > length ? parName.substr(0, length - 1) + '&hellip;' : parName;
@@ -72,7 +74,7 @@ module app.reviews {
                     this.unsavedOnExit = true;
                     this.$scope.$apply();
                     var text = 'Your unsaved changes will be lost if you leave this page.';
-                    if (typeof event == 'undefined') {
+                    if (angular.isUndefined(event)) {
                         event = window.event;
                     }
                     if (event) {
@@ -88,7 +90,7 @@ module app.reviews {
         }
 
         addSuggestion = () => {
-            var s = <app.ISuggestion> {
+            var s = <app.ISuggestion>{
                 id: getPieceId(this.review),
                 reviewId: this.review.id,
                 type: app.exercises.PieceTypes.Suggestion,
@@ -103,10 +105,10 @@ module app.reviews {
             return this.$http.delete(
                 app.reviewsApiUrl('piece/' + partitionKey + '/' + rowKey))
                 .success(() => {
-                // The operation is idempotent. An attempt to delete an unsaved item is no problem as well. In this case, just delete the item on the client.
-                app.arrRemove(this.review.suggestions, suggestion);
-                toastr.success('Suggestion was deleted.');
-            });
+                    // The operation is idempotent. An attempt to delete an unsaved item is no problem as well. In this case, just delete the item on the client.
+                    app.arrRemove(this.review.suggestions, suggestion);
+                    toastr.success('Suggestion was deleted.');
+                });
         }
 
         isNotFinished = () => {
@@ -155,7 +157,7 @@ module app.reviews {
             // Try to assign categoryId. Although we expect a category, ISuggestion.keywords may be any text. 
             suggestions.forEach((i: app.ISuggestion) => {
                 var keywords = (i.keywords || '').trim();
-                var category = app.arrFind(this.categories,(i) => { return i.name === keywords; });
+                var category = app.arrFind(this.categories, (i) => { return i.name === keywords; });
                 i.categoryId = category ? category.id : null;
             });
 
@@ -195,14 +197,14 @@ module app.reviews {
                         });
                     },
                     () => { this.isSaving = false; }
-                    )
+                )
                     .catch((reason) => {
-                    toastr.warning('Changes cannot be saved. Please reload the page.');
-                    // .catch() does not propagate the original rejected promise (.then() doesn't either.) It returns a new resolved promise by default.
-                    var d1 = this.$q.defer();
-                    d1.reject(reason);
-                    return d1.promise;
-                });
+                        toastr.warning('Changes cannot be saved. Please reload the page.');
+                        // .catch() does not propagate the original rejected promise (.then() doesn't either.) It returns a new resolved promise by default.
+                        var d1 = this.$q.defer();
+                        d1.reject(reason);
+                        return d1.promise;
+                    });
             }
             else {
                 var d2 = this.$q.defer();
@@ -225,13 +227,13 @@ module app.reviews {
                 {
                     partitionKey: getPiecePartitionKey(this.exercise),
                     rowKey: getPieceRowKey(remark),
-                },
-                () => {
+                }
+            )
+                .then(() => {
                     this.unselectRemark();
                     this.$appRemarks.deleteRemark(remark);
                     toastr.success('Remark was deleted.');
-                }
-                )
+                });
         };
 
         showFinishReviewModal = () => {
@@ -244,15 +246,15 @@ module app.reviews {
                     {
                         review: this.review,
                     }
-                    )
+                );
             };
 
             if (this.canSave()) {
                 this.saveDirtyPieces()
                     .then(() => {
-                    this.autoSaved = true;
-                    openModal();
-                });
+                        this.autoSaved = true;
+                        openModal();
+                    });
             }
             else {
                 openModal();
@@ -283,7 +285,7 @@ module app.reviews {
                     toastr.success('Review is finished.');
                 },
                 null
-                );
+            );
         };
     }; // end of class FinishReviewModal
 

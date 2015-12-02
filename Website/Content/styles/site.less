@@ -90,7 +90,7 @@ a.app-close {
     font-weight: bold;
 }
 
-button.btn.app-btn-disablable {
+.btn.app-btn-disablable {
     pointer-events: inherit;
 }
 
@@ -120,6 +120,12 @@ p.app-pre-line, span.app-pre-line {
 
 .app-margin-top-xs {
     @media (max-width: @screen-xs-max) {
+        margin-top: @line-height-computed;
+    }
+}
+
+.app-margin-top-sm {
+    @media (max-width: @screen-sm-max) {
         margin-top: @line-height-computed;
     }
 }
@@ -291,6 +297,32 @@ i.fa {
 /* API Reference / ng / directive / ngCloak. The CSS rules like these are created dynamically in the main AngularJS script so it seems we don't have to define them by hand. But the angular.js is loaded at the bottom of the body, whereas the site.css is loaded in the head.*/
 .ng-cloak, [ng-cloak], [data-ng-cloak] {
     display: none !important;
+}
+
+/* Show the splash screen until Angular is loaded and the .ng-cloak removed. */
+.app-splash-backdrop {
+    display: none !important;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    opacity: 0.5;
+    z-index: 1000;
+
+    &.ng-cloak {
+        display: block !important;
+    }
+
+    & > .app-splash {
+        position: absolute;
+        top: 40%;
+        width: 100%;
+        font-size: 2em;
+        text-align: center;
+        color: @appBlue;
+    }
 }
 
 .ng-hide.app-hide-position {
