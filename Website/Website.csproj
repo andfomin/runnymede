@@ -287,20 +287,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app\account\edit-logins.html" />
-    <Content Include="app\account\edit-personal0.html" />
-    <Content Include="app\account\edit-teacher.html" />
-    <Content Include="app\account\edit-personal.html" />
-    <Content Include="app\exercises\chooseCardModal.html" />
-    <Content Include="app\exercises\createReviewRequestModal.html" />
-    <Content Include="app\exercises\reviewStatusChangedModal.html" />
-    <Content Include="app\reviews\deleteRemarkModal.html" />
-    <Content Include="app\reviews\finishReviewModal.html" />
-    <Content Include="app\sessions\showSessionDetails.html" />
-    <Content Include="app\sessions\bookSessionModal.html" />
-    <Content Include="app\reviews\startReviewModal.html" />
-    <Content Include="app\shared\html\addResource.html" />
-    <Content Include="app\shared\html\reportResourceProblem.html" />
     <Content Include="bower_installer\angular-animate\angular-animate.min.js" />
     <Content Include="bower_installer\angular-bootstrap\ui-bootstrap-tpls.min.js" />
     <Content Include="bower_installer\angular-loading-bar\loading-bar.min.css" />
@@ -531,7 +517,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="package.json" />
-    <Content Include="app\exercisesIelts\aec3cc24-92b4-4cc3-88d1-c235395e30d0.json" />
     <None Include="Properties\PublishProfiles\englm__staging.pubxml" />
     <Content Include="Views\Shared\_ApplicationInsightsPartial.cshtml" />
     <Content Include="Views\Conversations\Index.cshtml" />
@@ -568,64 +553,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="app\account\buyServices.ts" />
-    <TypeScriptCompile Include="app\account\transactions.ts" />
-    <TypeScriptCompile Include="app\account\signup.ts" />
-    <TypeScriptCompile Include="app\account\edit-app.ts" />
-    <TypeScriptCompile Include="app\account\edit-logins.ts" />
-    <TypeScriptCompile Include="app\account\edit-teacher.ts" />
-    <TypeScriptCompile Include="app\account\edit-personal.ts" />
-    <TypeScriptCompile Include="app\account\forgotPassword.ts" />
-    <TypeScriptCompile Include="app\account\resetPassword.ts" />
-    <TypeScriptCompile Include="app\account\login.ts" />
-    <TypeScriptCompile Include="app\account\thankYou.ts" />
-    <TypeScriptCompile Include="app\conversations\index.ts" />
-    <TypeScriptCompile Include="app\exercisesIelts\answerSheetPhoto.ts" />
-    <TypeScriptCompile Include="app\exercisesIelts\speakingCapture.ts" />
-    <TypeScriptCompile Include="app\exercisesIelts\speakingModern.ts" />
-    <TypeScriptCompile Include="app\exercisesIelts\utils-encoder-qt.ts" />
-    <TypeScriptCompile Include="app\exercisesIelts\utils-speaking.ts" />
-    <TypeScriptCompile Include="app\exercisesIelts\utils-data.ts" />
-    <TypeScriptCompile Include="app\exercisesIelts\utils-encoder.ts" />
-    <TypeScriptCompile Include="app\exercises\index.ts" />
-    <TypeScriptCompile Include="app\sessions\skypeRecorder.ts" />
-    <TypeScriptCompile Include="app\exercises\utils.ts" />
-    <TypeScriptCompile Include="app\exercises\utils-viewCtrlBase.ts" />
-    <TypeScriptCompile Include="app\exercises\viewPhoto.ts" />
-    <TypeScriptCompile Include="app\exercises\viewRecording.ts" />
-    <TypeScriptCompile Include="app\games\copycat.ts" />
-    <TypeScriptCompile Include="app\games\copycatAdd.ts" />
-    <TypeScriptCompile Include="app\games\luckyYou.ts" />
-    <TypeScriptCompile Include="app\games\pickapic.ts" />
-    <TypeScriptCompile Include="app\exercisesIelts\index.ts" />
-    <TypeScriptCompile Include="app\exercisesIelts\speakingDesktop.ts" />
-    <TypeScriptCompile Include="app\exercisesIelts\utils.ts" />
-    <TypeScriptCompile Include="app\library\friend.ts" />
-    <TypeScriptCompile Include="app\library\history.ts" />
-    <TypeScriptCompile Include="app\library\index.ts" />
-    <TypeScriptCompile Include="app\reviews\editWriting.ts" />
-    <TypeScriptCompile Include="app\reviews\utils-editCtrlBase.ts" />
-    <TypeScriptCompile Include="app\sessions\index.ts" />
-    <TypeScriptCompile Include="app\sessions\teacher.ts" />
-    <TypeScriptCompile Include="app\sessions\utils-sessions.ts" />
-    <TypeScriptCompile Include="app\reviews\editRecording.ts" />
-    <TypeScriptCompile Include="app\reviews\index.ts" />
-    <TypeScriptCompile Include="app\shared\exercises-recording0.ts" />
-    <TypeScriptCompile Include="app\shared\exercises-recording.ts" />
-    <TypeScriptCompile Include="app\shared\exercises-writing.ts" />
-    <TypeScriptCompile Include="app\shared\exercises.ts" />
-    <TypeScriptCompile Include="app\shared\library-data.ts" />
-    <TypeScriptCompile Include="app\shared\library.ts" />
-    <TypeScriptCompile Include="app\shared\ctrl-template.ts" />
-    <TypeScriptCompile Include="app\shared\model.ts" />
-    <TypeScriptCompile Include="app\exercises\recordSpeech-cardList.ts" />
-    <TypeScriptCompile Include="app\shared\utils-ng.ts" />
-    <TypeScriptCompile Include="app\shared\utils-player.ts" />
-    <TypeScriptCompile Include="app\shared\utils-signalR.ts" />
-    <TypeScriptCompile Include="app\shared\utils-youtube.ts" />
-    <TypeScriptCompile Include="app\shared\utils.ts" />
-    <TypeScriptCompile Include="app\storytelling\index.ts" />
-    <TypeScriptCompile Include="app\storytelling\speak.ts" />
     <TypeScriptCompile Include="scripts\typings\angular-ui-bootstrap\angular-ui-bootstrap.d.ts" />
     <TypeScriptCompile Include="scripts\typings\angularjs\angular-animate.d.ts" />
     <TypeScriptCompile Include="scripts\typings\angularjs\angular-cookies.d.ts" />
