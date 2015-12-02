@@ -318,10 +318,6 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="gruntfile.js" />
-    <Content Include="scripts\sm2\soundmanager2-nodebug-jsmin.js" />
-    <Content Include="scripts\sm2\soundmanager2.js" />
-    <Content Include="scripts\sm2\soundmanager2_flash9.swf" />
-    <Content Include="scripts\sm2\soundmanager2_flash9_debug.swf" />
     <Content Include="~App_Offline.htm" />
     <Content Include="bower.json" />
     <Content Include="bower_installer\bootstrap\alerts.less" />
@@ -551,27 +547,6 @@
       <DependentUpon>Web.config</DependentUpon>
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <TypeScriptCompile Include="scripts\typings\angular-ui-bootstrap\angular-ui-bootstrap.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\angularjs\angular-animate.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\angularjs\angular-cookies.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\angularjs\angular-mocks.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\angularjs\angular-resource.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\angularjs\angular-route.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\angularjs\angular-sanitize.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\angularjs\angular.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\DataStream.js\DataStream.js.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\fullCalendar\fullCalendar.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\jquery\jquery.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\moment\moment-node.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\moment\moment.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\signalr\signalr.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\swfobject\swfobject.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\toastr\toastr.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\xcopy\angular-ui-router.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\xcopy\howler.d.ts" />
-    <TypeScriptCompile Include="scripts\typings\youtube\youtube.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bower_components\" />
