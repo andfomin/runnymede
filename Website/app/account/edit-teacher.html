@@ -1,0 +1,37 @@
+﻿<div data-ng-if="vm.profile.isTeacher">
+    <p>
+        Rate for Skype sessions is {{vm.profile.sessionRate}} US$/hour
+    </p>
+    <hr />
+    <!--<form class="form-horizontal" name="phoneForm" role="form" novalidate>
+        <div class="form-group">
+            <label class="col-sm-5 control-label" for="phoneNumber">Mobile phone number</label>
+            <div class="col-sm-4">
+                <input type="text" id="phoneNumber" name="phoneNumber" class="form-control" ng-model="vm.newPhone" />
+            </div>
+            <div class="col-sm-3" style="padding-top: 7px;">
+                <span class="text-success" ng-show="vm.isPhoneVerified()">Verified</span>
+                <span class="text-danger" ng-show="!vm.isPhoneVerified()">Not verified</span>
+                &nbsp;&nbsp; <span ng-show="!vm.isPhoneVerified() && vm.codeSent"><small>Verification code sent</small></span>
+            </div>
+        </div>
+        <div class="form-group" ng-hide="vm.isPhoneVerified() || vm.newPhone.length == 0 || vm.codeSent">
+            <div class="col-sm-offset-5 col-sm-6">
+                <button type="submit" class="btn btn-default btn-sm" ng-click="vm.sendPhoneCode()" ng-disabled="vm.sending">Send verification code</button>
+            </div>
+        </div>
+        <div class="form-group" ng-show="!vm.isPhoneVerified() && vm.codeSent">
+            <label class="col-sm-5 control-label" for="phoneCode">Verification Code</label>
+            <div class="col-sm-2">
+                <input type="number" id="phoneCode" name="phoneCode" class="form-control" ng-model="vm.phoneCode" />
+            </div>
+        </div>
+        <div class="form-group" ng-show="!vm.isPhoneVerified() && vm.codeSent">
+            <div class="col-sm-offset-5 col-sm-6">
+                <button type="submit" class="btn btn-primary btn-sm" data-ng-click="vm.submitPhoneCode()" ng-disabled="!vm.phoneCode || vm.sending">Submit</button>
+            </div>
+        </div>
+    </form>-->
+</div>
+
+
