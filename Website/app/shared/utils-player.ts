@@ -36,7 +36,10 @@
                 if (this.track.to && (currentTime > this.track.to)) {
                     this.stop();
                 }
-                this.track.notify(currentTime);
+                // this.stop() assigns null to this.track 
+                if (this.track) {
+                    this.track.notify(currentTime);
+                }
             }
         };        
 

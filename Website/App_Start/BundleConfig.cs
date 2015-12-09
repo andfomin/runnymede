@@ -54,8 +54,11 @@ namespace Runnymede.Website
             // +https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/MANIFEST
             // //ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.js
             bundles.Add(new ScriptBundle("~/bundles/angular").Include(
+#if DEBUG
                 "~/bower_components/angular/angular.js"
-                //"~/bower_installer/angular/angular.min.js"
+#else
+                "~/bower_installer/angular/angular.min.js"
+#endif
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/angular-libs").Include(

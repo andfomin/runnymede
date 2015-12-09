@@ -31,7 +31,7 @@
 
 <div class="row" ng-app="myApp" data-ng-controller="Signup" ng-cloak>
     <div class="col-md-offset-1 col-md-6">
-        @using (Html.BeginForm("ExternalLogin", "Account", FormMethod.Post))
+        @using (Html.BeginForm("ExternalLogin", "Account", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             <h4>Sign up using your Facebook account</h4>
@@ -118,7 +118,7 @@
             </div>
         </div>
         <hr />
-        <h4>Already have an account? @Html.ActionLink("Log in", "Login", new { ReturnUrl = ViewBag.ReturnUrl })</h4>
+        <h4>Already have an account? @Html.ActionLink("Log in", "Login", new { returnUrl = ViewBag.ReturnUrl })</h4>
     </div>
 
     <div class="col-md-5" ng-if="!isVisible">

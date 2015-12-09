@@ -117,7 +117,7 @@ namespace Runnymede.Website.Controllers.Mvc
         public ActionResult ExternalLogin(string provider, string returnUrl)
         {
             // Request a redirect to the external login provider
-            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
+            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { returnUrl = returnUrl }));
         }
 
         private ActionResult RedirectToManageLoginsPage(string error = null)
@@ -157,7 +157,13 @@ namespace Runnymede.Website.Controllers.Mvc
             {
                 // If the user does not have an account, then prompt the user to create an account.
                 ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
-                return View("ExternalLoginConfirmation", new ExternalLoginBindingModel { Email = loginInfo.Email, Name = loginInfo.ExternalIdentity.Name });
+                ViewBag.ReturnUrl = returnUrl;
+                var model = new ExternalLoginBindingModel
+                {
+                    Email = loginInfo.Email,
+                    Name = loginInfo.ExternalIdentity.Name
+                };
+                return View("ExternalLoginConfirmation", model);
             }
         }
 
@@ -210,7 +216,7 @@ namespace Runnymede.Website.Controllers.Mvc
         [AllowAnonymous]
         [RequireHttps]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ExternalLoginConfirmation(ExternalLoginBindingModel model)
+        public async Task<ActionResult> ExternalLoginConfirmation(ExternalLoginBindingModel model, string returnUrl)
         {
             // Get the information about the user from the external login provider
             var loginInfo = await OwinAuthenticationManager.GetExternalLoginInfoAsync();
@@ -233,7 +239,14 @@ namespace Runnymede.Website.Controllers.Mvc
             var error = loginHelper.InspectErrorAfterSignup(user);
             if (String.IsNullOrEmpty(error))
             {
-                return RedirectToAction("Index", "Home");
+                if (String.IsNullOrEmpty(returnUrl))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return RedirectToLocal(returnUrl);
+                }
             }
             else
             {

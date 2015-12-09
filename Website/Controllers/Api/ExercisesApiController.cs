@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -120,14 +121,14 @@ where [Type] = @CardType;
         public async Task<IHttpActionResult> GetUserCard(string serviceType)
         {
             var sql1 = @"
-select CI.Id, CI.[Type], CI.Title, CI.CardId, CI.Position, CI.Content, CI.PlayFrom, CI.PlayTo
+select CI.Id, CI.[Type], CI.Title, CI.CardId, CI.Position, CI.Content
 from dbo.exeUserCards UC
 	inner join dbo.exeCardsWithItems CI on UC.CardId = CI.Id
 where UC.UserId = @UserId
 	and UC.ServiceType = @ServiceType;
 ";
             var sql2 = @"
-select Id, [Type], Title, CardId, Position, Content, PlayFrom, PlayTo
+select Id, [Type], Title, CardId, Position, Content
 from dbo.exeCardsWithItems
 where Id = '4266FD13-32C6-412A-96EA-0B623FA82396';
 ";
@@ -280,6 +281,7 @@ where UserId = @UserId
             var longTimeKey = timeKey + extId; // If an operand of string concatenation is null, an empty string is substituted.
             var extension = MediaType.GetExtension(mediaType);
 
+            var tracks = new List<KeyValuePair<string, MemoryStream>>();
             var fileNames = new List<string>();
 
             foreach (var content in streamProvider.Contents)
@@ -293,36 +295,57 @@ where UserId = @UserId
                     var stream = await content.ReadAsStreamAsync();
                     using (stream)
                     {
-                        var blobName = ExerciseUtils.FormatBlobName(userIdKey, longTimeKey, name, extension);
-                        await AzureStorageUtils.UploadBlobAsync(stream, AzureStorageUtils.ContainerNames.Artifacts, blobName, mediaType);
+                        var memStream = new MemoryStream();
+                        await stream.CopyToAsync(memStream);
+                        var pair = new KeyValuePair<string, MemoryStream>(name, memStream);
+                        tracks.Add(pair);
                     }
                 }
             }
 
-            //~~ Call the remote transcoding service.
-            /* We send the file names as a comma separated list. There is also a binding in the Web API like this:
-            public IHttpActionResult GetFoo([FromUri] int[] ids); Call: /Foo?ids=1&ids=2&ids=3 or /Foo?ids[0]=1&ids[1]=2&ids[2]=3
-            public IHttpActionResult GetFoo([FromUri] List<string> ids); Call: /Foo?ids[]="a"&ids[]="b"&ids[]="c"
-            */
-            var host = ConfigurationManager.AppSettings["RecorderHost"];
-            var urlFormat = "http://{0}/api/recordings/transcoded/?userIdKey={1}&timeKey={2}&extension={3}&fileNames={4}";
-            var url = String.Format(urlFormat, host, userIdKey, longTimeKey, extension, String.Join(",", fileNames));
-            HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.GetAsync(url);
-            if (!response.IsSuccessStatusCode)
+            // Upload all blobs in parallel.
+            var tasks = tracks.Select(i =>
             {
-                // return RedirectToAction(referrerAction, new { error = "transcoding_error" });
-                return InternalServerError(new Exception("Transcoding error. " + response.StatusCode.ToString()));
-            }
-            // Error is returned as HTML. Then we get error here: No MediaTypeFormatter is available to read an object of type 'JObject' from content with media type 'text/html'.
-            var recordingDetails = await response.Content.ReadAsAsync<RecordingDetails>();
+                var blobName = ExerciseUtils.FormatBlobName(userIdKey, longTimeKey, i.Key, extension);
+                return AzureStorageUtils.UploadBlobAsync(i.Value, AzureStorageUtils.ContainerNames.Artifacts, blobName, mediaType);
+            });
+            await Task.WhenAll(tasks);
 
-            // Make sure the duration is known. If the transcoder has failed to parse the ffmpeg logs, it returns DurationMsec = 0.
-            if (recordingDetails.TotalDuration == 0)
+            //~~ Call the transcoding service.
+
+            ///* We send the file names as a comma separated list. There is also a binding in the Web API like this:
+            //public IHttpActionResult GetFoo([FromUri] int[] ids); Call: /Foo?ids=1&ids=2&ids=3 or /Foo?ids[0]=1&ids[1]=2&ids[2]=3
+            //public IHttpActionResult GetFoo([FromUri] List<string> ids); Call: /Foo?ids[]="a"&ids[]="b"&ids[]="c"
+            //*/
+            //var host = ConfigurationManager.AppSettings["RecorderHost"];
+            //var urlFormat = "http://{0}/api/recordings/transcoded/?userIdKey={1}&timeKey={2}&extension={3}&fileNames={4}";
+            //var url = String.Format(urlFormat, host, userIdKey, longTimeKey, extension, String.Join(",", fileNames));
+            //HttpClient client = new HttpClient();
+            //HttpResponseMessage response = await client.GetAsync(url);
+            //if (!response.IsSuccessStatusCode)
+            //{
+            //    // return RedirectToAction(referrerAction, new { error = "transcoding_error" });
+            //    return InternalServerError(new Exception("Transcoding error. " + response.StatusCode.ToString()));
+            //}
+            //// Error is returned as HTML. Then we get error here: No MediaTypeFormatter is available to read an object of type 'JObject' from content with media type 'text/html'.
+            //var recordingDetails = await response.Content.ReadAsAsync<RecordingDetails>();
+
+            //// Make sure the duration is known. If the transcoder has failed to parse the ffmpeg logs, it returns DurationMsec = 0.
+            //if (recordingDetails.TotalDuration == 0)
+            //{
+            //    // Read the blob and try to determine the duration directly.
+            //    recordingDetails.TotalDuration =
+            //        await RecordingUtils.GetMp3Duration(AzureStorageUtils.ContainerNames.Artifacts, recordingDetails.BlobName);
+            //}
+
+            var transcoder = new RecordingTranscoder();
+            var recordingDetails = await transcoder.Transcode(tracks, userIdKey, longTimeKey, extension);
+
+            // Release the memory streams.
+            tracks.ForEach(i =>
             {
-                // Read the blob and try to determine the duration directly.
-                recordingDetails.TotalDuration = await RecordingUtils.GetMp3DurationMsec(recordingDetails.BlobName);
-            }
+                i.Value.Dispose();
+            });
 
             //~~ Read the metadata. 
             // Chrome wraps the part name in double-quotes.
@@ -361,11 +384,6 @@ where UserId = @UserId
                 return Ok(new { Key = timeKey });
             }
         }
-
-
-
-
-
 
     }
 }

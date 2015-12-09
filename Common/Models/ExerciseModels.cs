@@ -247,11 +247,6 @@ namespace Runnymede.Common.Models
         public Guid CardId { get; set; }
         public string Position { get; set; }
         public string Content { get; set; }
-        /// <summary>
-        /// Seconds
-        /// </summary>
-        public decimal PlayFrom { get; set; }
-        public decimal PlayTo { get; set; }
     }
 
    public class Track

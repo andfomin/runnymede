@@ -117,6 +117,7 @@ namespace Runnymede.Website.Controllers.Mvc
             return "save=" + (success ? "ok" : "failed");
         }
 
+        // TODO obsolete
         // POST: /exercises/save-recording-mobile
         [HttpPost]
         public async Task<ActionResult> SaveRecordingMobile(HttpPostedFileBase fileInput, string recorderId, string recordingTitle)
@@ -177,27 +178,24 @@ namespace Runnymede.Website.Controllers.Mvc
             // Error is returned as HTML. Then we get error here: No MediaTypeFormatter is available to read an object of type 'JObject' from content with media type 'text/html'.
             var value = await response.Content.ReadAsAsync<JObject>();
             var outputBlobName = (string)value["outputBlobName"];
-            var durationMsec = (int)value["durationMsec"];
+            var duration = Convert.ToDecimal((int)value["durationMsec"] / 1000.0m);
             // The transcoder may return -1 if it has failed to parse the ffmpeg logs.
-            if (durationMsec < 0)
+            if (duration < 0)
             {
                 // Read the blob and try to determine the duration directly.
-                var outputBlob = AzureStorageUtils.GetBlob(AzureStorageUtils.ContainerNames.Recordings, outputBlobName);
-                using (var stream = new MemoryStream())
-                {
-                    await outputBlob.DownloadToStreamAsync(stream);
-                    durationMsec = RecordingUtils.GetMp3DurationMsec(stream); // Seeks the stream to the beginning internally.
-                }
+                duration = await RecordingUtils.GetMp3Duration(AzureStorageUtils.ContainerNames.Recordings, outputBlobName);
             }
             // 4. Create a database record.
-            var exerciseId = await ExerciseUtils.CreateExercise(outputBlobName, userId, ServiceType.IeltsSpeaking, ArtifactType.Mp3, durationMsec, recordingTitle);
+            var exerciseId = await ExerciseUtils.CreateExercise(outputBlobName, userId, ServiceType.IeltsSpeaking, ArtifactType.Mp3,
+                duration, recordingTitle);
             // 5. Redirect to the exercise page.
             return RedirectToAction("View", new { Id = exerciseId });
         }
 
         // POST: /exercises/upload
         [HttpPost]
-        public async Task<ActionResult> Upload(HttpPostedFileBase mp3File, HttpPostedFileBase xmlFile, string userdir = "", string title = null, string learnerSkype = null)
+        public async Task<ActionResult> Upload(HttpPostedFileBase mp3File, HttpPostedFileBase xmlFile,
+            string userdir = "", string title = null, string learnerSkype = null)
         {
             int exerciseId = 0;
             int newUserId = 0;
@@ -213,8 +211,8 @@ namespace Runnymede.Website.Controllers.Mvc
                 {
                     using (var stream = mp3File.InputStream)
                     {
-                        var durationMsec = RecordingUtils.GetMp3DurationMsec(stream);
-                        if (durationMsec > 0)
+                        var duration = RecordingUtils.GetMp3Duration(stream);
+                        if (duration > 0)
                         {
                             var recordingTitle = !String.IsNullOrEmpty(title)
                                 ? title
@@ -225,7 +223,7 @@ namespace Runnymede.Website.Controllers.Mvc
                                 userId,
                                 ArtifactType.Mp3,
                                 ServiceType.IeltsSpeaking,
-                                durationMsec,
+                                duration,
                                 recordingTitle
                                 );
                         }
@@ -371,6 +369,7 @@ namespace Runnymede.Website.Controllers.Mvc
 
         // This method is called as by redirection after signup which in turn was called by the Speaking page after the recording had been saved by an unauthorized user. The id (aka timeKey) is passed along as the returnUrl parameter in URLs.
         // GET: /exercises/claim/adcd1234
+        [RequireHttps]
         public async Task<ActionResult> Claim(string id)
         {
             var userIdKey = KeyUtils.IntToKey(0);

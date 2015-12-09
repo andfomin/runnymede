@@ -152,7 +152,8 @@ select cast(coalesce(dbo.appGetUserIdBySkypeName(@SkypeName), 0) as bit);
             if (recordingDetails.TotalDuration == 0)
             {
                 // Read the blob and try to determine the duration directly.
-                recordingDetails.TotalDuration = await RecordingUtils.GetMp3DurationMsec(recordingDetails.BlobName);
+                recordingDetails.TotalDuration = 
+                    await RecordingUtils.GetMp3Duration(AzureStorageUtils.ContainerNames.Artifacts, recordingDetails.BlobName);
             }
 
             var title = !String.IsNullOrEmpty(titleValue)

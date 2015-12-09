@@ -239,7 +239,8 @@ namespace Runnymede.Website.Controllers.Mvc
             if (recordingDetails.TotalDuration == 0)
             {
                 // Read the blob and try to determine the duration directly.
-                recordingDetails.TotalDuration = await RecordingUtils.GetMp3DurationMsec(recordingDetails.BlobName);
+                recordingDetails.TotalDuration = 
+                    await RecordingUtils.GetMp3Duration(AzureStorageUtils.ContainerNames.Artifacts, recordingDetails.BlobName);
             }
 
             // 4. Create a database record.

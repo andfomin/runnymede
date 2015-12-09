@@ -22,6 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme", "Readme", "{316C2F
 		_EventSourceUsersGuide.docx = _EventSourceUsersGuide.docx
 		_FreeSwitch Deployment.txt = _FreeSwitch Deployment.txt
 		_Production Update Sequence.txt = _Production Update Sequence.txt
+		_Upgrade Conflicts.txt = _Upgrade Conflicts.txt
 		_Website Project Setup.txt = _Website Project Setup.txt
 	EndProjectSection
 EndProject

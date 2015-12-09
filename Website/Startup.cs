@@ -15,7 +15,7 @@ namespace Runnymede.Website
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
-            ConfigureSignalR(app);
+            ConfigureSignalR(app); // See +https://github.com/SignalR/SignalR/issues/3548
         }
 
         private void ConfigureSignalR(IAppBuilder app)

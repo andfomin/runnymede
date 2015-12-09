@@ -78,16 +78,16 @@ where Id = @Id;
         /// <param name="userId"></param>
         /// <param name="displayName"></param>
         /// <param name="artifactType"></param>
-        /// <param name="durationMsec"></param>
+        /// <param name="duration"></param>
         /// <param name="recordingTitle">May come with Skype recording.</param>
         /// <param name="recorderId">Comes from Audior. It is the recorderId and will be used to update Title with the real title after upload is done.</param>
         /// <returns>Exercise Id</returns>
-        public static async Task<int> SaveRecording(Stream stream, int userId, string artifactType, string serviceType, int durationMsec, string recordingTitle = null, string recorderId = null)
+        public static async Task<int> SaveRecording(Stream stream, int userId, string artifactType, string serviceType, decimal duration, string recordingTitle = null, string recorderId = null)
         {
             var contentType = artifactType == ArtifactType.Mp3 ? MediaType.Mp3 : MediaType.Octet;
             var blobName = UploadUtils.ConstractBlobName(recorderId, userId, contentType);
             await AzureStorageUtils.UploadBlobAsync(stream, AzureStorageUtils.ContainerNames.Recordings, blobName, contentType);
-            var exerciseId = await CreateExercise(blobName, userId, serviceType, artifactType, durationMsec, recordingTitle);
+            var exerciseId = await CreateExercise(blobName, userId, serviceType, artifactType, duration, recordingTitle);
             return exerciseId;
         }
 

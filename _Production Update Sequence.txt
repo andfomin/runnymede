@@ -1,6 +1,6 @@
 -- Copy database to the test database. 
 -- use master; CREATE DATABASE Copy_englmdb AS COPY OF englmdb;
--- SELECT name, state, state_desc FROM sys.databases WHERE name = 'Copy_englmdb';
+-- use master; SELECT name, state, state_desc FROM sys.databases --WHERE name = 'Copy_englmdb';
 
 -- Prepare manual SQL schema update scripts.
 
