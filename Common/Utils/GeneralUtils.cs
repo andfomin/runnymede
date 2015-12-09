@@ -10,6 +10,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Results;
 
@@ -68,6 +69,12 @@ namespace Runnymede.Common.Utils
             // Normalize spaces.
             return String.Join(" ", sanitized.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
         }
+
+        public static string GetAppDataDir()
+        {
+            return HttpContext.Current.Server.MapPath("~/App_Data");
+        }
+
     }
 
     public static class JsonUtils

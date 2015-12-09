@@ -1,0 +1,7 @@
+#Exclude from the public repository
+*.config
+_*.txt
+SchemaCompare.scmp
+utils-encoder-qt.*
+utils-encoder.*
+utils-speaking.*
