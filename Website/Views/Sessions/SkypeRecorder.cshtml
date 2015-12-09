@@ -1,0 +1,61 @@
+﻿@{
+    ViewBag.NavItem = "Sessions";
+    ViewBag.Title = "Skype Recorder";
+}
+<div ng-app="myApp" ng-cloak>
+    <div ng-controller="SkypeRecorder">
+        <div class="row">
+            <div class="col-sm-offset-3 col-sm-6">
+                <form>
+                    <div class="form-group">
+                        <label>The learner's Skype Name</label>
+                        <input type="text" class="form-control" ng-model="vm.learnerSkype" />
+                    </div>
+                    <div class="form-group text-center">
+                        <button class="btn btn-default app-btn-disablable" ng-click="vm.start()" ng-disabled="vm.busy || vm.started || !vm.learnerSkype">
+                            Start recording
+                        </button>
+                    </div>
+                    <fieldset ng-disabled="!vm.started">
+                        <div class="form-group">
+                            <p class="text-muted">
+                                Press any key within the textbox below to indicate a remark spot during recording.
+                            </p>
+                            <div class="row">
+                                <div class="col-xs-offset-3 col-xs-6">
+                                    <textarea id="my-spots" class="form-control" rows="2" ng-model="vm.spotsText" ng-change="vm.addSpot()"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group text-center">
+                        <button class="btn btn-default app-btn-disablable" ng-click="vm.stop()" ng-disabled="vm.busy || !vm.started || vm.stopped">
+                            Stop recording
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" class="form-control" ng-model="vm.title" />
+                    </div>
+                    <div class="form-group">
+                        <label>Comment</label>
+                        <textarea class="form-control app-textarea" rows="2" ng-model="vm.comment"></textarea>
+                    </div>
+                    <div class="form-group text-center">
+                        <button class="btn btn-primary app-btn-disablable" ng-click="vm.save()" ng-disabled="!vm.canSave()">
+                            Save the recording and start its review
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section BottomScripts {
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/sessions/skypeRecorder.js"
+)}

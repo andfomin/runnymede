@@ -25,7 +25,7 @@ namespace Runnymede.Website
             // Remove the unused WebForms (ASPX) view engine.
             ViewEngines.Engines.Remove(ViewEngines.Engines.OfType<WebFormViewEngine>().FirstOrDefault());
 
-            Runnymede.Website.Utils.AzureStorageUtils.EnsureStorageObjectsExist();
+            Runnymede.Common.Utils.AzureStorageUtils.EnsureStorageObjectsExist();
 
             // Suppresses "X-AspNetMvc-Version",  +http://blog.paulbouwer.com/2013/01/09/asafaweb-excessive-headers-and-windows-azure/
             // We do it the other way, see Application_PreSendRequestHeaders()

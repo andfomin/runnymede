@@ -2,7 +2,6 @@
 
 CREATE PROCEDURE [dbo].[exeGetExercises]
 	@UserId int,
-	@Type char(6),
 	@RowOffset int, 
 	@RowLimit int
 AS
@@ -14,17 +13,17 @@ declare @RowCount int;
 
 declare @t table (
 	Id int,
-	CreateTime datetime2(0),
-	[Type] char(6),
+	CreationTime datetime2(0),
+	ServiceType char(6),
+	ArtifactType char(6),
 	Title nvarchar(100),
 	[Length] int
 );
 
-insert into @t (Id, CreateTime, [Type], Title, [Length])
-	select Id, CreateTime, [Type], Title, [Length]
+insert into @t (Id, CreationTime, ServiceType, ArtifactType, Title, [Length])
+	select Id, CreationTime, ServiceType, ArtifactType, Title, [Length]
 	from dbo.exeExercises
-	where UserId = @UserId
-		and [Type] = @Type;
+	where UserId = @UserId;
 
 select @RowCount = count(*) from @t;
 
@@ -33,7 +32,7 @@ delete @t
 		(
 			select Id
 			from @t 
-			order by CreateTime desc
+			order by CreationTime desc
 			offset @RowOffset rows
 			fetch next @RowLimit rows only
 		);
@@ -42,11 +41,11 @@ set nocount off;
 
 -- The order of the recordsets does matter.
 
-select Id, CreateTime, [Type], Title, [Length]
+select Id, CreationTime, ServiceType, ArtifactType, Title, [Length]
 from @t
-order by CreateTime desc;
+order by CreationTime desc;
 
-select R.ExerciseId, R.Id, R.Price, R.RequestTime, R.StartTime, R.FinishTime
+select R.ExerciseId, R.Id, R.RequestTime, R.StartTime, R.FinishTime
 from dbo.exeReviews R 
 	inner join @t T on R.ExerciseId = T.Id;
 

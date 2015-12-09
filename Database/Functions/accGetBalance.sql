@@ -10,9 +10,9 @@ BEGIN
 
 declare @Balance decimal(18,2) = null;
 
-declare @AccountId int = dbo.accGetPersonalAccount(@UserId);
+declare @AccountId int = dbo.accGetUserCashAccount(@UserId);
 
--- The user may not have an account created yet.
+-- The user may not have created an account yet.
 if (@AccountId is not null) begin
 
 	select @Balance = Balance
@@ -23,7 +23,7 @@ if (@AccountId is not null) begin
 
 end
 
-return @Balance;
+return coalesce(@Balance, 0);
 
 END
 GO

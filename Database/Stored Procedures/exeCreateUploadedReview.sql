@@ -9,11 +9,11 @@ BEGIN
 */
 SET NOCOUNT ON;
 
-	insert dbo.exeReviews (Id, ExerciseId, UserId, Price, RequestTime, StartTime)
+	insert dbo.exeReviews (Id, ExerciseId, UserId, RequestTime, StartTime)
 	output inserted.Id
-		select dbo.exeGetNewReviewId(), @ExerciseId, @UserId, 0, q.NowTime, q.NowTime
+		select dbo.exeGetNewReviewId(), @ExerciseId, @UserId, q.[Now], q.[Now]
 		from (
-			select sysutcdatetime() as NowTime
+			select sysutcdatetime() as [Now]
 		) q;
 
 END

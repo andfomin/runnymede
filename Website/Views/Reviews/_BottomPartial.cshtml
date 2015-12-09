@@ -1,66 +1,104 @@
-﻿<div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Suggestions for Learning and Practicing</h3>
+﻿<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Performance</h3>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            @* criterion area / descriptor group / descriptor  *@
+            <div class="col-md-6 col-lg-3" ng-repeat-start="g1 in vm.descGroups">
+                <h5><strong>{{vm.getCriterionAreaTitle(g1[0][0])}}</strong></h5>
+                <hr />
+                <div ng-repeat="g2 in g1">
+                    <label class="radio" style="font-weight: normal;padding-left:20px;" ng-repeat="d in g2"
+                           ng-class="{'text-muted': vm.review.performance.bands[d.group] !== d.band, 'app-margin-bottom-none': $last}">
+                        <input type="radio" ng-model="vm.review.performance.bands[d.group]" ng-value="d.band" ng-change="vm.makeDirty(vm.review.performance)"
+                               ng-disabled="!vm.isNotFinished()" />
+                        <span class="app-appred">{{d.band}}</span> - {{d.text}}
+                    </label>
+                    <hr />
+                </div>
             </div>
-            <div class="panel-body" style="padding:0;">
-                <table class="table app-margin-bottom-none">
-                    <thead>
-                        <tr>
-                            <th>Suggestion</th>
-                            <th>Keywords</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tr ng-repeat="s in vm.review.suggestions">
-                        <td>
-                            <textarea rows="2" class="form-control app" ng-show="vm.isNotFinished()" ng-model="s.suggestion" ng-change="vm.makeDirty(s)"></textarea>
-                            <span ng-show="!vm.isNotFinished()">{{s.suggestion}}</span>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control"
-                                   data-typeahead="c.name for c in vm.categories | filter:$viewValue | limitTo:20" data-typeahead-on-select="vm.makeDirty(s)"
-                                   ng-show="vm.isNotFinished()" ng-model="s.keywords" ng-change="vm.makeDirty(s)" />
-                            <span ng-show="!vm.isNotFinished()">{{s.keywords}}</span>
-                        </td>
-                        <td style="width:10%">
-                            <button class="btn btn-default btn-xs" ng-show="vm.isNotFinished()" title="Delete" ng-click="vm.deleteSuggestion(s)">
-                                <i class="fa fa-fw fa-times text-danger"></i>Delete
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <button class="btn btn-default btn-sm app-margin-left" ng-show="vm.isNotFinished()" title="New" ng-click="vm.addSuggestion()" ng-disabled="!vm.canAddSuggestion()">
-                                <i class="fa fa-plus text-success"></i>&nbsp;New
-                            </button>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </table>
-            </div>
+            @* Add the extra clearfix for only the required layout. *@
+            <div class="clearfix visible-md-block" ng-if="$odd"></div>
+            <div ng-repeat-end></div>
         </div>
     </div>
 </div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Suggestions for learning and practicing</h3>
+    </div>
+    <div class="panel-body" style="padding:0;">
+        <table class="table app-margin-bottom-none">
+            <thead>
+                <tr>
+                    <th>Suggestion</th>
+                    <th>Keywords</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tr ng-repeat="s in vm.review.suggestions">
+                <td>
+                    <textarea rows="2" class="form-control app-textarea" ng-show="vm.isNotFinished()" ng-model="s.suggestion" ng-change="vm.makeDirty(s)"></textarea>
+                    <span ng-show="!vm.isNotFinished()">{{s.suggestion}}</span>
+                </td>
+                <td>
+                    @*<input type="text" class="form-control"
+                        data-typeahead="c.name for c in vm.categories | filter:$viewValue | limitTo:20" data-typeahead-on-select="vm.makeDirty(s)"
+                        ng-show="vm.isNotFinished()" ng-model="s.keywords" ng-change="vm.makeDirty(s)" />*@
+                    <input type="text" class="form-control"
+                           data-typeahead="c.name as c.label for c in vm.getTypeaheadHits($viewValue) | limitTo:20" data-typeahead-on-select="vm.makeDirty(s)"
+                           ng-show="vm.isNotFinished()" ng-model="s.keywords" ng-change="vm.makeDirty(s)" />
+                    <span ng-show="!vm.isNotFinished()">{{s.keywords}}</span>
+                </td>
+                <td style="width:10%">
+                    <button class="btn btn-default btn-xs" ng-show="vm.isNotFinished()" title="Delete" ng-click="vm.deleteSuggestion(s)">
+                        <i class="fa fa-fw fa-times text-danger"></i>Delete
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button class="btn btn-default btn-sm app-margin-left" ng-show="vm.isNotFinished()" title="New" ng-click="vm.addSuggestion()" ng-disabled="!vm.canAddSuggestion()">
+                        <i class="fa fa-plus text-success"></i>&nbsp;New
+                    </button>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
 <div class="row">
-    <div class="col-md-offset-2 col-md-8">
+    <div class="col-lg-6">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">General comments</h3>
+                <h3 class="panel-title">Comments</h3>
             </div>
             <div class="panel-body">
-                <textarea rows="10" class="form-control app" ng-show="vm.isNotFinished()" ng-model="vm.review.comment.comment" ng-change="vm.makeDirty(vm.review.comment)"></textarea>
+                <textarea rows="5" class="form-control app-textarea" ng-show="vm.isNotFinished()" ng-model="vm.review.comment.comment" ng-change="vm.makeDirty(vm.review.comment)"></textarea>
                 <span class="app-pre-line" ng-show="!vm.isNotFinished()">{{vm.review.comment.comment}}</span>
             </div>
         </div>
     </div>
+
+    <div class="col-lg-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Video comments (web address)</h3>
+            </div>
+            <div class="panel-body">
+                <input type="text" class="form-control" ng-show="vm.isNotFinished()" ng-model="vm.review.video.url" ng-change="vm.makeDirty(vm.review.video)" maxlength="100">
+                <span ng-show="!vm.isNotFinished()">{{vm.review.url}}</span>
+            </div>
+        </div>
+    </div>
+
 </div>
 <br />
 <div class="row">
     <div class="col-sm-offset-1 col-sm-5 app-margin-bottom">
-        <button class="btn btn-primary" ng-show="vm.isNotFinished()" ng-class="{'app-unsaved-on-exit': vm.unsavedOnExit}" ng-click="vm.save()" ng-disabled="!vm.canSave()">Save changes</button>
+        <button class="btn btn-primary" ng-show="vm.isNotFinished()" ng-class="{'my-unsaved-on-exit': vm.unsavedOnExit}" ng-click="vm.save()" ng-disabled="!vm.canSave()">Save changes</button>
         <span class="app-margin-left" ng-show="vm.autoSaved">Auto-saved</span>&nbsp;
     </div>
     <div class="col-sm-2">

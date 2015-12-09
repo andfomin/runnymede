@@ -225,7 +225,7 @@ namespace Runnymede.Common.Utils
         }
 
         /// <summary>
-        /// Inverse to TimeToDescKey(). Converts a RowKey value to the original DateTime value.
+        /// Inverse to DateTimeToDescKey(). Converts a Key value to the original DateTime value.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>

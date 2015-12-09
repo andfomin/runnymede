@@ -43,9 +43,9 @@
             </ul>
         </div>
     </div>
-    <div class="row app-margin-bottom">
-        @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6")
-    </div>
+
+     @Html.Partial("_NotAuthenticatedDivPartial", "col-sm-offset-3 col-sm-6 app-margin-bottom ng-cloak")
+
     <div ng-controller="History">
         <div class="row">
             <div class="col-md-offset-1 col-md-4">
@@ -73,8 +73,7 @@
 
 
 @section BottomScripts {
-    <script type="text/javascript">
-        var app = app || {};
+    <script>
         app.hostPageParam = 'HostPage_History';
         app.daysParam = @JavaScriptConvert.Serialize(ViewBag.DaysParam);
     </script>
@@ -83,7 +82,7 @@
 "~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
-
+"~/app/shared/utils-youtube.js",
 "~/app/shared/library.js",
 "~/app/library/history.js"
 )

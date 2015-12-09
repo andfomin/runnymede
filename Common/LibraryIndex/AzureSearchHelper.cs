@@ -44,6 +44,7 @@ namespace Runnymede.Common.LibraryIndex
                 return lazyHttpClient.Value;
             }
         }
+
         private Uri serviceUri
         {
             get
@@ -56,6 +57,7 @@ namespace Runnymede.Common.LibraryIndex
                 return serviceUriSingleton;
             }
         }
+
         private JsonSerializerSettings jsonSettings
         {
             get

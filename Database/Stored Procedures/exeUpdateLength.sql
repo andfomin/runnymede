@@ -23,7 +23,7 @@ begin try
 		set [Length] = @Length 
 		where Id = @ExerciseId 
 			and UserId = @UserId
-			and [Type] = 'EXWRPH'
+			and dbo.exeIsTypeWriting(ArtifactType) = 1
 			and not exists (
 				select *
 				from dbo.exeReviews

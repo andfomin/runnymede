@@ -7,6 +7,7 @@ using Runnymede.Common.Utils;
 using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
+using System.Collections;
 using System.Data;
 using System.Data.Entity.SqlServer;
 using System.IO;
@@ -14,6 +15,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
@@ -125,33 +127,17 @@ from dbo.appGetUser(@Id) U
             return Ok(result);
         }
 
-        // GET /api/accounts/entries?offset=0&limit=10
-        [Route("entries")]
-        public async Task<IHttpActionResult> GetEntries(int offset, int limit)
+        // GET /api/accounts/transactions?offset=0&limit=10
+        [Route("transactions")]
+        public async Task<IHttpActionResult> GetTransactions(int offset, int limit)
         {
-            var userId = this.GetUserId();
-
-            // Returns null if the user has no account created yet.
-            var sql = @"
-select dbo.accGetBalance(@UserId);
-";
-            var balance = (await DapperHelper.QueryResilientlyAsync<decimal?>(sql, new { UserId = userId })).Single();
-
-            var entries = await DapperHelper.QueryPageItems<BalanceEntryDto>("dbo.accGetEntries", new
+            var entries = await DapperHelper.QueryPageItems<BalanceEntryDto>("dbo.accGetTransactions", new
             {
-                UserId = userId,
+                UserId = this.GetUserId(),
                 RowOffset = offset,
                 RowLimit = limit
             });
-
-            var result = new
-            {
-                Items = entries.Items,
-                TotalCount = entries.TotalCount,
-                Balance = balance,
-            };
-
-            return Ok(result);
+            return Ok(entries);
         }
 
         // GET api/accounts/presentation/2000000001

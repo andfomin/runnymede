@@ -1,0 +1,9 @@
+{
+  "version": "0.0.0",
+  "name": "runnymede",
+  "private": true,
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-bower-task": "0.4.0"
+  }
+}

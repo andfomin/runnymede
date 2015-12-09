@@ -1,0 +1,38 @@
+﻿<form class="form-horizontal" name="mainForm" role="form" novalidate>
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="displayName">Name</label>
+        <div class="col-sm-8">
+            <div class="row">
+                <div class="col-sm-6">
+                    <input type="text" id="displayName" class="form-control" name="displayName" ng-model="vm.profile.displayName" ng-maxlength="100" />
+                    <!-- Your pen name will appear alongside anything you post to the site. -->
+                </div>
+                <div class="col-sm-6">
+                    <span data-ng-show="vm.displayNameChanged"><small class="text-success">Name changed. You will see the new name in the top bar after you log out and log in again.</small></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="skypeName">Skype name</label>
+        <div class="col-sm-8">
+            <div class="row">
+                <div class="col-sm-6">
+                    <input type="text" id="skypeName" class="form-control" name="skypeName" ng-model="vm.profile.skypeName" ng-maxlength="100" />
+                </div>
+                <div class="col-sm-6">
+                    <span data-ng-show="vm.skypeNameChanged"><small class="text-success">Skype name changed.</small></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-6">
+            <button type="submit" class="btn btn-default btn-sm app-btn-disablable" ng-click="vm.saveMain(mainForm)" ng-disabled="mainForm.$pristine || vm.sending">
+                <!--<i class="fa-fw text-success" ng-class="mainForm.$dirty ? 'fa fa-check animated flash app-fa-pulse' : ''"></i><span>&nbsp;Save changes</span>-->
+                Save changes
+            </button>
+        </div>
+    </div>
+</form>
+

@@ -1,7 +1,10 @@
 ﻿using Runnymede.Common.LibraryIndex;
+using Runnymede.Common.Utils;
 using System;
 using System.Configuration;
+using System.IO;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace LibraryIndexer
 {
@@ -17,10 +20,28 @@ namespace LibraryIndexer
             //JobHost host = new JobHost();
             //host.Call(typeof(Program).GetMethod("Process"));
 
-            DoProcessing().Wait();
+            //DoProcessing().Wait();
 
             //Console.Write("Complete. Press <enter> to continue: ");
             //Console.ReadLine();
+
+            DoItalki();
+        }
+
+        private static void DoItalki()
+        {
+            //var helper = new ItalkiHelper();
+            //// Console.WriteLine("press any key...");
+            ////Console.ReadKey();
+            ////var html = helper.LoadPage(ItalkiHelper.Url32892).Result;
+            //var html = File.ReadAllText(@"C:\Users\Andrey\Desktop\ex01.html");
+            //var vacantSlots = helper.ProcessPage(html);
+
+            //foreach (var slot in vacantSlots.Where(i => i.Duration.TotalMinutes >= ItalkiHelper.SessionDuration))
+            ////foreach (var slot in vacantSlots)
+            //{
+            //    Console.WriteLine("{0} - {1}", slot.Start, slot.End);
+            //}
         }
 
         private static async Task DoProcessing()
@@ -29,7 +50,7 @@ namespace LibraryIndexer
             {
                 var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
-                var recreate = false; 
+                var recreate = false;
                 var reindexAllResources = Boolean.Parse(ConfigurationManager.AppSettings["Search.ReindexAll"]);
 
                 using (var commonHelper = new CommonIndexHelper(connectionString))
@@ -45,7 +66,7 @@ namespace LibraryIndexer
                 {
                     if (recreate)
                     {
-                         //personalHelper.RecreateIndex();
+                        //personalHelper.RecreateIndex();
                     }
                     await personalHelper.IndexResources(reindexAllResources);
                 }

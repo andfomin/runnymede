@@ -1,89 +1,66 @@
 ﻿module app.sessions {
 
-    export class Index extends app.CtrlBase {
+    export class Index extends app.sessions.CalendarCtrlBase {
 
-        calConfig: FullCalendar.Options;
-        eventSources: any[];
+        offers: any[];
 
-        static $inject = [app.ngNames.$scope, app.ngNames.$http, app.ngNames.$modal];
+        static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$uibModal, app.ngNames.$scope, CalendarCtrlBase.uiCalendarConfigName];
 
         constructor(
-            private $scope: app.IScopeWithViewModel,
-            private $http: angular.IHttpService,
-            private $modal: angular.ui.bootstrap.IModalService
-            ) {
-            super($scope);
+            $http: angular.IHttpService,
+            $interval: angular.IIntervalService,
+            $modal: angular.ui.bootstrap.IModalService,
+            $scope: app.IScopeWithViewModel,
+            uiCalendarConfig: any
+        ) {
+            super($http, $interval, $modal, $scope, uiCalendarConfig);
 
-            this.calConfig = {
-                allDaySlot: false,
-                defaultView: 'agendaThreeDay',
-                eventClick: (event, jsEvent, view) => { this.eventClick(<ISession>event, jsEvent, view); },
-                header: {
-                    left: 'agendaThreeDay,agendaWeek prev,next today',
-                    center: 'title',
-                    right: ''
-                },
-                height: <any>'auto',
-                slotDuration: '00:30',
-                timezone: 'local',
-                views: {
-                    agendaThreeDay: {
-                        type: 'agenda',
-                        duration: { days: 3 },
-                        buttonText: '3 day'
-                    }
-                }
-            };
-
-            this.eventSources = [
-                {
-                    events: (start: moment.Moment, end: moment.Moment, timezone: string, callback: (data: any) => void) => {
-                        /* FullCalendar passes Start and End as midnights without a timezone. 
-                           In other words, for clients in different time zones, it passes the same values indicating only the calendar date, but not the moment in time.
-                           We send the client-side time and the local TimezoneOffset with the form to infer the client's actual time zone. */
-                        var timeInfo = app.getLocalTimeInfo();
-
-                        app.ngHttpGet(this.$http,
-                            app.sessionsApiUrl(''),
-                            {
-                                localTime: timeInfo.time,
-                                localTimezoneOffset: timeInfo.timezoneOffset,
-                                start: start.toDate().toISOString(),
-                                end: end.toDate().toISOString(),
-                            },
-                            (data) => {
-                                if (angular.isArray(data)) {
-                                    data.forEach((i) => { this.styleEvent(i); });
-                                    callback(data);
-                                }
-                            }
-                            );
-                    }
-                }
-            ];
+            this.calConfig.dayClick = this.dayClick;
 
         } // ctor
 
-        callCalendar = (param1: any, param2?: any) => {
-            (<any>this.$scope).calObj.fullCalendar(param1, param2);
-        }
-
-        private styleEvent = (session: ISession) => {
+        styleEvent = (session: ISession) => {
             var classes = [CssClasses.Generic];
-
-            if (session.learnerUserId) {
-                classes.push(CssClasses.Booked);
-            }
-            else
-                if (!session.learnerUserId) {
-                    classes.push(CssClasses.Proposed);
-                    session.title = 'Price: ' + session.price;
+            if (session.cancellationTime) {
+                classes.push(CssClasses.Cancelled);
+            } else
+                if (session.confirmationTime) {
+                    classes.push(CssClasses.Confirmed);
                 }
-
+                else
+                    if (session.bookingTime) {
+                        classes.push(CssClasses.Booked);
+                    }
+                    else {
+                        classes.push(CssClasses.Offered);
+                        //session.title = '$' + session.price + '/hour';
+                        (<any>session).rendering = 'background';
+                        session.price = 2;
+                    }
             session.className = classes;
         };
 
-        private eventClick = (session: ISession, jsEvent, view) => {
+        dayClick = (date: Date, jsEvent, view) => {
+            this.offers = null;
+            var timeInfo = app.getLocalTimeInfo();
+            app.ngHttpGet(this.$http,
+                app.sessionsApiUrl('offers'),
+                {
+                    localTime: timeInfo.time,
+                    localTimezoneOffset: timeInfo.timezoneOffset,
+                    start: date.toISOString(),
+                    end: moment(date).add(1, 'hours').toISOString(),
+                },
+                (data: ISession[]) => {
+                    if (angular.isArray(data)) {
+                        this.offers = data.sort((a, b) => { return (a.start > b.start) ? 1 : ((a.start < b.start) ? -1 : 0); });
+                        this.offers.forEach((i) => { (<any>i).duration = moment(i.end).diff(moment(i.start), 'minutes'); });
+                    }
+                }
+            );
+        };
+
+        eventClick = (session: ISession, jsEvent, view) => {
             if (session.learnerUserId) {
                 app.Modal.openModal(this.$modal,
                     '/app/sessions/showSessionDetails.html',
@@ -91,28 +68,32 @@
                     {
                         session: session,
                     }
+                );
+            }
+        }
+
+        showBookingDialog = (session: ISession) => {
+            if (app.isAuthenticated()) {
+                app.Modal.openModal(this.$modal,
+                    '/app/sessions/bookSessionModal.html',
+                    BookSessionModal,
+                    {
+                        session: session,
+                    },
+                    null,
+                    'static'
+                )
+                    .finally(() => {
+                        this.offers = null;
+                        this.refetchEvents();
+                    }
                     );
             }
             else {
-                if (this.authenticated) {
-                    app.Modal.openModal(this.$modal,
-                        '/app/sessions/bookSessionModal.html',
-                        BookSessionModal,
-                        {
-                            session: session,
-                        },
-                        null,
-                        'static'
-                        )
-                        .result
-                        .finally(() => { this.callCalendar('refetchEvents'); }
-                        );
-                }
-                else {
-                    toastr.warning(app.notAuthenticatedMessage);
-                }
+                toastr.warning(app.notAuthenticatedMessage);
             }
-        }
+        };
+
 
     } // end of class Index
 
@@ -120,17 +101,43 @@
 
         session: ISession;
         duration: number;
+        message: string;
+        balance: number = null;
 
         constructor(
             $http: angular.IHttpService,
             $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
             $scope: app.IScopeWithViewModel,
             modalParams: any
-            ) {
+        ) {
             super($http, $modalInstance, $scope, modalParams);
             this.session = modalParams.session;
             this.duration = moment(this.session.end).diff(moment(this.session.start), 'minutes');
+            this.getConditions();
         } // ctor
+
+        getConditions = () => {
+            app.ngHttpGet(this.$http,
+                app.sessionsApiUrl('conditions'),
+                null,
+                (data) => {
+                    if (data) {
+                        this.balance = data.balance || 0;
+                    }
+                });
+        };
+
+        showBalance = () => {
+            return angular.isNumber(this.balance) && (this.balance < this.session.price);
+        };
+
+        getBuyLink = () => {
+            return app.getBuyLink();
+        }
+
+        canOk = () => {
+            return !this.busy && this.balance && (this.balance > this.session.price);
+        }
 
         internalOk = () => {
             var timeInfo = app.getLocalTimeInfo();
@@ -144,9 +151,10 @@
                     end: this.session.end,
                     price: this.session.price,
                     teacherUserId: this.session.teacherUserId,
+                    message: this.message,
                 },
                 () => { toastr.success('Thank you for booking a session.'); }
-                );
+            );
         };
 
     } // end of class BookSessionModal

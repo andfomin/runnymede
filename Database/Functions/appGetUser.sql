@@ -9,7 +9,7 @@ RETURNS TABLE
 AS
 RETURN 
 
-	select Id, DisplayName, IsTeacher, SkypeName, SessionRate, Announcement
+	select Id, DisplayName, IsTeacher, SkypeName, Announcement
 	from dbo.appUsers
 	where Id = @Id
 	;

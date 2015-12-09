@@ -5,14 +5,17 @@ using Runnymede.Common.Utils;
 using Runnymede.Website.Models;
 using Runnymede.Website.Utils;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Linq;
+using System.Xml.Linq;
+using System.Data;
 
 namespace Runnymede.Website.Controllers.Mvc
 {
@@ -42,13 +45,14 @@ namespace Runnymede.Website.Controllers.Mvc
         // GET: /account/signup
         [RequireHttps]
         [AllowAnonymous]
-        public ActionResult Signup()
+        public ActionResult Signup(string returnUrl)
         {
             // Don't log the user out. Even if she has been authenticated with password, she can manually return here to login with an extrnal login.
             if (Request.IsAuthenticated)
             {
                 return RedirectToManageLoginsPage();
             }
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
@@ -113,7 +117,7 @@ namespace Runnymede.Website.Controllers.Mvc
         public ActionResult ExternalLogin(string provider, string returnUrl)
         {
             // Request a redirect to the external login provider
-            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
+            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { returnUrl = returnUrl }));
         }
 
         private ActionResult RedirectToManageLoginsPage(string error = null)
@@ -153,7 +157,13 @@ namespace Runnymede.Website.Controllers.Mvc
             {
                 // If the user does not have an account, then prompt the user to create an account.
                 ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
-                return View("ExternalLoginConfirmation", new ExternalLoginBindingModel { Email = loginInfo.Email, Name = loginInfo.ExternalIdentity.Name });
+                ViewBag.ReturnUrl = returnUrl;
+                var model = new ExternalLoginBindingModel
+                {
+                    Email = loginInfo.Email,
+                    Name = loginInfo.ExternalIdentity.Name
+                };
+                return View("ExternalLoginConfirmation", model);
             }
         }
 
@@ -206,7 +216,7 @@ namespace Runnymede.Website.Controllers.Mvc
         [AllowAnonymous]
         [RequireHttps]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ExternalLoginConfirmation(ExternalLoginBindingModel model)
+        public async Task<ActionResult> ExternalLoginConfirmation(ExternalLoginBindingModel model, string returnUrl)
         {
             // Get the information about the user from the external login provider
             var loginInfo = await OwinAuthenticationManager.GetExternalLoginInfoAsync();
@@ -229,7 +239,14 @@ namespace Runnymede.Website.Controllers.Mvc
             var error = loginHelper.InspectErrorAfterSignup(user);
             if (String.IsNullOrEmpty(error))
             {
-                return RedirectToAction("Index", "Home");
+                if (String.IsNullOrEmpty(returnUrl))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return RedirectToLocal(returnUrl);
+                }
             }
             else
             {
@@ -246,11 +263,61 @@ namespace Runnymede.Website.Controllers.Mvc
             return View(payPalPaymentResult);
         }
 
-        // GET: /account/add-money
+        // GET: /account/transactions
         [RequireHttps]
-        public async Task<ActionResult> AddMoney()
+        public ActionResult Transactions(PayPalPaymentResult payPalPaymentResult = PayPalPaymentResult.None)
         {
-            ViewBag.IsEmailConfirmed = await this.OwinUserManager.IsEmailConfirmedAsync(this.GetUserId());
+            return View(payPalPaymentResult);
+        }
+
+        //        // GET: /account/buy-reviews
+        //        [RequireHttps]
+        //        [AllowAnonymous]
+        //        public async Task<ActionResult> BuyReviews()
+        //        {
+        //            var sql = @"
+        //select Title, Price from dbo.appGetPricelistItems() order by Position;
+        //select dbo.appGetValue('PLDSCT');
+        //";
+        //            dynamic pricelist = null;
+        //            await DapperHelper.QueryMultipleResilientlyAsync(sql, null, CommandType.Text,
+        //                (Dapper.SqlMapper.GridReader reader) =>
+        //                {
+        //                    var items = reader.Read<dynamic>();
+
+        //                    var value = reader.Read<string>().Single();
+        //                    // Convert XML to JSON and pass to the client only a subset of data. There may be sensitive data in XML.
+        //                    var discounts = XElement.Parse(value)
+        //                        .Elements("Percent")
+        //                        .Select(i => new
+        //                        {
+        //                            amountFrom = Convert.ToDecimal(i.Attribute("amountFrom").Value),
+        //                            amountTo = Convert.ToDecimal(i.Attribute("amountTo").Value),
+        //                            percent = Convert.ToDecimal(i.Value),
+        //                        })
+        //                        ;
+
+        //                    pricelist = new
+        //                    {
+        //                        Items = items,
+        //                        Discounts = discounts,
+        //                    };
+        //                });
+
+        //            ViewBag.Pricelist = pricelist;
+        //            return View();
+        //        }
+
+        // GET: /account/buy-services
+        [RequireHttps]
+        [AllowAnonymous]
+        public async Task<ActionResult> BuyServices()
+        {
+            var sql = @"
+select Title, Price from dbo.appGetPricelistItems() order by Position;
+";
+            var items = await DapperHelper.QueryResilientlyAsync<dynamic>(sql);
+            ViewBag.Pricelist = items;
             return View();
         }
 
@@ -293,29 +360,34 @@ namespace Runnymede.Website.Controllers.Mvc
         {
             PayPalPaymentResult result = PayPalPaymentResult.Canceled;
 
+            var helper = new PayPalHelper();
+
+            var txnId = !String.IsNullOrEmpty(tx)
+                // tx in PDT from Sandbox is upper-case on automatic return and lower-case on manual return. A PDT request returns error 4002 if given a low-case tx.
+                ? tx.ToUpper()
+                : "PDT " + KeyUtils.GetCurrentTimeKey();
+
+            helper.WriteLog(PayPalLogEntity.NotificationKind.PDT, txnId, Request.Url.Query);
+
             if (!String.IsNullOrEmpty(tx))
             {
-                var helper = new PayPalHelper();
-
-                helper.WriteLog(PayPalLogEntity.NotificationKind.PDT, tx, Request.Url.Query);
-
                 // Query PayPal.
-                var response = helper.RequestPaymentDetails(tx);
+                var response = helper.RequestPaymentDetails(txnId);
 
-                var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.DetailsRequest, tx, response);
+                var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.DetailsRequest, txnId, response);
 
+                // Parse the response
                 var lines = helper.SplitPdtMessage(response);
+                var payment = helper.ParsePaymentLines(lines);
 
                 // Write the payment to the database.
-                helper.PostIncomingPaymentTransaction(lines, logRowKey);
-
-                if (lines.Count() > 0)
+                if (helper.PostIncomingPayPalPayment(payment, logRowKey))
                 {
                     result = PayPalPaymentResult.Success;
                 }
             }
 
-            return RedirectToAction("Balance", new { PayPalPaymentResult = result });
+            return RedirectToAction("Transactions", new { PayPalPaymentResult = result });
         }
 
         // GET: /account/paypal-ipn
@@ -327,42 +399,45 @@ namespace Runnymede.Website.Controllers.Mvc
             var message = Encoding.ASCII.GetString(content);
 
             var helper = new PayPalHelper();
+
             var lines = helper.SplitIpnMessage(message);
-            var pairs = helper.SplitKeyValuePairs(lines);
+            var payment = helper.ParsePaymentLines(lines);
+            var txnId = !String.IsNullOrEmpty(payment.TxnId) ? payment.TxnId : "IPN " + KeyUtils.GetCurrentTimeKey();
 
-            var tx = pairs.ContainsKey("txn_id") ? pairs["txn_id"] : "IPN " + KeyUtils.GetCurrentTimeKey();
+            var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.IPN, txnId, message);
 
-            var logRowKey = helper.WriteLog(PayPalLogEntity.NotificationKind.IPN, tx, message);
+            var response = helper.VerifyIPN(message, txnId);
 
-            var response = helper.VerifyIPN(message, tx);
-
-            helper.WriteLog(PayPalLogEntity.NotificationKind.IPNResponse, tx, response);
+            helper.WriteLog(PayPalLogEntity.NotificationKind.IPNResponse, txnId, response);
 
             if (response == "VERIFIED")
             {
-                helper.PostIncomingPaymentTransaction(lines, logRowKey);
+                if (helper.PostIncomingPayPalPayment(payment, logRowKey))
+                {
+                    //helper.PurchaseOnIncomingPayPalPayment(payment);
+                }
             }
 
             return new HttpStatusCodeResult(HttpStatusCode.NoContent);
         }
 
         // POST: /account/upload-avatar
-        [RequireHttps] // Called from the Edit page which is loaded over HTTPS
-        [HttpPost]
-        public async Task<ActionResult> UploadAvatar(HttpPostedFileBase fileInput)
-        {
-            if (fileInput != null && fileInput.ContentLength > 0)
-            {
-                // ResizeAndSaveAvatar() will rewind the stream to the beginning. Do not parallelize the processing with Task.WhenAll().
-                var stream = fileInput.InputStream;
-                var blobName = KeyUtils.IntToKey(this.GetUserId());
-                await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarSmallSize, AzureStorageUtils.ContainerNames.AvatarsSmall, blobName);
-                await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarLargeSize, AzureStorageUtils.ContainerNames.AvatarsLarge, blobName);
-            }
-            //return new HttpStatusCodeResult(HttpStatusCode.NoContent); // ngUpload misses the end event until it has received a content back.
-            // IE wants text/html not application/json. However ngUpload passes it to ng-upload as a parsed JSON, i.e. Object {}.
-            return Content("{}", "text/html");
-        }
+        //[RequireHttps] // Called from the Edit page which is loaded over HTTPS
+        //[HttpPost]
+        //public async Task<ActionResult> UploadAvatar(HttpPostedFileBase fileInput)
+        //{
+        //    if (fileInput != null && fileInput.ContentLength > 0)
+        //    {
+        //        // ResizeAndSaveAvatar() will rewind the stream to the beginning. Do not parallelize the processing with Task.WhenAll().
+        //        var stream = fileInput.InputStream;
+        //        var blobName = KeyUtils.IntToKey(this.GetUserId());
+        //        await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarSmallSize, AzureStorageUtils.ContainerNames.AvatarsSmall, blobName);
+        //        await UploadUtils.ResizeAndSaveAvatar(stream, AccountUtils.AvatarLargeSize, AzureStorageUtils.ContainerNames.AvatarsLarge, blobName);
+        //    }
+        //    //return new HttpStatusCodeResult(HttpStatusCode.NoContent); // ngUpload misses the end event until it has received a content back.
+        //    // IE wants text/html not application/json. However ngUpload passes it to ng-upload as a parsed JSON, i.e. Object {}.
+        //    return Content("{}", "text/html");
+        //}
 
         // POST: /account/link-login
         [RequireHttps]

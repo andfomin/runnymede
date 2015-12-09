@@ -1,21 +1,28 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using Dapper;
+using Itenso.TimePeriod;
+using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json.Linq;
-using Runnymede.Website.Models;
+using Runnymede.Common.Models;
+using Runnymede.Common.Utils;
 using Runnymede.Website.Utils;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
+using System.Runtime.Caching;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Hosting;
 using System.Web.Http;
-using Dapper;
-using System.Data.SqlClient;
-using Microsoft.WindowsAzure.Storage.Table;
-using Runnymede.Common.Utils;
 using System.Xml.Linq;
+using Twilio;
 
 namespace Runnymede.Website.Controllers.Api
 {
@@ -34,25 +41,92 @@ namespace Runnymede.Website.Controllers.Api
             return TimeUtils.GetMillisecondsSinceEpoch(DateTime.UtcNow);
         }
 
-        // GET api/sessions
-        [Route("")]
+        // GET api/sessions/schedule
+        [Route("schedule")]
         [AllowAnonymous]
-        public async Task<IHttpActionResult> GetSessions(string start, string end, string localTime, int localTimezoneOffset)
+        public async Task<IHttpActionResult> GetSchedule(string start, string end, string localTime, int localTimezoneOffset)
         {
             DateTime startDate, endDate;
-            ConvertFullCalendarDates(start, end, localTime, localTimezoneOffset, out startDate, out endDate);
+            SessionHelper.ConvertFullCalendarDates(start, end, localTime, localTimezoneOffset, out startDate, out endDate);
 
-            var items = await DapperHelper.QueryResilientlyAsync<SessionDto>(
-                this.GetUserIsTeacher() ? "dbo.sesGetSessionsForTeacher" : "dbo.sesGetSessionsForLearner",
+            var isTeacher = this.GetUserIsTeacher();
+            // Get the sessions related to the user
+            var sessions = (await DapperHelper.QueryResilientlyAsync<SessionDto>(
+                isTeacher ? "dbo.sesGetSessionsForTeacher" : "dbo.sesGetSessionsForLearner",
                 new
                 {
                     UserId = this.GetUserId(),
                     Start = startDate,
                     End = endDate,
                 },
-            CommandType.StoredProcedure);
+            CommandType.StoredProcedure))
+            .ToList();
 
-            return Ok(items);
+            if (!isTeacher)
+            {
+                var offeredSessions = await SessionHelper.GetOfferedSchedules(startDate, endDate, false);
+                // Merge offers with sessions.
+                sessions.AddRange(offeredSessions);
+            }
+
+            return Ok(sessions);
+        }
+
+        // GET api/sessions/offers
+        [Route("offers")]
+        [AllowAnonymous]
+        public async Task<IHttpActionResult> GetSessionOffers(string start, string end, string localTime, int localTimezoneOffset)
+        {
+            object result = null;
+
+            TimeUtils.ThrowIfClientTimeIsAmbiguous(localTime, localTimezoneOffset);
+
+            DateTime startDate, endDate;
+            if ((!DateTime.TryParse(start, null, DateTimeStyles.RoundtripKind, out startDate))
+                ||
+                (!DateTime.TryParse(end, null, DateTimeStyles.RoundtripKind, out endDate)))
+            {
+                throw new ArgumentException("Date is wrong.");
+            }
+
+            var sessions = await SessionHelper.GetOfferedSessions(startDate, endDate);
+
+            if (sessions.Any())
+            {
+                // Query the display names from the database. dbo.appUsers has no SELECT permision. We work around it by using the existing function.
+                //var sqlParts = sessions
+                //    .Select(i => i.TeacherUserId)
+                //    .Distinct()
+                //    .Select(i => String.Format(@"select Id, DisplayName from dbo.appGetUser({0})", i));
+                //var sql = String.Join(" union ", sqlParts);
+                //IEnumerable<dynamic> displayNames = await DapperHelper.QueryResilientlyAsync<dynamic>(sql);
+
+                result = sessions
+                    .OrderBy(i => i.Start)
+                    .ThenBy(i => i.TeacherUserId)
+                    .Select(i =>
+                    {
+                        var teacher = SessionHelper.ItalkiTeachers.First(j => j.UserId == i.TeacherUserId);
+                        return new
+                        {
+                            Start = i.Start,
+                            End = i.End,
+                            TeacherUserId = i.TeacherUserId,
+                            Price = teacher.Rate * (decimal)(i.End - i.Start).TotalHours,
+                            DisplayName = teacher.DisplayName,
+                        };
+                    });
+            }
+
+            return Ok(result);
+        }
+
+        // GET /api/sessions/conditions
+        [Route("conditions")]
+        public async Task<IHttpActionResult> GetConditions()
+        {
+            var data = await GetSessionConditions(this.GetUserId());
+            return Ok(data);
         }
 
         // GET api/sessions/12345/other_user
@@ -60,12 +134,19 @@ namespace Runnymede.Website.Controllers.Api
         public async Task<IHttpActionResult> GetOtherUser(int id)
         {
             var item = (await DapperHelper.QueryResilientlyAsync<dynamic>("dbo.sesGetOtherUser", new
-                   {
-                       SessionId = id,
-                       UserId = this.GetUserId(),
-                   },
+            {
+                SessionId = id,
+                UserId = this.GetUserId(),
+            },
                    CommandType.StoredProcedure))
-                   .Single();
+                   // The query may return empty rowset. We need a typed data to return Ok<T>(T). Otherwise it cannot infer the type parameter when given a null.
+                   .Select(i => new
+                   {
+                       Id = (int)i.Id,
+                       DisplayName = (string)i.DisplayName,
+                       SkypeName = (string)i.SkypeName,
+                   })
+                   .SingleOrDefault();
 
             return Ok(item);
         }
@@ -131,17 +212,115 @@ select dbo.sesGetMessageCount(@UserId, @SessionId);
         {
             TimeUtils.ThrowIfClientTimeIsAmbiguous((string)json["localTime"], (int)json["localTimezoneOffset"]);
 
-            await DapperHelper.ExecuteResilientlyAsync("dbo.sesBookSession", new
+            var teacherUserId = (int)json["teacherUserId"];
+            var start = (DateTime)json["start"];
+            var end = (DateTime)json["end"];
+            var price = (decimal)json["price"];
+
+            var userId = this.GetUserId();
+
+            var teacher = SessionHelper.ItalkiTeachers.First(i => i.UserId == teacherUserId);
+
+            var periods = await SessionHelper.GetTeacherPeriods(teacherUserId, true);
+
+            var available = periods.Any(i => (i.Start <= start) && (i.End >= end));
+
+            if (!available)
             {
-                UserId = this.GetUserId(), // who requests and pays
-                Start = (DateTime)json["start"],
-                End = (DateTime)json["end"],
-                Price = (decimal)json["price"],
-                TeacherUserId = (int?)json["teacherUserId"],
+                throw new Exception(ItalkiHelper.TimeSlotUnavailableError);
+            }
+
+            /* Compensation is the mechanism by which previously completed work can be undone or compensated when a subsequent failure occurs. 
+             * The Compensation pattern is required in error situations when multiple atomic operations cannot be linked with classic transactions. 
+             */
+
+            // We cannot use a transaction in a heterogeneous storage mediums. An orphaned message on Azure Table is not a problem, we do not compensate it on error. The main message metadata is in the database anyway. 
+            var message = (string)json["message"];
+            var messageExtId = await SessionHelper.SaveMessageAndGetExtId(message);
+
+            var sessionId = (await DapperHelper.QueryResilientlyAsync<int>("dbo.sesBookSession", new
+            {
+                UserId = userId, // who requests and pays
+                Start = start,
+                End = end,
+                TeacherUserId = teacherUserId,
+                Price = price,
+                MessageExtId = messageExtId,
             },
-            CommandType.StoredProcedure);
+             CommandType.StoredProcedure))
+             .Single();
+
+            // We will write to the log.
+            var partitionKey = KeyUtils.GetCurrentTimeKey();
+
+            // Book the session on Italki.
+            try
+            {
+                long? sessionExtId = null;
+#if DEBUG
+                sessionExtId = 0;
+#else
+                var helper = new ItalkiHelper();
+                sessionExtId = await helper.BookSession(teacher.CourseId, start, teacher.ScheduleUrl, partitionKey);
+#endif
+                if (sessionExtId.HasValue)
+                {
+                    await DapperHelper.ExecuteResilientlyAsync("dbo.sesUpdateSessionExtId", new
+                    {
+                        SessionId = sessionId,
+                        ExtId = sessionExtId,
+                    },
+                    CommandType.StoredProcedure);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Compensation on booking failure.
+                // Clean up the session.
+                DapperHelper.ExecuteResiliently("dbo.sesCancelSession", new
+                {
+                    UserId = userId,
+                    SessionId = sessionId,
+                    ClearUsers = true,
+                },
+                CommandType.StoredProcedure);
+
+                throw new UserAlertException("Failed to book session", ex);
+            }
+
+            HostingEnvironment.QueueBackgroundWorkItem(async (ct) => await SendSmsMessage("Session request. Teacher " + teacherUserId.ToString(), partitionKey));
 
             return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        // POST /api/sessions/1234567890/confirmation
+        [Route("{id:int}/confirmation")]
+        public async Task<IHttpActionResult> PostConfirmation(int id)
+        {
+            var confirmationTime = (await DapperHelper.QueryResilientlyAsync<DateTime>("dbo.sesConfirmSession", new
+            {
+                UserId = this.GetUserId(),
+                SessionId = id,
+            },
+            CommandType.StoredProcedure))
+            .Single();
+
+            return Ok(new { ConfirmationTime = confirmationTime });
+        }
+
+        // POST /api/sessions/1234567890/cancellation
+        [Route("{id:int}/cancellation")]
+        public async Task<IHttpActionResult> PostCancellation(int id)
+        {
+            var cancellationTime = (await DapperHelper.QueryResilientlyAsync<DateTime>("dbo.sesCancelSession", new
+            {
+                UserId = this.GetUserId(),
+                SessionId = id,
+            },
+            CommandType.StoredProcedure))
+            .Single();
+
+            return Ok(new { CancellationTime = cancellationTime });
         }
 
         // POST /api/sessions/12345/message
@@ -150,7 +329,7 @@ select dbo.sesGetMessageCount(@UserId, @SessionId);
         {
             var message = (string)json["message"];
             // We cannot use a transaction in heterogeneous storage mediums. An orphaned message on Azure Table is not a problem. The main message metadata is in the database anyway.
-            var messageExtId = await SaveMessageAndGetExtId(message);
+            var messageExtId = await SessionHelper.SaveMessageAndGetExtId(message);
 
             await DapperHelper.ExecuteResilientlyAsync("dbo.sesPostMessage",
                 new
@@ -220,55 +399,74 @@ select dbo.sesGetMessageCount(@UserId, @SessionId);
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        private async Task<string> SaveMessageAndGetExtId(string message)
+        // Mandrill does POST with Content-Type: application/x-www-form-urlencoded
+        public class InboundWebhookFormModel
         {
-            string extId = null;
-            // We cannot use a transaction in heterogeneous storage mediums. An orphaned message on Azure Table is not a problem. The main message metadata is in the database anyway.
-            if (!String.IsNullOrWhiteSpace(message))
+            public string mandrill_events { get; set; }
+        }
+
+        /// Notify about an email from italki. The email originally goes to GMail, forwarded by a filter to Mandrill, which calls this webhook.
+        // POST /api/sessions/inbound_webhook   // Content-Type:application/x-www-form-urlencoded
+        [AllowAnonymous]
+        [AcceptVerbs("POST", "HEAD")] // Mandrill uses a HEAD request to validate the webhook address during its creation.
+        [Route("inbound_webhook")]
+        public async Task<IHttpActionResult> InboundWebhook(InboundWebhookFormModel form)
+        {
+            // The form is empty on a HEAD request
+            if (form != null)
             {
-                extId = KeyUtils.GetTwelveBase32Digits();
-                var entity = new UserMessageEntity
+                var mandrill_events = form.mandrill_events;
+                var partitionKey = KeyUtils.GetCurrentTimeKey();
+
+                var entity = new ExternalSessionLogEntity
                 {
-                    PartitionKey = extId,
-                    RowKey = String.Empty,
-                    Text = message,
+                    PartitionKey = partitionKey,
+                    RowKey = "InboundWebhook",
+                    Data = mandrill_events,
                 };
-                await AzureStorageUtils.InsertEntityAsync(AzureStorageUtils.TableNames.UserMessages, entity);
+                await AzureStorageUtils.InsertEntityAsync(AzureStorageUtils.TableNames.ExternalSessions, entity);
+
+                await SendSmsMessage("InboundWebhook " + partitionKey, partitionKey);
             }
-            return extId;
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        private void ConvertFullCalendarDates(string start, string end, string localTime, int localTimezoneOffset, out DateTime startDate, out DateTime endDate)
+        private async Task SendSmsMessage(string text, string tablePartitionKey)
         {
-            /* FullCalendar passes Start and End as midnights without a timezone. 
-             * In other words, for clients in different time zones, it passes the same values indicating only the calendar date, but not the exact midnight local time.
-             * We use the client-side TimezoneOffset to calculate times */
-            TimeUtils.ThrowIfClientTimeIsAmbiguous(localTime, localTimezoneOffset);
+            // Send SMS
+            var accountSid = ConfigurationManager.AppSettings["Twilio.AccountSid"];
+            var authToken = ConfigurationManager.AppSettings["Twilio.AuthToken"];
+            var fromPhoneNumber = ConfigurationManager.AppSettings["Twilio.PhoneNumber.SMS"];
+            var twilio = new TwilioRestClient(accountSid, authToken);
+            var message = twilio.SendMessage(fromPhoneNumber, "+16477711715", text);
 
-            DateTime startDay, endDay;
-            if ((!DateTime.TryParse(start, null, DateTimeStyles.RoundtripKind, out startDay))
-                ||
-                (!DateTime.TryParse(end, null, DateTimeStyles.RoundtripKind, out endDay)))
+            var entity = new ExternalSessionLogEntity
             {
-                throw new ArgumentException("Date is wrong.");
-            }
-
-            startDate = startDay.AddMinutes(localTimezoneOffset);
-            endDate = endDay.AddMinutes(localTimezoneOffset);
+                PartitionKey = tablePartitionKey,
+                RowKey = "TwilioMessage",
+                Data = JsonUtils.SerializeAsJson(new { Message = message, }),
+            };
+            await AzureStorageUtils.InsertEntityAsync(AzureStorageUtils.TableNames.ExternalSessions, entity);
         }
 
-        //private void ConvertDateTimePickerDates(string start, string end, string localTime, int localTimezoneOffset, out DateTime startDate, out DateTime endDate)
-        //{
-        //    // angular-bootstrap-datetimepicker sends values as UTC
-        //    TimeUtils.ThrowIfClientTimeIsAmbiguous(localTime, localTimezoneOffset);
+        private async Task<dynamic> GetSessionConditions(int userId)
+        {
+            const string sql = @"
+select dbo.accGetBalance(@UserId) as Balance, dbo.appGetServicePrice(@ServiceType) as Price
+";
+            // Returns null for Balance the user has not created the account yet.
+            var data = (await DapperHelper.QueryResilientlyAsync<dynamic>(sql, new
+            {
+                UserId = userId,
+                ServiceType = ServiceType.Session,
+            }
+            )).Single();
 
-        //    if ((!DateTime.TryParse(start, null, DateTimeStyles.RoundtripKind, out startDate))
-        //        ||
-        //        (!DateTime.TryParse(end, null, DateTimeStyles.RoundtripKind, out endDate)))
-        //    {
-        //        throw new ArgumentException("Date is wrong.");
-        //    }
-        //}
+            return data;
+        }
+
+
 
     }
 }

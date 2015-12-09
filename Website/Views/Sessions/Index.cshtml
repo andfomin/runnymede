@@ -1,23 +1,64 @@
 ﻿@{
     ViewBag.Title = "Live sessions with teachers";
-    ViewBag.NavItem = "Conversations";
+    ViewBag.NavItem = "Sessions";
 }
 @section HeadScripts {
     @Styles.Render(
 "~/bower_installer/fullcalendar/fullcalendar.css"
     )
 }
+<style>
+    .fc-toolbar {
+        margin-bottom: 0;
+    }
+
+    /*.fc-agendaWeek-button.fc-state-active, .fc-agendaDay-button.fc-state-active {
+        color: white;
+        background-color: #ac1f28; /*appRed
+    } */
+
+    .fc-bgevent { /* default look for background events */
+        background: #006699; /* appBlue */
+        opacity: 0.7;
+        cursor: pointer;
+    }
+</style>
+
 <div ng-app="myApp" ng-cloak>
     <div ng-controller="Index">
         @Html.Partial("_ClockWrongPartial")
+
         <div class="row">
-            <div class="col-lg-offset-1 col-lg-10">
-                <ul class="list-inline list-unstyled">
-                    <li><strong>Legend</strong></li>
-                    <li><i class="fa fa-square fa-fw  fa-lg app-2px-up app-appblue"></i>Offered session</li>
-                    <li><i class="fa fa-square fa-fw  fa-lg app-2px-up" style="color:#5cb85c;"></i>Booked session</li>
-                </ul>
-                <div ng-model="vm.eventSources" data-ui-calendar="vm.calConfig" data-calendar="calObj"></div>
+            <div class="col-sm-6">
+                <p class="bg-info text-center" style="padding:5px;">
+                    Click on a time slot to book a session.
+                </p>
+
+                <div calendar="myCal" ui-calendar="vm.calConfig" ng-model="vm.eventSources"></div>
+
+                @Html.Partial("_ColorLegendPartial")
+
+            </div>
+            <div class="col-sm-6">
+                <div ng-repeat="i in vm.offers">
+                    <hr ng-show="$first" />
+                    <div class="row">
+                        <div class="col-lg-offset-1 col-xs-8 col-lg-7">
+                            <div>
+                                <span class="text-nowrap app-margin-left-half">Start time: <strong>{{i.start | appDate}}</strong></span>
+                                <span class="text-nowrap app-margin-left-half">Duration: <strong>{{i.duration}}</strong> minutes</span>
+                                <span class="text-nowrap app-margin-left-half">Price: <strong>{{i.price | currency:'$'}}</strong></span>
+                                <span class="text-nowrap app-margin-left-half">
+                                    Teacher: <img class="img-circle app-avatar" width="32" height="32" ng-src="{{i.teacherUserId | appAvatarSmall}}" /><strong>{{i.displayName}}</strong>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <button class="btn btn-primary btn-sm app-margin-top" ng-click="vm.showBookingDialog(i)">Book session</button>
+                        </div>
+                    </div>
+                    <hr />
+                </div>
             </div>
         </div>
     </div><!-- /Index -->

@@ -1,35 +1,34 @@
 ﻿@{
     ViewBag.Title = "Review audio recording";
+    ViewBag.NavItem = "Reviews";
 }
-@section HeadScripts {
-    @* SoundManager must be loaded as early as possible. Otherwise browser security may block Flash <-> JS communication after certain JQuery DOM manipulations by a third-party code. *@
-    @Scripts.Render("~/bundles/soundmanager2")
-}
-<div ng-app="myApp" ng-cloak>
-    <div ng-controller="EditRecording">
+<div ng-app="myApp">
+
+    @Html.Partial("_SplashPartial")
+
+    <div ng-controller="EditRecording" ng-cloak>
 
         @Html.Partial("_TopSaveButtonPartial")
 
-        <div ng-controller="AudioPlayer">
+        @Html.Partial("_CardPartial")
 
-            <div class="text-center" ng-show="vma.autoLoad && !vma.soundLoaded" ng-cloak>
-                <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>&nbsp;&nbsp;Loading recording...
-                <hr />
+        <div ng-controller="AudioPlayer">
+            <div class="text-center app-margin-top app-margin-bottom" ng-show="!vma.player">
+                <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>&nbsp;&nbsp;Loading&nbsp;...
             </div>
-            <div ng-show="!vma.autoLoad || vma.soundLoaded">
+            <div ng-show="vma.player">
+
                 @Html.Partial("_AudioPlayerControlsPartial")
-                <br />
-                <div class="row">
+
+                <div class="row app-margin-top">
                     <div class="col-sm-12">
                         <button class="btn btn-large btn-block btn-primary" ng-show="vma.isNotFinished()" ng-disabled="!vma.canAddRemark()" ng-click="vma.addRemark()">
                             While listening, click here to mark a spot
                         </button>
                     </div>
                 </div>
-                <br />
             </div>
-
-            <div class="panel panel-default" ng-cloak>
+            <div class="panel panel-default app-margin-top">
                 <div class="panel-heading">
                     <h4 class="panel-title">Remarks</h4>
                 </div>
@@ -53,17 +52,17 @@
                                     <div ng-show="vma.isEditing(r)">
                                         @* A line break adds a space between the text and the button *@
                                         from
-                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, true, -1000);vm.makeDirty(r)" title="Shift spot start"><i class="fa fa-angle-left"></i></button>
-                                        {{r.start | appMsecToMinSec}}
-                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, true, 1000);vm.makeDirty(r)" title="Shift spot start"><i class="fa fa-angle-right"></i></button>
+                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, true, -1);vm.makeDirty(r)" title="Shift spot start"><i class="fa fa-angle-left"></i></button>
+                                        {{r.start | appSecToMinSec}}
+                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, true, 1);vm.makeDirty(r)" title="Shift spot start"><i class="fa fa-angle-right"></i></button>
                                         <br />to
-                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, false, -1000);vm.makeDirty(r)" title="Shift spot end"><i class="fa fa-angle-left"></i></button>
-                                        {{r.finish | appMsecToMinSec}}
-                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, false, 1000);vm.makeDirty(r)" title="Shift spot end"><i class="fa fa-angle-right"></i></button>
+                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, false, -1);vm.makeDirty(r)" title="Shift spot end"><i class="fa fa-angle-left"></i></button>
+                                        {{r.finish | appSecToMinSec}}
+                                        <button class="btn btn-default btn-xs" ng-click="vma.shiftSpot(r, false, 1);vm.makeDirty(r)" title="Shift spot end"><i class="fa fa-angle-right"></i></button>
                                     </div>
                                     <div ng-show="!vma.isEditing(r)">
-                                        from&nbsp;{{r.start | appMsecToMinSec}}
-                                        to&nbsp;{{r.finish | appMsecToMinSec}}
+                                        from&nbsp;{{r.start | appSecToMinSec}}
+                                        to&nbsp;{{r.finish | appSecToMinSec}}
                                     </div>
                                 </td>
                                 <td width="35%">
@@ -99,23 +98,28 @@
         </ul>
     }*@
 @section BottomScripts {
-    <script type="text/javascript">
-        var app = app || {};
+    <script>
         app.exerciseParam = @JavaScriptConvert.Serialize(ViewBag.ExerciseParam);
+        app.cardIdParam = @JavaScriptConvert.Serialize(ViewBag.cardIdParam);
+        app.cardParam = @JavaScriptConvert.Serialize(ViewBag.cardParam);
     </script>
     @Scripts.Render(
 "~/bundles/angular",
 "~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
-            //<script src="+//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-touch.min.js"></script>
+//<script src="+//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-touch.min.js"></script>
 "~/bower_installer/angular-touch/angular-touch.min.js",
 "~/bower_installer/venturocket-angular-slider/angular-slider.min.js",
 
 "~/app/shared/library-data.js",
+
+"~/app/exercises/utils-card.js",
+"~/app/shared/utils-player.js",
 "~/app/shared/exercises.js",
 "~/app/shared/exercises-recording.js",
-"~/app/reviews/utils-EditCtrlBase.js",
+"~/app/exercisesIelts/utils-data.js",
+"~/app/reviews/utils-editCtrlBase.js",
 "~/app/reviews/editRecording.js"
 )
 }

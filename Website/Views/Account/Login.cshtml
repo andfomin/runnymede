@@ -88,7 +88,7 @@
         <br />
     </div>
     <div class="col-md-4 col-lg-3">
-        @using (Html.BeginForm("ExternalLogin", "Account", new { ReturnUrl = ViewBag.ReturnUrl }))
+        @using (Html.BeginForm("ExternalLogin", "Account", new { returnUrl = ViewBag.ReturnUrl }))
         {
             @Html.AntiForgeryToken()
             <h4 class="text-center">Or log in using Facebook account</h4>
@@ -115,10 +115,10 @@
         <hr />
         <div class="text-left" style="display:inline-block;">
             <p>
-                Forgot your password? @Html.ActionLink(HttpUtility.HtmlDecode("Reset password"), "ForgotPassword", "Account")
+                Forgot your password? @Html.ActionLink("Reset password", "ForgotPassword", "Account")
             </p>
             <p>
-                Not a member yet? @Html.ActionLink(HttpUtility.HtmlDecode("Create an account"), "Signup", "Account")
+                Not a member yet? @Html.ActionLink("Create an account", "Signup", new { returnUrl = ViewBag.ReturnUrl })
             </p>
         </div>
     </div>
@@ -133,7 +133,6 @@
 )
     @* Pass ReturnUrl from the server to the client. *@
     <script type="text/javascript">
-        var app = app || {};
         app.returnUrl = '@Html.Raw(ViewBag.ReturnUrl)';
     </script>
 }

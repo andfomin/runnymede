@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "How it works";
+}
+
+<div class="row">
+    <div class="col-sm-4 col-sm-push-7 text-center">
+        <img src="/content/images/skype-together.jpg" class="img-responsive img-thumbnail app-margin-top app-margin-bottom" width="250" height="170" />
+    </div>
+    <div class="col-sm-offset-1 col-sm-6 col-sm-pull-4">
+        <p>
+            Englisharium is a marketplace for the tasks that are related to practicing speaking English.
+        </p>
+        <p>
+            As a first step, a learner can approach one of the teachers available at Englisharium and arrange a speaking session over Skype. The session may be payed instantly.
+            Englisharium provides users with a special program for recording Skype conversations, so that they can record fragments of their dialogs.
+            Alternatively, a learner can tell a story independently and record their monologue on a special web page.
+        </p>
+        <p>
+            Then the learner requests a review of the recorded exercise and offers an appropriate amount of money as a reward for reviewing.
+        </p>
+        <p>
+            The learner can offer the exercise for reviewing to all or only to particular teachers. The specified teachers can simultaneously see the request.
+            They can see the price, the length of the recording, the learner's name. Teachers are free to decide whether to review the exercise.
+            After a teacher has taken the review request, that request is no more available to other teachers.
+        </p>
+        <p>
+            While listening to the exercise, the teacher can mark spots on the record where they want to make remarks. They can write comments and tag remarks with predefined grammar categories.
+        </p>
+        <p>
+            After the teacher has completed the review, the review becomes available to the learner. At that moment, the teacher receives the payment and Englisharium deducts its service fee.
+        </p>
+        <p>
+            The learner can listen to the recording again and see remarks related to certain spots on the recording.
+            If the learner clicks on a grammar tag, they will be directed to related learning resources.
+        </p>
+        <p>
+            After a number of exercises, the learner can see the frequencies of their mistakes and decide which areas of the language they need to learn and practice more.
+        </p>
+        <div class="row app-margin-top">
+            <div class="col-sm-offset-4 col-sm-4 text-center">
+                @Html.ActionLinkWithProtocol("Join for free", "Signup", "Account", "https", new { @class = "btn btn-primary btn-lg" })
+            </div>
+        </div>
+    </div>
+</div>
+

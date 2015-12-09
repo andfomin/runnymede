@@ -10,20 +10,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Englisharium</title>
     <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     @*<link href='+http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> //Roboto bold looks ugly in Chrome. *@
     @Styles.Render("~/bundles/app-css")
-    @Html.Partial("_ApplicationInsightsPartial")
     @RenderSection("HeadScripts", required: false)
     @if (sendAnalytics)
     {
+        @Html.Partial("_ApplicationInsightsPartial")
         @Html.Partial("_GoogleAnalyticsPartial", pageViewModel.UserId)
     }
 </head>
 <body>
     <!--[if IE]>
     <script>
-        if (!window.document.documentMode || window.document.documentMode < 9) {
+        if (!window.document.documentMode || window.document.documentMode < 10) {
             window.location = "/info/unsupported-browser";
         }
     </script>
@@ -55,13 +55,13 @@
 "~/bundles/jquery",
 "~/bundles/bootstrap"
         )
-    @if (Request.IsAuthenticated)
-    {
-        <script>
-            var app = app || {};
-            app.selfUserParam = @JavaScriptConvert.Serialize(pageViewModel.SelfUserParam);
-        </script>
-    }
+    <script>
+        var app = app || {};
+        @if (Request.IsAuthenticated)
+        {
+            <text>app.selfUserParam = @JavaScriptConvert.Serialize(pageViewModel.SelfUserParam);</text>
+        }
+    </script>
     @RenderSection("BottomScripts", required: false)
 </body>
 </html>

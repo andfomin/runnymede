@@ -6,13 +6,17 @@
     [ExtId]                 NCHAR (12)     NULL,
     [CreationTime]          SMALLDATETIME  CONSTRAINT [DF_appUsers_CreationTime] DEFAULT (getutcdate()) NOT NULL,
     [TimezoneOffsetMin]     SMALLINT       NULL,
-    [SessionRate]           DECIMAL (9, 2) NULL,
     [Announcement]          NVARCHAR (200) NULL,
     [LanguageLevel]         TINYINT        CONSTRAINT [DF_appUsers_LanguageLevel] DEFAULT ((112)) NULL,
     [LanguageLevelMaturity] INT            CONSTRAINT [DF_appUsers_LanguageLevelMaturity] DEFAULT ((1)) NULL,
+    [Details]               XML            NULL,
     CONSTRAINT [PK_appUsers] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_appUsers_aspnetUsers] FOREIGN KEY ([Id]) REFERENCES [dbo].[aspnetUsers] ([Id])
 );
+
+
+
+
 
 
 
@@ -119,4 +123,9 @@ GO
 GRANT INSERT
     ON OBJECT::[dbo].[appUsers] TO [websiterole]
     AS [dbo];
+
+
+GO
+CREATE NONCLUSTERED INDEX [FI_IsTeacher]
+    ON [dbo].[appUsers]([IsTeacher] ASC) WHERE ([IsTeacher]=(1));
 

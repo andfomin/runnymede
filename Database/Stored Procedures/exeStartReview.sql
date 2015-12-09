@@ -63,8 +63,6 @@ begin try
 		if @@rowcount = 0
 			raiserror('%s,%d,%d:: The user failed to start the review.', 16, 1, @ProcName, @UserId, @ReviewId);
 
-		--exec dbo.friUpdateLastContact @UserId = @UserId, @FriendUserId = @AuthorUserId, @ContactType = 'CN__RS';
-
 	if @ExternalTran = 0
 		commit;
 

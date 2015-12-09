@@ -1,0 +1,143 @@
+﻿@model System.String
+@{
+    ViewBag.NavItem = "IeltsExercises";
+    ViewBag.Title = ServiceType.GetTitle(Model);
+    ViewBag.SecondaryTitle = "Exercise";
+}
+@functions{
+    public Tuple<string, string> GetAnswerSheet()
+    {
+        switch (Model)
+        {
+            case ServiceType.IeltsWritingTask1:
+            case ServiceType.IeltsWritingTask2:
+                return new Tuple<string, string>(
+                    "http://englmdata.blob.core.windows.net/content/ielts/IELTS_writing_answer_sheet.pdf",
+                    "/content/images/ielts-writing-sheet.png"
+                    );
+            case ServiceType.IeltsReading:
+                return new Tuple<string, string>(
+                    "http://www.ielts.org/pdf/IELTS_Reading_Answer_Sheet.pdf",
+                    "/content/images/ielts-answersheet-reading.png"
+                    );
+            case ServiceType.IeltsListening:
+                return new Tuple<string, string>(
+                    "http://www.ielts.org/PDF/114189_IELTS_Listening_Answer_Sheet.pdf",
+                    "/content/images/ielts-answersheet-listening.png"
+                    );
+            case ServiceType.IeltsSpeaking:
+            default:
+                return null;
+        }
+    }
+}
+@section HeadScripts {
+    <style>
+        label.my-file-label input[type="file"] {
+            position: fixed;
+            top: -1000px;
+            left: -1000px;
+        }
+
+        .my-radios label.radio {
+            font-weight: normal;
+        }
+    </style>
+}
+<div ng-app="myApp" ng-controller="AnswerSheetPhoto" ng-cloak>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="text-center app-margin-bottom">
+                <a href="@GetAnswerSheet().Item1" target="_blank"><img src="@GetAnswerSheet().Item2" /><br />Print answer sheet</a>
+            </div>
+            <p>
+                To submit the answer sheet, open this webpage on your smartphone or tablet and you will be able to use the built-in camera to upload the image of the answer sheet directly.
+            </p>
+            <div class="alert alert-warning" ng-show="!vm.supported">
+                <p>
+                    It seems that your browser does not support taking photos directly from a camera. This feature is usually supported on mobile devices.
+                    If you have photographed your pages by a camera or scanned them then you can upload the files here.
+                </p>
+            </div>
+            <form class="form-horizontal" role="form" method="post" name="writingForm" action="/exercises-ielts/save-photos" enctype="multipart/form-data" ng-submit="vm.onSubmit()">
+                <input type="hidden" name="serviceType" value="@Model" />
+                <input type="hidden" name="cardId" ng-value="vm.card.id" />
+                <input type="hidden" name="title" ng-value="vm.card.title" />
+                <div class="form-group" ng-repeat="i in vm.rotations track by $index">
+                    <div class="col-md-offset-2 col-xs-4 col-md-3">
+                        <p ng-show="vm.rotations.length > 1">
+                            <strong>Page&nbsp;{{$index + 1}}</strong>
+                        </p>
+                        <label class="my-file-label">
+                            @* The input name must be exactly "files[i]" to bind to "IEnumerable<HttpPostedFileBase> files". The first index must be 0. *@
+                            <input type="file" accept="image/jpeg" capture onchange="app.exercisesIelts.AnswerSheetPhoto.onFileChange(event, id)" id="{{'file'+$index}}" name="{{'files['+$index+']'}}" />
+                            <span class="btn btn-primary btn-lg" ng-bind="vm.supported ? 'Take photo' : 'Choose file'"></span>
+                        </label>
+                    </div>
+                    <div class="col-xs-4 col-md-3" ng-show="vm.fileReady($index)">
+                        <canvas class="app-margin-left-half" id="{{'canvasfile'+$index}}" width="100" height="100" style="vertical-align:middle;"></canvas>
+                    </div>
+                    <div class="col-xs-4 col-md-3 my-radios" style="padding-top:6px;" ng-show="vm.fileReady($index)">
+                        <label class="radio">
+                            <input type="radio" name="{{'rotations['+$index+']'}}" value="-1" ng-model="vm.rotations[$index]" ng-change="vm.rotate($index)" />
+                            <span class="text-nowrap">Rotate left<i class="fa fa-undo fa-fw"></i></span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="{{'rotations['+$index+']'}}" value="0" ng-model="vm.rotations[$index]" ng-change="vm.rotate($index)" />
+                            <span class="text-nowrap">Do not rotate</span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="{{'rotations['+$index+']'}}" value="1" ng-model="vm.rotations[$index]" ng-change="vm.rotate($index)" />
+                            <span class="text-nowrap">Rotate right<i class="fa fa-repeat fa-fw"></i></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Comment</label>
+                    <div class="col-sm-8 col-lg-10">
+                        <textarea class="form-control app-textarea" name="comment" rows="2" placeholder="Write optional comment" maxlength="1000"></textarea>
+                    </div>
+                </div>
+                <div class="form-group text-center">
+                    @Html.Partial("_NotAuthenticatedSpanPartial")
+                    <button type="submit" class="btn btn-primary btn-lg app-btn-disablable" ng-disabled="!vm.canSubmit()">
+                        <i class="fa app-1px-up" ng-class="{'fa-spinner fa-fw fa-spin':vm.uploading}"></i>
+                        <span ng-bind="(vm.supported ? 'Save photo' : 'Upload file') + (vm.rotations.length > 1 ? 's' : '')"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-6">
+            @if (Model == ServiceType.IeltsWritingTask1)
+            {
+                @Html.Partial("_WritingTask1Partial")
+            }
+            @if (Model == ServiceType.IeltsWritingTask2)
+            {
+                @Html.Partial("_WritingTask2Partial")
+            }
+            @if (Model == ServiceType.IeltsReading)
+            {
+                @Html.Partial("_ReadingPartial")
+            }
+            @if (Model == ServiceType.IeltsListening)
+            {
+                @Html.Partial("_ListeningPartial")
+            }
+        </div>
+    </div>
+</div>
+@section BottomScripts {
+    <script>
+        app.serviceTypeParam = @JavaScriptConvert.Serialize(@Model);
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+"~/app/exercises/utils.js",
+"~/app/exercisesIelts/utils.js",
+"~/app/exercisesIelts/answerSheetPhoto.js"
+)}

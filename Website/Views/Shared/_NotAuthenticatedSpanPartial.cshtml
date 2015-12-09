@@ -1,7 +1,6 @@
 ﻿@if (!Request.IsAuthenticated)
-{
+{ 
     <span class="alert alert-warning app-warning" role="alert">
-        Please @Html.ActionLinkWithProtocol("log in", "Login", "Account", "https", null) to enable this feature
-        @*<i class="fa fa-hand-o-right fa-fw"></i>*@
+        Please @Html.ActionLinkWithProtocol("log in", "Login", "Account", "https", null, new { returnUrl = Request.Url.PathAndQuery }, null) to enable this feature
     </span>
 }

@@ -1,6 +1,6 @@
--- Copy database to the test database. (use master)
---CREATE DATABASE test_englmdb AS COPY OF englmdb;
---SELECT name, state, state_desc FROM sys.databases WHERE name = 'test_englmdb';
+-- Copy database to the test database. 
+-- use master; CREATE DATABASE Copy_englmdb AS COPY OF englmdb;
+-- use master; SELECT name, state, state_desc FROM sys.databases --WHERE name = 'Copy_englmdb';
 
 -- Prepare manual SQL schema update scripts.
 
@@ -14,20 +14,20 @@
 
 -- Publish the new website to the staging.
 
--- Change the database connection string in the staging slot to 'test_englmdb'
+-- Change the database connection string in the staging slot to 'Copy_englmdb'
 
 -- Test the staging site.
 
 -- Change the database connection string in the staging slot back to 'englmdb'
 
--- Delete 'test_englmdb'.
+-- Delete 'Copy_englmdb'.
 
 ---------------------- OFFLINE ----------------------
 
 -- Rename ~App_Offline.htm to App_Offline.htm on the production slot on the Preview portal -> Website -> Console.
 rename ~App_Offline.htm App_Offline.htm
 
--- Copy database to the backup database 'englmdb_backup'
+-- Copy database to the backup database 'Copy_englmdb'
 
 -- Run manual SQL schema update scripts on the main database.
 
@@ -59,3 +59,7 @@ ALTER DATABASE [englmdb_backup] MODIFY NAME = [englmdb]
 
 ---------------------- NOTES ----------------------
 EXECUTE sp_rename N'dbo.appUsers.SessionRate', N'Tmp_SessionPrice', 'COLUMN' 
+
+--EXECUTE sp_rename N'dbo.exeExercises.CreateTime', N'CreationTime', 'COLUMN'
+delete appFeeRates
+sysInitializeConstants sysInitializeSpecialUsers sysInitializeTypes

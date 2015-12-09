@@ -1,0 +1,85 @@
+-----------------------------------------------------------------------
+-- Install. The service is installed by the installer.
+-- Change the start type of the service from Manual to Automatic (Delayed Start).
+-----------------------------------------------------------------------
+-- Change the default password for the test extentions
+C:\Program Files\FreeSWITCH\conf\vars.xml
+
+-- Enable mod_xml_rpc
+Edit conf/autoload_configs/modules.conf.xml and uncomment this line:
+<!-- <load module="mod_xml_rpc"/> -->
+Change the port and the password in conf/autoload_configs/xml_rpc.conf.xml
+-----------------------------------------------------------------------
+// https://wiki.freeswitch.org/wiki/Skype_Connect
+-- C:\Program Files\FreeSWITCH\conf\sip_profiles\external\skype_connect.xml
+<include>
+  <gateway name="skype-connect">
+    <param name="realm" value="sip.skype.com"/>
+    <param name="proxy" value="sip.skype.com"/> <!-- is this necessary? it's the same as realm -->
+    <param name="from-domain" value="sip.skype.com"/>
+    <param name="username" value="YOUR_SKYPE_SIP_USERNAME"/>
+    <param name="from-user" value="YOUR_SKYPE_SIP_USERNAME"/>
+    <param name="password" value="YOUR_SKYPE_SIP_PASSWORD"/>
+    <param name="contact-params" value="YOUR_SKYPE_SIP_USERNAME@sip.skype.com"/>
+    <param name="extension" value="YOUR_SKYPE_SIP_USERNAME"/>
+    <param name="extension-in-contact" value="true"/>
+    <param name="retry-seconds" value="30"/>
+    <param name="caller-id-in-from" value="false"/>
+  </gateway>
+</include>
+
+-- C:\Program Files\FreeSWITCH\conf\dialplan\public\01_skype_connect_0001.xml
+<include>
+  <extension name="skype_inbound">
+    <condition field="destination_number" expression="YOUR_SKYPE_SIP_USERNAME">
+      <action application="transfer" data="9192 XML default"/><!-- Enter the actual value -->
+    </condition>
+  </extension>
+</include>
+
+// Run the "reloadxml" command.
+-----------------------------------------------------------------------
+-- Add endpoints to the VM. Run "netstat -bano | findstr <PID>" to find out the opened ports.
+SIP TCP 5060 
+SIP UDP 5060
+SIP TCP 5080 
+SIP UDP 5080
+RTP UDP 16384-... Prefer an even number as the end.
+// http://fabriccontroller.net/blog/posts/adding-multiple-endpoints-to-your-windows-azure-virtual-machines-by-using-a-csv-file/
+// http://stackoverflow.com/questions/19568281/set-up-asterisk-on-windows-azure-issue-with-opening-port-range-1000020000
+-- Modify RTP Port Range
+C:\Program Files\FreeSWITCH\conf\autoload_configs\switch.conf.xml
+<param name="rtp-start-port" value="16384"/>
+<param name="rtp-end-port" value="..."/><!-- Enter the actual value -->
+
+Do not open a port for mod_xml_rpc, it is called on localhost.
+-----------------------------------------------------------------------
+-- Restart the service. The FreeSWITCH will register with the Skype Connect profile. Run "sofia status" in the fs_cli to check it.
+-----------------------------------------------------------------------
+-- Use the IP (not localhost) in the settings of the X-Lite softphone.
+-----------------------------------------------------------------------
+-- In C:\Program Files\FreeSWITCH\conf\dialplan\default\01_custom.xml
+
+<include>
+  <extension name="simple test">
+	<condition field="ani" expression="^(1005)$"/>
+    <condition field="destination_number" expression="^(9101)$">
+      <action application="answer"/>
+      <action application="say" data="en number iterated ${ani}"/>
+      <action application="sleep" data="1000"/>	  
+	  <action application="playback" data="misc/call_monitoring_blurb.wav"/>
+      <action application="sleep" data="1000"/>	  
+	  <!--<action application="playback" data="ivr/ivr-recording_started.wav"/>-->
+	  <action application="set" data="RECORD_STEREO=false"/>
+	  <!--<action application="record_session" 
+		data="$${recordings_dir}/${strftime(%Y-%m-%d-%H-%M-%S)}_${destination_number}_${caller_id_number}.wav"/>-->
+	  <!--<action application="playback" data="silence_stream://300000"/>-->
+	  <action application="playback" data="local_stream://default"/>
+      <action application="playback" data="ivr/ivr-recording_stopped.wav"/>
+      <action application="sleep" data="2000"/>	  
+      <action application="hangup"/>
+    </condition>
+  </extension>
+</include>
+-----------------------------------------------------------------------
+

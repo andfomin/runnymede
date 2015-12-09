@@ -7,7 +7,7 @@
 "~/bower_installer/fullcalendar/fullcalendar.css"
     )
     <style>
-        @@-webkit-keyframes blink {
+        /*@@-webkit-keyframes blink {
             0%, 100% {
                 opacity: 1;
             }
@@ -41,8 +41,11 @@
             -webkit-animation: blink 2s infinite;
             -moz-animation: blink 2s infinite;
             animation: blink 2s infinite;
-        }
+        }*/
 
+        .fc-toolbar {
+            margin-bottom: 0;
+        }
     </style>
 }
 <div ng-app="myApp" ng-cloak>
@@ -50,29 +53,20 @@
         @Html.Partial("_ClockWrongPartial")
         <div class="row">
             <div class="col-lg-offset-1 col-lg-10">
-                <div class="row app-margin-bottom">
-                    <div class="col-sm-9">
-                        <ul class="list-inline list-unstyled">
-                            <li><strong>Legend</strong></li>
-                            <li><i class="fa fa-square fa-fw fa-lg app-2px-up app-appblue"></i>Proposed time slot</li>
-                            <li><i class="fa fa-square fa-fw fa-lg app-2px-up" style="color:#dff0d8;"></i>Accepted time slot</li>
-                            <li><i class="fa fa-square fa-fw fa-lg app-2px-up" style="color:#5cb85c;"></i>Booked session</li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-3">
-                        <button class="btn btn-primary btn-sm app-btn-disablable" ng-click="vm.acceptProposals()" ng-disabled="vm.selections.length == 0">Accept selected time slots</button>
-                    </div>
-                </div>
-                <div ng-model="vm.eventSources" data-ui-calendar="vm.calConfig" data-calendar="calObj"></div>
+
+                <div calendar="myCal" ui-calendar="vm.calConfig" ng-model="vm.eventSources"></div>
+
+                @Html.Partial("_ColorLegendPartial")
+
             </div>
         </div>
     </div><!-- /Sessions -->
 </div><!-- /app -->
-<h4>Activity suggestions for a session</h4>
-<ul>
-    <li><a href="/games/pick-a-pic">Game "Pick a picture"</a></li>
-    <li><a href="http://iteslj.org/questions/" target="_blank">Topic questions</a></li>
-</ul>
+@*<h4>Activity suggestions for a session</h4>
+    <ul>
+        <li><a href="/games/pick-a-pic">Game "Pick a picture"</a></li>
+        <li><a href="http://iteslj.org/questions/" target="_blank">Topic questions</a></li>
+    </ul>*@
 @section BottomScripts {
     @Scripts.Render(
 "~/bundles/angular",

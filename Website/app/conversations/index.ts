@@ -21,7 +21,7 @@
         load = () => {
             if (this.authenticated) {
                 app.ngHttpGet(this.$http,
-                    app.converstionsApiUrl(),
+                    app.conversationsApiUrl(),
                     null,
                     (data) => {
                         if (data) {
@@ -48,7 +48,7 @@
         invite = (toUser: IUser) => {
             this.busy = true;
             return app.ngHttpPost(this.$http,
-                app.converstionsApiUrl('' + toUser.id),
+                app.conversationsApiUrl('' + toUser.id),
                 null,
                 null,
                 () => {

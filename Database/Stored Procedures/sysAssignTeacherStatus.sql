@@ -20,19 +20,12 @@ begin try
 	if @UserId is null
 		raiserror('%s,%s:: User not found.', 16, 1, @ProcName, @UserName);
 
-	declare @AccountId int = dbo.accGetPersonalAccount(@UserId);
-
 	if @ExternalTran = 0
 		begin transaction;
 
-		-- We postpone creation of a user account until it is really needed.
-		if (@AccountId is null) begin
-		
-			exec dbo.accCreateUserAccounts @UserId = @UserId;
-
-		end
-
 		update dbo.appUsers set IsTeacher = 1 where Id = @UserId;
+
+		exec dbo.accCreateAccountsIfNotExist @UserId = @UserId, @Types = N'<Types><Type>ACUCSH</Type></Types>';
 
 	if @ExternalTran = 0
 		commit;

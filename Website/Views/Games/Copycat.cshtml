@@ -24,7 +24,7 @@
     <div class="row  app-margin-bottom">
         <div class="col-md-5">
             <div ng-show="vm.isKindViewed()">
-                @Html.Partial("_NotAuthenticatedDivPartial")
+                @Html.Partial("_NotAuthenticatedDivPartial", "col-md-12 ng-cloak")
             </div>
             <div class="row">
                 <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10 col-sm-offset-0 col-sm-6 col-xs-offset-3 col-xs-6">
@@ -57,7 +57,7 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">Write your transcript version</div>
                             <div class="panel-body">
-                                <textarea rows="3" class="form-control app" ng-model="vm.transcript"></textarea>
+                                <textarea rows="3" class="form-control app-textarea" ng-model="vm.transcript"></textarea>
                             </div>
                         </div>
                         <button class="btn btn-default btn-xs" ng-click="vm.showPublicTranscript()" ng-show="!vm.publicTranscript">Show the public transcript</button>
@@ -129,8 +129,7 @@
     <!-- /Modals -->
 </div><!-- /app -->
 @section BottomScripts {
-    <script type="text/javascript">
-        var app = app || {};
+    <script>
         app.hostPageParam = 'HostPage_Copycat';
     </script>
     @Scripts.Render(
@@ -138,6 +137,7 @@
 "~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
+"~/app/shared/utils-youtube.js",
 "~/app/shared/library.js",
 "~/app/games/copycat.js"
 )}

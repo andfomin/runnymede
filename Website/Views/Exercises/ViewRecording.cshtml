@@ -2,8 +2,6 @@
     ViewBag.Title = "Recording";
 }
 @section HeadScripts {
-    @* SoundManager must be loaded as early as possible. Otherwise browser security may block Flash <-> JS communication after certain JQuery DOM manipulations by a third-party code. *@
-    @Scripts.Render("~/bundles/soundmanager2")
     @Styles.Render(
 "~/bundles/animate-css",
 "~/bower_installer/ng-tags-input/ng-tags-input.min.css",
@@ -11,65 +9,70 @@
 )
 }
 @* Do not hide the video player! See the comments in the partial. *@
-<div ng-app="myApp" ng-controller="ViewRecording">
+<div ng-app="myApp">
 
-    @Html.Partial("_TitlePartial")
-    <div ng-controller="AudioPlayer" ng-cloak>
-        <hr />
-        <div class="text-center" ng-show="vma.autoLoad && !vma.soundLoaded">
-            <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>&nbsp;&nbsp;Loading recording...
-            <hr />
-        </div>
-        <div class="app-margin-bottom" ng-show="!vma.autoLoad || vma.soundLoaded">
-            @Html.Partial("_AudioPlayerControlsPartial")
-        </div>
-        <div id="soundmanager-debug"></div>
+    @Html.Partial("_SplashPartial")
 
-        <div class="panel panel-default" ng-cloak>
-            <div class="panel-heading">
-                <h4 class="panel-title">Remarks</h4>
+    <div ng-controller="ViewRecording" ng-cloak>
+
+        @Html.Partial("_TitlePartial")
+
+        <div ng-controller="AudioPlayer">
+            <div class="text-center app-margin-top app-margin-bottom" ng-show="!vma.player">
+                <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>&nbsp;&nbsp;Loading&nbsp;...
             </div>
-            <div class="panel-body" style="padding:0">
 
-                <table class="table table-condensed table-hover app-margin-bottom-none">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Spot</th>
-                            <th>Correction</th>
-                            <th>Comment</th>
-                            <th ng-if="vm.manyReviews()">Reviewer</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="r in vm.$appRemarks.remarks" ng-click="vma.selectRemark(r)">
-                            <td>
-                                <button class="btn btn-default btn-xs" ng-show="vma.isSelected(r)" ng-click="vma.playRemarkSpot(r)" title="Replay"><i class="fa fa-repeat"></i></button>
-                            </td>
-                            <td class="text-nowrap">
-                                from&nbsp;{{r.start | appMsecToMinSec}}
-                                to&nbsp;{{r.finish | appMsecToMinSec}}
-                            </td>
-                            <td>
-                                {{r.correction}}
-                            </td>
-                            <td>
-                                {{r.comment}}
-                            </td>
-                            <td ng-if="vm.manyReviews()">
-                                {{vm.getReviewerName(r)}}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div ng-show="vma.player">
+
+                @Html.Partial("_AudioPlayerControlsPartial")
 
             </div>
-        </div>
 
-    </div><!-- /ng-controller="AudioPlayer" -->
-    @Html.Partial("_BottomPartial")
+            <div class="panel panel-default app-margin-top">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Remarks</h4>
+                </div>
+                <div class="panel-body" style="padding:0">
 
-</div><!-- /ng-controller="Viewer" -->
+                    <table class="table table-condensed table-hover app-margin-bottom-none">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Spot</th>
+                                <th>Correction</th>
+                                <th>Comment</th>
+                                <th ng-if="vm.manyReviews()">Reviewer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="r in vm.$appRemarks.remarks" ng-click="vma.selectRemark(r)">
+                                <td>
+                                    <button class="btn btn-default btn-xs" ng-show="vma.isSelected(r)" ng-click="vma.playRemarkSpot(r)" title="Replay"><i class="fa fa-repeat"></i></button>
+                                </td>
+                                <td class="text-nowrap">
+                                    from&nbsp;{{r.start | appSecToMinSec}}
+                                    to&nbsp;{{r.finish | appSecToMinSec}}
+                                </td>
+                                <td>
+                                    {{r.correction}}
+                                </td>
+                                <td>
+                                    {{r.comment}}
+                                </td>
+                                <td ng-if="vm.manyReviews()">
+                                    {{vm.getReviewerName(r)}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div><!-- /ng-controller="AudioPlayer" -->
+
+        @Html.Partial("_BottomPartial")
+
+    </div> <!-- /ng-controller="Viewer" -->
+</div> <!-- /ng-app -->
 @*@using (Html.BeginInstructionsContainer())
     {
         <ul>
@@ -81,9 +84,10 @@
         </ul>
     }*@
 @section BottomScripts {
-    <script type="text/javascript">
-        var app = app || {};
+    <script>
         app.exerciseParam = @JavaScriptConvert.Serialize(ViewBag.ExerciseParam);
+        app.cardIdParam = @JavaScriptConvert.Serialize(ViewBag.cardIdParam);
+        app.cardParam = @JavaScriptConvert.Serialize(ViewBag.cardParam);
         app.hostPageParam = 'HostPage_ViewRecording';
     </script>
     @Scripts.Render(
@@ -91,17 +95,22 @@
 "~/bundles/angular-libs",
 "~/bundles/ext-libs",
 "~/bundles/app-utils",
-            //<script src="+//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-touch.min.js"></script>
+//<script src="+//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-touch.min.js"></script>
 "~/bower_installer/angular-touch/angular-touch.min.js",
 "~/bower_installer/venturocket-angular-slider/angular-slider.min.js",
-"~/bower_installer/ng-tags-input/ng-tags-input.min.js",
-"~/bower_installer/signalr/jquery.signalR.min.js",
+"~/bower_installer/ng-tags-input/ng-tags-input.min.js", // TODO obsolete??
+                                                        //"~/bower_installer/signalr/jquery.signalR.min.js",
+"~/app/shared/utils-youtube.js",
 "~/app/shared/library-data.js",
-"~/app/shared/library.js",
+"~/app/shared/library.js", // TODO ??
+
+"~/app/exercises/utils.js",
+"~/app/exercises/utils-card.js",
+"~/app/shared/utils-player.js",
 "~/app/shared/exercises.js",
 "~/app/shared/exercises-recording.js",
-"~/app/exercises/utils.js",
-"~/app/exercises/utils-viewCtrlBase.js",
-"~/app/exercises/viewRecording.js"
+"~/app/exercisesIelts/utils-data.js",
+"~/app/exercises/utils-viewCtrlBase.js"
+, "~/app/exercises/viewRecording.js"
 )
 }

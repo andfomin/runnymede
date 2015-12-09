@@ -20,7 +20,7 @@
         overflow: auto;
     }
 
-    .app-separator-or {
+    .my-or {
         margin-top: 10px;
         /* Font style copied from h4 */
         font-size: 17px;
@@ -31,7 +31,7 @@
 
 <div class="row" ng-app="myApp" data-ng-controller="Signup" ng-cloak>
     <div class="col-md-offset-1 col-md-6">
-        @using (Html.BeginForm("ExternalLogin", "Account", FormMethod.Post))
+        @using (Html.BeginForm("ExternalLogin", "Account", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             <h4>Sign up using your Facebook account</h4>
@@ -43,7 +43,7 @@
             <br />
             <div class="row">
                 <div class="col-sm-5"><hr /></div>
-                <div class="col-sm-2 text-center app-separator-or app-appred">or</div>
+                <div class="col-sm-2 text-center my-or app-appred">or</div>
                 <div class="col-sm-5"><hr /></div>
             </div>
             <h4>Sign up using your Google account</h4>
@@ -56,7 +56,7 @@
         <br />
         <div class="row">
             <div class="col-sm-5"><hr /></div>
-            <div class="col-sm-2 text-center app-separator-or app-appred">or</div>
+            <div class="col-sm-2 text-center my-or app-appred">or</div>
             <div class="col-sm-5"><hr /></div>
         </div>
 
@@ -101,7 +101,7 @@
                             <input type="text" id="name" class="form-control" name="name" ng-model="vm.name" ng-maxlength="100" />
                         </div>
                     </div>
-                    <p class="help-block"><small>This name will be visible to other users. Please use Latin letters.</small></p>
+                    <p class="help-block"><small>This name may be visible to other users. Use Latin characters.</small></p>
                 </div>
             </div>
             <div class="form-group">
@@ -117,14 +117,15 @@
                 By creating an account, you agree to our <a href="javascript:;" ng-click="isVisible = !isVisible">Terms&nbsp;of&nbsp;Service</a>.
             </div>
         </div>
+        <hr />
+        <h4>Already have an account? @Html.ActionLink("Log in", "Login", new { returnUrl = ViewBag.ReturnUrl })</h4>
     </div>
 
     <div class="col-md-5" ng-if="!isVisible">
         <h4>Benefits of creating a free user account</h4>
         <ul>
             <li>Record speaking exercises.</li>
-            <li>Find speaking partners.</li>
-            <li>Find learning resources with the optimal language level.</li>
+            <li>Find learning resources with the language level optimal for you.</li>
             <li>Manage your personal collection of learning resources.</li>
         </ul>
     </div>

@@ -1,0 +1,110 @@
+﻿@{
+    ViewBag.Title = "Recording";
+}
+@section HeadScripts {
+    @* SoundManager must be loaded as early as possible. Otherwise browser security may block Flash <-> JS communication after certain JQuery DOM manipulations by a third-party code. *@
+    @Scripts.Render("~/bundles/soundmanager2")
+    @Styles.Render(
+"~/bundles/animate-css",
+"~/bower_installer/ng-tags-input/ng-tags-input.min.css",
+"~/bower_installer/ng-tags-input/ng-tags-input.bootstrap.min.css"
+)
+}
+@* Do not hide the video player! See the comments in the partial. *@
+<div ng-app="myApp" ng-controller="ViewRecording">
+
+    @Html.Partial("_TitlePartial")
+    <div ng-controller="AudioPlayer" ng-cloak>
+        <hr />
+        <div class="text-center" ng-show="vma.autoLoad && !vma.soundLoaded">
+            <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>&nbsp;&nbsp;Loading recording...
+            <hr />
+        </div>
+        <div class="app-margin-bottom" ng-show="!vma.autoLoad || vma.soundLoaded">
+            @Html.Partial("_AudioPlayerControlsPartial")
+        </div>
+        <div id="soundmanager-debug"></div>
+
+        <div class="panel panel-default" ng-cloak>
+            <div class="panel-heading">
+                <h4 class="panel-title">Remarks</h4>
+            </div>
+            <div class="panel-body" style="padding:0">
+
+                <table class="table table-condensed table-hover app-margin-bottom-none">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Spot</th>
+                            <th>Correction</th>
+                            <th>Comment</th>
+                            <th ng-if="vm.manyReviews()">Reviewer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="r in vm.$appRemarks.remarks" ng-click="vma.selectRemark(r)">
+                            <td>
+                                <button class="btn btn-default btn-xs" ng-show="vma.isSelected(r)" ng-click="vma.playRemarkSpot(r)" title="Replay"><i class="fa fa-repeat"></i></button>
+                            </td>
+                            <td class="text-nowrap">
+                                from&nbsp;{{r.start | appMsecToMinSec}}
+                                to&nbsp;{{r.finish | appMsecToMinSec}}
+                            </td>
+                            <td>
+                                {{r.correction}}
+                            </td>
+                            <td>
+                                {{r.comment}}
+                            </td>
+                            <td ng-if="vm.manyReviews()">
+                                {{vm.getReviewerName(r)}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div><!-- /ng-controller="AudioPlayer" -->
+
+    @Html.Partial("_BottomPartial")
+
+</div><!-- /ng-controller="Viewer" -->
+@*@using (Html.BeginInstructionsContainer())
+    {
+        <ul>
+            <li>You can edit the title of the exercise.</li>
+            <li>You can listen to the record.</li>
+            <li>If a review for the exercise is available, you can see remarks made by the reviewer.</li>
+            <li>You can listen to the same remark spot many times by clicking the button with the circular arrow</li>
+            <li>There may be a tag for a remark. By clicking on it you will be redirected to an external website which may help you to understand the remark.</li>
+        </ul>
+    }*@
+@section BottomScripts {
+    <script>
+        app.exerciseParam = @JavaScriptConvert.Serialize(ViewBag.ExerciseParam);
+        app.cardParam = @JavaScriptConvert.Serialize(ViewBag.cardParam);
+        app.hostPageParam = 'HostPage_ViewRecording';
+    </script>
+    @Scripts.Render(
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/ext-libs",
+"~/bundles/app-utils",
+            //<script src="+//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-touch.min.js"></script>
+"~/bower_installer/angular-touch/angular-touch.min.js",
+"~/bower_installer/venturocket-angular-slider/angular-slider.min.js",
+"~/bower_installer/ng-tags-input/ng-tags-input.min.js",
+"~/bower_installer/signalr/jquery.signalR.min.js",
+"~/app/shared/utils-youtube.js",
+"~/app/shared/library-data.js",
+"~/app/shared/library.js",
+"~/app/shared/exercises.js",
+"~/app/shared/exercises-recording.js",
+"~/app/exercisesIelts/utils-data.js",
+"~/app/exercises/utils.js",
+"~/app/exercises/utils-viewCtrlBase.js",
+"~/app/exercises/viewRecording.js"
+)
+}

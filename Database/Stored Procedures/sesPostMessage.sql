@@ -17,10 +17,10 @@ begin try
 
 	declare @RecipientUserId int, @Attribute nvarchar(100);
 	
-	select @RecipientUserId = iif(TeacherUserId = @UserId, LearnerUserId, TeacherUserId)
+	select @RecipientUserId = iif(LearnerUserId = @UserId, TeacherUserId, LearnerUserId)
 	from dbo.sesSessions
 	where Id = @SessionId
-		and (TeacherUserId = @UserId or LearnerUserId = @UserId);
+		and ((LearnerUserId = @UserId) or (TeacherUserId = @UserId));
 
 	if (@RecipientUserId is null)
 		raiserror('%s,%d,%d:: The user is not related to the session.', 16, 1, @ProcName, @UserId, @SessionId);

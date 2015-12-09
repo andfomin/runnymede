@@ -1,0 +1,221 @@
+﻿@using Runnymede.Website.Controllers.Mvc;
+@{
+    ViewBag.NavItem = "IeltsExercises";
+    ViewBag.Title = ServiceType.GetTitle(ServiceType.IeltsSpeaking);
+    ViewBag.SecondaryTitle = "Exercise";
+
+    var cookieName = ExercisesIeltsController.RecordingMethodsCookieName;
+    var cookieValue = Request.Cookies.AllKeys.Contains(cookieName)
+        ? Request.Cookies[cookieName].Value
+        : String.Empty;
+    var recordingMethod = RecordingMethods.Modern;
+    if (cookieValue.Contains("um1"))
+    {
+        recordingMethod = RecordingMethods.Modern;
+    }
+    else if (cookieValue.Contains("fl1"))
+    {
+        recordingMethod = RecordingMethods.Desktop;
+    }
+    else if (cookieValue.Contains("cv1"))
+    {
+        recordingMethod = RecordingMethods.Capture;
+    }
+}
+@section HeadScripts {
+    @Styles.Render("~/bundles/animate-css")
+    <style>
+        #myRecorderBox {
+            position: absolute;
+            display: inline-block;
+            left: -100%;
+            top: -100%;
+            width: 240px;
+            height: 160px;
+        }
+
+            #myRecorderBox.my-visible {
+                left: 50%;
+                top: 50%;
+                margin-left: -120px;
+                margin-top: -80px;
+                z-index: 10;
+            }
+
+        #myFile {
+            position: fixed;
+            top: -100%;
+            left: -100%;
+        }
+    </style>
+
+    @Html.Partial("_RecordingMethodsScriptPartial")
+    @*If no cookie was found, _RecordingMethodsScriptPartial would execute above in the browser and would have set a new cookie. Reload if the default method does not match. *@
+    @if (cookieValue == String.Empty)
+    {
+        <script>
+            var ac = window.AudioContext || window.webkitAudioContext;
+            var gum = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            if (!ac || !gum) {
+                location.reload();
+            }
+        </script>
+    }
+}
+@if (recordingMethod == RecordingMethods.Desktop)
+{
+    <div id="myRecorderBox">
+        <div id="toBeReplacedByRecorderSwfObject"></div>
+    </div>
+}
+<div ng-app="myApp" ng-controller="Speaking" ng-strict-di>
+    <div class="text-center" ng-show="vm.isState('')">
+        <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>&nbsp;&nbsp;Loading&nbsp;...
+    </div>
+    <div ng-cloak>
+        <div class="row">
+            <div class="col-xs-offset-3 col-sm-offset-4 col-md-offset-5 col-xs-6 col-sm-4 col-md-2">
+                <button class="btn btn-primary btn-lg btn-block app-btn-disablable"
+                        ng-click="vm.start()" ng-show="vm.isState('Ready', 'Starting')" ng-disabled="vm.isState('Starting')">
+                    Start&nbsp;test
+                </button>
+            </div>
+        </div>
+        <div ng-show="vm.item">
+            <div class="row">
+                <div class="col-xs-offset-2 col-sm-offset-3 col-md-offset-4 col-xs-8 col-sm-6 col-md-4 text-center">
+                    <button class="btn btn-default app-btn-disablable" ng-click="vm.repeat()" ng-disabled="!vm.canRepeat()">
+                        <i class="fa fa-repeat fa-fw app-1px-up"></i>&nbsp;Repeat&nbsp;question
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-offset-2 col-sm-offset-3 col-md-offset-4 col-xs-8 col-sm-6 col-md-4">
+
+                    @if (recordingMethod == RecordingMethods.Capture)
+                    {
+                        @* We need the <form> to be able to reset the <input> *@
+                        <form id="myFileForm">
+                            <label class="btn-block app-margin-bottom-none">
+                                @* We use accept="video/*" because there is no dedicated app for "audio/*" in iOS. The "audio/*" value sets the Photo mode in the Camera app in iOS. *@
+                                <input type="file" id="myFile" capture accept="video/*" my-onchange="vm.onFileChange" />
+                                @* We use <span> because <button> does not pass clicks to the <input>. We enable and disable clicks in ng-click *@
+                                <span class="btn btn-primary btn-lg btn-block app-btn-disablable"
+                                      ng-disabled="!vm.isState('Recording')" ng-click="!vm.isState('Recording') && $event.preventDefault()">
+                                    <i class="fa fa-circle fa-fw fa-lg text-danger app-1px-up"></i>&nbsp;Record&nbsp;answer
+                                </span>
+                            </label>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="text-center">
+                            <h4>
+                                <span ng-show="vm.isState('Recording')">
+                                    <i class="fa fa-circle fa-fw fa-lg animated flash infinite text-danger app-1px-up"></i>&nbsp;Recording&nbsp;...
+                                </span>
+                                &nbsp;
+                            </h4>
+                        </div>
+                        <button class="btn btn-primary btn-lg btn-block app-btn-disablable" ng-click="vm.next()" ng-disabled="!vm.isState('Recording')">
+                            <i class="fa fa-angle-double-right fa-fw fa-lg app-1px-up"></i>&nbsp;Next&nbsp;question
+                        </button>
+                    }
+
+                </div>
+            </div>
+            @* Include ngSanitize when using ng-bind-html *@
+            <div ng-bind-html="vm.item.content" ng-show="vm.isRepeating"></div>
+            <div ng-bind-html="vm.cueCard"></div>
+        </div>
+
+        <div ng-show="vm.isState('Stopped', 'Uploading')">
+            <div class="text-center app-margin-bottom">
+                <button class="btn btn-primary btn-lg app-btn-disablable" ng-disabled="vm.isState('Uploading')" ng-click="vm.save()">
+                    <i class="fa fa-lg fa-fw app-1px-up" style="color:white;"
+                       ng-class="vm.isState('Uploading') ? 'fa-spinner fa-spin' : 'fa-check animated flash infinite'"></i>
+                    Save answers
+                </button>
+            </div>
+            <div class="row">
+                <div class="col-md-offset-2 col-sm-12 col-md-8">
+
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="i in vm.getPlaybackItems()">
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <span ng-bind-html="i.content"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                    @*<button class="btn btn-default" ng-click="vm.replay(i)">
+                                            <i class="fa fa-repeat fa-fw"></i>&nbsp;Replay&nbsp;question
+                                        </button>*@
+                                    <button class="btn btn-default" ng-click="vm.playBack(i)" ng-show="vm.canPlayBack(i)">
+                                        <i class="fa fa-play fa-fw"></i>&nbsp;Play&nbsp;back&nbsp;answer
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="row">
+                        <label class="col-sm-2 control-label">Title</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" ng-model="vm.title" maxlength="100" placeholder="Enter an optional title">
+                            @*<textarea class="form-control app-textarea" rows="2" placeholder="Write optional comment" maxlength="1000"
+                                ng-model="vm.comment"></textarea>*@
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-default btn-sm" ng-click="vm.stop()" ng-show="vm.canStop()">Stop test</button>
+
+    </div><!-- /ng-cloak -->
+</div><!-- ng-app -->
+
+
+@section BottomScripts {
+    <script>
+        app.serviceTypeParam = @JavaScriptConvert.Serialize(ServiceType.IeltsSpeaking);
+        app.cardIdParam = @JavaScriptConvert.Serialize(ViewBag.cardIdParam);
+        @{
+            if (recordingMethod == RecordingMethods.Capture)
+            {
+                <text>app.encoderPath = '/app/exercisesIelts/utils-encoder-qt.js';</text>
+            }
+            else
+            {
+                <text>app.encoderPath = '/app/exercisesIelts/utils-encoder.js';</text>
+            }
+            if (recordingMethod == RecordingMethods.Desktop)
+            {
+                <text>app.swfUrl = '/bower_installer/flashWavRecorder/recorder.swf';</text>
+            }
+         }
+    </script>
+    @Scripts.Render(
+"~/bundles/ext-libs",
+"~/bundles/angular",
+"~/bundles/angular-libs",
+"~/bundles/app-utils",
+
+"~/app/exercises/utils-card.js",
+"~/app/shared/utils-player.js",
+"~/app/exercisesIelts/utils-speaking.js"
+)
+    @switch (recordingMethod)
+    {
+        case RecordingMethods.Desktop:
+            @Scripts.Render("~/bundles/swfobject", "~/app/exercisesIelts/speakingDesktop.js");
+            break;
+        case RecordingMethods.Capture:
+            @Scripts.Render("~/app/exercisesIelts/speakingCapture.js");
+            break;
+        default:
+            @Scripts.Render("~/app/exercisesIelts/speakingModern.js");
+            break;
+    }
+}

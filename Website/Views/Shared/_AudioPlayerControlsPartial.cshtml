@@ -1,10 +1,10 @@
 ﻿<style>
     /* #region ----------- Slider */
 
-    .app-slider-container {
+    .my-slider-container {
         -webkit-touch-callout: none;
         -webkit-user-select: none;
-        -khtml-user-select: none;
+        /*-khtml-user-select: none;*/
         -moz-user-select: -moz-none;
         -ms-user-select: none;
         user-select: none;
@@ -58,13 +58,13 @@
 
     /* #region ----------- Review editor/viewer */
 
-    div.app-spot-mark-container {
+    div.my-spot-mark-container {
         width: 100%;
         height: 16px;
         position: relative;
     }
 
-    a.app-spot-mark {
+    a.my-spot-mark {
         background-color: #006394; /* appBlue link-color */
         position: absolute;
         padding: 0px;
@@ -73,32 +73,32 @@
         z-index: 10;
     }
 
-        a.app-spot-mark:hover {
+        a.my-spot-mark:hover {
             background-color: #007ebd; /* appBlue lighten(link-color, 8%) */
         }
 
-        a.app-spot-mark.active {
+        a.my-spot-mark.active {
             background-color: #ac1f28; /* appRed */
             top: -16px;
         }
 
-    button.app-unsaved-on-exit {
-        border-color: red;
-        border-width: 3px;
+    .my-item {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     /* #endregion ----------- /Review editor/viewer */
 </style>
-
-<div id="navigation" class="row">
+<div class="app-margin-top app-margin-bottom my-item">Question: {{vma.cardItem.content}}</div>
+<div class="row">
     <div class="col-md-12">
         <div style="margin: 0px 0px 10px;">
-            @* Rejected alternative: Angular-wrapped JQuery-UI slider +http://jsfiddle.net/depy/ZXekc/ *@
-            <div class="app-slider-container">
-                <slider floor="0" ceiling="{{vma.exercise.length}}" ng-model="vma.soundPosition" ng-change="vma.onSliderChange()" translate-fn="vma.positionFormatting"></slider>
+            <div class="my-slider-container">
+                <slider floor="0" ceiling="{{vma.exercise.length}}" ng-model="vma.sliderPosition" ng-change="vma.onSliderChange()" translate-fn="vma.positionFormatting"></slider>
             </div>
-            <div class="app-spot-mark-container">
-                <a class="app-spot-mark" href="javascript:;" ng-repeat="r in vm.$appRemarks.remarks"
+            <div class="my-spot-mark-container">
+                <a class="my-spot-mark" href="javascript:;" ng-repeat="r in vm.$appRemarks.remarks"
                    ng-click="vma.selectRemark(r)" ng-class="{active: vma.isSelected(r)}" ng-style="{ left: vma.getSpotMarkPosition(r) + '%' }"></a>
             </div>
         </div>
@@ -106,15 +106,14 @@
 </div>
 <div class="row">
     <div class="col-sm-offset-1 col-sm-2">
-        <button class="btn btn-default btn-block" ng-click="vma.rewind()" ng-disabled="vma.soundPosition == 0"><i class="fa fa-step-backward fa-fw"></i>&nbsp;Rewind</button>
+        <button class="btn btn-default btn-block" ng-click="vma.rewind()" ng-disabled="vma.player.currentTime == 0"><i class="fa fa-step-backward fa-fw"></i>&nbsp;Rewind</button>
     </div>
     @* The &nbsp; separates buttons when the layout jumps on col-sm  *@
     <div class="col-sm-1">&nbsp;</div>
     <div class="col-sm-4">
-        <button id="playButton" type="button" class="btn btn-default btn-block" ng-class="{active: vma.playing}" ng-click="vma.turnPlayer(!vma.playing)">
-            <i class="fa fa-fw" ng-class="vma.playing ? 'fa-pause' : 'fa-play'"></i>&nbsp;<span ng-bind="vma.playing ? 'Pause' : 'Play'"></span>
+        <button id="playButton" type="button" class="btn btn-default btn-block" ng-class="{active: vma.player.isPlaying()}" ng-click="vma.turnPlayer()">
+            <i class="fa fa-fw" ng-class="vma.player.isPlaying() ? 'fa-pause' : 'fa-play'"></i>&nbsp;<span ng-bind="vma.player.isPlaying() ? 'Pause' : 'Play'"></span>
         </button>
     </div>
     @*<div class="col-sm-4"></div>*@
 </div>
-

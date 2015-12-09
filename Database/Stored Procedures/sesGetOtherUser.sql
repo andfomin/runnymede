@@ -20,10 +20,10 @@ select @Start = Start, @End = [End],
 from dbo.sesSessions
 where Id = @SessionId;
 
-if @OtherUserId is null begin
-	declare @ProcName sysname = object_name(@@procid);
-	raiserror('%s,%d,%d:: The user is not related to the session.', 16, 1, @ProcName, @UserId, @SessionId);
-end
+--if @Start is null begin
+--	declare @ProcName sysname = object_name(@@procid);
+--	raiserror('%s,%d,%d:: The user is not related to the session.', 16, 1, @ProcName, @UserId, @SessionId);
+--end
 
 select Id, DisplayName, iif(sysutcdatetime() between @Start and @End, SkypeName, null) as SkypeName
 from dbo.appUsers

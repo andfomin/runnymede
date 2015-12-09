@@ -1,17 +1,13 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using Runnymede.Common.Utils;
 using Runnymede.Website.Models;
 using System;
 using System.Data.Entity.SqlServer;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Linq;
-using Runnymede.Common.Utils;
-using System.Web.Hosting;
-using System.Data.SqlClient;
-using System.Data.Entity;
-using System.Data;
 
 namespace Runnymede.Website.Utils
 {

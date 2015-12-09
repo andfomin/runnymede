@@ -52,40 +52,40 @@ namespace Runnymede.Website.Utils
         #endregion
 
 
-        ////public void ChangeCookie(string name, string value, bool active, DateTime? expirationTime = null)
-        ////{
-        ////    /* System.Web.Security.FormsAuthentication.Encript  System.Web.Security.FormsAuthenticationTicket */
-        ////    var exists = Request.Cookies.AllKeys.Contains(name);
-        ////    var cookie = String.IsNullOrEmpty(value) ? new HttpCookie(name) : new HttpCookie(name, value);
+        //public void ChangeCookie(string name, string value, bool active, DateTime? expirationTime = null)
+        //{
+        //    /* System.Web.Security.FormsAuthentication.Encript  System.Web.Security.FormsAuthenticationTicket */
+        //    var exists = Request.Cookies.AllKeys.Contains(name);
+        //    var cookie = String.IsNullOrEmpty(value) ? new HttpCookie(name) : new HttpCookie(name, value);
 
-        ////    if (active)
-        ////    {
-        ////        // A cookie with no expiration time set is a session cookie.
-        ////        if (expirationTime.HasValue)
-        ////        {
-        ////            var expTime = expirationTime.Value;
-        ////            var maxTime = new DateTime(2038, 01, 01); // Unix Millennium Bug. 19 January 2038 03:14:07 UTC 
-        ////            cookie.Expires = expTime > maxTime ? expTime : maxTime;
-        ////        }
+        //    if (active)
+        //    {
+        //        // A cookie with no expiration time set is a session cookie.
+        //        if (expirationTime.HasValue)
+        //        {
+        //            var expTime = expirationTime.Value;
+        //            var maxTime = new DateTime(2038, 01, 01); // Unix Millennium Bug. 19 January 2038 03:14:07 UTC 
+        //            cookie.Expires = expTime < maxTime ? expTime : maxTime;
+        //        }
 
-        ////        if (exists)
-        ////        {
-        ////            Response.Cookies.Set(cookie);
-        ////        }
-        ////        else
-        ////        {
-        ////            Response.Cookies.Add(cookie);
-        ////        }
-        ////    }
-        ////    else
-        ////    {
-        ////        if (exists)
-        ////        {
-        ////            cookie.Expires = new DateTime(1999, 10, 12, 04, 00, 00, DateTimeKind.Utc);// A "magic" number in ASP.NET :) +http://stackoverflow.com/questions/701030/whats-the-significance-of-oct-12-1999
-        ////            Response.Cookies.Set(cookie);
-        ////        }
-        ////    }
-        ////}
+        //        if (exists)
+        //        {
+        //            Response.Cookies.Set(cookie);
+        //        }
+        //        else
+        //        {
+        //            Response.Cookies.Add(cookie);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (exists)
+        //        {
+        //            cookie.Expires = new DateTime(1999, 10, 12, 04, 00, 00, DateTimeKind.Utc);// A "magic" number in ASP.NET :) +http://stackoverflow.com/questions/701030/whats-the-significance-of-oct-12-1999
+        //            Response.Cookies.Set(cookie);
+        //        }
+        //    }
+        //}
 
         ////protected string GetControllerName()
         ////{

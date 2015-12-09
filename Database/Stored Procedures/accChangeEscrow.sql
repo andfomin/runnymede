@@ -4,20 +4,20 @@
 
 CREATE PROCEDURE [dbo].[accChangeEscrow]
 	@UserId int,
-	@Amount decimal(9, 2), -- The sign of @Amount determines the direction of the transfer. A negative amount means refund.
+	@Amount decimal(9, 2),
+	@Increase bit, -- 1 means escrow, 0 means refund
 	@TransactionType char(6),
 	@Attribute nvarchar(100) = null,
-	@Details xml = null
+	@Details xml = null,
+	@Now datetime2(2) output
 AS
 BEGIN
 /*
 Transfer user's money from the personal account to the escrow account on review request.
 Or transfer vice versa on review request cancelation.
 
-The sign of @Amount determines the direction of the transfer. 
-A positive @Amount means from the user to the escrow, a negative @Amount means from the escrow to the user.
-
 20121113 AF. Initial release
+20150721 AF. New parameter @Increase. Do not use the amount sign.
 */
 SET NOCOUNT ON;
 
@@ -32,15 +32,15 @@ begin try
 		@TransactionId int, @Balance decimal(18,2);
 
 	select 
-		@PersonalAccountId = max(iif([Type] = 'ACPERS', Id, 0)),
-		@EscrowAccountId = max(iif([Type] = 'ACESCR',Id, 0))
+		@PersonalAccountId = max(iif([Type] = 'ACUCSH', Id, 0)),
+		@EscrowAccountId = max(iif([Type] = 'ACUESC',Id, 0))
 	from dbo.accAccounts
 	where UserId = @UserId;
 
 	if (nullif(@PersonalAccountId, 0) is null) or (nullif(@EscrowAccountId, 0) is null)
 		raiserror('%s,%d:: Account not found.', 16, 1, @ProcName, @UserId);  
 
-	if @Amount >= 0
+	if (@Increase = 1)
 		select @DebitedAccountId = @PersonalAccountId, @CreditedAccountId = @EscrowAccountId;
 	else
 		select @DebitedAccountId = @EscrowAccountId, @CreditedAccountId = @PersonalAccountId;
@@ -53,14 +53,16 @@ begin try
 	from dbo.accEntries
 	where Id = (select max(Id) from dbo.accEntries where AccountId = @DebitedAccountId)
 
-	if coalesce(@Balance, 0) < abs(@Amount) 
+	if coalesce(@Balance, 0) < @Amount
 		raiserror('%s,%d:: Non-sufficient funds.', 16, 1, @ProcName, @UserId); 
+
+	set @Now = sysutcdatetime();
 			 
 	if @ExternalTran = 0
 		begin transaction;
 
 		insert into dbo.accTransactions ([Type], ObservedTime, Attribute, Details)
-			values (@TransactionType, sysutcdatetime(), @Attribute, @Details);
+			values (@TransactionType, @Now, @Attribute, @Details);
 
 		select @TransactionId = scope_identity() where @@rowcount != 0;
 
