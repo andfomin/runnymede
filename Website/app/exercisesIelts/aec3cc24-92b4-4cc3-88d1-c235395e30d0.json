@@ -84,7 +84,7 @@
       "record": false
     },
     {
-      "timeout": 6,
+      "timeout": 60,
       "record": false
     },
     {
@@ -93,7 +93,7 @@
       "playTo": 98.3,
       "playTo2": 88.4,
       "position": "2c",
-      "timeout": 6
+      "timeout": 100
     },
     {
       "content": "Thank you very much.",

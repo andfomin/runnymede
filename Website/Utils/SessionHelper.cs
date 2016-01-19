@@ -190,8 +190,8 @@ from dbo.sesGetItalkiTeachers();
                     {
                         var helper = new ItalkiHelper();
 #if DEBUG
-                        var html = File.ReadAllText(String.Format(@"C:\Users\Andrey\Desktop\italki{0}.html", teacher.CourseId));
-                        //var html = await helper.LoadPage(teacher.ScheduleUrl);
+                        //var html = File.ReadAllText(String.Format(@"C:\Users\Andrey\Desktop\italki{0}.html", teacher.CourseId));
+                        var html = await helper.LoadPage(teacher.ScheduleUrl);
 #else
                         var html = await helper.LoadPage(teacher.ScheduleUrl);
 #endif

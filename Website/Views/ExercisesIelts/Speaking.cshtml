@@ -73,6 +73,11 @@
         <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>&nbsp;&nbsp;Loading&nbsp;...
     </div>
     <div ng-cloak>
+        <div class="text-center" ng-show="vm.isState('Ready')">
+            <p>
+                Warning! The test may take upto 12 minutes.
+            </p>
+        </div>
         <div class="row">
             <div class="col-xs-offset-3 col-sm-offset-4 col-md-offset-5 col-xs-6 col-sm-4 col-md-2">
                 <button class="btn btn-primary btn-lg btn-block app-btn-disablable"
@@ -112,7 +117,10 @@
                         <div class="text-center">
                             <h4>
                                 <span ng-show="vm.isState('Recording')">
-                                    <i class="fa fa-circle fa-fw fa-lg animated flash infinite text-danger app-1px-up"></i>&nbsp;Recording&nbsp;...
+                                    <i class="fa fa-circle fa-fw fa-lg animated flash infinite text-danger app-1px-up"></i>&nbsp;Recording
+                                </span>
+                                <span ng-show="vm.isState('Pause')">
+                                    <i class="fa fa-pause-circle fa-fw fa-lg app-1px-up"></i>&nbsp;Paused
                                 </span>
                                 &nbsp;
                             </h4>

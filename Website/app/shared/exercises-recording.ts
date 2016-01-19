@@ -74,7 +74,7 @@ module app.exercises {
                 if ((Math.abs(Math.round(time) - time) < 0.3) || (Math.abs(time - this.sliderPosition) > 1)) {
                     this.$scope.$evalAsync(() => {
                         this.sliderPosition = time;
-                        // Display the corresponding question
+                        // Display the corresponding question. Card item times are overriden in the ctor.
                         this.cardItem = app.arrFind(this.card.items, (i) => { return (i.playFrom < time) && (i.playTo > time); });
                     });
                 }

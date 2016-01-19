@@ -21,6 +21,7 @@
         playbacks: { [trackId: string]: HTMLAudioElement } = {};
         title: string;
         stopTimer: angular.IPromise<any>;
+        isDev: boolean;
 
         static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$rootScope, app.ngNames.$scope, ngNames.$state,
             app.ngNames.$window];
@@ -34,6 +35,8 @@
         ) {
             /* ----- Constructor  ----- */
             $scope.vm = this;
+
+            this.isDev = false;// app.isDevHost();
 
             $rootScope.$on('$stateChangeSuccess',
                 (event, toState: angular.ui.IState, toParams, fromState: angular.ui.IState, fromParams) => {
@@ -71,7 +74,7 @@
                         this.go(States.Error);
                     }
                     // Reduce the card while developing and testing
-                    if (app.isDevHost()) {
+                    if (this.isDev) {
                         this.card.items.splice(17, 5);
                         this.card.items.splice(2, 8);
                     }
@@ -89,7 +92,7 @@
                                     this.started = new Date();
                                     // Force stop on timeout even without any further user action. We assume the last card item has a paceTarget value.
                                     var timeout = this.card.items.reduce((previous: number, current: ICardItem) => {
-                                        var paceTarget = app.isDevHost() ? current.paceTarget2 : current.paceTarget;
+                                        var paceTarget = this.isDev ? current.paceTarget2 : current.paceTarget;
                                         return (paceTarget > previous) ? paceTarget : previous;
                                     }, 0);
                                     this.stopTimer = this.setTimeout(timeout);
@@ -118,7 +121,7 @@
                     // Be carefull. The first play in mobile browsers must be on a call stack within a user click. (Probably may occur within one second from the click)
                     this.player.play({
                         from: this.item.playFrom,
-                        to: app.isDevHost() ? (this.item.playTo2 || this.item.playTo) : this.item.playTo,
+                        to: this.isDev ? (this.item.playTo2 || this.item.playTo) : this.item.playTo,
                     })
                         .then(() => { this.go(to, States.Playing); });
                     break;
@@ -127,7 +130,7 @@
                         .finally(() => {
                             this.player.play({
                                 from: this.item.playFrom,
-                                to: app.isDevHost() ? (this.item.playTo2 || this.item.playTo) : this.item.playTo,
+                                to: this.isDev ? (this.item.playTo2 || this.item.playTo) : this.item.playTo,
                             })
                                 .then(() => { this.go(States.Recording, States.Repeating); });
                         });
@@ -151,6 +154,7 @@
                     this.createPlaybacks();
                     break;
                 case States.Uploading:
+                    this.player.stop();
                     this.upload();
                     break;
                 case States.Uploaded:
@@ -187,7 +191,7 @@
                 var pace = (new Date().getTime() - this.started.getTime()) / 1000; // seconds
                 this.item = this.card.items.reduce(
                     (previous: ICardItem, current: ICardItem, idx: number) => {
-                        var paceTarget = app.isDevHost() ? current.paceTarget2 : current.paceTarget;
+                        var paceTarget = this.isDev ? current.paceTarget2 : current.paceTarget;
                         return ((idx > index) && (paceTarget <= pace))
                             ? current
                             : previous;
@@ -578,9 +582,9 @@
             this.encoder.postMessage(config);
         };
 
-        protected encode = (samples: number[]) => {
+        protected encode = (samples: number[] | Float32Array) => {
             if (this.track && this.track.isRecording) {
-                // Flash and getUserMedia send PCM32 as native JS numbers representing floats in range -1.0...1.0 .
+                // Flash and getUserMedia(?) send PCM32 as native JS numbers representing floats in range -1.0...1.0 .
                 var array = new Float32Array(samples);
                 // Typed arrays can be passed directly as transferrable objects without serializing/deserializing by using the special signature of postMessage()
                 this.encoder.postMessage(array, [array.buffer]);

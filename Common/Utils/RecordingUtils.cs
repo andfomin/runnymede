@@ -67,8 +67,8 @@ namespace Runnymede.Common.Utils
                 // ffmpeg fails to concatenate AMRs, the error text is misleading "mylistfile.txt: Input/output error". We convert each file separately, then concatenate MP3s.           
                 foreach (var i in trackItems)
                 {
-                    // Increase audio volume by 20dB, convert to MP3 CBR 32kbit/s.
-                    var arguments = String.Format("-i \"{0}\" -af \"volume=20dB\" -b:a 32k \"{1}\"", i.OriginalFile, i.IntermidiateFile);
+                    // Increase audio volume by 10dB, convert to MP3 CBR 32kbit/s.
+                    var arguments = String.Format("-i \"{0}\" -af \"volume=10dB\" -b:a 32k \"{1}\"", i.OriginalFile, i.IntermidiateFile);
                     i.Log = RecordingUtils.RunFfmpeg(arguments);
                 }
 
@@ -81,7 +81,9 @@ namespace Runnymede.Common.Utils
                 var resultLog = RecordingUtils.RunFfmpeg(concatArguments);
 
                 var separator = Environment.NewLine + "----------------------------------------" + Environment.NewLine;
-                var logText = String.Join(separator, trackItems.Select(i => i.Log)) + separator + resultLog;
+                var logText = String.Join(separator, trackItems.Select(i => i.Log)) 
+                    + separator + String.Join(Environment.NewLine, inputListLines)
+                    + separator + resultLog;
 
                 var containerName = AzureStorageUtils.ContainerNames.Artifacts;
                 var taskMp3 = AzureStorageUtils.UploadFromFileAsync(outputFilePath, containerName, outputBlobName, "audio/mpeg");
@@ -234,13 +236,15 @@ namespace Runnymede.Common.Utils
 
         private static bool GetDurationFromFfmpegLog(string log, out decimal durationSec)
         {
-            var lines = ReadLines(log);
+            var lines = GeneralUtils.ReadLines(log);
+            /* There was a case whith many values for one file. It was unclear from the log whether they were on separate lines or combined into a single line.            size=     258kB time=00:01:05.81 bitrate=  32.1kbits/s    size=     391kB time=00:01:40.08 bitrate=  32.0kbits/s 
+*/
             var line = lines
                 .Where(i => i.StartsWith("size=") && i.Contains("time=") && i.Contains("bitrate="))
                 .Select(i =>
-                {
-                    var start = i.IndexOf("time=") + 5;
-                    var length = i.IndexOf("bitrate=") - start;
+                {                    
+                    var start = i.LastIndexOf("time=") + 5;
+                    var length = i.IndexOf("bitrate=", start) - start;
                     if (length < 0)
                     {
                         return "";
@@ -248,21 +252,12 @@ namespace Runnymede.Common.Utils
                     var snippet = i.Substring(start, length).Trim();
                     return snippet;
                 })
-                .FirstOrDefault()
+                .LastOrDefault()
             ;
             TimeSpan timeSpan;
             var success = TimeSpan.TryParseExact(line, "c", null, out timeSpan);
             durationSec = success ? Decimal.Round(Convert.ToDecimal(timeSpan.TotalMilliseconds / 1000), 2) : 0;
             return success;
-        }
-
-        private static IEnumerable<string> ReadLines(string s)
-        {
-            // StringReader.ReadLine() recognizes a line feed ("\n"), a carriage return ("\r"), or a carriage return immediately followed by a line feed ("\r\n"). 
-            string line;
-            using (var sr = new StringReader(s))
-                while ((line = sr.ReadLine()) != null)
-                    yield return line;
         }
 
     }

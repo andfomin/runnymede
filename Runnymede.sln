@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Database.sqlproj", "{26997747-5131-4718-BE51-0F1B45D26EEE}"
 EndProject
@@ -36,6 +36,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PublishScripts", "PublishSc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recorder", "Recorder\Recorder.csproj", "{7B2A9162-1ACE-4ED0-B9DE-91856304A1C8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{127FE088-C585-43B7-8482-51FCB2193A0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeleniumAutomation", "SeleniumAutomation\SeleniumAutomation.csproj", "{DE5110E0-64D6-4122-A640-78D27D5F9945}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndToEndTests", "EndToEndTests\EndToEndTests.csproj", "{127897DC-684C-499A-9CFF-57D43E41FD0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,8 +66,20 @@ Global
 		{7B2A9162-1ACE-4ED0-B9DE-91856304A1C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B2A9162-1ACE-4ED0-B9DE-91856304A1C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B2A9162-1ACE-4ED0-B9DE-91856304A1C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE5110E0-64D6-4122-A640-78D27D5F9945}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE5110E0-64D6-4122-A640-78D27D5F9945}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE5110E0-64D6-4122-A640-78D27D5F9945}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE5110E0-64D6-4122-A640-78D27D5F9945}.Release|Any CPU.Build.0 = Release|Any CPU
+		{127897DC-684C-499A-9CFF-57D43E41FD0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{127897DC-684C-499A-9CFF-57D43E41FD0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{127897DC-684C-499A-9CFF-57D43E41FD0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{127897DC-684C-499A-9CFF-57D43E41FD0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DE5110E0-64D6-4122-A640-78D27D5F9945} = {127FE088-C585-43B7-8482-51FCB2193A0C}
+		{127897DC-684C-499A-9CFF-57D43E41FD0C} = {127FE088-C585-43B7-8482-51FCB2193A0C}
 	EndGlobalSection
 EndGlobal

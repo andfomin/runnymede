@@ -5,29 +5,29 @@
     ViewBag.SecondaryTitle = "Exercise";
 }
 @functions{
-    public Tuple<string, string> GetAnswerSheet()
+    public KeyValuePair<string, string> GetAnswerSheet()
     {
         switch (Model)
         {
             case ServiceType.IeltsWritingTask1:
             case ServiceType.IeltsWritingTask2:
-                return new Tuple<string, string>(
-                    "http://englmdata.blob.core.windows.net/content/ielts/IELTS_writing_answer_sheet.pdf",
+                return new KeyValuePair<string, string>(
+                    "//englmdata.blob.core.windows.net/content/ielts/IELTS_writing_answer_sheet.pdf",
                     "/content/images/ielts-writing-sheet.png"
                     );
             case ServiceType.IeltsReading:
-                return new Tuple<string, string>(
-                    "http://www.ielts.org/pdf/IELTS_Reading_Answer_Sheet.pdf",
+                return new KeyValuePair<string, string>(
+                    "//www.ielts.org/pdf/IELTS_Reading_Answer_Sheet.pdf",
                     "/content/images/ielts-answersheet-reading.png"
                     );
             case ServiceType.IeltsListening:
-                return new Tuple<string, string>(
-                    "http://www.ielts.org/PDF/114189_IELTS_Listening_Answer_Sheet.pdf",
+                return new KeyValuePair<string, string>(
+                    "//www.ielts.org/pdf/114189_IELTS_Listening_Answer_Sheet.pdf",
                     "/content/images/ielts-answersheet-listening.png"
                     );
             case ServiceType.IeltsSpeaking:
             default:
-                return null;
+                return default(KeyValuePair<string, string>);
         }
     }
 }
@@ -48,7 +48,7 @@
     <div class="row">
         <div class="col-lg-6">
             <div class="text-center app-margin-bottom">
-                <a href="@GetAnswerSheet().Item1" target="_blank"><img src="@GetAnswerSheet().Item2" /><br />Print answer sheet</a>
+                <a href="@GetAnswerSheet().Key" target="_blank"><img src="@GetAnswerSheet().Value" /><br />Print answer sheet</a>
             </div>
             <p>
                 To submit the answer sheet, open this webpage on your smartphone or tablet and you will be able to use the built-in camera to upload the image of the answer sheet directly.

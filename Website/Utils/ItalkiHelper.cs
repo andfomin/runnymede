@@ -140,8 +140,8 @@ namespace Runnymede.Website.Utils
             }
             catch (Exception ex)
             {
-#if DEBUG
                 Console.WriteLine(ex.Message);
+#if DEBUG
                 throw;
 #else
                 throw new Exception("External service. GetStringAsync() failed");

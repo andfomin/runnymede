@@ -282,6 +282,10 @@
       <HintPath>..\packages\Twilio.4.4.1\lib\3.5\Twilio.Api.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="WebActivatorEx, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebActivatorEx.2.1.0\lib\net40\WebActivatorEx.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="WebGrease, Version=1.6.5135.21930, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -496,6 +500,7 @@
     <Compile Include="Utils\LoginHelper.cs" />
     <Compile Include="Utils\CustomController.cs" />
     <Compile Include="Utils\EmailUtils.cs" />
+    <Compile Include="Utils\LuckyYouHelper.cs" />
     <Compile Include="Utils\PayPalHelper.cs" />
     <Compile Include="Utils\SessionHelper.cs" />
     <Compile Include="Utils\WebApiExceptionUtils.cs" />
@@ -647,7 +652,7 @@
     <TypeScriptCompile Include="app\exercises\viewRecording.ts" />
     <TypeScriptCompile Include="app\games\copycat.ts" />
     <TypeScriptCompile Include="app\games\copycatAdd.ts" />
-    <TypeScriptCompile Include="app\games\luckyYou.ts" />
+    <None Include="app\games\luckyYou.ts~" />
     <TypeScriptCompile Include="app\games\pickapic.ts" />
     <TypeScriptCompile Include="app\library\friend.ts" />
     <TypeScriptCompile Include="app\library\history.ts" />

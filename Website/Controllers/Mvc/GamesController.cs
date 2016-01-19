@@ -1,4 +1,5 @@
 ﻿using Runnymede.Common.Utils;
+using Runnymede.Website.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,11 +31,15 @@ namespace Runnymede.Website.Controllers.Mvc
         }
 
         // GET: games/lucky-you
-        public ActionResult LuckyYou()
+        public async Task<ActionResult> LuckyYou()
         {
             this.EnsureExtIdCookie();
 
-            return View();
+            const string sql = @"
+select [Date], Digits from dbo.lckGetDigits();
+";
+            var digits = await DapperHelper.QueryResilientlyAsync<LuckyDigits>(sql);
+            return View(digits);
         }
 
     }

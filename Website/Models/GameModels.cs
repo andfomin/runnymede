@@ -102,6 +102,10 @@ namespace Runnymede.Website.Models
         public DateTime Time { get; set; }
     }
 
-
+  public  class LuckyDigits
+    {
+        public DateTime Date { get; set; }
+        public string Digits { get; set; } // CSV
+    }
 
 }

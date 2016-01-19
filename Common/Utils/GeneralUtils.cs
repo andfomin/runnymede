@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -73,6 +74,20 @@ namespace Runnymede.Common.Utils
         public static string GetAppDataDir()
         {
             return HttpContext.Current.Server.MapPath("~/App_Data");
+        }
+
+        /// <summary>
+        /// Split a string into a collection of strings. Chop by line ends.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ReadLines(string s)
+        {
+            // StringReader.ReadLine() recognizes a line feed ("\n"), a carriage return ("\r"), or a carriage return immediately followed by a line feed ("\r\n"). 
+            string line;
+            using (var sr = new StringReader(s))
+                while ((line = sr.ReadLine()) != null)
+                    yield return line;
         }
 
     }
