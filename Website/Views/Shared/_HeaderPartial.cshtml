@@ -6,7 +6,7 @@
     }
 }
 @{
-    //var avatarUrl = AzureStorageUtils.GetBlobUrl(AzureStorageUtils.ContainerNames.AvatarsSmall, KeyUtils.IntToKey(Model.UserId), Request.IsSecureConnection);
+//var avatarUrl = AzureStorageUtils.GetBlobUrl(AzureStorageUtils.ContainerNames.AvatarsSmall, KeyUtils.IntToKey(Model.UserId), Request.IsSecureConnection);
 }
 <nav class="navbar navbar-default navbar-static-top" role="navigation">
     <div class="container-fluid">
@@ -33,6 +33,7 @@
                 {
                     <li class="@NavClass("IeltsExercises")">@Html.ActionLink("IELTS Exercises", "Index", "ExercisesIelts")</li>
                     <li class="@NavClass("Library")">@Html.ActionLink("Library", "Index", "Library")</li>
+                    @*<li class="@NavClass("Sessions")">@Html.ActionLink("Sessions", "Index", "Sessions")</li>*@
                     <li class="@NavClass("Games")">@Html.ActionLink("Game", "LuckyYou", "Games", null, new { tabindex = "-1" })</li>
                 }
                 @if (Model.IsTeacher)

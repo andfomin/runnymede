@@ -12,7 +12,6 @@ namespace Runnymede.Website.Controllers.Mvc
         public ActionResult Index()
         {
             this.EnsureExtIdCookie();
-
             return View();
         }
 

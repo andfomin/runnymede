@@ -1,8 +1,8 @@
-﻿@{
+﻿@model IEnumerable<Runnymede.Website.Models.LuckyDigits>
+@{
     ViewBag.Title = "Lucky You";
     ViewBag.SecondaryTitle = "Win a free evaluation of your IELTS practice tests";
     ViewBag.NavItem = "Games";
-    bool isAuthenticated = Request.IsAuthenticated;
     // +http://www.bankofengland.co.uk/BOEAPPS/IADB/Rates.asp?into=GBP&rateview=L
     // +http://www.bankofengland.co.uk/BOEAPPS/IADB/Rates.asp?TD=13&TM=Jul&TY=2015&into=GBP&rateview=D
     // +http://www.bankofengland.co.uk/BOEAPPS/IADB/Rates.asp?Travel=NIxRSx&into=GBP&rateview=L
@@ -15,51 +15,60 @@
 <div class="app-margin-top app-margin-bottom">
     <img class="img-responsive center-block animated zoomIn" src="~/content/images/its-giveaway.png" width="480" height="48" />
 </div>
-<div ng-app="myApp" ng-controller="LuckyYou" ng-cloak>
+<div ng-app="myApp" ng-controller="LuckyYou">
     <div class="row">
         <div class="col-lg-6">
             <div class="text-center app-appred">
-                <h4>The prize</h4>
+                <h3>The prize</h3>
             </div>
-            <p style="padding-left:40px;">
-                The prize includes free one-time reviews of Speaking, Writing, Listening, and Reading exercises by a teacher (of&nbsp;a&nbsp;total&nbsp;value&nbsp;$44.)
+            <p style="padding-left:40px;font-size:1.2em;">
+                Win a free review of your Speaking, Writing, Listening, or Reading exercise by a teacher.
             </p>
             <div class="text-center app-appred">
-                <h4>How to win</h4>
+                <h3>How to win</h3>
             </div>
-            <ul>
+            <ul style="font-size:1.2em;">
+                @*<li>
+                        Enter your email address and the last two digits of your phone number. The two digits will be used to play the game.
+                    </li>
+                    <li>
+                        We compile a list of five random digits each working day.
+                    </li>
+                    <li>
+                        If each of your digits have a corresponding random digit on the next day's list, you will be awarded the prize.
+                    </li>*@
                 <li>
-                    Enter your email address and the last two digits of your phone number. The two digits will be used to play the game.
+                    Do a Speaking, Writing, Listening, or Reading exercise for free. Each exercise gets a numeric identifier. The identifier and the exercise date are used to play the game.
                 </li>
                 <li>
-                    We compile a list of five random digits each working day.
+                    We compile a list of random digits for each day.
                 </li>
                 <li>
-                    If each of your digits have a corresponding random digit on the next day's list, you will be awarded the prize.
+                    If the last digit of your exercise identifier has a corresponding digit on the list for the exercise date, you will be awarded the prize.
                 </li>
             </ul>
 
-            <div class="row">
-                <div class="col-sm-offset-3 col-sm-6">
-                    <form>
-                        <div class="form-group form-group-lg">
-                            <label>Your email address</label>
-                            <input type="text" class="form-control" ng-model="vm.email">
-                        </div>
-                        <div class="form-group form-group-lg">
-                            <label>Last two digits of your phone number</label>
-                            <input type="text" class="form-control" maxlength="2" ng-model="vm.digits">
-                        </div>
-                        <button class="btn btn-primary btn-lg app-btn-disablable" ng-click="vm.ok()" ng-disabled="!vm.canOk()">Play</button>
-                    </form>
+            @*<div class="row">
+                    <div class="col-sm-offset-3 col-sm-6">
+                        <form>
+                            <div class="form-group form-group-lg">
+                                <label>Your email address</label>
+                                <input type="text" class="form-control" ng-model="vm.email">
+                            </div>
+                            <div class="form-group form-group-lg">
+                                <label>Last two digits of your phone number</label>
+                                <input type="text" class="form-control" maxlength="2" ng-model="vm.digits">
+                            </div>
+                            <button class="btn btn-primary btn-lg app-btn-disablable" ng-click="vm.ok()" ng-disabled="!vm.canOk()">Play</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
 
-            <div class="alert alert-success text-center app-margin-top app-margin-bottom-none" role="alert" ng-show="vm.showThanks">
-                Thank you for joining the game! Come tomorrow to find out the result.
-            </div>
+                <div class="alert alert-success text-center app-margin-top app-margin-bottom-none" role="alert" ng-show="vm.showThanks">
+                    Thank you for joining the game! Come tomorrow to find out the result.
+                </div>*@
 
-            <hr/>
+            <hr />
             <div class="text-center text-muted">
                 <h4>Fine print</h4>
             </div>
@@ -67,33 +76,58 @@
                 <li>
                     We use the
                     <a href="http://www.bankofengland.co.uk/BOEAPPS/IADB/Rates.asp?Travel=NIxRSx&into=GBP&rateview=L" target="_blank">currency exchange rates published by the Bank of England</a>
-                    as a verifiable source of random numbers. The rates for a day are available next the working day. We first select the rate values from the top five lines. Then we pick the fourth digit of the fractional part of a value as the random digit.
+                    as a verifiable source of random numbers. The rates for a day are available the next working day.
+                    We first select the rate values from a few very top lines. Then we pick the last digit of each value as the random digit.
                 </li>
                 <li>
                     Day boundaries are set according to Coordinated Universal Time (UTC).
                 </li>
                 <li>
-                    We will inform the winner by email. We may ask the winner to confirm their phone number.
+                    We will inform the winners by email.
                 </li>
                 <li>
-                    Results may be disputed during the seven days following the announcement.
+                    Results may be disputed during the seven days following the result announcement.
                 </li>
             </ul>
 
         </div>
         <div class="col-lg-6">
-            <div class="text-center app-appred">
+            <div class="text-center app-margin-top">
                 <h4>Results</h4>
+                <p>
+                    <table style="margin-left:auto;margin-right:auto;">
+                        <thead>
+                            <tr>
+                                <td>Date</td>
+                                <td>Lucky Digits</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-right">
+                                        @item.Date.ToString("d MMM yyyy")
+                                    </td>
+                                    <td class="text-left" style="padding-left:2em;">
+                                        @item.Digits
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </p>
+
             </div>
         </div>
     </div>
 
 </div>
-@section BottomScripts {
-    @Scripts.Render(
-"~/bundles/angular",
-"~/bundles/angular-libs",
-"~/bundles/ext-libs",
-"~/bundles/app-utils",
-"~/app/games/luckyYou.js"
-)}
+@*@section BottomScripts {
+        @Scripts.Render(
+    "~/bundles/angular",
+    "~/bundles/angular-libs",
+    "~/bundles/ext-libs",
+    "~/bundles/app-utils",
+    "~/app/games/luckyYou.js"
+    )}*@

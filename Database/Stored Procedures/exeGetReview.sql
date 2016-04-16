@@ -11,7 +11,7 @@ BEGIN
 set nocount on;
 
 -- R.ExerciseId is used as a divider to split rows on exercise and review entities in Runnymede.Website.Controllers.Mvc.ReviewsController.QueryExerciseReviews
-select E.Id, E.[Length], E.ServiceType, E.ArtifactType, E.Artifact, E.CardId,
+select E.Id, E.[Length], E.ServiceType, E.CardId, E.ArtifactType, E.Artifact, E.Details,
 	R.ExerciseId, R.Id, R.StartTime, R.FinishTime
 from dbo.exeExercises E 	
 	inner join dbo.exeReviews as R on E.Id = R.ExerciseId

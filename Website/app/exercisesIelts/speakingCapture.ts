@@ -1,35 +1,5 @@
 ﻿module app.exercisesIelts {
 
-    //export interface IQTStripperService {
-    //    strip: (file: File) => angular.IPromise<ArrayBuffer>;
-    //}
-
-    //export class QTStripperService implements IQTStripperService {
-    //    static ServiceName = 'appQTStripperService';
-
-    //    stripper: QTStripper;
-
-    //    static $inject = [app.ngNames.$q];
-    //    constructor(
-    //        private $q: angular.IQService
-    //    ) {
-    //        this.stripper = new QTStripper();
-    //    } // end of ctor 
-
-    //    strip = (file: File) => {
-    //        var deferred = this.$q.defer<ArrayBuffer>();
-    //        var reader = new FileReader();
-    //        reader.onload = () => {
-    //            var srcBuffer = reader.result;
-    //            var dstBuffer = this.stripper.strip(srcBuffer);
-    //            deferred.resolve(dstBuffer);
-    //        }
-    //        reader.readAsArrayBuffer(file);
-    //        return deferred.promise;
-    //    };
-
-    //} // end of class QtStripperService
-
     export class SpeakingCapture extends app.exercisesIelts.SpeakingBase {
 
         static $inject = [app.ngNames.$http, app.ngNames.$interval, app.ngNames.$rootScope, app.ngNames.$scope, ngNames.$state, app.ngNames.$window];
